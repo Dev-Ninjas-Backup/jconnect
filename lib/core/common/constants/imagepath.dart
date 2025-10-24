@@ -1,3 +1,3 @@
 class Imagepath {
-  static String onboardingImage = '';
+  static String splashImage = 'assets/images/splash_image.png';
 }

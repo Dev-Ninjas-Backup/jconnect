@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
-import 'package:jconnect/core/common/style/global_text_style.dart';
+import 'package:jconnect/core/common/constants/imagepath.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -9,8 +9,16 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
-      body: Center(
-        child: Text('Splash', style: getTextStyle(color: Colors.white)),
+      body: Padding(
+        padding: EdgeInsets.all(14.0),
+        child: Center(
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              image: DecorationImage(image: AssetImage(Imagepath.splashImage)),
+            ),
+          ),
+        ),
       ),
     );
   }
