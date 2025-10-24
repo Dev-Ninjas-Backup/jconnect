@@ -5,6 +5,7 @@ import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/features/onboarding/controller/onboarding_controller.dart';
 import 'package:jconnect/features/onboarding/widgets/onboarding_model.dart';
 import 'package:jconnect/features/onboarding/widgets/onboarding_progress_bar.dart';
+import 'package:jconnect/routes/approute.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -36,7 +37,7 @@ class OnboardingScreen extends StatelessWidget {
             'Connect, share vibes, and grow your sound — all in one place.',
         buttonText: 'Get Started',
         onPressed: () {
-          // TODO: Navigate to main app screen
+          Get.toNamed(AppRoute.loginScreen);
         },
       ),
     ];
