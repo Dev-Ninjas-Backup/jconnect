@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
+import 'package:jconnect/routes/approute.dart';
 
 class OnboardingMainWidget extends StatelessWidget {
   final String image, title, subtitle, buttonText;
@@ -46,7 +48,9 @@ class OnboardingMainWidget extends StatelessWidget {
           SizedBox(height: 10),
           if (buttonText != 'Get Started')
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Get.toNamed(AppRoute.loginScreen);
+              },
               child: Text(
                 'Skip',
                 style: getTextStyle(color: AppColors.primaryTextColor),
