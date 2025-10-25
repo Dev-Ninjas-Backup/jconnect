@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/custom_obsecure_textfield.dart';
 import 'package:jconnect/core/common/constants/custom_textfield.dart';
@@ -6,6 +7,7 @@ import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
+import 'package:jconnect/routes/approute.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -113,7 +115,9 @@ class LoginScreen extends StatelessWidget {
                       ],
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Get.toNamed(AppRoute.forgetPassword);
+                      },
                       child: Text(
                         "Forgot Password?",
                         style: getTextStyle(

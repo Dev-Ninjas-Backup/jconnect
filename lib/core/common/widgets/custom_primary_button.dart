@@ -16,9 +16,14 @@ class CustomPrimaryButton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0XFF790013), Color(0XFFD0002C)],
+          colors: [
+            Color.fromARGB(255, 96, 0, 15),
+            Color.fromARGB(255, 187, 2, 36),
+            Color.fromARGB(255, 96, 0, 15),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
+          stops: [0.01, 0.5, 1.1],
         ),
         borderRadius: BorderRadius.circular(8),
       ),
