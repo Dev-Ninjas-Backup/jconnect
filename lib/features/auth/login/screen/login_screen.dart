@@ -195,20 +195,27 @@ class LoginScreen extends StatelessWidget {
             left: 0,
             right: 0,
             child: Center(
-              child: Text.rich(
-                TextSpan(
-                  text: "Don’t have an account? ",
-                  style: getTextStyle(color: AppColors.primaryTextColor),
-                  children: [
-                    TextSpan(
-                      text: "Signup",
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Don’t have an account? ",
+                    style: getTextStyle(color: AppColors.primaryTextColor),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Get.toNamed(AppRoute.signupScreen);
+                    },
+                    child: Text(
+                      "Signup",
                       style: getTextStyle(
                         color: AppColors.redColor,
                         fontweight: FontWeight.bold,
+                        fontsize: 14,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
