@@ -4,11 +4,18 @@ import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 
 class CustomObsecureTextfield extends StatelessWidget {
-  const CustomObsecureTextfield({super.key});
+  final TextEditingController? controller;
+  final String hintText;
+
+  const CustomObsecureTextfield({
+    super.key,
+    this.controller,
+    this.hintText = 'Enter your password',
+  });
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(CustomObsecureTextfieldController());
+    final obsecureController = Get.put(CustomObsecureTextfieldController());
 
     return Container(
       decoration: BoxDecoration(
@@ -17,7 +24,8 @@ class CustomObsecureTextfield extends StatelessWidget {
       ),
       child: Obx(() {
         return TextField(
-          obscureText: controller.isObscure.value,
+          controller: controller,
+          obscureText: obsecureController.isObscure.value,
           style: getTextStyle(color: AppColors.secondaryTextColor),
           decoration: InputDecoration(
             filled: true,
@@ -27,16 +35,16 @@ class CustomObsecureTextfield extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide.none,
             ),
-            hintText: 'Enter your password',
+            hintText: hintText,
             hintStyle: getTextStyle(color: AppColors.secondaryTextColor),
             suffixIcon: IconButton(
               icon: Icon(
-                controller.isObscure.value
+                obsecureController.isObscure.value
                     ? Icons.visibility_off
                     : Icons.visibility,
                 color: Colors.white70,
               ),
-              onPressed: controller.toggle,
+              onPressed: obsecureController.toggle,
             ),
           ),
         );
@@ -47,6 +55,5 @@ class CustomObsecureTextfield extends StatelessWidget {
 
 class CustomObsecureTextfieldController extends GetxController {
   final isObscure = true.obs;
-
   void toggle() => isObscure.value = !isObscure.value;
 }
