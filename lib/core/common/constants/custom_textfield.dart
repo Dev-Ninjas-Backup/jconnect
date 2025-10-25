@@ -4,12 +4,24 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 
 class CustomTextfield extends StatelessWidget {
   final String? hintText;
-  const CustomTextfield({super.key, this.hintText});
+  final TextEditingController? controller;
+  final TextInputType keyboardType;
+  final bool readOnly;
+  final Function(String)? onChanged;
+
+  const CustomTextfield({
+    super.key,
+    this.hintText,
+    this.controller,
+    this.keyboardType = TextInputType.text,
+    this.readOnly = false,
+    this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(1.5),
+      padding: const EdgeInsets.all(1.5),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.primaryTextColor),
@@ -20,7 +32,10 @@ class CustomTextfield extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
         child: TextField(
-          style: TextStyle(color: Colors.white),
+          controller: controller,
+          keyboardType: keyboardType,
+          readOnly: readOnly,
+          style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
@@ -35,6 +50,7 @@ class CustomTextfield extends StatelessWidget {
             hintText: hintText,
             hintStyle: getTextStyle(color: AppColors.secondaryTextColor),
           ),
+          onChanged: onChanged,
         ),
       ),
     );

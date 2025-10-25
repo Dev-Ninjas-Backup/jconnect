@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/custom_obsecure_textfield.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_appbar.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
+import 'package:jconnect/features/auth/new_password/controller/create_password_controller.dart';
 
 class CreateNewPassword extends StatelessWidget {
-  const CreateNewPassword({super.key});
+  CreateNewPassword({super.key});
+
+  final controller = Get.put(CreatePasswordController());
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +32,7 @@ class CreateNewPassword extends StatelessWidget {
               ),
             ),
             SizedBox(height: 8),
-            CustomObsecureTextfield(),
+            CustomObsecureTextfield(controller: controller.passwordController),
             SizedBox(height: 12),
             Text(
               'Confirm Your Password',
@@ -39,9 +43,16 @@ class CreateNewPassword extends StatelessWidget {
               ),
             ),
             SizedBox(height: 12),
-            CustomObsecureTextfield(),
+            CustomObsecureTextfield(
+              controller: controller.confirmPasswordController,
+            ),
             Spacer(),
-            CustomPrimaryButton(buttonText: 'Continue', onTap: () {}),
+            CustomPrimaryButton(
+              buttonText: 'Continue',
+              onTap: () {
+                controller.submitPassword();
+              },
+            ),
             SizedBox(height: 12),
           ],
         ),

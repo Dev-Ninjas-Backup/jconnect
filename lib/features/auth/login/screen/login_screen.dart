@@ -8,13 +8,16 @@ import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/routes/approute.dart';
+import 'package:jconnect/features/auth/login/controller/login_controller.dart';
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+  final controller = TextEditingController();
+  LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final controller = Get.put(LoginController());
 
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
@@ -61,6 +64,7 @@ class LoginScreen extends StatelessWidget {
             ),
           ),
 
+          // Email field
           Positioned(
             top: size.height * 0.38,
             left: 20,
@@ -75,12 +79,16 @@ class LoginScreen extends StatelessWidget {
                     fontsize: 14,
                   ),
                 ),
-                SizedBox(height: 8),
-                CustomTextfield(hintText: 'Enter your email or phone number'),
+                const SizedBox(height: 8),
+                CustomTextfield(
+                  controller: controller.emailController,
+                  hintText: 'Enter your email or phone number',
+                ),
               ],
             ),
           ),
 
+          // Password field
           Positioned(
             top: size.height * 0.50,
             left: 20,
@@ -95,24 +103,30 @@ class LoginScreen extends StatelessWidget {
                     fontsize: 14,
                   ),
                 ),
-                SizedBox(height: 8),
-                CustomObsecureTextfield(),
-                SizedBox(height: 12),
+                const SizedBox(height: 8),
+                CustomObsecureTextfield(
+                  controller: controller.passwordController,
+                ),
+                const SizedBox(height: 12),
+
+                // Remember me + Forgot password
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: false,
-                          onChanged: (_) {},
-                          activeColor: AppColors.redColor,
-                        ),
-                        Text(
-                          "Remember me",
-                          style: getTextStyle(color: Colors.white70),
-                        ),
-                      ],
+                    Obx(
+                      () => Row(
+                        children: [
+                          Checkbox(
+                            value: controller.rememberMe.value,
+                            onChanged: controller.toggleRememberMe,
+                            activeColor: AppColors.redColor,
+                          ),
+                          Text(
+                            "Remember me",
+                            style: getTextStyle(color: Colors.white70),
+                          ),
+                        ],
+                      ),
                     ),
                     TextButton(
                       onPressed: () {
@@ -132,15 +146,18 @@ class LoginScreen extends StatelessWidget {
             ),
           ),
 
-          /// Login button
+          // Login button
           Positioned(
             top: size.height * 0.70,
             left: 20,
             right: 20,
-            child: CustomPrimaryButton(buttonText: "Login", onTap: () {}),
+            child: CustomPrimaryButton(
+              buttonText: "Login",
+              onTap: controller.login,
+            ),
           ),
 
-          /// Social buttons
+          // Social buttons
           Positioned(
             top: size.height * 0.80,
             left: 0,
@@ -172,7 +189,7 @@ class LoginScreen extends StatelessWidget {
             ),
           ),
 
-          /// Signup text
+          // Signup text
           Positioned(
             bottom: size.height * 0.06,
             left: 0,
