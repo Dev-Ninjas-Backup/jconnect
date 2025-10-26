@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:jconnect/core/common/constants/app_colors.dart';
 
 TextStyle getTextStyle({
   double fontsize = 14.0,
   FontWeight fontweight = FontWeight.w400,
   TextAlign textAlign = TextAlign.center,
-  Color color = Colors.black,
+  Color color = AppColors.primaryTextColor,
 }) {
   return GoogleFonts.inter(
     fontSize: sp(fontsize),
