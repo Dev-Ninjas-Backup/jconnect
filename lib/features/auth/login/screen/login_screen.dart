@@ -153,7 +153,9 @@ class LoginScreen extends StatelessWidget {
             right: 20,
             child: CustomPrimaryButton(
               buttonText: "Login",
-              onTap: controller.login,
+              onTap: () {
+                Get.offAllNamed(AppRoute.navBarScreen);
+              },
             ),
           ),
 
