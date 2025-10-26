@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 
@@ -8,6 +9,8 @@ class CustomTextfield extends StatelessWidget {
   final TextInputType keyboardType;
   final bool readOnly;
   final Function(String)? onChanged;
+  final Widget ?prefixIcon;
+
 
   const CustomTextfield({
     super.key,
@@ -16,34 +19,38 @@ class CustomTextfield extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.readOnly = false,
     this.onChanged,
+    this.prefixIcon
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(1.5),
+      padding: EdgeInsets.symmetric(vertical: 1.5.h,horizontal: 1.5.w),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.primaryTextColor),
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(color: AppColors.secondaryTextColor),
       ),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
+
         ),
         child: TextField(
           controller: controller,
           keyboardType: keyboardType,
           readOnly: readOnly,
-          style: const TextStyle(color: Colors.white),
+          style:  TextStyle(color: Colors.white),
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 14,
+         prefixIcon: prefixIcon,
+            contentPadding:  EdgeInsets.symmetric(
+              horizontal: 12.w,
+              vertical: 14.h,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8.r),
               borderSide: BorderSide.none,
+
             ),
             filled: true,
             fillColor: Colors.transparent,
