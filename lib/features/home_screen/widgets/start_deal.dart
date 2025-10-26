@@ -11,54 +11,67 @@ class StartDeal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: controller.startDealList.length,
-      itemBuilder: (_, index) {
-        return Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.r),
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFFBD001F),
-                Color(0xFF713AE6).withValues(alpha: .5),
-              ],
-            ),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(2),
+    return SizedBox(
+      height: 186.h,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: controller.startDealList.length,
+        itemBuilder: (_, index) {
+          return Padding(
+            padding: EdgeInsets.only(right: 16.w),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 20.h),
+              width: 310.w,
               decoration: BoxDecoration(
-                color: AppColors.backGroundColor,
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: BorderRadius.circular(10.r),
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFFBD001F),
+                    Color(0xFF713AE6).withValues(alpha: .5),
+                  ],
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "🔥 Weekend Deal – 10% Off on All Deals!",
-                    style: getTextStyle(
-                      fontweight: FontWeight.w600,
-                      color: AppColors.primaryTextColor,
-                    ),
+              child: Padding(
+                padding: EdgeInsets.all(2),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 14.w,
+                    vertical: 20.h,
                   ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    "Promote your content now and get featured feedback before Sunday. (Utilize discount for fast, high-visibility placement.)",
-                    style: getTextStyle(
-                      fontsize: sp(10),
-                      color: AppColors.secondaryTextColor,
-                    ),
+                  decoration: BoxDecoration(
+                    color: AppColors.backGroundColor,
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
-                  SizedBox(height: 8.h),
-                  CustomPrimaryButton(buttonText: "Start Deal", onTap: () {}),
-                ],
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "🔥 Weekend Deal – 10% Off on All Deals!",
+                        style: getTextStyle(
+                          fontweight: FontWeight.w600,
+                          color: AppColors.primaryTextColor,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Text(
+                        "Promote your content now and get featured feedback before Sunday. (Utilize discount for fast, high-visibility placement.)",
+                        style: getTextStyle(
+                          fontsize: sp(10),
+                          color: AppColors.secondaryTextColor,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      CustomPrimaryButton(
+                        buttonText: "Start Deal",
+                        onTap: () {},
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
