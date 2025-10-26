@@ -5,6 +5,7 @@ import 'package:jconnect/features/auth/new_password/screen/create_new_password.d
 import 'package:jconnect/features/auth/otp/screen/otp_verification_screen.dart';
 import 'package:jconnect/features/auth/phone_verification/screen/phone_verification_screen.dart';
 import 'package:jconnect/features/auth/signup/screen/signup_screen.dart';
+import 'package:jconnect/features/bottom_navbar/screen/bottom_navbar_screen.dart';
 import 'package:jconnect/features/onboarding/screen/onboarding_screen.dart';
 import 'package:jconnect/features/profile_setup/screen/profile_setup_screen.dart';
 import 'package:jconnect/features/splash/screen/splash_screen.dart';
@@ -19,6 +20,8 @@ class AppRoute {
   static String signupScreen = '/signupScreen';
   static String phoneVerification = '/phoneVerification';
   static String profileSetupScreen = '/profileSetupScreen';
+  ///navBar
+  static String navBarScreen = '/navBarScreen';
 
   static String getSplashScreen() => splashScreen;
   static String getOnboardingScreen() => onboardingScreen;
@@ -29,6 +32,7 @@ class AppRoute {
   static String getSignupScreen() => signupScreen;
   static String getPhoneVerificationScreen() => phoneVerification;
   static String getProfileSetupScreen() => profileSetupScreen;
+  static String getNavBarScreen() => navBarScreen;
 
   static List<GetPage> routes = [
     GetPage(name: splashScreen, page: () => SplashScreen()),
@@ -40,5 +44,6 @@ class AppRoute {
     GetPage(name: signupScreen, page: () => SignupScreen()),
     GetPage(name: phoneVerification, page: () => PhoneVerificationScreen()),
     GetPage(name: profileSetupScreen, page: () => ProfileSetupScreen()),
+    GetPage(name: navBarScreen, page: () => const NavBarScreen()),
   ];
 }

@@ -1,3 +1,9 @@
 import 'package:get/get.dart';
 
-class BottomNavbarController extends GetxController {}
+class NavBarController extends GetxController {
+  var currentIndex = 0.obs;
+
+  void changeIndex(int index) {
+    currentIndex.value = index;
+  }
+}

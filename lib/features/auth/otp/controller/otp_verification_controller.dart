@@ -24,7 +24,6 @@ class OtpVerificationController extends GetxController {
   }
 
   void resendCode() {
-    // TODO: Add resend logic here
     startTimer();
   }
 
