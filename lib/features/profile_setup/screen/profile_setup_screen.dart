@@ -200,7 +200,7 @@ class ProfileSetupScreen extends StatelessWidget {
                 buttonText: 'Add Your Services',
                 onTap: () {
                   Get.back();
-                  // Navigate to add services
+                  Get.toNamed(AppRoute.addServiceScreen);
                 },
               ),
 
