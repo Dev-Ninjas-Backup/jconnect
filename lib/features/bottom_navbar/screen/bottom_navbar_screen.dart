@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
@@ -37,11 +38,11 @@ class NavBarScreen extends StatelessWidget {
         body: pages[controller.currentIndex.value],
         bottomNavigationBar: Container(
           decoration: BoxDecoration(color: AppColors.backGroundColor),
-          padding:  EdgeInsets.only(
-            left: 30,
-            right: 30,
-            bottom: 46,
-            top: 12,
+          padding: EdgeInsets.only(
+            left: 30.w,
+            right: 30.w,
+            bottom: 46.h,
+            top: 12.h,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -54,17 +55,17 @@ class NavBarScreen extends StatelessWidget {
                   children: [
                     Image.asset(
                       icons[index],
-                      width: 24,
-                      height: 24,
+                      width: 24.w,
+                      height: 24.h,
                       color: isSelected
                           ? AppColors.primaryTextColor
                           : AppColors.secondaryTextColor,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4.h),
                     Text(
                       labels[index],
                       style: getTextStyle(
-                        fontsize: 10,
+                        fontsize: sp(10),
                         fontweight: FontWeight.w500,
                         color: isSelected
                             ? AppColors.primaryTextColor

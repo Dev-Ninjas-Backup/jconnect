@@ -10,8 +10,16 @@ TextStyle getTextStyle({
   Color color = Colors.black,
 }) {
   return GoogleFonts.inter(
-    fontSize: fontsize.sp,
+    fontSize: sp(fontsize),
     fontWeight: fontweight,
     color: color,
   );
+}
+
+
+double sp(double baseSize) {
+  double scale = ScreenUtil().screenWidth / 375;
+  // Prevent going beyond 1.2x
+  if (scale > 1.2) scale = 1.2;
+  return baseSize * scale;
 }
