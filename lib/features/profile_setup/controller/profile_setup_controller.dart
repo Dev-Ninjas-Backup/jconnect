@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class ProfileSetupController extends GetxController {
   final ImagePicker _picker = ImagePicker();
 
-  /// Holds the picked image (nullable)
   final Rxn<XFile> pickedImage = Rxn<XFile>();
-
-  /// Convenience getter to check if an image exists
   bool get hasImage => pickedImage.value != null;
-
-  /// Path of the picked image (or empty)
   String get imagePath => pickedImage.value?.path ?? '';
+
+  final instagramController = TextEditingController();
+  final facebookController = TextEditingController();
+  final tiktokController = TextEditingController();
+  final youtubeController = TextEditingController();
+
+  bool get hasAnyLink {
+    return instagramController.text.trim().isNotEmpty ||
+        facebookController.text.trim().isNotEmpty ||
+        tiktokController.text.trim().isNotEmpty ||
+        youtubeController.text.trim().isNotEmpty;
+  }
 
   Future<void> pickImage(ImageSource source) async {
     try {
@@ -26,6 +34,7 @@ class ProfileSetupController extends GetxController {
         pickedImage.value = image;
       }
     } catch (e) {
+      EasyLoading.showError('Failed to pick image');
       rethrow;
     }
   }
@@ -70,5 +79,22 @@ class ProfileSetupController extends GetxController {
 
   void clearImage() {
     pickedImage.value = null;
+  }
+
+  bool validateBeforeContinue() {
+    if (!hasAnyLink) {
+      EasyLoading.showInfo('Please add at least one social link');
+      return false;
+    }
+    return true;
+  }
+
+  @override
+  void onClose() {
+    instagramController.dispose();
+    facebookController.dispose();
+    tiktokController.dispose();
+    youtubeController.dispose();
+    super.onClose();
   }
 }
