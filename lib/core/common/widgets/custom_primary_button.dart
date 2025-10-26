@@ -38,7 +38,7 @@ class CustomPrimaryButton extends StatelessWidget {
         child: Text(
           buttonText,
 
-          style: getTextStyle(color: AppColors.primaryTextColor, fontsize: 18),
+          style: getTextStyle(color: AppColors.primaryTextColor, fontsize: 16),
         ),
       ),
     );

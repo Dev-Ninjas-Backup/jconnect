@@ -1,4 +1,5 @@
 import 'package:get/get_navigation/get_navigation.dart';
+import 'package:jconnect/features/add_services/add_services1/screen/add_services_screen1.dart';
 import 'package:jconnect/features/auth/forget_password/screen/forget_password_screen.dart';
 import 'package:jconnect/features/auth/login/screen/login_screen.dart';
 import 'package:jconnect/features/auth/new_password/screen/create_new_password.dart';
@@ -20,6 +21,8 @@ class AppRoute {
   static String signupScreen = '/signupScreen';
   static String phoneVerification = '/phoneVerification';
   static String profileSetupScreen = '/profileSetupScreen';
+  static String addServiceScreen = '/addServiceScreen';
+
   ///navBar
   static String navBarScreen = '/navBarScreen';
 
@@ -33,6 +36,7 @@ class AppRoute {
   static String getPhoneVerificationScreen() => phoneVerification;
   static String getProfileSetupScreen() => profileSetupScreen;
   static String getNavBarScreen() => navBarScreen;
+  static String getAddserviceScreen() => addServiceScreen;
 
   static List<GetPage> routes = [
     GetPage(name: splashScreen, page: () => SplashScreen()),
@@ -44,6 +48,7 @@ class AppRoute {
     GetPage(name: signupScreen, page: () => SignupScreen()),
     GetPage(name: phoneVerification, page: () => PhoneVerificationScreen()),
     GetPage(name: profileSetupScreen, page: () => ProfileSetupScreen()),
-    GetPage(name: navBarScreen, page: () => const NavBarScreen()),
+    GetPage(name: navBarScreen, page: () =>  NavBarScreen()),
+    GetPage(name: addServiceScreen, page: ()=> AddServiceScreen())
   ];
 }
