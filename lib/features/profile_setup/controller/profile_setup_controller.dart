@@ -111,7 +111,7 @@ class ProfileSetupController extends GetxController {
   //   }
   //   return true;
   // }
-
+  //TODO: Uncomment after the static development
   @override
   void onClose() {
     instagramController.dispose();
