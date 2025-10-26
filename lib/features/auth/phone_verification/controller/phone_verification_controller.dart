@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/routes/approute.dart';
 
 class PhoneVerificationController extends GetxController {
   var remainingSeconds = 50.obs;
@@ -36,10 +37,10 @@ class PhoneVerificationController extends GetxController {
   }
 
   void createAccount() {
-    EasyLoading.dismiss();
-    EasyLoading.show(status: 'Creating your account...');
+    EasyLoading.showToast('Creating your account...');
 
     Future.delayed(const Duration(seconds: 2));
-    // Get.toNamed(AppRoute.profileSetup);
+    Get.toNamed(AppRoute.profileSetupScreen);
+    EasyLoading.dismiss();
   }
 }

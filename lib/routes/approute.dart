@@ -6,6 +6,7 @@ import 'package:jconnect/features/auth/otp/screen/otp_verification_screen.dart';
 import 'package:jconnect/features/auth/phone_verification/screen/phone_verification_screen.dart';
 import 'package:jconnect/features/auth/signup/screen/signup_screen.dart';
 import 'package:jconnect/features/onboarding/screen/onboarding_screen.dart';
+import 'package:jconnect/features/profile_setup/screen/profile_setup_screen.dart';
 import 'package:jconnect/features/splash/screen/splash_screen.dart';
 
 class AppRoute {
@@ -17,6 +18,7 @@ class AppRoute {
   static String newPasswordScreen = '/newPasswordScreen';
   static String signupScreen = '/signupScreen';
   static String phoneVerification = '/phoneVerification';
+  static String profileSetupScreen = '/profileSetupScreen';
 
   static String getSplashScreen() => splashScreen;
   static String getOnboardingScreen() => onboardingScreen;
@@ -26,6 +28,7 @@ class AppRoute {
   static String getNewPasswordScreen() => newPasswordScreen;
   static String getSignupScreen() => signupScreen;
   static String getPhoneVerificationScreen() => phoneVerification;
+  static String getProfileSetupScreen() => profileSetupScreen;
 
   static List<GetPage> routes = [
     GetPage(name: splashScreen, page: () => SplashScreen()),
@@ -36,5 +39,6 @@ class AppRoute {
     GetPage(name: newPasswordScreen, page: () => CreateNewPassword()),
     GetPage(name: signupScreen, page: () => SignupScreen()),
     GetPage(name: phoneVerification, page: () => PhoneVerificationScreen()),
+    GetPage(name: profileSetupScreen, page: () => ProfileSetupScreen()),
   ];
 }
