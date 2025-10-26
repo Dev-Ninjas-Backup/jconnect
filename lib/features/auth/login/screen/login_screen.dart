@@ -26,7 +26,7 @@ class LoginScreen extends StatelessWidget {
           Positioned.fill(
             child: Container(color: Colors.black.withValues(alpha: .4)),
           ),
-
+      
           Positioned(
             top: 6,
             left: 0,
@@ -36,7 +36,7 @@ class LoginScreen extends StatelessWidget {
               width: size.width * 0.9,
             ),
           ),
-
+      
           Positioned(
             top: size.height * 0.15,
             left: 0,
@@ -63,7 +63,7 @@ class LoginScreen extends StatelessWidget {
               ],
             ),
           ),
-
+      
           // Email field
           Positioned(
             top: size.height * 0.38,
@@ -87,7 +87,7 @@ class LoginScreen extends StatelessWidget {
               ],
             ),
           ),
-
+      
           // Password field
           Positioned(
             top: size.height * 0.50,
@@ -108,7 +108,7 @@ class LoginScreen extends StatelessWidget {
                   controller: controller.passwordController,
                 ),
                 const SizedBox(height: 12),
-
+      
                 // Remember me + Forgot password
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -145,7 +145,7 @@ class LoginScreen extends StatelessWidget {
               ],
             ),
           ),
-
+      
           // Login button
           Positioned(
             top: size.height * 0.70,
@@ -158,7 +158,7 @@ class LoginScreen extends StatelessWidget {
               },
             ),
           ),
-
+      
           // Social buttons
           Positioned(
             top: size.height * 0.80,
@@ -190,7 +190,7 @@ class LoginScreen extends StatelessWidget {
               ],
             ),
           ),
-
+      
           // Signup text
           Positioned(
             bottom: size.height * 0.06,
