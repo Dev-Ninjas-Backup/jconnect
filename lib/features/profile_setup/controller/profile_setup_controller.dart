@@ -81,13 +81,36 @@ class ProfileSetupController extends GetxController {
     pickedImage.value = null;
   }
 
-  bool validateBeforeContinue() {
-    if (!hasAnyLink) {
-      EasyLoading.showInfo('Please add at least one social link');
-      return false;
-    }
-    return true;
-  }
+  // bool _isValidLink(String link) {
+  //   // Check if the link contains a common domain pattern
+  //   final validPatterns = [
+  //     '.com',
+  //     '.net',
+  //     '.org',
+  //     '.mail',
+  //     '.io',
+  //     '.app',
+  //     '.co',
+  //   ];
+  //   return validPatterns.any((pattern) => link.toLowerCase().contains(pattern));
+  // }
+
+  // bool get hasAnyValidLink {
+  //   return _isValidLink(instagramController.text.trim()) ||
+  //       _isValidLink(facebookController.text.trim()) ||
+  //       _isValidLink(tiktokController.text.trim()) ||
+  //       _isValidLink(youtubeController.text.trim());
+  // }
+
+  // bool validateBeforeContinue() {
+  //   if (!hasAnyValidLink) {
+  //     EasyLoading.showInfo(
+  //       'Please add at least one valid social link (like .com, .mail)',
+  //     );
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
   @override
   void onClose() {

@@ -132,7 +132,7 @@ class ProfileSetupScreen extends StatelessWidget {
               CustomPrimaryButton(
                 buttonText: 'Next',
                 onTap: () {
-                  if (!controller.validateBeforeContinue()) return;
+                  // if (!controller.validateBeforeContinue()) return;
                   showProfileSuccessPopup(context);
                 },
               ),
