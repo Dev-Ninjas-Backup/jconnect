@@ -5,4 +5,5 @@ class Imagepath {
   static String onboarding3 = 'assets/images/onboarding3.png';
   static String redCircleGlow = 'assets/images/login_background.png';
   static String lockImage = 'assets/images/lock_image.png';
+  static String profileImage = 'assets/images/profile_image.png';
 }

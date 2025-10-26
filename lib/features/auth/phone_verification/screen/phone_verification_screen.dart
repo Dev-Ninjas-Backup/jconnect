@@ -20,12 +20,20 @@ class PhoneVerificationScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
-      appBar: CustomAppBar(title: 'Forgot Password'),
+      appBar: CustomAppBar(title: 'Verification'),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 32),
         child: Column(
           children: [
             SizedBox(height: 40),
+            Text(
+              'Verify your Phone Number',
+              style: getTextStyle(
+                fontsize: 22,
+                fontweight: FontWeight.w600,
+                color: AppColors.primaryTextColor,
+              ),
+            ),
             Text(
               'Code has been sent to +1 111 ******99',
               style: getTextStyle(
