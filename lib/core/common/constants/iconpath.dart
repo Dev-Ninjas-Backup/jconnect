@@ -6,4 +6,8 @@ class Iconpath {
   static String messagesIcon = 'assets/icons/messagesIcon.png';
   static String orderIcon = 'assets/icons/ordericon.png';
   static String profileIcon = 'assets/icons/profileIcon.png';
+  static String instagram = 'assets/icons/instagram.png';
+  static String facebook = 'assets/icons/facebook.png';
+  static String tiktok = 'assets/icons/tiktok.png';
+  static String youtube = 'assets/icons/youtube.png';
 }
