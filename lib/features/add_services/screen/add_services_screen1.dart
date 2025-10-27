@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
-import 'package:jconnect/features/add_services/add_services1/controller/add_services_controller.dart';
-import 'package:jconnect/features/add_services/add_services1/widget/service_card_widget.dart';
-import 'package:jconnect/features/add_services/add_services1/widget/service_form_widget.dart';
+import 'package:jconnect/features/add_services/controller/add_services_controller.dart';
+import 'package:jconnect/features/add_services/widget/service_card_widget.dart';
+import 'package:jconnect/features/add_services/widget/service_form_widget.dart';
 import 'package:jconnect/routes/approute.dart';
 
 class AddServiceScreen extends StatelessWidget {
