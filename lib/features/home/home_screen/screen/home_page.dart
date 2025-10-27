@@ -10,6 +10,7 @@ import 'package:jconnect/features/home/home_screen/controller/home_controller.da
 import 'package:jconnect/features/home/home_screen/widgets/featured_artists.dart';
 import 'package:jconnect/features/home/home_screen/widgets/start_deal.dart';
 import 'package:jconnect/features/home/home_screen/widgets/suggested_for_you.dart';
+import '../../../../routes/approute.dart';
 import '../widgets/artists_you_know.dart';
 
 class HomePage extends StatelessWidget {
@@ -55,7 +56,9 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Get.toNamed(AppRoute.getArtistsScreen());
+                    },
                     child: Text(
                       "View all artists",
                       style: getTextStyle(
@@ -81,7 +84,9 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Get.toNamed(AppRoute.getArtistsScreen());
+                    },
                     child: Text(
                       "View all artists",
                       style: getTextStyle(
@@ -109,7 +114,9 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Get.toNamed(AppRoute.getArtistsScreen());
+                    },
                     child: Text(
                       "View all artists",
                       style: getTextStyle(
