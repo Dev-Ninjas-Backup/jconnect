@@ -4,7 +4,8 @@ import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/features/my_orders/controller/my_order_controller.dart';
 import 'package:jconnect/features/my_orders/model/order_model.dart';
-import 'order_card.dart';
+import 'package:jconnect/features/my_orders/widgets/order_card.dart';
+import 'package:jconnect/routes/approute.dart';
 
 class OrderCardWrapper extends StatelessWidget {
   final OrderModel order;
@@ -19,7 +20,6 @@ class OrderCardWrapper extends StatelessWidget {
       direction: DismissDirection.endToStart,
       onDismissed: (_) {
         controller.deleteOrder(order);
-
         EasyLoading.showToast(
           'Order "${order.title}" deleted',
           toastPosition: EasyLoadingToastPosition.bottom,
@@ -28,11 +28,15 @@ class OrderCardWrapper extends StatelessWidget {
       },
       background: Container(
         color: AppColors.redColor,
-        child: SizedBox.expand(
+        child: const SizedBox.expand(
           child: Icon(Icons.delete, color: Colors.white, size: 32),
         ),
       ),
-      child: OrderCard(order: order),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: () => Get.toNamed(AppRoute.orderDetails, arguments: order),
+        child: OrderCard(order: order),
+      ),
     );
   }
 }
