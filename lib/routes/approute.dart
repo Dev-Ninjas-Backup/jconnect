@@ -1,5 +1,5 @@
 import 'package:get/get_navigation/get_navigation.dart';
-import 'package:jconnect/features/add_services/add_services1/screen/add_services_screen1.dart';
+import 'package:jconnect/features/add_services/screen/add_services_screen1.dart';
 import 'package:jconnect/features/auth/forget_password/screen/forget_password_screen.dart';
 import 'package:jconnect/features/auth/login/screen/login_screen.dart';
 import 'package:jconnect/features/auth/new_password/screen/create_new_password.dart';

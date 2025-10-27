@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
-import 'package:jconnect/features/add_services/add_services1/controller/add_services_controller.dart';
+import 'package:jconnect/features/add_services/controller/add_services_controller.dart';
 
 class ServiceCardWidget extends StatelessWidget {
   final AddServiceController controller;
