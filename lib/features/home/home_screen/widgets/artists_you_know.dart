@@ -3,11 +3,11 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/core/common/widgets/custom_secondary_button.dart';
-import 'package:jconnect/features/home_screen/controller/home_controller.dart';
+import 'package:jconnect/features/home/home_screen/controller/home_controller.dart';
 
-import '../../../core/common/constants/app_colors.dart';
-import '../../../core/common/style/global_text_style.dart';
-import '../../../core/common/widgets/gradient_border_container.dart';
+import '../../../../core/common/constants/app_colors.dart';
+import '../../../../core/common/style/global_text_style.dart';
+import '../../../../core/common/widgets/gradient_border_container.dart';
 
 class ArtistsYouKnow extends StatelessWidget {
   final HomeController controller;
