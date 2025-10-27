@@ -6,14 +6,14 @@ import 'package:jconnect/core/common/constants/custom_textfield.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
-import 'package:jconnect/features/home_screen/controller/home_controller.dart';
-import 'package:jconnect/features/home_screen/widgets/start_deal.dart';
-
+import 'package:jconnect/features/home/home_screen/controller/home_controller.dart';
+import 'package:jconnect/features/home/home_screen/widgets/featured_artists.dart';
+import 'package:jconnect/features/home/home_screen/widgets/start_deal.dart';
+import 'package:jconnect/features/home/home_screen/widgets/suggested_for_you.dart';
 import '../widgets/artists_you_know.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
-
   @override
   Widget build(BuildContext context) {
     HomeController controller = Get.put(HomeController());
@@ -43,7 +43,6 @@ class HomePage extends StatelessWidget {
 
               StartDeal(controller: controller),
               SizedBox(height: 30.h),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -68,10 +67,61 @@ class HomePage extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 18.h),
+              ArtistsYouKnow(controller: controller),
+              SizedBox(height: 40.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Featured Artists",
+                    style: getTextStyle(
+                      fontsize: sp(20),
+                      fontweight: FontWeight.w500,
+                      color: AppColors.primaryTextColor,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {},
+                    child: Text(
+                      "View all artists",
+                      style: getTextStyle(
+                        fontsize: sp(12),
+                        color: AppColors.secondaryTextColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
 
-              ArtistsYouKnow(controller: controller,),
+              SizedBox(height: 18.h),
+              FeaturedArtists(controller: controller),
 
-              SizedBox(height: 100),
+              SizedBox(height: 40.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Suggested for You",
+                    style: getTextStyle(
+                      fontsize: sp(20),
+                      fontweight: FontWeight.w500,
+                      color: AppColors.primaryTextColor,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {},
+                    child: Text(
+                      "View all artists",
+                      style: getTextStyle(
+                        fontsize: sp(12),
+                        color: AppColors.secondaryTextColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 18.h),
+              SuggestedForYou(controller: controller),
             ],
           ),
         ),
@@ -79,4 +129,3 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-
