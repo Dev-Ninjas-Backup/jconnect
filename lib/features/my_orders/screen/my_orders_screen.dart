@@ -4,7 +4,7 @@ import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/constants/order_appbar.dart';
 import 'package:jconnect/features/my_orders/controller/my_order_controller.dart';
-import 'package:jconnect/features/my_orders/widgets/order_card.dart';
+import 'package:jconnect/features/my_orders/widgets/order_card_wrapper.dart';
 import 'package:jconnect/features/my_orders/widgets/order_empty_state.dart';
 import 'package:jconnect/features/my_orders/widgets/order_tab_bar.dart';
 
@@ -37,11 +37,12 @@ class MyOrdersScreen extends StatelessWidget {
                     return OrderEmptyState();
                   } else {
                     final list = controller.filteredOrders;
-                    return ListView.builder(
-                      itemCount: list.length,
-                      itemBuilder: (context, index) =>
-                          OrderCard(order: list[index]),
-                    );
+                 return ListView.builder(
+  itemCount: list.length,
+  itemBuilder: (context, index) =>
+      OrderCardWrapper(order: list[index]),
+);
+
                   }
                 }),
               ),
