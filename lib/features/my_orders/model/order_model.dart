@@ -4,7 +4,7 @@ class OrderModel {
   final String status;
   final double price;
   final String icon;
-  final String type; // ✅ New field: "Given" or "Received"
+  final String type;
 
   OrderModel({
     required this.platform,
