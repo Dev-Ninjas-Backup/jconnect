@@ -1,17 +1,19 @@
 class OrderModel {
-  final String platform;
   final String title;
+  final String platform;
+  final String icon;
+  final String type; 
   final String status;
   final double price;
-  final String icon;
-  final String type;
+  final String? description; 
 
   OrderModel({
-    required this.platform,
     required this.title,
-    required this.status,
-    required this.price,
+    required this.platform,
     required this.icon,
     required this.type,
+    required this.status,
+    required this.price,
+    this.description, 
   });
 }

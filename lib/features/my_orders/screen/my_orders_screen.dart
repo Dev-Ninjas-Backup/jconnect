@@ -26,7 +26,6 @@ class MyOrdersScreen extends StatelessWidget {
               OrderAppbar(
                 title: 'My Orders',
                 actionIconUrl: Iconpath.filterIcon,
-                actionOnTap: () {},
               ),
               SizedBox(height: 20),
               OrderTabBar(controller: controller),
@@ -37,12 +36,11 @@ class MyOrdersScreen extends StatelessWidget {
                     return OrderEmptyState();
                   } else {
                     final list = controller.filteredOrders;
-                 return ListView.builder(
-  itemCount: list.length,
-  itemBuilder: (context, index) =>
-      OrderCardWrapper(order: list[index]),
-);
-
+                    return ListView.builder(
+                      itemCount: list.length,
+                      itemBuilder: (context, index) =>
+                          OrderCardWrapper(order: list[index]),
+                    );
                   }
                 }),
               ),

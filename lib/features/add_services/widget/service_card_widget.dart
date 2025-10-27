@@ -38,7 +38,7 @@ class ServiceCardWidget extends StatelessWidget {
                   service['desc'] ?? '',
                   style: getTextStyle(color: Colors.white70, fontsize: 13),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 Text(
                   service['price'] ?? '',
                   style: getTextStyle(
