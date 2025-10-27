@@ -29,28 +29,31 @@ class MyOrdersController extends GetxController {
   void loadOrders() {
     orders.assignAll([
       OrderModel(
+        title: 'Instagram Follower Boost',
         platform: 'Instagram',
-        title: 'Track Review by DJ Nova',
-        status: 'Pending Confirmation',
-        price: 50,
         icon: 'assets/icons/instagram.png',
-        type: 'Received',
-      ),
-      OrderModel(
-        platform: 'Tiktok',
-        title: 'Shoutout on a Story',
-        status: 'Active',
-        price: 50,
-        icon: 'assets/icons/tiktok.png',
         type: 'Given',
+        status: 'Active',
+        price: 29,
+        description: '1000 organic followers, 3-day delivery.',
       ),
       OrderModel(
-        platform: 'Youtube',
-        title: 'Shoutout on a Video',
-        status: 'Completed',
-        price: 50,
-        icon: 'assets/icons/youtube.png',
+        title: 'Facebook Page Likes',
+        platform: 'Facebook',
+        icon: 'assets/icons/facebook.png',
         type: 'Received',
+        status: 'Completed',
+        price: 15,
+        description: 'Boosted through ad campaign in July.',
+      ),
+      OrderModel(
+        title: 'YouTube Watch Hours',
+        platform: 'YouTube',
+        icon: 'assets/icons/youtube.png',
+        type: 'Given',
+        status: 'Pending Confirmation',
+        price: 40,
+        description: '4000 hours target, pending verification.',
       ),
     ]);
   }
