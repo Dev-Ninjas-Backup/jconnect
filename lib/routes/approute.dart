@@ -3,7 +3,7 @@ import 'package:jconnect/features/add_services/screen/add_services_screen1.dart'
 import 'package:jconnect/features/auth/forget_password/screen/forget_password_screen.dart';
 import 'package:jconnect/features/auth/login/screen/login_screen.dart';
 import 'package:jconnect/features/auth/new_password/screen/create_new_password.dart';
-import 'package:jconnect/features/auth/otp/screen/otp_verification_screen.dart';
+import 'package:jconnect/features/auth/email_otp/screen/otp_verification_screen.dart';
 import 'package:jconnect/features/auth/phone_verification/screen/phone_verification_screen.dart';
 import 'package:jconnect/features/auth/signup/screen/signup_screen.dart';
 import 'package:jconnect/features/bottom_navbar/screen/bottom_navbar_screen.dart';

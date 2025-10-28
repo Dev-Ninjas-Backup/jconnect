@@ -5,8 +5,8 @@ import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_appbar.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
-import 'package:jconnect/features/auth/otp/controller/otp_verification_controller.dart';
-import 'package:jconnect/features/auth/otp/widget/otp_field.dart';
+import 'package:jconnect/features/auth/email_otp/controller/otp_verification_controller.dart';
+import 'package:jconnect/features/auth/email_otp/widget/otp_field.dart';
 import 'package:jconnect/routes/approute.dart';
 
 class OtpVerificationScreen extends StatelessWidget {
