@@ -6,7 +6,7 @@ class GradientBorderContainer extends StatelessWidget {
   final Widget child;
   final double borderRadius;
   final double borderWidth;
-  final List<Color> gradientColors;
+  final List<Color>? gradientColors;
   final EdgeInsetsGeometry padding;
   final double? height;
   final double? width;
@@ -16,7 +16,7 @@ class GradientBorderContainer extends StatelessWidget {
     super.key,
     required this.borderRadius,
     required this.borderWidth,
-    required this.gradientColors,
+    this.gradientColors,
     required this.padding,
     required this.child,
     this.height,
@@ -28,7 +28,14 @@ class GradientBorderContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: gradientColors),
+        gradient: LinearGradient(
+          colors:
+              gradientColors ??
+              [
+                AppColors.primaryTextColor,
+                AppColors.primaryTextColor.withValues(alpha: .5),
+              ],
+        ),
         borderRadius: BorderRadius.circular(borderRadius.r),
       ),
       child: Padding(

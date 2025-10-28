@@ -137,6 +137,7 @@ class SuggestedForYou extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 28.h),
+                  Spacer(),
                   CustomPrimaryButton(buttonText: "Message", onTap: () {}),
                   SizedBox(height: 14.h),
                   CustomSecondaryButton(
