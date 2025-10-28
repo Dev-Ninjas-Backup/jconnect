@@ -22,7 +22,7 @@ class ArtistsItem extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 12.w,
           mainAxisSpacing: 20.h,
-          childAspectRatio: .504,
+          childAspectRatio: .4,
         ),
         shrinkWrap: true,
         padding: EdgeInsets.zero,
@@ -116,6 +116,7 @@ class ArtistsItem extends StatelessWidget {
                       maxLines: 2,
                 ),
                 SizedBox(height: 10.h),
+                Spacer(),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -139,6 +140,7 @@ class ArtistsItem extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 14.h),
+                Spacer(),
                 CustomPrimaryButton(buttonText: "Message", onTap: () {}),
                 SizedBox(height: 14.h),
                 CustomSecondaryButton(buttonText: "Custom Order", onTap: () {}),
