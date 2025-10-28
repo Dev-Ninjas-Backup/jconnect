@@ -16,13 +16,13 @@ class ArtistsItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: GridView.builder(
-        itemCount: 6,
+        itemCount: controller.artistsItems.length,
         scrollDirection: Axis.vertical,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 12.w,
           mainAxisSpacing: 20.h,
-          childAspectRatio: .4,
+          childAspectRatio: .504,
         ),
         shrinkWrap: true,
         padding: EdgeInsets.zero,
@@ -36,76 +36,70 @@ class ArtistsItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Center(
-                    child: ClipRRect(
-                      //  borderRadius: BorderRadiusGeometry.circular(100.r),
-                      child: Image.asset(
-                        item.imageUrl,
-                        height: 60.h,
-                        width: 60.w,
-                      ),
+                Center(
+                  child: ClipRRect(
+                    //  borderRadius: BorderRadiusGeometry.circular(100.r),
+                    child: Image.asset(
+                      item.imageUrl,
+                      height: 60.h,
+                      width: 60.w,
                     ),
                   ),
                 ),
                 SizedBox(height: 12.h),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        item.name,
-                        style: getTextStyle(
-                          fontsize: sp(13.5),
-                          fontweight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      item.name,
+                      style: getTextStyle(
+                        fontsize: sp(13.5),
+                        fontweight: FontWeight.w500,
                       ),
-                  
-                      GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8.w,
-                            vertical: 4.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: .1),
-                            borderRadius: BorderRadius.circular(4.r),
-                            border: Border.all(
-                              width: .25,
-                              color: AppColors.secondaryTextColor,
-                            ),
-                          ),
-                          child: Text(
-                            "From \$${item.ammount}",
-                            style: getTextStyle(
-                              fontsize: sp(8),
-                              color: AppColors.secondaryTextColor,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                
+                    GestureDetector(
+                      onTap: () {},
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 4.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: .1),
+                          borderRadius: BorderRadius.circular(4.r),
+                          border: Border.all(
+                            width: .25,
+                            color: AppColors.secondaryTextColor,
                           ),
                         ),
+                        child: Text(
+                          "From \$${item.ammount}",
+                          style: getTextStyle(
+                            fontsize: sp(8),
+                            color: AppColors.secondaryTextColor,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 8.h),
 
-                Expanded(
-                  child: Text(
-                    item.heading,
-                    style: getTextStyle(
-                      fontsize: sp(10),
-                      color: AppColors.secondaryTextColor,
-                    ),
+                Text(
+                  item.heading,
+                  style: getTextStyle(
+                    fontsize: sp(10),
+                    color: AppColors.secondaryTextColor,
                   ),
                 ),
                 SizedBox(height: 10.h),
                 Text(
-                  "Services",
+                  "Services:",
                   style: getTextStyle(
                     fontsize: sp(10),
                     color: AppColors.secondaryTextColor,
@@ -113,45 +107,41 @@ class ArtistsItem extends StatelessWidget {
                 ),
                 SizedBox(height: 8.h),
 
-                Expanded(
-                  child: Text(
-                    item.services,
-                    style: getTextStyle(
-                      fontsize: sp(10),
-                      color: AppColors.secondaryTextColor,
-                    ),         overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
-                  ),
+                Text(
+                  item.services,
+                  style: getTextStyle(
+                    fontsize: sp(10),
+                    color: AppColors.secondaryTextColor,
+                  ),         overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
                 ),
                 SizedBox(height: 10.h),
 
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      RatingBarIndicator(
-                        rating: item.rating.toDouble(),
-                        itemBuilder: (context, index) =>
-                            Icon(Icons.star, color: Color(0xffBD001F)),
-                        itemCount: 5,
-                        itemSize: sp(12),
-                        direction: Axis.horizontal,
-                        unratedColor: Color(0xFFD96B7D),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    RatingBarIndicator(
+                      rating: item.rating.toDouble(),
+                      itemBuilder: (context, index) =>
+                          Icon(Icons.star, color: Color(0xffBD001F)),
+                      itemCount: 5,
+                      itemSize: sp(12),
+                      direction: Axis.horizontal,
+                      unratedColor: Color(0xFFD96B7D),
+                    ),
+                    Text(
+                      "${item.rating} (${item.reviews} Reviews)",
+                      style: getTextStyle(
+                        fontsize: sp(10),
+                        color: AppColors.secondaryTextColor,
                       ),
-                      Text(
-                        "${item.rating} (${item.reviews} Reviews)",
-                        style: getTextStyle(
-                          fontsize: sp(10),
-                          color: AppColors.secondaryTextColor,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 14.h),
-                Expanded(child: CustomPrimaryButton(buttonText: "Message", onTap: () {})),
+                CustomPrimaryButton(buttonText: "Message", onTap: () {}),
                 SizedBox(height: 14.h),
-                Expanded(child: CustomSecondaryButton(buttonText: "Custom Order", onTap: () {})),
+                CustomSecondaryButton(buttonText: "Custom Order", onTap: () {}),
               ],
             ),
           );
