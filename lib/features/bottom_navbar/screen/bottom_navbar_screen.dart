@@ -5,7 +5,7 @@ import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/bottom_navbar/controller/bottom_navbar_controller.dart';
-import 'package:jconnect/features/home_screen/screen/home_page.dart';
+import 'package:jconnect/features/home/home_screen/screen/home_page.dart';
 import 'package:jconnect/features/my_orders/screen/my_orders_screen.dart';
 
 class NavBarScreen extends StatelessWidget {

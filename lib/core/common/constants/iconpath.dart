@@ -14,5 +14,7 @@ class Iconpath {
   static String youtube = 'assets/icons/youtube.png';
   static String filterIcon = 'assets/icons/filter_icon.png';
   static String backIcon = 'assets/icons/backIcon.png';
+
   static String stripeIcon = 'assets/icons/stripeIcon.png';
+
 }

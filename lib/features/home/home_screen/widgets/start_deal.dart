@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
-import 'package:jconnect/features/home_screen/controller/home_controller.dart';
+import 'package:jconnect/features/home/home_screen/controller/home_controller.dart';
 
 class StartDeal extends StatelessWidget {
   final HomeController controller;
