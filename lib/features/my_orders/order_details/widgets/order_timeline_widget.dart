@@ -11,10 +11,11 @@ class OrderTimelineWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E20),
+        color: AppColors.backGroundColor,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.secondaryTextColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,27 +34,23 @@ class OrderTimelineWidget extends StatelessWidget {
                         height: 20,
                         decoration: BoxDecoration(
                           color: step.isCompleted
-                              ? Colors.redAccent
+                              ? AppColors.redColor
                               : Colors.transparent,
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white24, width: 2),
                         ),
                         child: step.isCompleted
-                            ? const Icon(
-                                Icons.check,
-                                color: Colors.white,
-                                size: 12,
-                              )
+                            ? Icon(Icons.check, color: Colors.white, size: 12)
                             : null,
                       ),
                       if (!isLast)
                         Container(width: 2, height: 35, color: Colors.white24),
                     ],
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 2),
+                      padding: EdgeInsets.only(top: 2),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
