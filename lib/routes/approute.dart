@@ -7,6 +7,7 @@ import 'package:jconnect/features/auth/email_otp/screen/otp_verification_screen.
 import 'package:jconnect/features/auth/phone_verification/screen/phone_verification_screen.dart';
 import 'package:jconnect/features/auth/signup/screen/signup_screen.dart';
 import 'package:jconnect/features/bottom_navbar/screen/bottom_navbar_screen.dart';
+import 'package:jconnect/features/home/artists_details_screen/screen/artists_details_page.dart';
 
 import 'package:jconnect/features/home/artists_screen/screen/artists_screen.dart';
 
@@ -33,6 +34,7 @@ class AppRoute {
   static String navBarScreen = '/navBarScreen';
   //home
   static String artistsScreen = '/home/artistsScreen';
+  static String artistsDetailsPage = '/home/artistsDetailsPage';
 
   static String getSplashScreen() => splashScreen;
   static String getOnboardingScreen() => onboardingScreen;
@@ -48,9 +50,9 @@ class AppRoute {
   static String getAddserviceScreen() => addServiceScreen;
   //home
   static String getArtistsScreen() => artistsScreen;
+  static String getArtistsDetailsPage() => artistsDetailsPage;
 
   static String getOrderDetails() => orderDetails;
-
 
   static List<GetPage> routes = [
     GetPage(name: splashScreen, page: () => SplashScreen()),
@@ -66,7 +68,8 @@ class AppRoute {
     GetPage(name: navBarScreen, page: () => NavBarScreen()),
     GetPage(name: addServiceScreen, page: () => AddServiceScreen()),
     //home
-    GetPage(name: artistsScreen, page: ()=>ArtistsScreen()),
+    GetPage(name: artistsScreen, page: () => ArtistsScreen()),
+    GetPage(name: artistsDetailsPage, page: () => ArtistsDetailsPage()),
 
     GetPage(name: navBarScreen, page: () => NavBarScreen()),
     GetPage(name: addServiceScreen, page: () => AddServiceScreen()),
