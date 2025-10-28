@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jconnect/core/common/constants/app_colors.dart';
 
 class GradientBorderContainer extends StatelessWidget {
   final Widget child;
@@ -7,18 +8,20 @@ class GradientBorderContainer extends StatelessWidget {
   final double borderWidth;
   final List<Color> gradientColors;
   final EdgeInsetsGeometry padding;
-  final double ?height;
-  final double ?width;
+  final double? height;
+  final double? width;
+  final Color? color;
 
   const GradientBorderContainer({
     super.key,
-    required this.child,
     required this.borderRadius,
     required this.borderWidth,
     required this.gradientColors,
     required this.padding,
+    required this.child,
     this.height,
-    this.width
+    this.width,
+    this.color,
   });
 
   @override
@@ -31,12 +34,12 @@ class GradientBorderContainer extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.all(borderWidth),
         child: Container(
-        height: height,
-        width: width,
+          height: height,
+          width: width,
           padding: padding,
           decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular((borderRadius - 1).r),
+            color: color ?? AppColors.backGroundColor,
+            borderRadius: BorderRadius.circular((borderRadius - borderWidth).r),
           ),
           child: child,
         ),

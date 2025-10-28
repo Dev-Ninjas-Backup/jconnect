@@ -21,40 +21,38 @@ class CustomAppBar2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 10.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          if (leadingIconUrl != null)
-            GestureDetector(
-              onTap: onLeadingTap,
-              child: Image.asset(leadingIconUrl!, height: 36.h, width: 36.w),
-            ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        GestureDetector(
+          onTap: onLeadingTap,
+          child: leadingIconUrl != null
+              ? Image.asset(leadingIconUrl!, height: 36.h, width: 36.w)
+              : SizedBox(height: 36.h,width: 36.w,),
+        ),
 
-          // Title
-          Expanded(
-            child: Center(
-              child: Text(
-                title,
-                style: getTextStyle(
-                  fontsize: sp(24),
-                  fontweight: FontWeight.w600,
-                  color: AppColors.primaryTextColor,
-                ),
+        // Title
+        Expanded(
+          child: Center(
+            child: Text(
+              title,
+              style: getTextStyle(
+                fontsize: sp(24),
+                fontweight: FontWeight.w600,
+                color: AppColors.primaryTextColor,
               ),
             ),
           ),
+        ),
 
-          // Action Icon
-          GestureDetector(
-            onTap: actionOnTap,
-            child: actionIconUrl != null
-                ? Image.asset(actionIconUrl!, height: 36.h, width: 36.w)
-                : SizedBox(),
-          ),
-        ],
-      ),
+        // Action Icon
+        GestureDetector(
+          onTap: actionOnTap,
+          child: actionIconUrl != null
+              ? Image.asset(actionIconUrl!, height: 36.h, width: 36.w)
+              : SizedBox(height: 36.h,width: 36.w,),
+        ),
+      ],
     );
   }
 }
