@@ -23,6 +23,7 @@ class CustomAppBar2 extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      spacing: 10.w,
       children: [
         GestureDetector(
           onTap: onLeadingTap,
@@ -36,8 +37,10 @@ class CustomAppBar2 extends StatelessWidget {
           child: Center(
             child: Text(
               title,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
               style: getTextStyle(
-                fontsize: sp(24),
+                fontsize: sp(20),
                 fontweight: FontWeight.w600,
                 color: AppColors.primaryTextColor,
               ),
