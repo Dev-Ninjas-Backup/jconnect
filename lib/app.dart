@@ -18,6 +18,7 @@ class MyApp extends StatelessWidget {
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
           initialRoute: AppRoute.getSplashScreen(),
+          // home: MessagesScreen(),
           getPages: AppRoute.routes,
           builder: EasyLoading.init(),
           initialBinding: ControllerBinder(),
