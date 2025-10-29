@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/routes/approute.dart';
 
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/constants/iconpath.dart';
@@ -11,9 +12,7 @@ import '../../../../core/common/widgets/custom_primary_button.dart';
 import '../../../../core/common/widgets/custom_secondary_button.dart';
 
 class ArtistsDetailsUpperSection extends StatelessWidget {
-  const ArtistsDetailsUpperSection({
-    super.key,
-  });
+  const ArtistsDetailsUpperSection({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,15 +27,11 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
           },
         ),
         SizedBox(height: 34.h),
-    
+
         Center(
           child: Column(
             children: [
-              Image.asset(
-                Imagepath.profileImage,
-                height: 130.w,
-                width: 130.w,
-              ),
+              Image.asset(Imagepath.profileImage, height: 130.w, width: 130.w),
               SizedBox(height: 12.h),
               Text(
                 "DJ NovaX",
@@ -51,15 +46,13 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                 style: getTextStyle(
                   fontsize: sp(10),
                   fontweight: FontWeight.w400,
-                  color: AppColors.primaryTextColor.withValues(
-                    alpha: .7,
-                  ),
+                  color: AppColors.primaryTextColor.withValues(alpha: .7),
                 ),
               ),
             ],
           ),
         ),
-    
+
         SizedBox(height: 30.h),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -92,15 +85,14 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
             //   ),
             // ),
             Expanded(
-              child: CustomSecondaryButton(
-                buttonText: "Message",
-                onTap: () {},
-              ),
+              child: CustomSecondaryButton(buttonText: "Message", onTap: () {}),
             ),
             Expanded(
               child: CustomPrimaryButton(
                 buttonText: "Request Service",
-                onTap: () {},
+                onTap: () {
+                  Get.toNamed(AppRoute.getRequestServiceScreen());
+                },
                 fontSize: 14,
               ),
             ),

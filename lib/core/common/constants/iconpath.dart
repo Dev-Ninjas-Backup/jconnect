@@ -14,12 +14,17 @@ class Iconpath {
   static String youtube = 'assets/icons/youtube.png';
   static String filterIcon = 'assets/icons/filter_icon.png';
   static String backIcon = 'assets/icons/backIcon.png';
-
+  static String uploadIcon = 'assets/icons/uploadIcon.png';
   static String stripeIcon = 'assets/icons/stripeIcon.png';
+
   static String delete = 'assets/icons/delete.png';
   static String reddelete = 'assets/icons/reddelete.png';
   static String send = 'assets/icons/send.png';
   static String cekol = 'assets/icons/cekol.png';
   static String dollar = 'assets/icons/dollar.png';
   static String send2 = 'assets/icons/send2.png';
+
+  static String customReqIcon = 'assets/icons/customReqIcon.png';
+  static String securityIcon = 'assets/icons/securityIcon.png';
+
 }
