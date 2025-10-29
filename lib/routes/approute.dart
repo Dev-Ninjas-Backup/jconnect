@@ -16,7 +16,9 @@ import 'package:jconnect/features/my_orders/order_details/screen/order_details_s
 import 'package:jconnect/features/onboarding/screen/onboarding_screen.dart';
 import 'package:jconnect/features/profile_setup/screen/profile_setup_screen.dart';
 import 'package:jconnect/features/splash/screen/splash_screen.dart';
+import 'package:jconnect/features/user_profile/earning_and_payouts/screen/earning_and_payouts_screen.dart';
 import 'package:jconnect/features/user_profile/edit_profile/screen/edit_profile_screen.dart';
+import 'package:jconnect/features/user_profile/privacy_security/screen/privacy_security_screen.dart';
 import 'package:jconnect/features/user_profile/profile/screen/profile_screen.dart';
 
 class AppRoute {
@@ -39,6 +41,8 @@ class AppRoute {
   static String profileSetupScreen = '/profileSetupScreen';
   static String profileScreen = '/profileScreen';
   static String editProfileScreen = '/editProfileScreen';
+  static String privacySecurity = '/privacySecurity';
+  static String earningsAndPayouts = '/earningsAndPayouts';
 
   ///navBar
   static String navBarScreen = '/navBarScreen';
@@ -65,7 +69,8 @@ class AppRoute {
   static String getOrderDetails() => orderDetails;
   static String getProfileScreen() => profileScreen;
   static String getEditProfileScreen() => editProfileScreen;
-
+  static String getPrivacySecurity() => privacySecurity;
+  static String getEarningsAndPayouts() => earningsAndPayouts;
 
   static List<GetPage> routes = [
     GetPage(name: splashScreen, page: () => SplashScreen()),
@@ -89,5 +94,7 @@ class AppRoute {
     GetPage(name: orderDetails, page: () => OrderDetailsScreen()),
     GetPage(name: profileScreen, page: () => ProfileScreen()),
     GetPage(name: editProfileScreen, page: () => EditProfileScreen()),
+    GetPage(name: privacySecurity, page: () => PrivacySecurityScreen()),
+    GetPage(name: earningsAndPayouts, page: () => EarningAndPayoutsScreen()),
   ];
 }

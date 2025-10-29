@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/route_manager.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/user_profile/profile/controller/profile_controller.dart';
+import 'package:jconnect/routes/approute.dart';
 
 class ProfileActivitySection extends StatelessWidget {
   final ProfileController controller;
@@ -19,7 +21,9 @@ class ProfileActivitySection extends StatelessWidget {
       {
         'icon': Icons.attach_money_rounded,
         'label': 'Earnings & Payouts',
-        'onTap': () {},
+        'onTap': () {
+          Get.toNamed(AppRoute.earningsAndPayouts);
+        },
       },
       {'icon': Icons.mail_outline, 'label': 'Messages', 'onTap': () => {}},
       {
