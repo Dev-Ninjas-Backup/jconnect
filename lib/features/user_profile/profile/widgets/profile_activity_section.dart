@@ -29,7 +29,7 @@ class ProfileActivitySection extends StatelessWidget {
       {
         'icon': Icons.star_border_rounded,
         'label': 'Reviews',
-        'onTap': () => {},
+        'onTap': () => {Get.toNamed(AppRoute.reviewScreen)},
       },
     ];
 
