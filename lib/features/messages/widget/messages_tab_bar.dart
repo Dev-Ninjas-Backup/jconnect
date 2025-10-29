@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
-import 'package:jconnect/features/my_orders/controller/my_order_controller.dart';
+import 'package:jconnect/features/messages/controller/messages_controller.dart';
 
 class MessagesTabBar extends StatelessWidget {
-  final MyOrdersController controller;
+  final MessagesController controller;
   const MessagesTabBar({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
-    final tabs = ['All Chats', 'Active Deals', 'Unread', 'Archived', 'Completed Deal'];
+    final tabs = ['All Chats', 'Active Deals', 'Unread', 'Archived'];
 
     return Obx(() {
       return SingleChildScrollView(
