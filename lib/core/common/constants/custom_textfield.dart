@@ -9,8 +9,7 @@ class CustomTextfield extends StatelessWidget {
   final TextInputType keyboardType;
   final bool readOnly;
   final Function(String)? onChanged;
-  final Widget ?prefixIcon;
-
+  final Widget? prefixIcon;
 
   const CustomTextfield({
     super.key,
@@ -19,13 +18,13 @@ class CustomTextfield extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.readOnly = false,
     this.onChanged,
-    this.prefixIcon
+    this.prefixIcon,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 1.5.h,horizontal: 1.5.w),
+      padding: EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 1.5.w),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8.r),
         border: Border.all(color: AppColors.secondaryTextColor),
@@ -34,23 +33,21 @@ class CustomTextfield extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(8.r),
-
         ),
         child: TextField(
           controller: controller,
           keyboardType: keyboardType,
           readOnly: readOnly,
-          style:  TextStyle(color: Colors.white),
+          style: getTextStyle(color: AppColors.secondaryTextColor),
           decoration: InputDecoration(
-         prefixIcon: prefixIcon,
-            contentPadding:  EdgeInsets.symmetric(
+            prefixIcon: prefixIcon,
+            contentPadding: EdgeInsets.symmetric(
               horizontal: 12.w,
               vertical: 14.h,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.r),
               borderSide: BorderSide.none,
-
             ),
             filled: true,
             fillColor: Colors.transparent,
