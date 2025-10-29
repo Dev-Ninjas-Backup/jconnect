@@ -16,21 +16,31 @@ import 'package:jconnect/features/my_orders/order_details/screen/order_details_s
 import 'package:jconnect/features/onboarding/screen/onboarding_screen.dart';
 import 'package:jconnect/features/profile_setup/screen/profile_setup_screen.dart';
 import 'package:jconnect/features/splash/screen/splash_screen.dart';
+import 'package:jconnect/features/user_profile/edit_profile/screen/edit_profile_screen.dart';
+import 'package:jconnect/features/user_profile/profile/screen/profile_screen.dart';
 
 import '../features/home/request_service/screen/request_service_screen.dart';
 
 class AppRoute {
+  //splash
   static String splashScreen = '/splashScreen';
+  //onboarding
   static String onboardingScreen = '/onboardingScreen';
+  //auth
   static String loginScreen = '/loginScreen';
   static String forgetPassword = '/forgetPassword';
   static String otpVerificationScreen = '/otpVerificationScreen';
   static String newPasswordScreen = '/newPasswordScreen';
   static String signupScreen = '/signupScreen';
   static String phoneVerification = '/phoneVerification';
-  static String profileSetupScreen = '/profileSetupScreen';
+  //services
   static String addServiceScreen = '/addServiceScreen';
+  //order
   static String orderDetails = '/orderDetails';
+  //profile
+  static String profileSetupScreen = '/profileSetupScreen';
+  static String profileScreen = '/profileScreen';
+  static String editProfileScreen = '/editProfileScreen';
 
   ///navBar
   static String navBarScreen = '/navBarScreen';
@@ -58,6 +68,9 @@ class AppRoute {
 
   static String getOrderDetails() => orderDetails;
   
+  static String getProfileScreen() => profileScreen;
+  static String getEditProfileScreen() => editProfileScreen;
+
 
   static List<GetPage> routes = [
     GetPage(name: splashScreen, page: () => SplashScreen()),
@@ -80,5 +93,7 @@ class AppRoute {
     GetPage(name: navBarScreen, page: () => NavBarScreen()),
     GetPage(name: addServiceScreen, page: () => AddServiceScreen()),
     GetPage(name: orderDetails, page: () => OrderDetailsScreen()),
+    GetPage(name: profileScreen, page: () => ProfileScreen()),
+    GetPage(name: editProfileScreen, page: () => EditProfileScreen()),
   ];
 }
