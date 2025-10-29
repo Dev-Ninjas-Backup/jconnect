@@ -56,7 +56,9 @@ class ProfileSettingsSection extends StatelessWidget {
           _buildSettingsTile(
             icon: Icons.lock_outline,
             title: 'Privacy & Security',
-            onTap: () {},
+            onTap: () {
+              Get.toNamed(AppRoute.privacySecurity);
+            },
           ),
           _buildSettingsTile(
             icon: Icons.headset_mic_outlined,
