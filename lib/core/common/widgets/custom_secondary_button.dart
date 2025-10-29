@@ -92,7 +92,7 @@ class CustomSecondaryButton extends StatelessWidget {
           color: isActive
               ? (hasGradient
                     ? null
-                    : AppColors.primaryTextColor.withOpacity(0.2))
+                    : AppColors.primaryTextColor.withValues(alpha: 0.2))
               : Colors.transparent,
         ),
         child: Text(
@@ -100,7 +100,7 @@ class CustomSecondaryButton extends StatelessWidget {
           style: getTextStyle(
             fontsize: 16,
             fontweight: FontWeight.w600,
-            color: isActive ? Colors.white : AppColors.primaryTextColor,
+            color: AppColors.primaryTextColor,
           ),
         ),
       ),
