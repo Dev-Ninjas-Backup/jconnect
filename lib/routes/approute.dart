@@ -19,6 +19,8 @@ import 'package:jconnect/features/splash/screen/splash_screen.dart';
 import 'package:jconnect/features/user_profile/edit_profile/screen/edit_profile_screen.dart';
 import 'package:jconnect/features/user_profile/profile/screen/profile_screen.dart';
 
+import '../features/home/request_service/screen/request_service_screen.dart';
+
 class AppRoute {
   //splash
   static String splashScreen = '/splashScreen';
@@ -45,6 +47,7 @@ class AppRoute {
   //home
   static String artistsScreen = '/home/artistsScreen';
   static String artistsDetailsPage = '/home/artistsDetailsPage';
+  static String requestServiceScreen = '/home/requestServiceScreen';
 
   static String getSplashScreen() => splashScreen;
   static String getOnboardingScreen() => onboardingScreen;
@@ -61,8 +64,10 @@ class AppRoute {
   //home
   static String getArtistsScreen() => artistsScreen;
   static String getArtistsDetailsPage() => artistsDetailsPage;
+  static String getRequestServiceScreen() => requestServiceScreen;
 
   static String getOrderDetails() => orderDetails;
+  
   static String getProfileScreen() => profileScreen;
   static String getEditProfileScreen() => editProfileScreen;
 
@@ -83,6 +88,7 @@ class AppRoute {
     //home
     GetPage(name: artistsScreen, page: () => ArtistsScreen()),
     GetPage(name: artistsDetailsPage, page: () => ArtistsDetailsPage()),
+    GetPage(name: requestServiceScreen, page: () => RequestServiceScreen()),
 
     GetPage(name: navBarScreen, page: () => NavBarScreen()),
     GetPage(name: addServiceScreen, page: () => AddServiceScreen()),
