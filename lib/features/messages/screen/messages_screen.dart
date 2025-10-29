@@ -10,6 +10,8 @@ import 'package:jconnect/features/messages/controller/messages_controller.dart';
 class MessagesScreen extends StatelessWidget {
   final MessagesController controller = Get.put(MessagesController());
 
+   MessagesScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
