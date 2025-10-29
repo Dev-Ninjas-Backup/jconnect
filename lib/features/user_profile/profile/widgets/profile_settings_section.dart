@@ -46,7 +46,9 @@ class ProfileSettingsSection extends StatelessWidget {
           _buildSettingsTile(
             icon: Icons.credit_card_outlined,
             title: 'Payment Method',
-            onTap: () {},
+            onTap: () {
+              Get.toNamed(AppRoute.addStripe);
+            },
           ),
           _buildSettingsTile(
             icon: Icons.notifications_outlined,

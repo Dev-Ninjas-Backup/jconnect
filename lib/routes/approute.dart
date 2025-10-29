@@ -18,8 +18,11 @@ import 'package:jconnect/features/profile_setup/screen/profile_setup_screen.dart
 import 'package:jconnect/features/splash/screen/splash_screen.dart';
 import 'package:jconnect/features/user_profile/earning_and_payouts/screen/earning_and_payouts_screen.dart';
 import 'package:jconnect/features/user_profile/edit_profile/screen/edit_profile_screen.dart';
+import 'package:jconnect/features/user_profile/payment_method/add_stripe/screen/add_stripe.dart';
+import 'package:jconnect/features/user_profile/payment_method/manage_via_stripe/screen/manage_via_stripe.dart';
 import 'package:jconnect/features/user_profile/privacy_security/screen/privacy_security_screen.dart';
 import 'package:jconnect/features/user_profile/profile/screen/profile_screen.dart';
+import 'package:jconnect/features/user_profile/reviews/screen/review_screen.dart';
 
 import '../features/home/request_service/screen/request_service_screen.dart';
 
@@ -45,6 +48,9 @@ class AppRoute {
   static String editProfileScreen = '/editProfileScreen';
   static String privacySecurity = '/privacySecurity';
   static String earningsAndPayouts = '/earningsAndPayouts';
+  static String reviewScreen = '/reviewScreen';
+  static String addStripe = '/addStripe';
+  static String manageViaStripe = '/manageViaStripe';
 
   ///navBar
   static String navBarScreen = '/navBarScreen';
@@ -71,12 +77,14 @@ class AppRoute {
   static String getRequestServiceScreen() => requestServiceScreen;
 
   static String getOrderDetails() => orderDetails;
-  
+
   static String getProfileScreen() => profileScreen;
   static String getEditProfileScreen() => editProfileScreen;
   static String getPrivacySecurity() => privacySecurity;
   static String getEarningsAndPayouts() => earningsAndPayouts;
-
+  static String getReviewScreen() => reviewScreen;
+  static String getAddStripe() => addStripe;
+  static String getManageViaStripe() => manageViaStripe;
   static List<GetPage> routes = [
     GetPage(name: splashScreen, page: () => SplashScreen()),
     GetPage(name: onboardingScreen, page: () => OnboardingScreen()),
@@ -102,5 +110,8 @@ class AppRoute {
     GetPage(name: editProfileScreen, page: () => EditProfileScreen()),
     GetPage(name: privacySecurity, page: () => PrivacySecurityScreen()),
     GetPage(name: earningsAndPayouts, page: () => EarningAndPayoutsScreen()),
+    GetPage(name: reviewScreen, page: () => ReviewScreen()),
+    GetPage(name: addStripe, page: () => AddStripe()),
+    GetPage(name: manageViaStripe, page: () => ManageViaStripe()),
   ];
 }
