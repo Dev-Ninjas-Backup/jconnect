@@ -43,7 +43,6 @@ class ArtistsScreen extends StatelessWidget {
             SizedBox(height: 30.h),
             ArtistsItemListTab(controller: controller),
             SizedBox(height: 40.h),
-
             ArtistsItem(controller: controller),
           ],
         ),

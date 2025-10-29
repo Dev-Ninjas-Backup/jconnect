@@ -60,6 +60,7 @@ class StartDeal extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 8.h),
+                      Spacer(),
                       CustomPrimaryButton(
                         buttonText: "Start Deal",
                         onTap: () {},

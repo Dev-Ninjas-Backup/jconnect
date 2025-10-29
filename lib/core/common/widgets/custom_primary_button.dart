@@ -4,11 +4,17 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 
 class CustomPrimaryButton extends StatelessWidget {
   final String buttonText;
+  final double? fontSize;
   final VoidCallback onTap;
+  final double? buttonHeight;
+  final double? buttonWidth;
   const CustomPrimaryButton({
     super.key,
     required this.buttonText,
     required this.onTap,
+    this.fontSize,
+    this.buttonHeight,
+    this.buttonWidth,
   });
 
   @override
@@ -31,14 +37,17 @@ class CustomPrimaryButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          minimumSize: Size(double.infinity, 48),
+          minimumSize: Size(buttonWidth ?? double.infinity, buttonHeight ?? 48),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         onPressed: onTap,
         child: Text(
           buttonText,
 
-          style: getTextStyle(color: AppColors.primaryTextColor, fontsize: 16),
+          style: getTextStyle(
+            color: AppColors.primaryTextColor,
+            fontsize: fontSize ?? 16,
+          ),
         ),
       ),
     );
