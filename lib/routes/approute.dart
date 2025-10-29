@@ -21,6 +21,7 @@ import 'package:jconnect/features/user_profile/edit_profile/screen/edit_profile_
 import 'package:jconnect/features/user_profile/privacy_security/screen/privacy_security_screen.dart';
 import 'package:jconnect/features/user_profile/profile/screen/profile_screen.dart';
 
+import '../features/home/confirm_your_promotion/screen/confirm_your_promotion.dart';
 import '../features/home/request_service/screen/request_service_screen.dart';
 
 class AppRoute {
@@ -52,6 +53,7 @@ class AppRoute {
   static String artistsScreen = '/home/artistsScreen';
   static String artistsDetailsPage = '/home/artistsDetailsPage';
   static String requestServiceScreen = '/home/requestServiceScreen';
+  static String confirmYourPromotion = '/home/confirmYourPromotion';
 
   static String getSplashScreen() => splashScreen;
   static String getOnboardingScreen() => onboardingScreen;
@@ -69,6 +71,7 @@ class AppRoute {
   static String getArtistsScreen() => artistsScreen;
   static String getArtistsDetailsPage() => artistsDetailsPage;
   static String getRequestServiceScreen() => requestServiceScreen;
+  static String getConfirmYourPromotion() => confirmYourPromotion;
 
   static String getOrderDetails() => orderDetails;
   
@@ -94,6 +97,7 @@ class AppRoute {
     GetPage(name: artistsScreen, page: () => ArtistsScreen()),
     GetPage(name: artistsDetailsPage, page: () => ArtistsDetailsPage()),
     GetPage(name: requestServiceScreen, page: () => RequestServiceScreen()),
+    GetPage(name: confirmYourPromotion, page: () => ConfirmYourPromotion()),
 
     GetPage(name: navBarScreen, page: () => NavBarScreen()),
     GetPage(name: addServiceScreen, page: () => AddServiceScreen()),

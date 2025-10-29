@@ -8,6 +8,7 @@ import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/core/common/widgets/custom_secondary_button.dart';
 import 'package:jconnect/core/common/widgets/gradient_border_container.dart';
 import 'package:jconnect/features/home/request_service/controller/request_service_controller.dart';
+import 'package:jconnect/routes/approute.dart';
 import '../../../../core/common/style/global_text_style.dart';
 import '../widgets/customize_your_order.dart';
 import '../widgets/request_custom_service_card.dart';
@@ -219,9 +220,7 @@ class RequestServiceScreen extends StatelessWidget {
               CustomPrimaryButton(
                 buttonText: "Proceed to Payment",
                 onTap: () {
-                  //
-
-                  //
+                  Get.toNamed(AppRoute.getConfirmYourPromotion());
                 },
               ),
               SizedBox(height: 16.h),
