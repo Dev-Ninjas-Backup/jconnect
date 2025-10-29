@@ -4,13 +4,20 @@ import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/features/home/artists_details_screen/model/review_rating_model.dart';
 import 'package:jconnect/features/home/artists_details_screen/model/social_post_model.dart';
 
+import '../model/service_model.dart';
+
 class ArtistsDetailsController extends GetxController {
   final RxList<SocialPostModel> socialPostListItem = <SocialPostModel>[].obs;
-  final RxList<ReviewRatingModel> reviewAndRatingListItem = <ReviewRatingModel>[].obs;
+  final RxList<ReviewRatingModel> reviewAndRatingListItem =
+      <ReviewRatingModel>[].obs;
+  final RxList<ServiceModel> serviceListItem = <ServiceModel>[].obs;
+
+  final RxString selectSocialOrService = "social".obs;
   @override
   void onInit() {
     socialPostItems();
     reviewAndRatingItem();
+    serviceItem();
 
     super.onInit();
   }
@@ -44,6 +51,46 @@ class ArtistsDetailsController extends GetxController {
         title: "TikTok",
         subTitle: "Perfect for short, viral content with high engagement",
         rate: 45,
+      ),
+    ]);
+  }
+
+  //service
+  void serviceItem() {
+    serviceListItem.addAll([
+      ServiceModel(
+        title: "Social Shoutout",
+        subTitle:
+            "Get featured in a story or post from a verified DJ to boost your reach",
+        rate: 3.5,
+      ),
+
+      ServiceModel(
+        title: "Social Shoutout",
+        subTitle:
+            "Get featured in a story or post from a verified DJ to boost your reach",
+        rate: 3.5,
+      ),
+
+      ServiceModel(
+        title: "Social Shoutout",
+        subTitle:
+            "Get featured in a story or post from a verified DJ to boost your reach",
+        rate: 3.5,
+      ),
+
+      ServiceModel(
+        title: "Social Shoutout",
+        subTitle:
+            "Get featured in a story or post from a verified DJ to boost your reach",
+        rate: 3.5,
+      ),
+
+      ServiceModel(
+        title: "Social Shoutout",
+        subTitle:
+            "Get featured in a story or post from a verified DJ to boost your reach",
+        rate: 3.5,
       ),
     ]);
   }
