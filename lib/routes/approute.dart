@@ -18,6 +18,7 @@ import 'package:jconnect/features/profile_setup/screen/profile_setup_screen.dart
 import 'package:jconnect/features/splash/screen/splash_screen.dart';
 import 'package:jconnect/features/user_profile/earning_and_payouts/screen/earning_and_payouts_screen.dart';
 import 'package:jconnect/features/user_profile/edit_profile/screen/edit_profile_screen.dart';
+import 'package:jconnect/features/user_profile/help_and_support/support_sreen/screen/help_and_support_screen.dart';
 import 'package:jconnect/features/user_profile/payment_method/add_stripe/screen/add_stripe.dart';
 import 'package:jconnect/features/user_profile/payment_method/manage_via_stripe/screen/manage_via_stripe.dart';
 import 'package:jconnect/features/user_profile/privacy_security/screen/privacy_security_screen.dart';
@@ -52,6 +53,7 @@ class AppRoute {
   static String reviewScreen = '/reviewScreen';
   static String addStripe = '/addStripe';
   static String manageViaStripe = '/manageViaStripe';
+  static String helpAndSupportScreen = '/helpAndSupportScreen';
 
   ///navBar
   static String navBarScreen = '/navBarScreen';
@@ -88,6 +90,8 @@ class AppRoute {
   static String getReviewScreen() => reviewScreen;
   static String getAddStripe() => addStripe;
   static String getManageViaStripe() => manageViaStripe;
+  static String getHelpAndSupport() => helpAndSupportScreen;
+
   static List<GetPage> routes = [
     GetPage(name: splashScreen, page: () => SplashScreen()),
     GetPage(name: onboardingScreen, page: () => OnboardingScreen()),
@@ -117,5 +121,6 @@ class AppRoute {
     GetPage(name: reviewScreen, page: () => ReviewScreen()),
     GetPage(name: addStripe, page: () => AddStripe()),
     GetPage(name: manageViaStripe, page: () => ManageViaStripe()),
+    GetPage(name: helpAndSupportScreen, page: () => HelpAndSupportScreen()),
   ];
 }

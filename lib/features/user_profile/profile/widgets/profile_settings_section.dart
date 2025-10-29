@@ -65,7 +65,9 @@ class ProfileSettingsSection extends StatelessWidget {
           _buildSettingsTile(
             icon: Icons.headset_mic_outlined,
             title: 'Help & Support',
-            onTap: () {},
+            onTap: () {
+              Get.toNamed(AppRoute.helpAndSupportScreen);
+            },
           ),
           _buildSettingsTile(
             icon: Icons.logout,
