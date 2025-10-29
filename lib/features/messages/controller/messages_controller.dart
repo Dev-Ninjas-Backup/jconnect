@@ -1,52 +1,191 @@
-
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:jconnect/core/common/constants/app_colors.dart';
+import 'package:jconnect/core/common/constants/iconpath.dart';
+import 'package:jconnect/core/common/style/global_text_style.dart';
 
 class MessagesController extends GetxController {
-  var selectedTab = 'All Chats'.obs;
+  final selectedTab = 'All Chats'.obs;
 
-  final RxList<Map<String, dynamic>> messages = <Map<String, dynamic>>[
+  var messages = [
     {
-      "name": "Reva Sky",
-      "avatar": "assets/reva_sky.png",
-      "time": "5m ago",
-      "content": "I've just sent you a new track for review 👽",
-      "unread": true,
+      'name': 'John Doe',
+      'content': 'Hey there! How are you?',
+      'time': '10:45 AM',
+      'unread': true,
+      'activeDeal': true,
+      'completedDeal': false,
+      'archived': false,
     },
     {
-      "name": "DJ NovaX",
-      "avatar": "assets/dj_novax.png",
-      "time": "15m ago",
-      "content": "Got your track! I'll post it tomorrow as discussed...",
-      "activeDeal": true,
+      'name': 'Alice Smith',
+      'content': 'Let’s catch up later.',
+      'time': 'Yesterday',
+      'unread': false,
+      'activeDeal': false,
+      'completedDeal': true,
+      'archived': false,
     },
     {
-      "name": "Luna Beats",
-      "avatar": "assets/luna_beats.png",
-      "time": "1h ago",
-      "content": "Hey! Can we discuss your promo rates?",
-      "archived": true,
+      'name': 'Michael Johnson',
+      'content': 'I sent you the files.',
+      'time': '9:30 AM',
+      'unread': true,
+      'activeDeal': false,
+      'completedDeal': false,
+      'archived': false,
     },
     {
-      "name": "MelloTune",
-      "avatar": "assets/mellotune.png",
-      "time": "3h ago",
-      "content": "Once payment clears, I'll drop the reaction video.",
-      "archived": true,
+      'name': 'Emma Williams',
+      'content': 'Can we reschedule the meeting?',
+      'time': 'Yesterday',
+      'unread': false,
+      'activeDeal': true,
+      'completedDeal': false,
+      'archived': false,
     },
     {
-      "name": "DJ Static",
-      "avatar": "assets/dj_static.png",
-      "time": "Yesterday",
-      "content": "Glad you liked the review, bro! Let's collab again...",
-      "completedDeal": true,
-      "unread": true,
+      'name': 'David Brown',
+      'content': 'Thanks for your support!',
+      'time': 'Sep 20',
+      'unread': true,
+      'activeDeal': false,
+      'completedDeal': true,
+      'archived': false,
     },
     {
-      "name": "DJ Aero",
-      "avatar": "assets/dj_aero.png",
-      "time": "Sep 12",
-      "content": "All good! Let's plan next month's promo.",
+      'name': 'Sophia Davis',
+      'content': 'Please check the document attached.',
+      'time': 'Sep 18',
+      'unread': false,
+      'activeDeal': false,
+      'completedDeal': false,
+      'archived': false,
+    },
+    {
+      'name': 'James Wilson',
+      'content': 'Looking forward to our collaboration.',
+      'time': 'Sep 15',
+      'unread': true,
+      'activeDeal': true,
+      'completedDeal': false,
+      'archived': false,
     },
   ].obs;
+
+  /// 🔹 Delete confirmation dialog (bottom sheet style)
+  void showDeleteDialog(BuildContext context, Map msg) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    Get.bottomSheet(
+      Container(
+        height: screenHeight * 0.6,
+        width: screenWidth,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.09,
+          vertical: screenHeight * 0.09,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Delete icon with circular background
+            SizedBox(
+              height: screenHeight * 0.1,
+              width: screenHeight * 0.1,
+              child: Center(
+                child: Container(
+                  height: screenHeight * 0.08,
+                  width: screenHeight * 0.08,
+                  decoration: BoxDecoration(
+                    color: AppColors.redAccent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Image.asset(
+                      Iconpath.reddelete,
+                      height: screenHeight * 0.035,
+                      width: screenHeight * 0.035,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            SizedBox(height: screenHeight * 0.015),
+            Text(
+              "Are you sure you want to delete this message?",
+              textAlign: TextAlign.center,
+              style: getTextStyle(
+                fontsize: screenHeight * 0.025,
+                fontweight: FontWeight.w600,
+                color: AppColors.backGroundColor,
+              ),
+            ),
+            SizedBox(height: screenHeight * 0.01),
+            Text(
+              "The message will be deleted from this device",
+              style: getTextStyle(
+                fontsize: screenHeight * 0.014,
+                fontweight: FontWeight.w400,
+                color: Colors.grey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: screenHeight * 0.09),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.redColor,
+                    foregroundColor: Colors.white,
+                    minimumSize: Size(screenWidth * 0.35, screenHeight * 0.05),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () => Get.back(),
+                  child: Text(
+                    "Cancel",
+                    style: getTextStyle(
+                      fontsize: 14,
+                      fontweight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFE7E7E7),
+                    foregroundColor: Colors.black,
+                    minimumSize: Size(screenWidth * 0.35, screenHeight * 0.05),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () {
+                    messages.remove(msg);
+                    Get.back();
+                  },
+                  child: Text(
+                    "Delete",
+                    style: getTextStyle(
+                      fontsize: 14,
+                      fontweight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+    );
+  }
 }

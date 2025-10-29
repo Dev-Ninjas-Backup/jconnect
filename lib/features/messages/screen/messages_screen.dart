@@ -2,26 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
+import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
+import 'package:jconnect/features/messages/chat_details/screen/chat_details_screen.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
-
+import 'package:jconnect/features/messages/widget/messages_tab_bar.dart';
 
 class MessagesScreen extends StatelessWidget {
   final MessagesController controller = Get.put(MessagesController());
 
-   MessagesScreen({super.key});
+  MessagesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF161616),
+      backgroundColor: AppColors.backGroundColor,
       appBar: AppBar(
-        title: Text(
-          'Messages',
-          style: getTextStyle(color: Colors.white, fontsize: 24.sp),
-        ),
-        backgroundColor: const Color(0xFF161616),
+        title: Text('Messages', style: getTextStyle(fontsize: 24.sp)),
+        backgroundColor: AppColors.backGroundColor,
         elevation: 0,
         actions: [
           Container(
@@ -31,7 +30,11 @@ class MessagesScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: IconButton(
-              icon: Icon(Icons.search, color: Colors.white, size: 24.sp),
+              icon: Icon(
+                Icons.search,
+                color: AppColors.primaryTextColor,
+                size: 24.sp,
+              ),
               onPressed: () {},
               splashRadius: 24.sp,
             ),
@@ -48,12 +51,12 @@ class MessagesScreen extends StatelessWidget {
           SizedBox(height: 16.h),
           Expanded(
             child: Obx(() {
-              final filtered = _filterMessages(controller.selectedTab.value);
+              final filtered = filterMessages(controller.selectedTab.value);
               return ListView.builder(
                 itemCount: filtered.length,
                 itemBuilder: (_, idx) {
                   final msg = filtered[idx];
-                  return _buildMessageItem(msg);
+                  return buildSwipeItem(context, msg);
                 },
               );
             }),
@@ -63,167 +66,197 @@ class MessagesScreen extends StatelessWidget {
     );
   }
 
-  List<Map<String, dynamic>> _filterMessages(String tab) {
+  List<Map<String, dynamic>> filterMessages(String tab) {
     final msgs = controller.messages;
-    if (tab == 'All Chats') return msgs;
+    if (tab == 'All Chats') return msgs.toList();
     if (tab == 'Active Deals') {
-      return msgs.where((msg) => msg['activeDeal'] == true).toList();
+      return msgs.where((msg) => (msg['activeDeal'] as bool)).toList();
     }
     if (tab == 'Unread') {
-      return msgs.where((msg) => msg['unread'] == true).toList();
+      return msgs.where((msg) => (msg['unread'] as bool)).toList();
     }
     if (tab == 'Archived') {
-      return msgs.where((msg) => msg['archived'] == true).toList();
+      return msgs.where((msg) => (msg['archived'] as bool)).toList();
     }
-    return msgs;
+
+    return msgs.toList();
   }
 
-  Widget _buildMessageItem(Map msg) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 22.r,
-            backgroundImage: AssetImage(Imagepath.profileImage),
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Text(
-                            msg['name'],
-                            style: getTextStyle(
-                              color: Colors.white,
+  Widget buildSwipeItem(BuildContext context, Map msg) {
+    double dragOffset = 0.0;
+    final maxOffset = -80.0;
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return GestureDetector(
+          onHorizontalDragUpdate: (details) {
+            setState(() {
+              dragOffset += details.delta.dx;
+              if (dragOffset < maxOffset) dragOffset = maxOffset;
+              if (dragOffset > 0) dragOffset = 0;
+            });
+          },
+          onHorizontalDragEnd: (_) {
+            if (dragOffset < maxOffset / 2) {
+              setState(() => dragOffset = maxOffset);
+            } else {
+              setState(() => dragOffset = 0);
+            }
+          },
+          child: Stack(
+            children: [
+              /// Delete Icon Background
+              Positioned.fill(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: AnimatedOpacity(
+                    opacity: dragOffset == 0 ? 0 : 1,
+                    duration: Duration(milliseconds: 200),
+                    child: Padding(
+                      padding: EdgeInsets.only(right: 12.w),
+                      child: GestureDetector(
+                        onTap: () => controller.showDeleteDialog(context, msg),
+                        child: Container(
+                          height: 50.h,
+                          width: 40.w,
+                          decoration: BoxDecoration(
+                            color: AppColors.redColor,
+                            borderRadius: BorderRadius.circular(0.r),
+                          ),
+                          child: Align(
+                            alignment: Alignment(0, -0.2),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Image.asset(Iconpath.delete, height: 24),
+                                SizedBox(height: 4),
+                                Text(
+                                  "Delete",
+                                  style: getTextStyle(
+                                    fontsize: 10,
+                                    fontweight: FontWeight.w400,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(width: 8.w),
-                          if (msg['activeDeal'] == true)
-                            Container(
-                              decoration: BoxDecoration(
-                                color: AppColors.redColor,
-                                borderRadius: BorderRadius.circular(5.r),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 5.w,
-                                vertical: 2.h,
-                              ),
-                              child: Text(
-                                'Active Deal',
-                                style: TextStyle(
-                                  fontSize: 10.sp,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          if (msg['completedDeal'] == true)
-                            Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF222222),
-                                borderRadius: BorderRadius.circular(5.r),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 5.w,
-                                vertical: 2.h,
-                              ),
-                              child: Text(
-                                'Completed Deal',
-                                style: TextStyle(
-                                  fontSize: 10.sp,
-                                  color: const Color(0xFF7E7E7E),
-                                ),
-                              ),
-                            ),
-                        ],
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      msg['time'],
-                      style: TextStyle(
-                        color: const Color(0xFF7E7E7E),
-                        fontSize: 11.sp,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 2.h),
-                Text(
-                  msg['content'],
-                  style: TextStyle(
-                    color: const Color(0xFFA3A3A3),
-                    fontSize: 12.sp,
-                    fontWeight: msg['unread'] == true ? FontWeight.bold : FontWeight.normal,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Divider(
-                    color: const Color(0xFF7E7E7E),
-                    height: 20.h,
-                    thickness: 0.9,
-                    endIndent: 0,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class MessagesTabBar extends StatelessWidget {
-  final MessagesController controller;
-  const MessagesTabBar({super.key, required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    final tabs = ['All Chats', 'Active Deals', 'Unread', 'Archived'];
-
-    return Obx(() {
-      return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: tabs.map((tab) {
-            final isSelected = controller.selectedTab.value == tab;
-            return Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: GestureDetector(
-                onTap: () => controller.selectedTab.value = tab,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isSelected ? AppColors.redColor : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.white24),
-                  ),
-                  child: Text(
-                    tab,
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.white70,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
               ),
-            );
-          }).toList(),
-        ),
-      );
-    });
+
+              /// Foreground Chat Row
+              Transform.translate(
+                offset: Offset(dragOffset, 0),
+                child: GestureDetector(
+                  onTap: () {
+                    Get.to(
+                      () => ChatDetailsScreen(
+                        key: ValueKey(msg['name']), // optional
+                        profileImage: Imagepath.profileImage,
+                      ),
+                    );
+                  },
+                  child: Container(
+                    color: Colors.transparent,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 14.w,
+                      vertical: 10.h,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CircleAvatar(
+                          radius: 22.r,
+                          backgroundImage: AssetImage(Imagepath.profileImage),
+                        ),
+                        SizedBox(width: 12.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          msg['name'],
+                                          style: getTextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        SizedBox(width: 8.w),
+                                        if (msg['activeDeal'] == true)
+                                          buildTag(
+                                            'Active Deal',
+                                            AppColors.redColor,
+                                          ),
+                                        if (msg['completedDeal'] == true)
+                                          buildTag(
+                                            'Completed Deal',
+                                            Color(0xFF222222),
+                                            textColor: Color(0xFF7E7E7E),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    msg['time'],
+                                    style: TextStyle(
+                                      color: Color(0xFF7E7E7E),
+                                      fontSize: 11.sp,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 2.h),
+                              Text(
+                                msg['content'],
+                                style: TextStyle(
+                                  color: Color(0xFFA3A3A3),
+                                  fontSize: 12.sp,
+                                  fontWeight: msg['unread']
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Divider(
+                                color: Color(0xFF7E7E7E),
+                                height: 20.h,
+                                thickness: 0.9,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildTag(String text, Color color, {Color textColor = Colors.white}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(5.r),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+      margin: EdgeInsets.only(left: 5.w),
+      child: Text(
+        text,
+        style: TextStyle(fontSize: 10.sp, color: textColor, height: 1.2),
+      ),
+    );
   }
 }
