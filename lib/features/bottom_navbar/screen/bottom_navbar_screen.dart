@@ -8,6 +8,7 @@ import 'package:jconnect/features/bottom_navbar/controller/bottom_navbar_control
 import 'package:jconnect/features/home/home_screen/screen/home_page.dart';
 import 'package:jconnect/features/messages/screen/messages_screen.dart';
 import 'package:jconnect/features/my_orders/screen/my_orders_screen.dart';
+import 'package:jconnect/features/user_profile/profile/screen/profile_screen.dart';
 
 class NavBarScreen extends StatelessWidget {
   const NavBarScreen({super.key});
@@ -21,8 +22,7 @@ class NavBarScreen extends StatelessWidget {
       MessagesScreen(),
 
       const MyOrdersScreen(),
-
-      const HomePage(),
+      ProfileScreen(),
     ];
 
     final List<String> icons = [
