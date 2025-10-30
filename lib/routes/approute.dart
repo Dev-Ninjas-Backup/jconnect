@@ -10,6 +10,7 @@ import 'package:jconnect/features/bottom_navbar/screen/bottom_navbar_screen.dart
 import 'package:jconnect/features/home/artists_details_screen/screen/artists_details_page.dart';
 
 import 'package:jconnect/features/home/artists_screen/screen/artists_screen.dart';
+import 'package:jconnect/features/home/by_social_post/screen/buy_social_post.dart';
 
 import 'package:jconnect/features/my_orders/order_details/screen/order_details_screen.dart';
 
@@ -60,6 +61,8 @@ class AppRoute {
   static String artistsDetailsPage = '/home/artistsDetailsPage';
   static String requestServiceScreen = '/home/requestServiceScreen';
   static String confirmYourPromotion = '/home/confirmYourPromotion';
+  static String buySocialPost = '/home/buySocialPost';
+
 
   static String getSplashScreen() => splashScreen;
   static String getOnboardingScreen() => onboardingScreen;
@@ -78,6 +81,7 @@ class AppRoute {
   static String getArtistsDetailsPage() => artistsDetailsPage;
   static String getRequestServiceScreen() => requestServiceScreen;
   static String getConfirmYourPromotion() => confirmYourPromotion;
+  static String getBuySocialPost() => buySocialPost;
 
   static String getOrderDetails() => orderDetails;
 
@@ -106,6 +110,7 @@ class AppRoute {
     GetPage(name: artistsDetailsPage, page: () => ArtistsDetailsPage()),
     GetPage(name: requestServiceScreen, page: () => RequestServiceScreen()),
     GetPage(name: confirmYourPromotion, page: () => ConfirmYourPromotion()),
+    GetPage(name: buySocialPost, page: () => BuySocialPost()),
 
     GetPage(name: navBarScreen, page: () => NavBarScreen()),
     GetPage(name: addServiceScreen, page: () => AddServiceScreen()),
