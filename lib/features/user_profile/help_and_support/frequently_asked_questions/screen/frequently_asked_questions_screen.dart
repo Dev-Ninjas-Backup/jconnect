@@ -6,6 +6,7 @@ import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
+import 'package:jconnect/features/user_profile/help_and_support/contact_us/screen/contact_support_screen.dart';
 
 class FrequentlyAskedQuestionsScreen extends StatelessWidget {
   const FrequentlyAskedQuestionsScreen({super.key});
@@ -50,7 +51,12 @@ class FrequentlyAskedQuestionsScreen extends StatelessWidget {
               ),
 
               SizedBox(height: 16.h),
-              CustomPrimaryButton(buttonText: 'Chat For Suport', onTap: () {}),
+              CustomPrimaryButton(
+                buttonText: 'Chat For Suport',
+                onTap: () {
+                  Get.to(ContactSupportScreen());
+                },
+              ),
 
               SizedBox(height: 8.h),
               Text(
