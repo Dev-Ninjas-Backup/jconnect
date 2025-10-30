@@ -12,6 +12,8 @@ import 'package:jconnect/features/home/artists_details_screen/screen/artists_det
 import 'package:jconnect/features/home/artists_screen/screen/artists_screen.dart';
 import 'package:jconnect/features/home/by_social_post/screen/buy_social_post.dart';
 import 'package:jconnect/features/home/custom_services/screen/customl_services.dart';
+import 'package:jconnect/features/home/notification/screen/notification_screen.dart';
+import 'package:jconnect/features/messages/chat_details/screen/chat_details_screen.dart';
 
 import 'package:jconnect/features/my_orders/order_details/screen/order_details_screen.dart';
 
@@ -66,7 +68,8 @@ class AppRoute {
   static String confirmYourPromotion = '/home/confirmYourPromotion';
   static String buySocialPost = '/home/buySocialPost';
   static String customServices = '/home/customServices';
-
+  static String notificationScreen = '/notificationScreen';
+  static String chatDetailsScreen = '/chatDetailsScreen';
 
   static String getSplashScreen() => splashScreen;
   static String getOnboardingScreen() => onboardingScreen;
@@ -98,6 +101,8 @@ class AppRoute {
   static String getAddStripe() => addStripe;
   static String getManageViaStripe() => manageViaStripe;
   static String getHelpAndSupport() => helpAndSupportScreen;
+  static String getNotificationScreen() => notificationScreen;
+  static String getChatDetailsScreen() => chatDetailsScreen;
 
   static List<GetPage> routes = [
     GetPage(name: splashScreen, page: () => SplashScreen()),
@@ -131,5 +136,10 @@ class AppRoute {
     GetPage(name: addStripe, page: () => AddStripe()),
     GetPage(name: manageViaStripe, page: () => ManageViaStripe()),
     GetPage(name: helpAndSupportScreen, page: () => HelpAndSupportScreen()),
+    GetPage(name: notificationScreen, page: () => NotificationScreen()),
+    GetPage(
+      name: chatDetailsScreen,
+      page: () => ChatDetailsScreen(profileImage: ''),
+    ),
   ];
 }
