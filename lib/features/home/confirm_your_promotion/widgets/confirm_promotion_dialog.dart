@@ -6,6 +6,7 @@ import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
+import 'package:jconnect/routes/approute.dart';
 
 void showDeleteDialog() {
   Get.bottomSheet(
@@ -43,8 +44,8 @@ void showDeleteDialog() {
           CustomPrimaryButton(buttonText: "View Order Details", onTap: () {}),
           SizedBox(height: 14.h),
           CustomPrimaryButton(
-            buttonText: "View Order Details",
-            onTap: () {},
+            buttonText: "Back to Home",
+            onTap: () {Get.offNamed(AppRoute.navBarScreen);},
             gradientColor: [Colors.grey, Colors.grey, Colors.grey],
           ),
         ],
