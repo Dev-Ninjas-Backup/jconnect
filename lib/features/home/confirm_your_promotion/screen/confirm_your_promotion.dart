@@ -6,7 +6,6 @@ import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
-import 'package:jconnect/core/common/widgets/gradient_border_container.dart';
 
 import '../widgets/confirm_promotion_dialog.dart';
 import '../widgets/confirm_promotion_upper_card.dart';
