@@ -18,7 +18,7 @@ class SetDateWidget extends StatelessWidget {
       builder: (context, child) {
         return Theme(
           data: ThemeData.dark().copyWith(
-            colorScheme: const ColorScheme.dark(
+            colorScheme:  ColorScheme.dark(
               primary: Color(0xFFD6002F), // red accent
               surface: Colors.black,
               onSurface: Colors.white,
