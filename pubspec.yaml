@@ -43,9 +43,7 @@ dependencies:
   build_runner: ^2.10.1
   flutter_rating_bar: ^4.0.1
   intl: ^0.19.0
-
   dotted_border: ^3.1.0
-
   uuid: ^4.5.1
 
 
