@@ -5,6 +5,11 @@ import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/messages/chat_details/controller/chat_details_controller.dart';
+import 'package:jconnect/features/messages/chat_details/widgets/cancel_deal_widget.dart';
+import 'package:jconnect/features/messages/chat_details/widgets/payment_dailog_widget.dart';
+import 'package:jconnect/features/messages/chat_details/widgets/send_file_dailog_widget.dart';
+import 'package:jconnect/features/messages/chat_details/widgets/set_date_widget.dart';
+import 'package:jconnect/features/messages/chat_details/widgets/view_oder_details_widget.dart';
 
 class ChatDetailsScreen extends StatelessWidget {
   final ChatDetailsController controller = Get.put(ChatDetailsController());
@@ -172,18 +177,29 @@ class ChatDetailsScreen extends StatelessWidget {
                           children: [
                             ListTile(
                               title: Text(
-                                '📎 send File',
+                                '📎 Send File',
                                 style: TextStyle(color: Colors.white),
                               ),
-                              onTap: () {},
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (_) => const SendFileDialogWidget(),
+                                );
+                              },
                             ),
+
                             Divider(color: Colors.white24, height: 2),
                             ListTile(
                               title: Text(
                                 '💵 Make Payment',
                                 style: TextStyle(color: Colors.white),
                               ),
-                              onTap: () {},
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => PaymentDialogWidget(),
+                                );
+                              },
                             ),
                             Divider(color: Colors.white24, height: 2),
                             ListTile(
@@ -191,7 +207,12 @@ class ChatDetailsScreen extends StatelessWidget {
                                 '📅 Set Date',
                                 style: TextStyle(color: Colors.white),
                               ),
-                              onTap: () {},
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => SetDateWidget(),
+                                );
+                              },
                             ),
                             Divider(color: Colors.white24, height: 2),
                             ListTile(
@@ -199,7 +220,13 @@ class ChatDetailsScreen extends StatelessWidget {
                                 '🛒 View Order Details',
                                 style: TextStyle(color: Colors.white),
                               ),
-                              onTap: () {},
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) =>
+                                      ViewOrderDetailsWidget(),
+                                );
+                              },
                             ),
                             Divider(color: Colors.white24, height: 2),
                             ListTile(
@@ -207,7 +234,12 @@ class ChatDetailsScreen extends StatelessWidget {
                                 '❌ Cancel Deal',
                                 style: TextStyle(color: Colors.white),
                               ),
-                              onTap: () {},
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => CancelDealWidget(),
+                                );
+                              },
                             ),
                           ],
                         ),
