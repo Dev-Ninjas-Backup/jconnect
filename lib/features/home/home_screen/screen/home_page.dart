@@ -29,7 +29,9 @@ class HomePage extends StatelessWidget {
               CustomAppBar2(
                 title: "Home",
                 actionIconUrl: Iconpath.notificationIcon,
-                actionOnTap: () {},
+                actionOnTap: () {
+                  Get.toNamed(AppRoute.notificationScreen);
+                },
               ),
               SizedBox(height: 30.h),
               CustomTextfield(

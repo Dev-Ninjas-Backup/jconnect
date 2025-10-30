@@ -10,7 +10,6 @@ import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/core/common/widgets/custom_secondary_button.dart';
 import 'package:jconnect/core/common/widgets/gradient_border_container.dart';
-import 'package:jconnect/features/home/by_social_post/widgets/buy_social_post_dialog.dart';
 import 'package:jconnect/features/home/custom_services/controller/custom_service_controller.dart';
 import 'package:jconnect/features/home/custom_services/widgets/show_dialog_custom_service.dart';
 
