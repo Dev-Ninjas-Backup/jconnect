@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/get_navigation.dart';
+import 'package:jconnect/routes/approute.dart';
 
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/constants/iconpath.dart';
@@ -43,7 +46,9 @@ class RequestCustomServiceCard extends StatelessWidget {
 
             CustomPrimaryButton(
               buttonText: "Request a Custom Service",
-              onTap: () {},
+              onTap: () {
+                Get.toNamed(AppRoute.customServices);
+              },
             ),
           ],
         ),
