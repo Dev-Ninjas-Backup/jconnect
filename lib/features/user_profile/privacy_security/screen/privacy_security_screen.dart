@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
+import 'package:jconnect/routes/approute.dart';
 
 class PrivacySecurityScreen extends StatelessWidget {
   const PrivacySecurityScreen({super.key});
@@ -32,17 +34,26 @@ class PrivacySecurityScreen extends StatelessWidget {
                   children: [
                     _buildSettingsTile(
                       title: 'Privacy Policy',
-                      onTap: () => print('Privacy Policy tapped'),
+                      onTap: () {
+                        EasyLoading.showInfo(
+                          'This Data Will Come from Backend',
+                        );
+                      },
                     ),
                     SizedBox(height: 12.h),
                     _buildSettingsTile(
                       title: 'Terms and conditions',
-                      onTap: () => print('Terms tapped'),
+                      onTap: () {
+                        EasyLoading.showInfo(
+                          'This Data Will Come From backend',
+                        );
+                      },
                     ),
+
                     SizedBox(height: 12.h),
                     _buildSettingsTile(
                       title: 'Change password',
-                      onTap: () => print('Change Password tapped'),
+                      onTap: () => Get.toNamed(AppRoute.newPasswordScreen),
                     ),
                   ],
                 ),
