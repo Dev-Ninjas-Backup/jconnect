@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
@@ -11,18 +10,26 @@ class StartDeal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final cardWidth = screenWidth * 0.8;
+    final cardHeight = screenHeight * 0.23;
+    final padding = screenWidth * 0.04;
+
     return SizedBox(
-      height: 195.h,
+      height: cardHeight,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: controller.startDealList.length,
+        padding: EdgeInsets.symmetric(horizontal: padding),
         itemBuilder: (_, index) {
           return Padding(
-            padding: EdgeInsets.only(right: 16.w),
+            padding: EdgeInsets.only(right: padding),
             child: Container(
-              width: 310.w,
+              width: cardWidth,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.r),
+                borderRadius: BorderRadius.circular(12),
                 gradient: LinearGradient(
                   colors: [
                     Color(0xFFBD001F),
@@ -34,12 +41,12 @@ class StartDeal extends StatelessWidget {
                 padding: EdgeInsets.all(2),
                 child: Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 14.w,
-                    vertical: 20.h,
+                    horizontal: padding * 0.6,
+                    vertical: padding,
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.backGroundColor,
-                    borderRadius: BorderRadius.circular(8.r),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,15 +58,15 @@ class StartDeal extends StatelessWidget {
                           color: AppColors.primaryTextColor,
                         ),
                       ),
-                      SizedBox(height: 8.h),
+                      SizedBox(height: padding * 0.5),
                       Text(
                         "Promote your content now and get featured feedback before Sunday. (Utilize discount for fast, high-visibility placement.)",
                         style: getTextStyle(
-                          fontsize: sp(10),
+                          fontsize: 12,
                           color: AppColors.secondaryTextColor,
                         ),
                       ),
-                      SizedBox(height: 8.h),
+                      SizedBox(height: padding * 0.5),
                       CustomPrimaryButton(
                         buttonText: "Start Deal",
                         onTap: () {},
