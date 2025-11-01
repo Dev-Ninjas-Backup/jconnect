@@ -53,7 +53,9 @@ class ProfileSettingsSection extends StatelessWidget {
           _buildSettingsTile(
             icon: Icons.notifications_outlined,
             title: 'Notifications',
-            onTap: () {},
+            onTap: () {
+              Get.toNamed('/notificationScreen');
+            },
           ),
           _buildSettingsTile(
             icon: Icons.lock_outline,
@@ -73,7 +75,9 @@ class ProfileSettingsSection extends StatelessWidget {
             icon: Icons.logout,
             title: 'Logout',
             isLogout: true,
-            onTap: () {},
+            onTap: () {
+              Get.offAllNamed('/loginScreen');
+            },
           ),
         ],
       ),
