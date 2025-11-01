@@ -12,7 +12,7 @@ class StartDeal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 186.h,
+      height: 195.h,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: controller.startDealList.length,
@@ -60,7 +60,6 @@ class StartDeal extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 8.h),
-                      Spacer(),
                       CustomPrimaryButton(
                         buttonText: "Start Deal",
                         onTap: () {},

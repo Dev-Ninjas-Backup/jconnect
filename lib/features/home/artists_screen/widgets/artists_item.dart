@@ -22,8 +22,8 @@ class ArtistsItem extends StatelessWidget {
         scrollDirection: Axis.vertical,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: 12.w,
-          mainAxisSpacing: 20.h,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 15,
           childAspectRatio: .4,
         ),
         shrinkWrap: true,
