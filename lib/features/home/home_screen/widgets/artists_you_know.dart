@@ -19,7 +19,7 @@ class ArtistsYouKnow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 448.h,
+      height: 470.h,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: controller.artistsList.length,
