@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
+import 'package:jconnect/features/messages/screen/messages_screen.dart';
+import 'package:jconnect/features/my_orders/screen/my_orders_screen.dart';
 import 'package:jconnect/features/user_profile/profile/controller/profile_controller.dart';
 import 'package:jconnect/routes/approute.dart';
 
@@ -16,7 +18,9 @@ class ProfileActivitySection extends StatelessWidget {
       {
         'icon': Icons.shopping_bag_outlined,
         'label': 'My Orders',
-        'onTap': () {},
+        'onTap': () {
+          Get.to(MyOrdersScreen());
+        },
       },
       {
         'icon': Icons.attach_money_rounded,
@@ -25,7 +29,11 @@ class ProfileActivitySection extends StatelessWidget {
           Get.toNamed(AppRoute.earningsAndPayouts);
         },
       },
-      {'icon': Icons.mail_outline, 'label': 'Messages', 'onTap': () => {}},
+      {
+        'icon': Icons.mail_outline,
+        'label': 'Messages',
+        'onTap': () => {Get.to(MessagesScreen())},
+      },
       {
         'icon': Icons.star_border_rounded,
         'label': 'Reviews',
