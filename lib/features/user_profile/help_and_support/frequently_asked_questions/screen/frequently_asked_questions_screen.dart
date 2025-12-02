@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -142,7 +143,9 @@ class FrequentlyAskedQuestionsScreen extends StatelessWidget {
                 );
                 break;
               default:
-                print('No action defined for $title');
+                if (kDebugMode) {
+                  print('No action defined for $title');
+                }
             }
           },
         ),

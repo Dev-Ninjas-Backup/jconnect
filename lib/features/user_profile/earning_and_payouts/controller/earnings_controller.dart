@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 class EarningsController extends GetxController {
@@ -11,13 +12,17 @@ class EarningsController extends GetxController {
     if (amount <= 0) return; // ignore invalid amounts
     if (amount > availableToWithdraw.value) {
       // Optional: show error if using a UI layer
-      print('Withdrawal amount exceeds available balance');
+      if (kDebugMode) {
+        print('Withdrawal amount exceeds available balance');
+      }
       return;
     }
 
     availableToWithdraw.value -= amount;
     pendingClearance.value += amount; // moved to pending
-    print('Withdrawal processed: $amount');
+    if (kDebugMode) {
+      print('Withdrawal processed: $amount');
+    }
   }
 
   /// Increase available balance (e.g., earnings added)
