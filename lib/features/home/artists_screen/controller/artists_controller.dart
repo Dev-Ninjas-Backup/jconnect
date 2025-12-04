@@ -28,10 +28,9 @@ class ArtistsController extends GetxController {
 
   final RxList<String> artistItemTab = [
     'All Artists',
-    'Featured Artists',
-    'Rising Stars',
+    'Recently Updated',
     'Top Rated',
-    'Most Active',
+    'Suggested',
   ].obs;
   @override
   void onInit() {

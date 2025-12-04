@@ -7,6 +7,8 @@ import 'package:get/get.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/core/common/widgets/custom_secondary_button.dart';
 import 'package:jconnect/features/home/artists_screen/controller/artists_controller.dart';
+import 'package:jconnect/features/home/home_screen/controller/home_controller.dart';
+import 'package:jconnect/features/home/home_screen/model/artists_model.dart';
 import 'package:jconnect/routes/approute.dart';
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/style/global_text_style.dart';
@@ -14,14 +16,30 @@ import '../../../../core/common/widgets/gradient_border_container.dart';
 
 class ArtistsItem extends StatelessWidget {
   final ArtistsController controller;
-  const ArtistsItem({required this.controller, super.key});
+  ArtistsItem({required this.controller, super.key});
+  final HomeController homeController = Get.find<HomeController>();
+
+  List<ArtistsModel> get currentList {
+    if (controller.selectArtistsItemIndex.value == 0) {
+      return controller.artistsItems;
+    }
+    if (controller.selectArtistsItemIndex.value == 1) {
+      return homeController.recentArtistsList;
+    }
+
+    if (controller.selectArtistsItemIndex.value == 2) {
+      return homeController.topRatedArtistsList;
+    }
+
+    return homeController.suggestedForYouList;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Obx(
-        () => GridView.builder(
-          itemCount: controller.artistsItems.length,
+      child: Obx(() {
+        return GridView.builder(
+          itemCount: currentList.length,
           scrollDirection: Axis.vertical,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
@@ -34,7 +52,7 @@ class ArtistsItem extends StatelessWidget {
           itemBuilder: (_, index) {
             //  final item = controller.artistsItems[index];
 
-            final artist = controller.artistsItems[index];
+            final artist = currentList[index];
 
             // Service info
             final firstService = artist.services.isNotEmpty
@@ -212,8 +230,8 @@ class ArtistsItem extends StatelessWidget {
               ),
             );
           },
-        ),
-      ),
+        );
+      }),
     );
   }
 }
