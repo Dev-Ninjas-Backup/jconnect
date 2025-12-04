@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -61,8 +63,6 @@ class LoginController extends GetxController {
 
       if (token.isNotEmpty) {
         EasyLoading.showSuccess('Login successful!');
-        // TODO: Store token in secure storage (SharedPreferences or secure_storage)
-        // TODO: Store user data if needed
 
         Future.delayed(Duration(seconds: 1), () {
           Get.offAllNamed(AppRoute.navBarScreen);
