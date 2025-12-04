@@ -14,4 +14,5 @@ class Endpoint {
       "$baseUrl/users/artist?filter=top-rated";
   static const String suggestedtArtis =
       "$baseUrl/users/artist?filter=suggested";
+      static const String allArtists="$baseUrl/users/artist";
 }

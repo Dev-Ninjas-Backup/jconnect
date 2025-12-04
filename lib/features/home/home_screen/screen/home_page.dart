@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
-import 'package:jconnect/core/common/constants/custom_textfield.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
@@ -34,15 +33,7 @@ class HomePage extends StatelessWidget {
                   Get.toNamed(AppRoute.notificationScreen);
                 },
               ),
-              SizedBox(height: 30.h),
-              CustomTextfield(
-                hintText: "Search artists or influencers…",
-                prefixIcon: Icon(
-                  Icons.search,
-                  size: sp(20),
-                  color: AppColors.secondaryTextColor,
-                ),
-              ),
+
               SizedBox(height: 30.h),
 
               StartDeal(controller: controller),

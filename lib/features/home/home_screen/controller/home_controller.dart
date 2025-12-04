@@ -137,4 +137,14 @@ Future<void> fetchSuggestedArtistsMethod() async {
     isLoading(false);
   }
 }
+
+
+
+
+
+
+
+
+
+
 }
