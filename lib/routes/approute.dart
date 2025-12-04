@@ -6,6 +6,7 @@ import 'package:jconnect/features/auth/new_password/screen/create_new_password.d
 import 'package:jconnect/features/auth/email_otp/screen/otp_verification_screen.dart';
 import 'package:jconnect/features/auth/phone_verification/screen/phone_verification_screen.dart';
 import 'package:jconnect/features/auth/signup/screen/signup_screen.dart';
+import 'package:jconnect/features/auth/signup_otp_verification/screen/signup_otp_verification_screen.dart';
 import 'package:jconnect/features/bottom_navbar/screen/bottom_navbar_screen.dart';
 import 'package:jconnect/features/home/artists_details_screen/screen/artists_details_page.dart';
 
@@ -43,6 +44,7 @@ class AppRoute {
   static String otpVerificationScreen = '/otpVerificationScreen';
   static String newPasswordScreen = '/newPasswordScreen';
   static String signupScreen = '/signupScreen';
+  static String signupOtpVerification = '/signupOtpVerification';
   static String phoneVerification = '/phoneVerification';
   //services
   static String addServiceScreen = '/addServiceScreen';
@@ -78,6 +80,7 @@ class AppRoute {
   static String getOtpVerificationScreen() => otpVerificationScreen;
   static String getNewPasswordScreen() => newPasswordScreen;
   static String getSignupScreen() => signupScreen;
+  static String getSignupOtpVerificationScreen() => signupOtpVerification;
   static String getPhoneVerificationScreen() => phoneVerification;
   static String getProfileSetupScreen() => profileSetupScreen;
   //navbar
@@ -112,6 +115,10 @@ class AppRoute {
     GetPage(name: otpVerificationScreen, page: () => OtpVerificationScreen()),
     GetPage(name: newPasswordScreen, page: () => CreateNewPassword()),
     GetPage(name: signupScreen, page: () => SignupScreen()),
+    GetPage(
+      name: signupOtpVerification,
+      page: () => SignupOtpVerificationScreen(),
+    ),
     GetPage(name: phoneVerification, page: () => PhoneVerificationScreen()),
     GetPage(name: profileSetupScreen, page: () => ProfileSetupScreen()),
     //navBar
