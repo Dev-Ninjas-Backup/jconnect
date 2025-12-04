@@ -27,12 +27,11 @@ class NetworkClient {
   // get request method
 
   Future<NetworkResponse> getRequest({required String url}) async {
-    // final token = await sharedPreferencesHelper.getAccessToken();
+     final token = await sharedPreferencesHelper.getAccessToken();
 
     Map<String, String> commonHeaders = {
       'Content-Type': 'application/json',
-      'authorization':
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNmU1MDYxYS1kOTg1LTQ2NWUtOWIyMS05NzY3NGRmZTE5NGIiLCJlbWFpbCI6ImZpc2FtMTE0ODNAZGF0ZWh5cGUuY29tIiwicm9sZXMiOiJBUlRJU1QiLCJpYXQiOjE3NjQ3OTc1NzYsImV4cCI6MTc2NzM4OTU3Nn0.M8ZQlUa_vd79AsTqfwg1T82Pp8x_o0idGNN1Wco3RJU',
+      'authorization': "$token",
     };
     try {
       Uri uri = Uri.parse(url);
