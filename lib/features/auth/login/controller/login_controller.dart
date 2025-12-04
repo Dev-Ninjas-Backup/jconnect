@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/routes/approute.dart';
 import 'package:jconnect/features/auth/repository/auth_repository.dart';
 
@@ -10,6 +11,7 @@ class LoginController extends GetxController {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final authRepository = AuthRepository();
+  SharedPreferencesHelperController pref =Get.put(SharedPreferencesHelperController());
 
   var rememberMe = false.obs;
   RxBool isLoading = false.obs;
@@ -56,6 +58,7 @@ class LoginController extends GetxController {
       // Extract token and user data from response
       final token = response['data']['token'] ?? '';
       final user = response['data']['user'];
+      pref.saveToken(token);
 
       print('DEBUG: Login Response: $response');
       print('DEBUG: Token: $token');

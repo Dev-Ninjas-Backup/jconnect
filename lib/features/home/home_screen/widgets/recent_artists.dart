@@ -260,10 +260,14 @@ class ArtistsYouKnow extends StatelessWidget {
                                 errorBuilder: (_, __, ___) => Icon(
                                   Icons.broken_image,
                                   size: 80,
-                                  color: Colors.yellow,
+                                  color: Colors.white,
                                 ),
                               )
-                            : Icon(Icons.broken_image, size: 80),
+                            : Icon(
+                                Icons.broken_image,
+                                size: 80,
+                                color: Colors.white,
+                              ),
                       ),
                     ),
 

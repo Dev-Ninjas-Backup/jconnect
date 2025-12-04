@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:get/get.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/routes/approute.dart';
 
 class SplashController extends GetxController {
@@ -12,13 +13,23 @@ class SplashController extends GetxController {
   }
 
   void _startTimer() {
-    Timer.periodic(const Duration(seconds: 1), (timer) {
+    Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (progressIndex.value < 2) {
         progressIndex.value++;
       } else {
         timer.cancel();
-        Get.toNamed(AppRoute.onboardingScreen);
+        await _checkLoginStatus();
       }
     });
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final loginStatus = await SharedPreferencesHelperController().checkLogin();
+
+    if (loginStatus == true) {
+      Get.offAllNamed(AppRoute.navBarScreen);
+    } else {
+      Get.offAllNamed(AppRoute.onboardingScreen);
+    }
   }
 }
