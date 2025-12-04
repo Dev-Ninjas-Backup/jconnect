@@ -1,12 +1,30 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:jconnect/core/common/constants/imagepath.dart';
-import 'package:jconnect/features/home/artists_screen/model/artists_item_model.dart';
+import 'package:jconnect/core/service/network_service/network_client.dart';
+import 'package:jconnect/features/home/home_screen/model/artists_model.dart';
+import 'package:jconnect/features/home/home_screen/services/home_service.dart';
 
 class ArtistsController extends GetxController {
+  final HomeService service = HomeService(
+    client: NetworkClient(
+      onUnAuthorize: () {
+        if (kDebugMode) {
+          print("unauthorized");
+        }
+      },
+    ),
+  );
+
+  var isLoading = false.obs;
+  var isError = false.obs;
+  var errorMessage = ''.obs;
+
   var searchTextController = TextEditingController();
   final RxInt selectArtistsItemIndex = 0.obs;
-  final artistsItems = <ArtistsItemModel>[].obs;
+  final artistsItems = <ArtistsModel>[].obs;
+  final searchArtistItems = <ArtistsModel>[].obs;
 
   final RxList<String> artistItemTab = [
     'All Artists',
@@ -17,72 +35,43 @@ class ArtistsController extends GetxController {
   ].obs;
   @override
   void onInit() {
-    artistsItem();
+    fetchAllArtistsMethod();
     super.onInit();
   }
 
-  void artistsItem() {
-    artistsItems.addAll([
-      ArtistsItemModel(
-        imageUrl: Imagepath.profileImage,
-        name: "KIRA SOUL",
-        ammount: 95,
-        heading: "Singer • Influencer • Lyric Reviewer",
-        services:
-            "Get detailed feedback on your track’s lyrics, melody, and flow perfect for upcoming artists refining their sound.",
-        rating: 4,
-        reviews: 50,
-      ),
-      ArtistsItemModel(
-        imageUrl: Imagepath.profileImage,
-        name: "LUNA VYX",
-        ammount: 85,
-        heading: "Influencer, Promoter",
-        services:
-            "Promote your music to Kira’s active followers. Includes personalized caption and tag.",
-        rating: 5,
-        reviews: 80,
-      ),
-      ArtistsItemModel(
-        imageUrl: Imagepath.profileImage,
-        name: "KIRA SOUL",
-        ammount: 95,
-        heading: "Singer • Influencer • Lyric Reviewer",
-        services:
-            "Get detailed feedback on your track’s lyrics, melody, and flow perfect for upcoming artists refining their sound.",
-        rating: 4,
-        reviews: 50,
-      ),
-      ArtistsItemModel(
-        imageUrl: Imagepath.profileImage,
-        name: "KIRA SOUL",
-        ammount: 95,
-        heading: "Singer • Influencer • Lyric Reviewer",
-        services:
-            "Get detailed feedback on your track’s lyrics, melody, and flow perfect for upcoming artists refining their sound.",
-        rating: 4,
-        reviews: 50,
-      ),
-      ArtistsItemModel(
-        imageUrl: Imagepath.profileImage,
-        name: "LUNA VYX",
-        ammount: 85,
-        heading: "Influencer, Promoter",
-        services:
-            "Promote your music to Kira’s active followers. Includes personalized caption and tag.",
-        rating: 5,
-        reviews: 80,
-      ),
-      ArtistsItemModel(
-        imageUrl: Imagepath.profileImage,
-        name: "KIRA SOUL",
-        ammount: 95,
-        heading: "Singer • Influencer • Lyric Reviewer",
-        services:
-            "Get detailed feedback on your track’s lyrics, melody, and flow perfect for upcoming artists refining their sound.",
-        rating: 4,
-        reviews: 50,
-      ),
-    ]);
+  Future<void> fetchAllArtistsMethod() async {
+    isLoading(true);
+    isError(false);
+    errorMessage('');
+
+    try {
+      final artists = await service.fetchAllArtist();
+
+      artistsItems.assignAll(artists);
+      debugPrint("All artists loaded: ${artists.length}");
+    } catch (e) {
+      isError(true);
+      errorMessage(e.toString());
+
+      debugPrint("Error in HomeController: $e");
+
+      EasyLoading.showError(
+        "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
+      );
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  Future<void> searchArtistByName(String name) async {
+    isLoading(true);
+    try {
+      final result = await service.searchArtist(name);
+      searchArtistItems.assignAll(result);
+    } catch (e) {
+      EasyLoading.showError("Search error: $e");
+    } finally {
+      isLoading(false);
+    }
   }
 }

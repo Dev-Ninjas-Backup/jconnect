@@ -62,4 +62,48 @@ class HomeService {
       throw "Something went wrong while fetching Suggested Artist: $e";
     }
   }
+
+
+
+//all
+
+  Future<List<ArtistsModel>> fetchAllArtist() async {
+    const String url = Endpoint.allArtists;
+
+    try {
+      final response = await client.getRequest(url: url);
+
+      if (response.isSuccess &&
+          (response.statusCode == 200 || response.statusCode == 201)) {
+        final List data = response.responseData!['data'];
+
+        return data.map((json) => ArtistsModel.fromJson(json)).toList();
+      } else {
+        throw response.errorMessage ?? "Failed to load All Artists";
+      }
+    } catch (e) {
+      throw "Something went wrong while fetching All Artist: $e";
+    }
+  }
+
+
+//search
+  Future<List<ArtistsModel>> searchArtist(String query) async {
+    const String url = "${Endpoint.baseUrl}/users/artist?search=query";
+
+    try {
+      final response = await client.getRequest(url: url);
+
+      if (response.isSuccess &&
+          (response.statusCode == 200 || response.statusCode == 201)) {
+        final List data = response.responseData!['data'];
+
+        return data.map((json) => ArtistsModel.fromJson(json)).toList();
+      } else {
+        throw response.errorMessage ?? "Failed to load search Artists";
+      }
+    } catch (e) {
+      throw "Something went wrong while fetching search Artist: $e";
+    }
+  }
 }
