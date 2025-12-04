@@ -1,13 +1,31 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/imagepath.dart';
-import 'package:jconnect/features/home/home_screen/model/artists_you_know_model.dart';
+import 'package:jconnect/core/service/network_service/network_client.dart';
+import 'package:jconnect/features/home/home_screen/home_services/home_service.dart';
+import 'package:jconnect/features/home/home_screen/model/artists_model.dart';
 import 'package:jconnect/features/home/home_screen/model/feature_artists_model.dart';
 import 'package:jconnect/features/home/home_screen/model/start_deal_model.dart';
 import 'package:jconnect/features/home/home_screen/model/suggested_for_you_model.dart';
 
 class HomeController extends GetxController {
+  final HomeService service = HomeService(
+    client: NetworkClient(
+      onUnAuthorize: () {
+        if (kDebugMode) {
+          print("unauthorized");
+        }
+      },
+    ),
+  );
+
   final RxList<StartDealModel> startDealList = <StartDealModel>[].obs;
-  final artistsList = <ArtistsYouKnowModel>[].obs;
+ var isLoading = false.obs;
+  var isError = false.obs;
+  var errorMessage = ''.obs;
+
+  // Your list of artists
+  var recentArtistsList = <ArtistsModel>[].obs;
   final featureArtistsList = <FeatureArtistsModel>[].obs;
   final suggestedForYouList = <SuggestedForYouModel>[].obs;
   @override
@@ -15,7 +33,7 @@ class HomeController extends GetxController {
     //start deal list
     startDealListItem();
     // artists list
-    artistsListItem();
+    fetchRecentArtists();
     //feature artists list
     featureArtistsListItem();
     //suggested for you
@@ -47,40 +65,54 @@ class HomeController extends GetxController {
     ]);
   }
 
-  void artistsListItem() {
-    artistsList.addAll([
-      ArtistsYouKnowModel(
-        imageUrl: Imagepath.profileImage,
-        name: "KIRA SOUL",
-        ammount: 95,
-        heading: "Singer • Influencer • Lyric Reviewer",
-        services:
-            "Get detailed feedback on your track’s lyrics, melody, and flow perfect for upcoming artists refining their sound.",
-        rating: 4,
-        reviews: 50,
-      ),
-      ArtistsYouKnowModel(
-        imageUrl: Imagepath.profileImage,
-        name: "LUNA VYX",
-        ammount: 85,
-        heading: "Influencer, Promoter",
-        services:
-            "Promote your music to Kira’s active followers. Includes personalized caption and tag.",
-        rating: 5,
-        reviews: 80,
-      ),
-      ArtistsYouKnowModel(
-        imageUrl: Imagepath.profileImage,
-        name: "KIRA SOUL",
-        ammount: 95,
-        heading: "Singer • Influencer • Lyric Reviewer",
-        services:
-            "Get detailed feedback on your track’s lyrics, melody, and flow perfect for upcoming artists refining their sound.",
-        rating: 4,
-        reviews: 50,
-      ),
-    ]);
+  // var isLoading = false.obs;
+
+  // Future<void> fetchrecentArtistsMethod() async {
+  //   isLoading(true);
+  //   try {
+  //     final recentArtists = await service.fetchRecentArtist();
+  //     recentArtistsList.assignAll(recentArtists);
+  //     debugPrint("the recenet list : ============== ${recentArtists.length}");
+  //   } catch (e) {
+  //     debugPrint("Error fetching recentArtists: $e");
+  //   } finally {
+  //     isLoading(false);
+  //   }
+  // }
+
+
+
+Future<void> fetchRecentArtists() async {
+    isLoading(true);
+    isError(false);
+    errorMessage('');
+
+    try {
+      final artists = await service.fetchRecentArtist();
+
+      recentArtistsList.assignAll(artists);
+
+      debugPrint("Recent artists loaded: ${artists.length}");
+    } catch (e) {
+      isError(true);
+      errorMessage(e.toString());
+
+      debugPrint("Error in HomeController: $e");
+
+      // Optional: Show user-friendly message
+      Get.snackbar(
+        "Oops!",
+        e.toString().replaceFirst('Exception: ', ''),
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 4),
+      );
+    } finally {
+      isLoading(false);
+    }
   }
+
+
+
 
   void featureArtistsListItem() {
     featureArtistsList.addAll([
