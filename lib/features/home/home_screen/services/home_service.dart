@@ -1,3 +1,4 @@
+import 'package:jconnect/core/endpoint.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/home/home_screen/model/artists_model.dart';
 
@@ -6,8 +7,7 @@ class HomeService {
   HomeService({required this.client});
 
   Future<List<ArtistsModel>> fetchRecentArtist() async {
-    const String url =
-        "http://103.174.189.183:5050/users/artist?filter=recently-updated";
+    const String url = Endpoint.recentArtis;
 
     try {
       final response = await client.getRequest(url: url);
@@ -24,9 +24,9 @@ class HomeService {
       throw "Something went wrong while fetching recent Artist: $e";
     }
   }
+
   Future<List<ArtistsModel>> fetchTopRatedArtist() async {
-    const String url =
-        "http://103.174.189.183:5050/users/artist?filter=top-rated";
+    const String url = Endpoint.topRatedArtis;
 
     try {
       final response = await client.getRequest(url: url);
@@ -44,11 +44,8 @@ class HomeService {
     }
   }
 
-
-
-    Future<List<ArtistsModel>> fetchSuggestedArtist() async {
-    const String url =
-        "http://103.174.189.183:5050/users/artist?filter=suggested";
+  Future<List<ArtistsModel>> fetchSuggestedArtist() async {
+    const String url = Endpoint.suggestedtArtis;
 
     try {
       final response = await client.getRequest(url: url);
@@ -65,7 +62,4 @@ class HomeService {
       throw "Something went wrong while fetching Suggested Artist: $e";
     }
   }
-
-
-
 }
