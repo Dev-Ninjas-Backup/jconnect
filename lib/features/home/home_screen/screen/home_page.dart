@@ -11,13 +11,14 @@ import 'package:jconnect/features/home/home_screen/widgets/featured_artists.dart
 import 'package:jconnect/features/home/home_screen/widgets/start_deal.dart';
 import 'package:jconnect/features/home/home_screen/widgets/suggested_for_you.dart';
 import '../../../../routes/approute.dart';
-import '../widgets/artists_you_know.dart';
+import '../widgets/recent_artists.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
   @override
   Widget build(BuildContext context) {
     HomeController controller = Get.put(HomeController());
+
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
       body: SingleChildScrollView(
@@ -50,7 +51,8 @@ class HomePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Artists You Know",
+                    //  "Artists You Know",
+                    "Recent Artists",
                     style: getTextStyle(
                       fontsize: sp(20),
                       fontweight: FontWeight.w500,
