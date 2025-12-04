@@ -7,7 +7,7 @@ import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/features/home/home_screen/controller/home_controller.dart';
-import 'package:jconnect/features/home/home_screen/widgets/featured_artists.dart';
+import 'package:jconnect/features/home/home_screen/widgets/top_rated_artists.dart';
 import 'package:jconnect/features/home/home_screen/widgets/start_deal.dart';
 import 'package:jconnect/features/home/home_screen/widgets/suggested_for_you.dart';
 import '../../../../routes/approute.dart';
@@ -80,7 +80,7 @@ class HomePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Featured Artists",
+                    "Top Rated Artists",
                     style: getTextStyle(
                       fontsize: sp(20),
                       fontweight: FontWeight.w500,
@@ -103,7 +103,7 @@ class HomePage extends StatelessWidget {
               ),
 
               SizedBox(height: 18.h),
-              FeaturedArtists(controller: controller),
+              TopRatedArtists(controller: controller),
 
               SizedBox(height: 40.h),
               Row(

@@ -1,3 +1,163 @@
+// import 'package:flutter/material.dart';
+// import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+// import 'package:flutter_screenutil/flutter_screenutil.dart';
+// import 'package:get/route_manager.dart';
+// import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
+// import 'package:jconnect/core/common/widgets/custom_secondary_button.dart';
+// import 'package:jconnect/features/home/home_screen/controller/home_controller.dart';
+// import 'package:jconnect/routes/approute.dart';
+
+// import '../../../../core/common/constants/app_colors.dart';
+// import '../../../../core/common/style/global_text_style.dart';
+// import '../../../../core/common/widgets/gradient_border_container.dart';
+
+// class TopRatedArtists extends StatelessWidget {
+//   final HomeController controller;
+//   const TopRatedArtists({required this.controller, super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return SizedBox(
+//       height: 470.h,
+//       child: ListView.builder(
+//         scrollDirection: Axis.horizontal,
+//         itemCount: controller.topRatedArtistsList.length,
+//         padding: EdgeInsets.zero,
+//         shrinkWrap: true,
+//         itemBuilder: (_, index) {
+//           var item = controller.topRatedArtistsList[index];
+//           return Padding(
+//             padding: EdgeInsets.only(right: 20.w),
+
+//             child: GradientBorderContainer(
+//               width: 213.w,
+//               borderRadius: 10.r,
+//               borderWidth: 1,
+//               gradientColors: [
+//                 Colors.white,
+//                 Colors.white.withValues(alpha: .5),
+//               ],
+//               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 16.h),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Center(
+//                     child: ClipRRect(
+//                       //  borderRadius: BorderRadiusGeometry.circular(100.r),
+//                       child: Image.asset(
+//                         item.profilePhoto.toString(),
+//                         height: 80.h,
+//                         width: 80.w,
+//                         errorBuilder: (context, error, stackTrace) => Icon(
+//                           Icons.broken_image,
+//                           size: 80,
+//                           color: Colors.white,
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                   SizedBox(height: 12.h),
+//                   Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       Text(
+//                         item.fullName,
+//                         style: getTextStyle(
+//                           fontsize: sp(16),
+//                           fontweight: FontWeight.w500,
+//                         ),
+//                       ),
+
+//                       GestureDetector(
+//                         onTap: () {},
+//                         child: Container(
+//                           padding: EdgeInsets.symmetric(
+//                             horizontal: 8.w,
+//                             vertical: 4.h,
+//                           ),
+//                           decoration: BoxDecoration(
+//                             color: Colors.white.withValues(alpha: .1),
+//                             borderRadius: BorderRadius.circular(4.r),
+//                             border: Border.all(
+//                               width: .25,
+//                               color: AppColors.secondaryTextColor,
+//                             ),
+//                           ),
+//                           child: Text(
+//                             "From \$${item.services[index].price}",
+//                             style: getTextStyle(
+//                               fontsize: sp(8),
+//                               color: AppColors.secondaryTextColor,
+//                             ),
+//                           ),
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+     
+//                   SizedBox(height: 20.h),
+//                   Text(
+//                     "Services",
+//                     style: getTextStyle(
+//                       fontsize: sp(10),
+//                       color: AppColors.secondaryTextColor,
+//                     ),
+//                   ),
+//                   SizedBox(height: 8.h),
+
+//                   Text(
+//                     item.services[index].description,
+//                     style: getTextStyle(
+//                       fontsize: sp(10),
+//                       color: AppColors.secondaryTextColor,
+//                     ),
+//                   ),
+//                   SizedBox(height: 20.h),
+
+//                   Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       RatingBarIndicator(
+//                         rating: item.reviewsReceived[index].rating.toDouble(),
+//                         itemBuilder: (context, index) =>
+//                             Icon(Icons.star, color: Color(0xffBD001F)),
+//                         itemCount: 5,
+//                         itemSize: 14.0,
+//                         direction: Axis.horizontal,
+//                         unratedColor: Color(0xFFD96B7D),
+//                       ),
+//                       Text(
+//                         "${item.reviewsReceived[index].rating} (${item.reviewsReceived.length} Reviews)",
+//                         style: getTextStyle(
+//                           fontsize: sp(10),
+//                           color: AppColors.secondaryTextColor,
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                   SizedBox(height: 28.h),
+//                   Spacer(),
+//                   CustomPrimaryButton(
+//                     buttonText: "Message",
+//                     onTap: () {
+//                       Get.toNamed(AppRoute.chatDetailsScreen);
+//                     },
+//                   ),
+//                   SizedBox(height: 14.h),
+//                   CustomSecondaryButton(
+//                     buttonText: "Custom Order",
+//                     onTap: () {},
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }
+
 
 // ignore_for_file: deprecated_member_use
 
@@ -14,9 +174,9 @@ import 'package:jconnect/features/home/home_screen/controller/home_controller.da
 import '../../../../core/common/widgets/custom_secondary_button.dart';
 import '../../../../routes/approute.dart';
 
-class SuggestedForYou extends StatelessWidget {
+class TopRatedArtists extends StatelessWidget {
   final HomeController controller;
-  const SuggestedForYou({required this.controller, super.key});
+  const TopRatedArtists({required this.controller, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,14 +185,14 @@ class SuggestedForYou extends StatelessWidget {
       child: Obx(() {
         // Loading state
         if (controller.isLoading.value &&
-            controller.suggestedForYouList.isEmpty) {
+            controller.topRatedArtistsList.isEmpty) {
           return const Center(
             child: CircularProgressIndicator(color: Colors.white),
           );
         }
 
         // Empty state
-        if (controller.suggestedForYouList.isEmpty) {
+        if (controller.topRatedArtistsList.isEmpty) {
           return Center(
             child: Text(
               "No artists found",
@@ -46,11 +206,11 @@ class SuggestedForYou extends StatelessWidget {
 
         return ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: controller.suggestedForYouList.length,
+          itemCount: controller.topRatedArtistsList.length,
           padding: EdgeInsets.zero,
           physics: const BouncingScrollPhysics(),
           itemBuilder: (context, index) {
-            final artist = controller.suggestedForYouList[index];
+            final artist = controller.topRatedArtistsList[index];
 
             // Service info
             final firstService = artist.services.isNotEmpty
