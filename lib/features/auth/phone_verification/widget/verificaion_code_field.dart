@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class VerificaionCodeField extends StatelessWidget {
-  const VerificaionCodeField({
-    super.key,
-    required this.codeControllers,
-  });
+  const VerificaionCodeField({super.key, required this.codeControllers});
 
   final List<TextEditingController> codeControllers;
 
@@ -38,6 +35,8 @@ class VerificaionCodeField extends StatelessWidget {
             onChanged: (value) {
               if (value.isNotEmpty && index < 3) {
                 FocusScope.of(context).nextFocus();
+              } else if (value.isEmpty && index > 0) {
+                FocusScope.of(context).previousFocus();
               }
             },
           ),
