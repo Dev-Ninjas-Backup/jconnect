@@ -89,7 +89,7 @@ class HomeService {
 
 //search
   Future<List<ArtistsModel>> searchArtist(String query) async {
-    const String url = "${Endpoint.baseUrl}/users/artist?search=query";
+   final String url = "${Endpoint.baseUrl}/users/artist?search=$query";
 
     try {
       final response = await client.getRequest(url: url);
