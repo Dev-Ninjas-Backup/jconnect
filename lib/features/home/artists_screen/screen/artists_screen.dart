@@ -39,6 +39,14 @@ class ArtistsScreen extends StatelessWidget {
                 size: sp(20),
                 color: AppColors.secondaryTextColor,
               ),
+
+              onChanged: (value) {
+                if (value.trim().isEmpty) {
+                  controller.searchArtistItems.clear(); 
+                } else {
+                  controller.searchArtistByName(value); 
+                }
+              },
             ),
             SizedBox(height: 30.h),
             ArtistsItemListTab(controller: controller),

@@ -62,15 +62,33 @@ class ArtistsController extends GetxController {
     }
   }
 
+  // Future<void> searchArtistByName(String name) async {
+  //   isLoading(true);
+  //   try {
+  //     final result = await service.searchArtist(name);
+  //     searchArtistItems.assignAll(result);
+  //   } catch (e) {
+  //     EasyLoading.showError("Search error: $e");
+  //   } finally {
+  //     isLoading(false);
+  //   }
+  // }
+
   Future<void> searchArtistByName(String name) async {
-    isLoading(true);
-    try {
-      final result = await service.searchArtist(name);
-      searchArtistItems.assignAll(result);
-    } catch (e) {
-      EasyLoading.showError("Search error: $e");
-    } finally {
-      isLoading(false);
-    }
+  if (name.trim().isEmpty) {
+    searchArtistItems.clear();
+    return;
   }
+
+  isLoading(true);
+  try {
+    final result = await service.searchArtist(name);
+    searchArtistItems.assignAll(result);
+  } catch (e) {
+    EasyLoading.showError("Search error: $e");
+  } finally {
+    isLoading(false);
+  }
+}
+
 }

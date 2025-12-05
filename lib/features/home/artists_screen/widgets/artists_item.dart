@@ -19,25 +19,48 @@ class ArtistsItem extends StatelessWidget {
   ArtistsItem({required this.controller, super.key});
   final HomeController homeController = Get.find<HomeController>();
 
-  List<ArtistsModel> get currentList {
-    if (controller.selectArtistsItemIndex.value == 0) {
-      return controller.artistsItems;
-    }
-    if (controller.selectArtistsItemIndex.value == 1) {
-      return homeController.recentArtistsList;
-    }
+  // List<ArtistsModel> get currentList {
+  //   if (controller.searchArtistItems.isNotEmpty &&
+  //       controller.searchTextController.text.trim().isNotEmpty) {
+  //     return controller.searchArtistItems;
+  //   }
 
-    if (controller.selectArtistsItemIndex.value == 2) {
-      return homeController.topRatedArtistsList;
-    }
+  //   if (controller.selectArtistsItemIndex.value == 0) {
+  //     return controller.artistsItems;
+  //   }
+  //  else if (controller.selectArtistsItemIndex.value == 1) {
+  //     return homeController.recentArtistsList;
+  //   }
 
-    return homeController.suggestedForYouList;
-  }
+  //  else if (controller.selectArtistsItemIndex.value == 2) {
+  //     return homeController.topRatedArtistsList;
+  //   }
+
+  //   return homeController.suggestedForYouList;
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Obx(() {
+        List<ArtistsModel> currentList;
+
+        //  Search first
+        if (controller.searchArtistItems.isNotEmpty &&
+            controller.searchTextController.text.trim().isNotEmpty) {
+          currentList = controller.searchArtistItems;
+        }
+        //  Tab index selection
+        else if (controller.selectArtistsItemIndex.value == 0) {
+          currentList = controller.artistsItems;
+        } else if (controller.selectArtistsItemIndex.value == 1) {
+          currentList = homeController.recentArtistsList;
+        } else if (controller.selectArtistsItemIndex.value == 2) {
+          currentList = homeController.topRatedArtistsList;
+        } else {
+          currentList = homeController.suggestedForYouList;
+        }
+
         return GridView.builder(
           itemCount: currentList.length,
           scrollDirection: Axis.vertical,
