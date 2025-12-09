@@ -8,6 +8,31 @@ class ProfileRepository {
   final SharedPreferencesHelperController pref =
       Get.find<SharedPreferencesHelperController>();
 
+  Future<Map<String, dynamic>> getProfile() async {
+    try {
+      final token = await pref.getAccessToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('No authentication token found');
+      }
+
+      final response = await http.get(
+        Uri.parse(Endpoint.updateProfile),
+        headers: {'Content-Type': 'application/json', 'Authorization': token},
+      );
+
+      print('DEBUG: Get Profile Status: ${response.statusCode}');
+      print('DEBUG: Get Profile Response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Get profile failed: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Get profile error: $e');
+    }
+  }
+
   Future<Map<String, dynamic>> createProfile({
     required String? profileImageUrl,
     required String? shortBio,

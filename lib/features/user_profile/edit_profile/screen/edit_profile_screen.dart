@@ -24,134 +24,143 @@ class EditProfileScreen extends StatelessWidget {
           children: [
             CustomAppBar(title: 'Edit Profile'),
             Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildProfileImage(),
-                    SizedBox(height: 25.h),
-                    Text('Your First Name', style: getTextStyle()),
-                    SizedBox(height: 6.h),
-                    CustomTextfield(
-                      hintText: 'First Name',
-                      controller: controller.firstNameController,
-                    ),
-                    SizedBox(height: 14.h),
-                    Text('Your Last Name', style: getTextStyle()),
-                    SizedBox(height: 6.h),
-                    CustomTextfield(
-                      hintText: 'Last Name',
-                      controller: controller.lastNameController,
-                    ),
-                    SizedBox(height: 14.h),
-                    Text('Bio', style: getTextStyle()),
-                    SizedBox(height: 6.h),
-                    CustomTextfield(
-                      hintText: 'Bio',
-                      controller: controller.bioController,
-                    ),
-                    SizedBox(height: 14.h),
-                    Text('About Info', style: getTextStyle()),
-                    SizedBox(height: 6.h),
-                    CustomTextfield(
-                      hintText: 'About Info',
-                      controller: controller.aboutInfoController,
-                    ),
-                    SizedBox(height: 14.h),
-                    Text('Email', style: getTextStyle()),
-                    SizedBox(height: 6.h),
-                    CustomTextfield(
-                      hintText: 'Email',
-                      controller: controller.emailController,
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    SizedBox(height: 14.h),
-                    Text('Phone', style: getTextStyle()),
-                    SizedBox(height: 6.h),
-                    CustomTextfield(
-                      hintText: 'Phone Number',
-                      controller: controller.phoneController,
-                      keyboardType: TextInputType.phone,
-                    ),
-                    SizedBox(height: 25.h),
-
-                    Text(
-                      'Social Links:',
-                      style: getTextStyle(
-                        color: Colors.white,
-                        fontsize: 20,
-                        fontweight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(height: 10.h),
-                    Obx(
-                      () => Column(
-                        children: List.generate(controller.socialLinks.length, (
-                          index,
-                        ) {
-                          final link = controller.socialLinks[index];
-                          return Padding(
-                            padding: EdgeInsets.only(bottom: 10.h),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: CustomTextfield(
-                                    hintText: 'Platform',
-                                    controller: link['platform'],
-                                  ),
-                                ),
-                                SizedBox(width: 10.w),
-                                Expanded(
-                                  flex: 2,
-                                  child: CustomTextfield(
-                                    hintText: 'Username',
-                                    controller: link['username'],
-                                  ),
-                                ),
-                                IconButton(
-                                  onPressed: () =>
-                                      controller.removeSocialLink(index),
-                                  icon: Icon(
-                                    Icons.remove_circle_outline,
-                                    color: AppColors.redColor,
-                                  ),
-                                ),
-                              ],
+              child: Obx(
+                () => controller.isLoading.value
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.redColor,
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 20.h,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildProfileImage(),
+                            SizedBox(height: 25.h),
+                            Text('Your First Name', style: getTextStyle()),
+                            SizedBox(height: 6.h),
+                            CustomTextfield(
+                              hintText: 'First Name',
+                              controller: controller.firstNameController,
                             ),
-                          );
-                        }),
-                      ),
-                    ),
-
-                    SizedBox(height: 5.h),
-                    GestureDetector(
-                      onTap: controller.addSocialLink,
-                      child: Text(
-                        '+ Add more social links',
-                        style: getTextStyle(
-                          color: AppColors.redAccent,
-                          fontweight: FontWeight.w400,
+                            SizedBox(height: 14.h),
+                            Text('Your Last Name', style: getTextStyle()),
+                            SizedBox(height: 6.h),
+                            CustomTextfield(
+                              hintText: 'Last Name',
+                              controller: controller.lastNameController,
+                            ),
+                            SizedBox(height: 14.h),
+                            Text('Bio', style: getTextStyle()),
+                            SizedBox(height: 6.h),
+                            CustomTextfield(
+                              hintText: 'Bio',
+                              controller: controller.bioController,
+                            ),
+                            SizedBox(height: 14.h),
+                            Text('About Info', style: getTextStyle()),
+                            SizedBox(height: 6.h),
+                            CustomTextfield(
+                              hintText: 'About Info',
+                              controller: controller.aboutInfoController,
+                            ),
+                            SizedBox(height: 14.h),
+                            Text('Email', style: getTextStyle()),
+                            SizedBox(height: 6.h),
+                            CustomTextfield(
+                              hintText: 'Email',
+                              controller: controller.emailController,
+                              keyboardType: TextInputType.emailAddress,
+                            ),
+                            SizedBox(height: 14.h),
+                            Text('Phone', style: getTextStyle()),
+                            SizedBox(height: 6.h),
+                            CustomTextfield(
+                              hintText: 'Phone Number',
+                              controller: controller.phoneController,
+                              keyboardType: TextInputType.phone,
+                            ),
+                            SizedBox(height: 25.h),
+                            Text(
+                              'Social Links:',
+                              style: getTextStyle(
+                                color: Colors.white,
+                                fontsize: 20,
+                                fontweight: FontWeight.w500,
+                              ),
+                            ),
+                            SizedBox(height: 10.h),
+                            Obx(
+                              () => Column(
+                                children: List.generate(
+                                  controller.socialLinks.length,
+                                  (index) {
+                                    final link = controller.socialLinks[index];
+                                    return Padding(
+                                      padding: EdgeInsets.only(bottom: 10.h),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: CustomTextfield(
+                                              hintText: 'Platform',
+                                              controller: link['platform'],
+                                            ),
+                                          ),
+                                          SizedBox(width: 10.w),
+                                          Expanded(
+                                            flex: 2,
+                                            child: CustomTextfield(
+                                              hintText: 'Username',
+                                              controller: link['username'],
+                                            ),
+                                          ),
+                                          IconButton(
+                                            onPressed: () => controller
+                                                .removeSocialLink(index),
+                                            icon: Icon(
+                                              Icons.remove_circle_outline,
+                                              color: AppColors.redColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 5.h),
+                            GestureDetector(
+                              onTap: controller.addSocialLink,
+                              child: Text(
+                                '+ Add more social links',
+                                style: getTextStyle(
+                                  color: AppColors.redAccent,
+                                  fontweight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 30.h),
+                            Obx(
+                              () => CustomPrimaryButton(
+                                buttonText: controller.isLoading.value
+                                    ? 'Saving...'
+                                    : 'Save',
+                                onTap: () {
+                                  if (!controller.isLoading.value) {
+                                    controller.saveProfile();
+                                  }
+                                },
+                              ),
+                            ),
+                            SizedBox(height: 20.h),
+                          ],
                         ),
                       ),
-                    ),
-
-                    SizedBox(height: 30.h),
-                    Obx(
-                      () => CustomPrimaryButton(
-                        buttonText: controller.isLoading.value
-                            ? 'Saving...'
-                            : 'Save',
-                        onTap: () {
-                          if (!controller.isLoading.value) {
-                            controller.saveProfile();
-                          }
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 20.h),
-                  ],
-                ),
               ),
             ),
           ],
