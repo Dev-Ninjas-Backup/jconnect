@@ -10,9 +10,11 @@ class Endpoint {
 
   static const String recentArtis =
       "$baseUrl/users/artist?filter=recently-updated";
-  static const String topRatedArtis =
-      "$baseUrl/users/artist?filter=top-rated";
+  static const String topRatedArtis = "$baseUrl/users/artist?filter=top-rated";
   static const String suggestedtArtis =
       "$baseUrl/users/artist?filter=suggested";
-      static const String allArtists="$baseUrl/users/artist";
+  static const String allArtists = "$baseUrl/users/artist";
+
+  // Profile endpoints
+  static const String updateProfile = '$baseUrl/profiles';
 }
