@@ -2,18 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:jconnect/features/user_profile/repository/profile_repository.dart';
 
 class ProfileSetupController extends GetxController {
   final ImagePicker _picker = ImagePicker();
+  final profileRepository = ProfileRepository();
 
   final Rxn<XFile> pickedImage = Rxn<XFile>();
   bool get hasImage => pickedImage.value != null;
   String get imagePath => pickedImage.value?.path ?? '';
 
+  final bioController = TextEditingController();
   final instagramController = TextEditingController();
   final facebookController = TextEditingController();
   final tiktokController = TextEditingController();
   final youtubeController = TextEditingController();
+
+  final RxBool isLoading = false.obs;
 
   bool get hasAnyLink {
     return instagramController.text.trim().isNotEmpty ||
@@ -81,6 +86,38 @@ class ProfileSetupController extends GetxController {
     pickedImage.value = null;
   }
 
+  Future<bool> createProfile() async {
+    try {
+      isLoading.value = true;
+      EasyLoading.show(status: 'Creating profile...');
+
+      await profileRepository.createProfile(
+        profileImageUrl: imagePath.isNotEmpty ? imagePath : null,
+        shortBio: bioController.text.isNotEmpty ? bioController.text : null,
+        instagram: instagramController.text.isNotEmpty
+            ? instagramController.text
+            : null,
+        facebook: facebookController.text.isNotEmpty
+            ? facebookController.text
+            : null,
+        tiktok: tiktokController.text.isNotEmpty ? tiktokController.text : null,
+        youtube: youtubeController.text.isNotEmpty
+            ? youtubeController.text
+            : null,
+      );
+
+      isLoading.value = false;
+      EasyLoading.dismiss();
+      return true;
+    } catch (e) {
+      isLoading.value = false;
+      EasyLoading.dismiss();
+      EasyLoading.showError('Failed to create profile: $e');
+      print('DEBUG: Create profile error: $e');
+      return false;
+    }
+  }
+
   // bool _isValidLink(String link) {
   //   // Check if the link contains a common domain pattern
   //   final validPatterns = [
@@ -113,6 +150,7 @@ class ProfileSetupController extends GetxController {
   // }
   @override
   void onClose() {
+    bioController.dispose();
     instagramController.dispose();
     facebookController.dispose();
     tiktokController.dispose();

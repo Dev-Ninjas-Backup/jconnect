@@ -80,6 +80,7 @@ class ProfileSetupScreen extends StatelessWidget {
               CustomTextfield(
                 hintText:
                     'DJ + Producer • Passionate about mixing beats and connecting vibes.',
+                controller: controller.bioController,
               ),
 
               SizedBox(height: 8),
@@ -105,36 +106,45 @@ class ProfileSetupScreen extends StatelessWidget {
               const SizedBox(height: 16),
 
               _buildSocialField(
+                controller: controller.instagramController,
                 iconPath: 'assets/icons/instagram.png',
                 hintText: 'Profile URL / Username',
               ),
               const SizedBox(height: 12),
 
               _buildSocialField(
+                controller: controller.facebookController,
                 iconPath: 'assets/icons/facebook.png',
                 hintText: 'Profile URL / Username',
               ),
               const SizedBox(height: 12),
 
               _buildSocialField(
+                controller: controller.tiktokController,
                 iconPath: 'assets/icons/tiktok.png',
                 hintText: 'Profile URL / Username',
               ),
               const SizedBox(height: 12),
 
               _buildSocialField(
+                controller: controller.youtubeController,
                 iconPath: 'assets/icons/youtube.png',
                 hintText: 'Channel URL / Channel Name',
               ),
 
               const SizedBox(height: 40),
 
-              CustomPrimaryButton(
-                buttonText: 'Next',
-                onTap: () {
-                  // if (!controller.validateBeforeContinue()) return;
-                  showProfileSuccessPopup(context);
-                },
+              Obx(
+                () => CustomPrimaryButton(
+                  buttonText: controller.isLoading.value
+                      ? 'Creating...'
+                      : 'Next',
+                  onTap: () {
+                    if (!controller.isLoading.value) {
+                      _createProfileAndShowSuccess(context, controller);
+                    }
+                  },
+                ),
               ),
             ],
           ),
@@ -144,6 +154,7 @@ class ProfileSetupScreen extends StatelessWidget {
   }
 
   Widget _buildSocialField({
+    required TextEditingController controller,
     required String iconPath,
     required String hintText,
   }) {
@@ -151,9 +162,21 @@ class ProfileSetupScreen extends StatelessWidget {
       children: [
         Image.asset(iconPath, height: 24, width: 24),
         const SizedBox(width: 12),
-        Expanded(child: CustomTextfield(hintText: hintText)),
+        Expanded(
+          child: CustomTextfield(hintText: hintText, controller: controller),
+        ),
       ],
     );
+  }
+
+  Future<void> _createProfileAndShowSuccess(
+    BuildContext context,
+    ProfileSetupController controller,
+  ) async {
+    final success = await controller.createProfile();
+    if (success) {
+      showProfileSuccessPopup(context);
+    }
   }
 
   void showProfileSuccessPopup(BuildContext context) {
