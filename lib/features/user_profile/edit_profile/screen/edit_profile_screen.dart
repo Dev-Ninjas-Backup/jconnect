@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
@@ -98,14 +97,16 @@ class EditProfileScreen extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: CustomTextfield(
-                                    hintText: link['platform'] ?? '',
+                                    hintText: 'Platform',
+                                    controller: link['platform'],
                                   ),
                                 ),
                                 SizedBox(width: 10.w),
                                 Expanded(
                                   flex: 2,
                                   child: CustomTextfield(
-                                    hintText: link['username'] ?? '',
+                                    hintText: 'Username',
+                                    controller: link['username'],
                                   ),
                                 ),
                                 IconButton(
@@ -136,12 +137,17 @@ class EditProfileScreen extends StatelessWidget {
                     ),
 
                     SizedBox(height: 30.h),
-                    CustomPrimaryButton(
-                      buttonText: 'Save',
-                      onTap: () {
-                        Get.back();
-                        EasyLoading.showSuccess('Profile updated');
-                      },
+                    Obx(
+                      () => CustomPrimaryButton(
+                        buttonText: controller.isLoading.value
+                            ? 'Saving...'
+                            : 'Save',
+                        onTap: () {
+                          if (!controller.isLoading.value) {
+                            controller.saveProfile();
+                          }
+                        },
+                      ),
                     ),
                     SizedBox(height: 20.h),
                   ],
