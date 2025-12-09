@@ -8,17 +8,12 @@ class EditProfileController extends GetxController {
   final RxString imagePath = ''.obs;
   final profileRepository = ProfileRepository();
 
-  final firstNameController = TextEditingController(text: 'DJ Alex');
-  final lastNameController = TextEditingController(text: 'Kinseki');
-  final bioController = TextEditingController(
-    text: 'DJ + Producer • Passionate about mixing beats and connecting vibes.',
-  );
-  final aboutInfoController = TextEditingController(
-    text:
-        'Multi-genre DJ and producer known for blending deep house and electro with cinematic soundscapes. Based in Miami, performing worldwide.',
-  );
-  final emailController = TextEditingController(text: 'djkinseki@gmail.com');
-  final phoneController = TextEditingController(text: '408 555 0120');
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final bioController = TextEditingController();
+  final aboutInfoController = TextEditingController();
+  final emailController = TextEditingController();
+  final phoneController = TextEditingController();
 
   final RxList<Map<String, TextEditingController>> socialLinks =
       <Map<String, TextEditingController>>[].obs;
@@ -30,25 +25,92 @@ class EditProfileController extends GetxController {
   void onInit() {
     super.onInit();
     _initializeSocialLinks();
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    try {
+      isLoading.value = true;
+      final profileData = await profileRepository.getProfile();
+
+      // Extract user data from response
+      final userData = profileData['user'] ?? {};
+      final fullName = userData['full_name'] as String? ?? '';
+      final email = userData['email'] as String? ?? '';
+
+      // Split full name into first and last name
+      final nameParts = fullName.split(' ');
+      final firstName = nameParts.isNotEmpty ? nameParts.first : '';
+      final lastName = nameParts.length > 1
+          ? nameParts.sublist(1).join(' ')
+          : '';
+
+      // Update controllers with fetched data
+      firstNameController.text = firstName;
+      lastNameController.text = lastName;
+      bioController.text = profileData['short_bio'] ?? '';
+      emailController.text = email;
+
+      // Populate social links from API response
+      _updateSocialLinks(profileData);
+
+      print('DEBUG: Profile data loaded successfully');
+    } catch (e) {
+      print('DEBUG: Error loading profile data: $e');
+      // Initialize with empty values on error
+      _initializeEmptyFields();
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void _updateSocialLinks(Map<String, dynamic> profileData) {
+    socialLinks.clear();
+
+    final platforms = [
+      {'platform': 'Instagram', 'key': 'instagram'},
+      {'platform': 'Facebook', 'key': 'facebook'},
+      {'platform': 'TikTok', 'key': 'tiktok'},
+      {'platform': 'YouTube', 'key': 'youtube'},
+    ];
+
+    for (var item in platforms) {
+      final platform = item['platform'] ?? '';
+      final key = item['key'] ?? '';
+      final value = profileData[key] ?? '';
+
+      socialLinks.add({
+        'platform': TextEditingController(text: platform),
+        'username': TextEditingController(text: value),
+      });
+    }
+  }
+
+  void _initializeEmptyFields() {
+    firstNameController.clear();
+    lastNameController.clear();
+    bioController.clear();
+    emailController.clear();
+    aboutInfoController.clear();
   }
 
   void _initializeSocialLinks() {
     socialLinks.value = [
       {
         'platform': TextEditingController(text: 'Instagram'),
-        'username': TextEditingController(text: '@djkinseki56'),
+        'username': TextEditingController(),
       },
       {
         'platform': TextEditingController(text: 'Facebook'),
-        'username': TextEditingController(text: '@djkinseki56'),
+        'username': TextEditingController(),
       },
       {
         'platform': TextEditingController(text: 'TikTok'),
-        'username': TextEditingController(text: '@djkinseki56'),
+        'username': TextEditingController(),
       },
       {
         'platform': TextEditingController(text: 'YouTube'),
-        'username': TextEditingController(text: '@djkinseki56'),
+        'username': TextEditingController(),
       },
     ];
   }
