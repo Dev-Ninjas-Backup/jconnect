@@ -11,13 +11,12 @@ import 'package:jconnect/routes/approute.dart';
 import 'package:jconnect/features/auth/login/controller/login_controller.dart';
 
 class LoginScreen extends StatelessWidget {
-  final controller = TextEditingController();
   LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final controller = Get.put(LoginController());
+    final loginController = Get.put(LoginController());
 
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
@@ -81,7 +80,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 CustomTextfield(
-                  controller: controller.emailController,
+                  controller: loginController.emailController,
                   hintText: 'Enter your email or phone number',
                 ),
               ],
@@ -105,7 +104,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 CustomObsecureTextfield(
-                  controller: controller.passwordController,
+                  controller: loginController.passwordController,
                 ),
                 const SizedBox(height: 12),
 
@@ -117,8 +116,8 @@ class LoginScreen extends StatelessWidget {
                       () => Row(
                         children: [
                           Checkbox(
-                            value: controller.rememberMe.value,
-                            onChanged: controller.toggleRememberMe,
+                            value: loginController.rememberMe.value,
+                            onChanged: loginController.toggleRememberMe,
                             activeColor: AppColors.redColor,
                           ),
                           Text(
@@ -154,7 +153,7 @@ class LoginScreen extends StatelessWidget {
             child: CustomPrimaryButton(
               buttonText: "Login",
               onTap: () {
-                controller.login();
+                loginController.login();
               },
             ),
           ),
