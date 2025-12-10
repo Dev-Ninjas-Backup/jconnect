@@ -107,41 +107,47 @@ class ArtistsItem extends StatelessWidget {
                 children: [
                   // Profile Photo (Fixed: placeholder + error handling)
                   Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(100.r),
-                      child:
-                          artist.profilePhoto != null &&
-                              artist.profilePhoto!.trim().isNotEmpty
-                          ? Image.network(
-                              artist.profilePhoto!,
-                              height: 80.h,
-                              width: 80.w,
-                              fit: BoxFit.cover,
-                              loadingBuilder:
-                                  (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return Container(
-                                      height: 80.h,
-                                      width: 80.w,
-                                      color: Colors.grey[300],
-                                      child: const Center(
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
+                    child: GestureDetector(
+                      onTap: () {
+                        Get.toNamed(AppRoute.artistsDetailsPage);
+                      },
+
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100.r),
+                        child:
+                            artist.profilePhoto != null &&
+                                artist.profilePhoto!.trim().isNotEmpty
+                            ? Image.network(
+                                artist.profilePhoto!,
+                                height: 80.h,
+                                width: 80.w,
+                                fit: BoxFit.cover,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Container(
+                                        height: 80.h,
+                                        width: 80.w,
+                                        color: Colors.grey[300],
+                                        child: const Center(
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                              errorBuilder: (_, __, ___) => Icon(
+                                      );
+                                    },
+                                errorBuilder: (_, __, ___) => Icon(
+                                  Icons.broken_image,
+                                  size: 80,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Icon(
                                 Icons.broken_image,
                                 size: 80,
                                 color: Colors.white,
                               ),
-                            )
-                          : Icon(
-                              Icons.broken_image,
-                              size: 80,
-                              color: Colors.white,
-                            ),
+                      ),
                     ),
                   ),
 
@@ -247,7 +253,9 @@ class ArtistsItem extends StatelessWidget {
                   SizedBox(height: 14.h),
                   CustomSecondaryButton(
                     buttonText: "Custom Order",
-                    onTap: () {},
+                    onTap: () {
+                      Get.toNamed(AppRoute.customServices);
+                    },
                   ),
                 ],
               ),
