@@ -7,6 +7,7 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_appbar.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/features/auth/signup_otp_verification/controller/signup_otp_verification_controller.dart';
+import 'package:pinput/pinput.dart';
 
 class SignupOtpVerificationScreen extends StatelessWidget {
   const SignupOtpVerificationScreen({super.key});
@@ -14,10 +15,7 @@ class SignupOtpVerificationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(SignupOtpVerificationController());
-    final emailOtpControllers = List.generate(
-      6,
-      (_) => TextEditingController(),
-    );
+    final emailOtpController = TextEditingController();
 
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
@@ -46,8 +44,56 @@ class SignupOtpVerificationScreen extends StatelessWidget {
             ),
             SizedBox(height: 40),
 
-            // Email OTP field with 6 digits
-            _buildEmailOtpField(emailOtpControllers),
+            // Email OTP field using Pinput
+            Pinput(
+              controller: emailOtpController,
+              length: 6,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              showCursor: true,
+              defaultPinTheme: PinTheme(
+                width: 50,
+                height: 50,
+                textStyle: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              focusedPinTheme: PinTheme(
+                width: 50,
+                height: 50,
+                textStyle: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  border: Border.all(color: Colors.white, width: 2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              submittedPinTheme: PinTheme(
+                width: 50,
+                height: 50,
+                textStyle: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              keyboardType: TextInputType.number,
+            ),
 
             SizedBox(height: 30),
 
@@ -91,7 +137,7 @@ class SignupOtpVerificationScreen extends StatelessWidget {
               buttonText: 'Verify Email',
               onTap: () {
                 if (controller.isLoading.value) return;
-                final emailOtp = emailOtpControllers.map((c) => c.text).join();
+                final emailOtp = emailOtpController.text;
                 print('DEBUG: Email OTP entered: $emailOtp');
                 print('DEBUG: Email: ${controller.email}');
                 print('DEBUG: Reset Token: ${controller.resetToken}');
@@ -110,45 +156,6 @@ class SignupOtpVerificationScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildEmailOtpField(List<TextEditingController> controllers) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: List.generate(6, (index) {
-        return SizedBox(
-          width: 50,
-          height: 50,
-          child: TextField(
-            controller: controllers[index],
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-            keyboardType: TextInputType.number,
-            maxLength: 1,
-            decoration: InputDecoration(
-              counterText: '',
-              filled: true,
-              fillColor: Colors.black,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.grey),
-              ),
-            ),
-            onChanged: (value) {
-              if (value.isNotEmpty && index < 5) {
-                FocusScope.of(Get.context!).nextFocus();
-              } else if (value.isEmpty && index > 0) {
-                FocusScope.of(Get.context!).previousFocus();
-              }
-            },
-          ),
-        );
-      }),
     );
   }
 }

@@ -1,5 +1,5 @@
 class Endpoint {
-  static const String baseUrl = 'http://103.174.189.183:5050';
+  static const String baseUrl = 'https://jconnect-server.saikat.com.bd';
 
   // Auth endpoints
   static const String register = '$baseUrl/auth/register';
