@@ -6,6 +6,26 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/features/user_profile/repository/profile_repository.dart';
 
+class SocialProfile {
+  final int orderId;
+  final String platformName;
+  final String platformLink;
+
+  SocialProfile({
+    required this.orderId,
+    required this.platformName,
+    required this.platformLink,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'orderId': orderId,
+      'platformName': platformName,
+      'platformLink': platformLink,
+    };
+  }
+}
+
 class ProfileSetupController extends GetxController {
   final ImagePicker _picker = ImagePicker();
   final profileRepository = ProfileRepository();
@@ -15,18 +35,26 @@ class ProfileSetupController extends GetxController {
   String get imagePath => pickedImage.value?.path ?? '';
 
   final bioController = TextEditingController();
-  final instagramController = TextEditingController();
-  final facebookController = TextEditingController();
-  final tiktokController = TextEditingController();
-  final youtubeController = TextEditingController();
+  
+  // Social profiles with platform names and order
+  final socialProfiles = <int, TextEditingController>{
+    1: TextEditingController(), // Instagram
+    2: TextEditingController(), // Facebook
+    3: TextEditingController(), // TikTok
+    4: TextEditingController(), // YouTube
+  };
+
+  final socialPlatforms = <int, String>{
+    1: 'Instagram',
+    2: 'Facebook',
+    3: 'TikTok',
+    4: 'YouTube',
+  };
 
   final RxBool isLoading = false.obs;
 
   bool get hasAnyLink {
-    return instagramController.text.trim().isNotEmpty ||
-        facebookController.text.trim().isNotEmpty ||
-        tiktokController.text.trim().isNotEmpty ||
-        youtubeController.text.trim().isNotEmpty;
+    return socialProfiles.values.any((controller) => controller.text.trim().isNotEmpty);
   }
 
   Future<void> pickImage(ImageSource source) async {
@@ -88,24 +116,35 @@ class ProfileSetupController extends GetxController {
     pickedImage.value = null;
   }
 
+  List<SocialProfile> _buildSocialProfilesArray() {
+    List<SocialProfile> profiles = [];
+    
+    socialProfiles.forEach((orderId, controller) {
+      if (controller.text.trim().isNotEmpty) {
+        profiles.add(
+          SocialProfile(
+            orderId: orderId,
+            platformName: socialPlatforms[orderId] ?? '',
+            platformLink: controller.text.trim(),
+          ),
+        );
+      }
+    });
+    
+    return profiles;
+  }
+
   Future<bool> createProfile() async {
     try {
       isLoading.value = true;
       EasyLoading.show(status: 'Creating profile...');
 
+      final socialProfilesList = _buildSocialProfilesArray();
+
       await profileRepository.createProfile(
         profileImageUrl: imagePath.isNotEmpty ? imagePath : null,
         shortBio: bioController.text.isNotEmpty ? bioController.text : null,
-        instagram: instagramController.text.isNotEmpty
-            ? instagramController.text
-            : null,
-        facebook: facebookController.text.isNotEmpty
-            ? facebookController.text
-            : null,
-        tiktok: tiktokController.text.isNotEmpty ? tiktokController.text : null,
-        youtube: youtubeController.text.isNotEmpty
-            ? youtubeController.text
-            : null,
+        socialProfiles: socialProfilesList,
       );
 
       isLoading.value = false;
@@ -120,43 +159,10 @@ class ProfileSetupController extends GetxController {
     }
   }
 
-  // bool _isValidLink(String link) {
-  //   // Check if the link contains a common domain pattern
-  //   final validPatterns = [
-  //     '.com',
-  //     '.net',
-  //     '.org',
-  //     '.mail',
-  //     '.io',
-  //     '.app',
-  //     '.co',
-  //   ];
-  //   return validPatterns.any((pattern) => link.toLowerCase().contains(pattern));
-  // }
-
-  // bool get hasAnyValidLink {
-  //   return _isValidLink(instagramController.text.trim()) ||
-  //       _isValidLink(facebookController.text.trim()) ||
-  //       _isValidLink(tiktokController.text.trim()) ||
-  //       _isValidLink(youtubeController.text.trim());
-  // }
-
-  // bool validateBeforeContinue() {
-  //   if (!hasAnyValidLink) {
-  //     EasyLoading.showInfo(
-  //       'Please add at least one valid social link (like .com, .mail)',
-  //     );
-  //     return false;
-  //   }
-  //   return true;
-  // }
   @override
   void onClose() {
     bioController.dispose();
-    instagramController.dispose();
-    facebookController.dispose();
-    tiktokController.dispose();
-    youtubeController.dispose();
+    socialProfiles.forEach((_, controller) => controller.dispose());
     super.onClose();
   }
 }

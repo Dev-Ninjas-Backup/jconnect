@@ -5,6 +5,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jconnect/features/user_profile/repository/profile_repository.dart';
+import 'package:jconnect/features/profile_setup/controller/profile_setup_controller.dart';
 
 class EditProfileController extends GetxController {
   final RxString imagePath = ''.obs;
@@ -69,17 +70,32 @@ class EditProfileController extends GetxController {
   void _updateSocialLinks(Map<String, dynamic> profileData) {
     socialLinks.clear();
 
-    final platforms = [
-      {'platform': 'Instagram', 'key': 'instagram'},
-      {'platform': 'Facebook', 'key': 'facebook'},
-      {'platform': 'TikTok', 'key': 'tiktok'},
-      {'platform': 'YouTube', 'key': 'youtube'},
-    ];
+    final platformMap = <int, String>{
+      1: 'Instagram',
+      2: 'Facebook',
+      3: 'TikTok',
+      4: 'YouTube',
+    };
 
-    for (var item in platforms) {
-      final platform = item['platform'] ?? '';
-      final key = item['key'] ?? '';
-      final value = profileData[key] ?? '';
+    // Parse socialProfiles array from API response
+    final socialProfilesList = profileData['socialProfiles'] as List? ?? [];
+    final socialProfilesMap = <int, String>{};
+
+    for (var profile in socialProfilesList) {
+      if (profile is Map<String, dynamic>) {
+        final orderId = profile['orderId'] as int?;
+        final platformLink = profile['platformLink'] as String? ?? '';
+        if (orderId != null) {
+          socialProfilesMap[orderId] = platformLink;
+        }
+      }
+    }
+
+    // Initialize all platforms
+    for (var entry in platformMap.entries) {
+      final orderId = entry.key;
+      final platform = entry.value;
+      final value = socialProfilesMap[orderId] ?? '';
 
       socialLinks.add({
         'platform': TextEditingController(text: platform),
@@ -144,25 +160,31 @@ class EditProfileController extends GetxController {
       isLoading.value = true;
       EasyLoading.show(status: 'Updating profile...');
 
-      // Extract social media usernames
-      String? instagram;
-      String? facebook;
-      String? tiktok;
-      String? youtube;
+      // Build social profiles array
+      final List<SocialProfile> socialProfilesList = [];
+      final platformMap = <String, int>{
+        'instagram': 1,
+        'facebook': 2,
+        'tiktok': 3,
+        'youtube': 4,
+      };
 
       for (var link in socialLinks) {
         final platform = link['platform']?.text.toLowerCase() ?? '';
         final username = link['username']?.text ?? '';
 
         if (username.isNotEmpty) {
-          if (platform.contains('instagram')) {
-            instagram = username;
-          } else if (platform.contains('facebook')) {
-            facebook = username;
-          } else if (platform.contains('tiktok')) {
-            tiktok = username;
-          } else if (platform.contains('youtube')) {
-            youtube = username;
+          final orderId = platformMap[platform] ?? 0;
+          final platformName = link['platform']?.text ?? '';
+          
+          if (orderId > 0) {
+            socialProfilesList.add(
+              SocialProfile(
+                orderId: orderId,
+                platformName: platformName,
+                platformLink: username,
+              ),
+            );
           }
         }
       }
@@ -170,10 +192,7 @@ class EditProfileController extends GetxController {
       await profileRepository.updateProfile(
         profileImageUrl: imagePath.value.isNotEmpty ? imagePath.value : null,
         shortBio: bioController.text.isNotEmpty ? bioController.text : null,
-        instagram: instagram,
-        facebook: facebook,
-        tiktok: tiktok,
-        youtube: youtube,
+        socialProfiles: socialProfilesList,
       );
 
       isLoading.value = false;

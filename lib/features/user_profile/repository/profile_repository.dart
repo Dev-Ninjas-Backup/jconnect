@@ -38,10 +38,7 @@ class ProfileRepository {
   Future<Map<String, dynamic>> createProfile({
     required String? profileImageUrl,
     required String? shortBio,
-    required String? instagram,
-    required String? facebook,
-    required String? tiktok,
-    required String? youtube,
+    required List<dynamic>? socialProfiles,
   }) async {
     try {
       final token = await pref.getAccessToken();
@@ -57,17 +54,13 @@ class ProfileRepository {
       if (shortBio != null && shortBio.isNotEmpty) {
         body['short_bio'] = shortBio;
       }
-      if (instagram != null && instagram.isNotEmpty) {
-        body['instagram'] = instagram;
-      }
-      if (facebook != null && facebook.isNotEmpty) {
-        body['facebook'] = facebook;
-      }
-      if (tiktok != null && tiktok.isNotEmpty) {
-        body['tiktok'] = tiktok;
-      }
-      if (youtube != null && youtube.isNotEmpty) {
-        body['youtube'] = youtube;
+      if (socialProfiles != null && socialProfiles.isNotEmpty) {
+        body['socialProfiles'] = socialProfiles.map((profile) {
+          if (profile is Map<String, dynamic>) {
+            return profile;
+          }
+          return profile.toJson();
+        }).toList();
       }
 
       final response = await http.post(
@@ -92,10 +85,7 @@ class ProfileRepository {
   Future<Map<String, dynamic>> updateProfile({
     required String? profileImageUrl,
     required String? shortBio,
-    required String? instagram,
-    required String? facebook,
-    required String? tiktok,
-    required String? youtube,
+    required List<dynamic>? socialProfiles,
   }) async {
     try {
       final token = await pref.getAccessToken();
@@ -111,17 +101,13 @@ class ProfileRepository {
       if (shortBio != null && shortBio.isNotEmpty) {
         body['short_bio'] = shortBio;
       }
-      if (instagram != null && instagram.isNotEmpty) {
-        body['instagram'] = instagram;
-      }
-      if (facebook != null && facebook.isNotEmpty) {
-        body['facebook'] = facebook;
-      }
-      if (tiktok != null && tiktok.isNotEmpty) {
-        body['tiktok'] = tiktok;
-      }
-      if (youtube != null && youtube.isNotEmpty) {
-        body['youtube'] = youtube;
+      if (socialProfiles != null && socialProfiles.isNotEmpty) {
+        body['socialProfiles'] = socialProfiles.map((profile) {
+          if (profile is Map<String, dynamic>) {
+            return profile;
+          }
+          return profile.toJson();
+        }).toList();
       }
 
       final response = await http.put(
