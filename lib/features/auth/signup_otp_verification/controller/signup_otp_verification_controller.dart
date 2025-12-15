@@ -5,11 +5,13 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/routes/approute.dart';
 import 'package:jconnect/features/auth/repository/auth_repository.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 
 class SignupOtpVerificationController extends GetxController {
   var remainingSeconds = 50.obs;
   Timer? timer;
   final authRepository = AuthRepository();
+  final SharedPreferencesHelperController pref = Get.put(SharedPreferencesHelperController());
   RxBool isLoading = false.obs;
 
   late String email;
@@ -78,10 +80,19 @@ class SignupOtpVerificationController extends GetxController {
       isLoading.value = true;
       EasyLoading.show(status: 'Verifying email...');
 
-      await authRepository.verifyEmailOtp(
+      final response = await authRepository.verifyEmailOtp(
         resetToken: resetToken,
         emailOtp: emailOtp,
       );
+
+      // Extract and save the authentication token
+      final token = response['data']?['token'] ?? response['token'];
+      if (token != null && token.toString().isNotEmpty) {
+        await pref.saveToken(token.toString());
+        print('DEBUG: Token saved after email verification: $token');
+      } else {
+        print('DEBUG: No token found in email OTP response: $response');
+      }
 
       isLoading.value = false;
       EasyLoading.dismiss();
@@ -94,6 +105,7 @@ class SignupOtpVerificationController extends GetxController {
     } catch (e) {
       isLoading.value = false;
       EasyLoading.showError('Email verification failed: $e');
+      print('DEBUG: Email verification error: $e');
     }
   }
 

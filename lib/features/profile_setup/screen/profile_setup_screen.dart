@@ -108,28 +108,28 @@ class ProfileSetupScreen extends StatelessWidget {
               const SizedBox(height: 16),
 
               _buildSocialField(
-                controller: controller.instagramController,
+                controller: controller.socialProfiles[1]!,
                 iconPath: 'assets/icons/instagram.png',
                 hintText: 'Profile URL / Username',
               ),
               const SizedBox(height: 12),
 
               _buildSocialField(
-                controller: controller.facebookController,
+                controller: controller.socialProfiles[2]!,
                 iconPath: 'assets/icons/facebook.png',
                 hintText: 'Profile URL / Username',
               ),
               const SizedBox(height: 12),
 
               _buildSocialField(
-                controller: controller.tiktokController,
+                controller: controller.socialProfiles[3]!,
                 iconPath: 'assets/icons/tiktok.png',
                 hintText: 'Profile URL / Username',
               ),
               const SizedBox(height: 12),
 
               _buildSocialField(
-                controller: controller.youtubeController,
+                controller: controller.socialProfiles[4]!,
                 iconPath: 'assets/icons/youtube.png',
                 hintText: 'Channel URL / Channel Name',
               ),
