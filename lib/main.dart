@@ -4,6 +4,8 @@ import 'package:jconnect/app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //Get.put(NotificationController(), permanent: true);
+
   configEasyLoading();
   runApp(const MyApp());
 }

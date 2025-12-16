@@ -1,15 +1,25 @@
-class NotificationModel {
+class AppNotification {
+  final String type;
   final String title;
   final String message;
-  final String time;
-  final bool isRead;
-  final String iconPath;
+  final DateTime createdAt;
+  final Map<String, dynamic>? meta;
 
-  NotificationModel({
+  AppNotification({
+    required this.type,
     required this.title,
     required this.message,
-    required this.time,
-    required this.isRead,
-    required this.iconPath,
+    required this.createdAt,
+    this.meta,
   });
+
+  factory AppNotification.fromJson(Map<String, dynamic> json) {
+    return AppNotification(
+      type: json['type'],
+      title: json['title'],
+      message: json['message'],
+      createdAt: DateTime.parse(json['createdAt']),
+      meta: json['meta'],
+    );
+  }
 }

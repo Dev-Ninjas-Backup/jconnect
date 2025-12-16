@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/user_profile/profile/controller/profile_controller.dart';
 import 'package:jconnect/features/user_profile/profile/widgets/profile_activity_section.dart';
 import 'package:jconnect/features/user_profile/profile/widgets/profile_rate_section.dart';
@@ -12,6 +13,8 @@ import 'package:jconnect/routes/approute.dart';
 
 class ProfileScreen extends StatelessWidget {
   final ProfileController controller = Get.put(ProfileController());
+    final SharedPreferencesHelperController pref =
+      Get.put(SharedPreferencesHelperController());
 
   ProfileScreen({super.key});
 
@@ -42,23 +45,30 @@ class ProfileScreen extends StatelessWidget {
               SizedBox(height: 20),
               ProfileSettingsSection(controller: controller),
               SizedBox(height: 18.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.delete_forever,
-                    size: 24,
-                    color: AppColors.redColor,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    'Delete Account',
-                    style: getTextStyle(
-                      fontsize: 16,
+              GestureDetector(
+
+              onTap: () async{
+             await pref.clearAllData();
+                Get.toNamed(AppRoute.loginScreen);
+              },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.delete_forever,
+                      size: 24,
                       color: AppColors.redColor,
                     ),
-                  ),
-                ],
+                    SizedBox(width: 8),
+                    Text(
+                      'Delete Account',
+                      style: getTextStyle(
+                        fontsize: 16,
+                        color: AppColors.redColor,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
