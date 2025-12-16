@@ -17,4 +17,9 @@ class Endpoint {
 
   // Profile endpoints
   static const String updateProfile = '$baseUrl/profiles';
+
+  // notification
+  static const String notificationsIO = '$baseUrl/notification';
+  static const String getUserSpecificNotification =
+      '$baseUrl/notification-setting/user-specific-notification';
 }

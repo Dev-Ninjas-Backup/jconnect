@@ -1,9 +1,13 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
+import 'package:jconnect/features/home/notification/controller/notification_controller.dart';
 import 'package:jconnect/routes/approute.dart';
 
 class SplashController extends GetxController {
+  final pref = Get.put(SharedPreferencesHelperController());
+  final notificationController = Get.put(NotificationController());
+
   var progressIndex = 0.obs;
 
   @override
@@ -23,13 +27,39 @@ class SplashController extends GetxController {
     });
   }
 
-  Future<void> _checkLoginStatus() async {
-    final loginStatus = await SharedPreferencesHelperController().checkLogin();
+  // Future<void> _checkLoginStatus() async {
+  //   final token = await pref.getAccessToken();
+  //   final loginStatus = await pref.checkLogin();
 
-    if (loginStatus == true) {
-      Get.offAllNamed(AppRoute.navBarScreen);
-    } else {
-      Get.offAllNamed(AppRoute.onboardingScreen);
-    }
+  //   if (loginStatus == true) {
+  //     notificationController.connectSocket(token ?? "");
+
+  //     Get.offAllNamed(AppRoute.navBarScreen);
+  //     print("=================$token ===========");
+  //   } else {
+  //     Get.offAllNamed(AppRoute.onboardingScreen);
+  //   }
+  // }
+
+
+
+Future<void> _checkLoginStatus() async {
+  final token = await pref.getAccessToken();
+  final loginStatus = await pref.checkLogin();
+
+  if (loginStatus == true && token != null) {
+    Get.offAllNamed(AppRoute.navBarScreen);
+
+    // Delay to avoid lifecycle disconnect
+    Future.delayed(const Duration(milliseconds: 300), () {
+      Get.find<NotificationController>().connectSocket(token);
+    });
+  } else {
+    Get.offAllNamed(AppRoute.onboardingScreen);
   }
+}
+
+
+
+
 }

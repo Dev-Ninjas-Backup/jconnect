@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesHelperController extends GetxController {
   static const String _accessTokenKey = 'access_token';
+  static const String _accessRowTokenKey = 'access_row_token';
+
   static const String _selectedRoleKey = 'role';
   static const String _emailOrPhoneKey = 'email_or_phone';
   static const String _userIdKey = 'user_id';
@@ -21,6 +23,19 @@ class SharedPreferencesHelperController extends GetxController {
   Future<String?> getAccessToken() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(_accessTokenKey);
+  }
+//save raw token
+  Future<void> saveRowToken(String token) async {
+   // final String saveToken = token;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_accessRowTokenKey, token);
+    await prefs.setBool('success', true);
+  }
+
+  // Retrieve access token
+  Future<String?> getAccessRowToken() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_accessRowTokenKey);
   }
 
   // ✅ Save email or phone dynamically
