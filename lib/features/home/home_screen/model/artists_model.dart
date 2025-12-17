@@ -160,26 +160,24 @@ class ProfileModel {
 
 class SocialProfileModel {
   final String id;
-  final String platformName;
-  final String platformLink;
-  final int orderId;
+  final String? platformName;
+  final String? platformLink;
 
   SocialProfileModel({
     required this.id,
-    required this.platformName,
-    required this.platformLink,
-    required this.orderId,
+    this.platformName,
+    this.platformLink,
   });
 
   factory SocialProfileModel.fromJson(Map<String, dynamic> json) {
     return SocialProfileModel(
-      id: json['id'],
-      platformName: json['platformName'],
-      platformLink: json['platformLink'],
-      orderId: json['orderId'],
+      id: json['id']?.toString() ?? '',
+      platformName: json['platformName'] as String?,
+      platformLink: json['platformLink'] as String?,
     );
   }
 }
+
 
 class ReviewModel {
   final String? id;

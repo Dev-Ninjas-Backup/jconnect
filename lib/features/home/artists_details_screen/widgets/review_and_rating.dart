@@ -41,6 +41,7 @@ class ReviewAndRating extends StatelessWidget {
                     ),
                     Expanded(
                       child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           //sonic+ rating
                           Row(
@@ -53,6 +54,7 @@ class ReviewAndRating extends StatelessWidget {
                                 ),
                               ),
                               Row(
+                              
                                 children: [
                                   Icon(
                                     Icons.star,
@@ -91,13 +93,13 @@ class ReviewAndRating extends StatelessWidget {
             );
           },
         ),
-        TextButton(
-          onPressed: () {},
-          child: Text(
-            "View more",
-            style: getTextStyle(fontsize: sp(12), fontweight: FontWeight.w500),
-          ),
-        ),
+        // TextButton(
+        //   onPressed: () {},
+        //   child: Text(
+        //     "View more",
+        //     style: getTextStyle(fontsize: sp(12), fontweight: FontWeight.w500),
+        //   ),
+        // ),
       ],
     );
   }

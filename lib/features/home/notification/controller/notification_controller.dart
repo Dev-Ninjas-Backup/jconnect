@@ -1,10 +1,11 @@
-import 'package:flutter/foundation.dart';
+// ignore_for_file: avoid_print
+
 import 'package:get/get.dart';
 import '../model/notification_model.dart';
 import '../services/notification_services.dart';
 
 class NotificationController extends GetxController {
-  final notifications = [].obs;
+  final RxList<AppNotification> notifications = <AppNotification>[].obs;
 
   /// User notification preferences
   final serviceCreationEnabled = true.obs;
@@ -25,7 +26,7 @@ class NotificationController extends GetxController {
 
     switch (notification.type) {
       case 'service.create':
-        if (serviceCreationEnabled.value) return;
+        if (!serviceCreationEnabled.value) return;
         notifications.insert(0, notification);
         
           print("======n==== ========${notifications.length} ===========");
@@ -33,7 +34,7 @@ class NotificationController extends GetxController {
         break;
 
       case 'user.register':
-        if (userRegistrationEnabled.value) return;
+        if (!userRegistrationEnabled.value) return;
         notifications.insert(0, notification);
         break;
 
