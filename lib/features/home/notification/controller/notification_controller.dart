@@ -4,7 +4,7 @@ import '../model/notification_model.dart';
 import '../services/notification_services.dart';
 
 class NotificationController extends GetxController {
-  final notifications = <AppNotification>[].obs;
+  final notifications = [].obs;
 
   /// User notification preferences
   final serviceCreationEnabled = true.obs;
@@ -25,15 +25,15 @@ class NotificationController extends GetxController {
 
     switch (notification.type) {
       case 'service.create':
-        if (!serviceCreationEnabled.value) return;
+        if (serviceCreationEnabled.value) return;
         notifications.insert(0, notification);
-        if (kDebugMode) {
-          print("==================${notifications.length} ===========");
-        }
+        
+          print("======n==== ========${notifications.length} ===========");
+        
         break;
 
       case 'user.register':
-        if (!userRegistrationEnabled.value) return;
+        if (userRegistrationEnabled.value) return;
         notifications.insert(0, notification);
         break;
 

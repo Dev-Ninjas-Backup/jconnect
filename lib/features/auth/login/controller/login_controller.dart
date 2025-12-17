@@ -59,6 +59,7 @@ class LoginController extends GetxController {
       final token = response['data']['token'] ?? '';
       final user = response['data']['user'];
       pref.saveToken(token);
+      pref.saveRowToken(token);
 
       print('DEBUG: Login Response: $response');
       print('DEBUG: Token: $token');
