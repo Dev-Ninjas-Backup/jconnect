@@ -79,9 +79,9 @@ class NotificationSocketService {
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
-          .setAuth({'token': token}) // RAW TOKEN
+          .setAuth({'token': token}) 
           .setExtraHeaders({
-            'Authorization': token,
+            'Authorization': "Bearer $token",
           })
           .build(),
     );

@@ -44,7 +44,12 @@ class SplashController extends GetxController {
 
 
 Future<void> _checkLoginStatus() async {
-  final token = await pref.getAccessToken();
+  final tokenRow = await pref.getAccessRowToken();
+    final token = await pref.getAccessToken();
+
+    print("==================$tokenRow ===========");
+    print(" ==================$token ===========");
+
   final loginStatus = await pref.checkLogin();
 
   if (loginStatus == true && token != null) {
@@ -52,7 +57,7 @@ Future<void> _checkLoginStatus() async {
 
     // Delay to avoid lifecycle disconnect
     Future.delayed(const Duration(milliseconds: 300), () {
-      Get.find<NotificationController>().connectSocket(token);
+      notificationController.connectSocket(tokenRow ?? " ");
     });
   } else {
     Get.offAllNamed(AppRoute.onboardingScreen);
