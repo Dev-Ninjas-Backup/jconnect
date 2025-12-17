@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../model/notification_model.dart';
 import '../services/notification_services.dart';
@@ -26,7 +27,9 @@ class NotificationController extends GetxController {
       case 'service.create':
         if (!serviceCreationEnabled.value) return;
         notifications.insert(0, notification);
-        print("==================${notifications.length} ===========");
+        if (kDebugMode) {
+          print("==================${notifications.length} ===========");
+        }
         break;
 
       case 'user.register':

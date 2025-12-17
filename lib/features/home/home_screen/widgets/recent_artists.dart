@@ -216,7 +216,7 @@ class ArtistsYouKnow extends StatelessWidget {
             final avgRating = reviews.isEmpty
                 ? 0.0
                 : reviews
-                          .map((r) => r.rating.toDouble())
+                          .map((r) => r.rating!.toDouble())
                           .reduce((a, b) => a + b) /
                       reviews.length;
 

@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/features/home/artists_details_screen/controller/artists_details_controller.dart';
 import 'package:jconnect/routes/approute.dart';
 
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/constants/iconpath.dart';
-import '../../../../core/common/constants/imagepath.dart';
 import '../../../../core/common/style/global_text_style.dart';
 import '../../../../core/common/widgets/custom_app_bar2.dart';
 import '../../../../core/common/widgets/custom_primary_button.dart';
 import '../../../../core/common/widgets/custom_secondary_button.dart';
 
 class ArtistsDetailsUpperSection extends StatelessWidget {
-  const ArtistsDetailsUpperSection({super.key});
+  final ArtistsDetailsController controller;
+  const ArtistsDetailsUpperSection({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +32,16 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
         Center(
           child: Column(
             children: [
-              Image.asset(Imagepath.profileImage, height: 130.w, width: 130.w),
+              Image.network(
+                controller.artistsDetails.value?.profilePhoto.toString()??" ",
+                height: 130.w,
+                width: 130.w,
+                errorBuilder: (context, error, stackTrace) =>
+                    Icon(Icons.broken_image, size: 130, color: Colors.white),
+              ),
               SizedBox(height: 12.h),
               Text(
-                "DJ NovaX",
+                controller.artistsDetails.value!.fullName,
                 style: getTextStyle(
                   fontsize: sp(24),
                   fontweight: FontWeight.w600,
@@ -42,7 +49,7 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
               ),
               SizedBox(height: 8.h),
               Text(
-                "Music Reviewer • Club DJ • Producer",
+                controller.artistsDetails.value!.email,
                 style: getTextStyle(
                   fontsize: sp(10),
                   fontweight: FontWeight.w400,
@@ -121,7 +128,7 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
         ),
         SizedBox(height: 40.h),
         Text(
-          "About DJ NovaX",
+          "About  ${controller.artistsDetails.value!.fullName.toString()}",
           style: getTextStyle(
             fontsize: sp(18),
             fontweight: FontWeight.w500,
@@ -130,7 +137,8 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
         ),
         SizedBox(height: 10.h),
         Text(
-          "Multi-genre DJ and producer known for blending deep house and electro with cinematic soundscapes. Based in Miami, performing worldwide.",
+          controller.artistsDetails.value?.profile?.shortBio ??
+              "No bio available",
           style: getTextStyle(
             fontsize: sp(12),
             color: AppColors.primaryTextColor.withValues(alpha: .5),
