@@ -7,10 +7,7 @@ import '../../../../core/common/widgets/gradient_border_container.dart';
 import '../controller/artists_details_controller.dart';
 
 class ReviewAndRating extends StatelessWidget {
-  const ReviewAndRating({
-    super.key,
-    required this.controller,
-  });
+  const ReviewAndRating({super.key, required this.controller});
 
   final ArtistsDetailsController controller;
 
@@ -22,36 +19,35 @@ class ReviewAndRating extends StatelessWidget {
           padding: EdgeInsets.zero,
           physics: NeverScrollableScrollPhysics(),
           shrinkWrap: true,
-          itemCount: controller.reviewAndRatingListItem.length,
+          itemCount:
+              controller.artistsDetails.value?.reviewsReceived.length ?? 0,
           itemBuilder: (_, index) {
-            var item = controller.reviewAndRatingListItem[index];
+            var item = controller.artistsDetails.value!.reviewsReceived[index];
             return Padding(
               padding: EdgeInsets.only(bottom: 14.h),
               child: GradientBorderContainer(
                 borderRadius: 9.r,
                 borderWidth: .75,
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12.w,
-                  vertical: 12.h,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
                 child: Row(
                   spacing: 8.w,
                   children: [
-                    Image.asset(
-                      item.imageUrl,
+                    Image.network(
+                      item.reviewer?.profilePhoto ?? "",
                       height: 40.w,
                       width: 40.w,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Icon(Icons.broken_image, size: 40,color: Colors.white,),
                     ),
                     Expanded(
                       child: Column(
                         children: [
                           //sonic+ rating
                           Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                item.title,
+                                item.reviewer?.fullName ?? 'Unknown',
                                 style: getTextStyle(
                                   fontweight: FontWeight.w500,
                                 ),
@@ -65,12 +61,11 @@ class ReviewAndRating extends StatelessWidget {
                                   ),
                                   SizedBox(width: 6.w),
                                   Text(
-                                    item.rating.toString(),
+                                    (item.rating ?? 0).toString(),
                                     style: getTextStyle(
                                       fontsize: sp(12),
                                       fontweight: FontWeight.w500,
-                                      color: AppColors
-                                          .primaryTextColor
+                                      color: AppColors.primaryTextColor
                                           .withValues(alpha: .70),
                                     ),
                                   ),
@@ -79,11 +74,12 @@ class ReviewAndRating extends StatelessWidget {
                             ],
                           ),
                           Text(
-                            item.subTitle,
+                            item.reviewText ?? "No review text",
                             style: getTextStyle(
                               fontsize: sp(10),
-                              color: AppColors.primaryTextColor
-                                  .withValues(alpha: .5),
+                              color: AppColors.primaryTextColor.withValues(
+                                alpha: .5,
+                              ),
                             ),
                           ),
                         ],
@@ -99,10 +95,7 @@ class ReviewAndRating extends StatelessWidget {
           onPressed: () {},
           child: Text(
             "View more",
-            style: getTextStyle(
-              fontsize: sp(12),
-              fontweight: FontWeight.w500,
-            ),
+            style: getTextStyle(fontsize: sp(12), fontweight: FontWeight.w500),
           ),
         ),
       ],

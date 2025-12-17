@@ -1,55 +1,43 @@
-// artists_model.dart
-
 class ArtistsModel {
   final String id;
   final String fullName;
   final String email;
   final String? profilePhoto;
   final String phone;
-  final String? pinCode;
-  final String? otp;
-  final String? googleId;
-  final String? emailOtp;
-  final String? otpExpiresAt;
+
   final bool isVerified;
   final bool isTermsAgreed;
   final bool isLogin;
   final bool isDeleted;
   final bool isActive;
-  final int loginAttempts;
-  final int withdrawnAmount;
 
-  final int? phoneOtp; 
-  final String? phoneOtpExpiresAt;
+  final int loginAttempts;
+  final double withdrawnAmount;
+
   final bool phoneVerified;
 
-  final String? lastLoginAt; 
-  final String createdAt;
-  final String updatedAt;
-  final String? tokenExpiresAt;
+  final DateTime? lastLoginAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   final String role;
   final String validationType;
-  final String? authProvider;
-  final int? stripeAccountId;
-  final String? sellerIDStripe;
+
   final String? customerIdStripe;
 
   final List<ServiceModel> services;
-  final List<ReviewModel> reviewsGiven;
+  final ProfileModel? profile;
   final List<ReviewModel> reviewsReceived;
 
-  ArtistsModel({
+  final double averageRating;
+  final int totalReviews;
+
+  const ArtistsModel({
     required this.id,
     required this.fullName,
     required this.email,
     this.profilePhoto,
     required this.phone,
-    this.pinCode,
-    this.otp,
-    this.googleId,
-    this.emailOtp,
-    this.otpExpiresAt,
     required this.isVerified,
     required this.isTermsAgreed,
     required this.isLogin,
@@ -57,205 +45,178 @@ class ArtistsModel {
     required this.isActive,
     required this.loginAttempts,
     required this.withdrawnAmount,
-    this.phoneOtp,
-    this.phoneOtpExpiresAt,
     required this.phoneVerified,
     this.lastLoginAt,
     required this.createdAt,
     required this.updatedAt,
-    this.tokenExpiresAt,
     required this.role,
     required this.validationType,
-    this.authProvider,
-    this.stripeAccountId,
-    this.sellerIDStripe,
     this.customerIdStripe,
     required this.services,
-    required this.reviewsGiven,
+    this.profile,
     required this.reviewsReceived,
+    required this.averageRating,
+    required this.totalReviews,
   });
 
   factory ArtistsModel.fromJson(Map<String, dynamic> json) {
+    DateTime? parseDate(String? v) => v == null ? null : DateTime.tryParse(v);
+
     return ArtistsModel(
-      id: json['id'] as String,
-      fullName: json['full_name'] as String,
-      email: json['email'] as String,
-      profilePhoto: json['profilePhoto'] as String?,
-      phone: json['phone'].toString(),
-      pinCode: json['pinCode'].toString(),
-      otp: json['otp'].toString(),
-      googleId: json['googleId'] as String?,
-      emailOtp: json['emailOtp'].toString(),
-      otpExpiresAt: json['otpExpiresAt'].toString(),
-      isVerified: json['isVerified'] as bool,
-      isTermsAgreed: json['is_terms_agreed'] as bool,
-      isLogin: json['isLogin'] as bool,
-      isDeleted: json['isDeleted'] as bool,
-      isActive: json['isActive'] as bool,
-      loginAttempts: json['login_attempts'] as int,
-      withdrawnAmount: json['withdrawn_amount'] as int,
-      phoneOtp: json['phoneOtp'] as int?,
-      phoneOtpExpiresAt: json['phoneOtpExpiresAt'].toString(),
-      phoneVerified: json['phoneVerified'] as bool,
-      lastLoginAt: json['last_login_at'].toString(),
-      createdAt: json['created_at'].toString(),
-      updatedAt: json['updated_at'].toString(),
-      tokenExpiresAt: json['token_expires_at'].toString(),
-      role: json['role'] as String,
-      validationType: json['validation_type'] as String,
-      authProvider: json['auth_provider'] as String?,
-      stripeAccountId: json['stripeAccountId'] as int?,
-      sellerIDStripe: json['sellerIDStripe'].toString(),
-      customerIdStripe: json['customerIdStripe'].toString(),
-      services: (json['services'] as List<dynamic>? ?? [])
-          .map((e) => ServiceModel.fromJson(e as Map<String, dynamic>))
+      id: json['id'],
+      fullName: json['full_name'] ?? '',
+      email: json['email'] ?? '',
+      profilePhoto: json['profilePhoto'],
+      phone: json['phone'] ?? '',
+      isVerified: json['isVerified'] ?? false,
+      isTermsAgreed: json['is_terms_agreed'] ?? false,
+      isLogin: json['isLogin'] ?? false,
+      isDeleted: json['isDeleted'] ?? false,
+      isActive: json['isActive'] ?? true,
+      loginAttempts: json['login_attempts'] ?? 0,
+      withdrawnAmount: (json['withdrawn_amount'] ?? 0).toDouble(),
+      phoneVerified: json['phoneVerified'] ?? false,
+      lastLoginAt: parseDate(json['last_login_at']),
+      createdAt: parseDate(json['created_at']) ?? DateTime.now(),
+      updatedAt: parseDate(json['updated_at']) ?? DateTime.now(),
+
+      role: json['role'] ?? '',
+      validationType: json['validation_type'] ?? '',
+      customerIdStripe: json['customerIdStripe'],
+      services: (json['services'] as List? ?? [])
+          .map((e) => ServiceModel.fromJson(e))
           .toList(),
-      reviewsGiven: (json['ReviewsGiven'] as List<dynamic>? ?? [])
-          .map((e) => ReviewModel.fromJson(e as Map<String, dynamic>))
+      profile: json['profile'] != null
+          ? ProfileModel.fromJson(json['profile'])
+          : null,
+      reviewsReceived: (json['ReviewsReceived'] as List? ?? [])
+          .map((e) => ReviewModel.fromJson(e))
           .toList(),
-      reviewsReceived: (json['ReviewsReceived'] as List<dynamic>? ?? [])
-          .map((e) => ReviewModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      averageRating: (json['averageRating'] ?? 0).toDouble(),
+      totalReviews: json['totalReviews'] ?? 0,
     );
   }
-
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'full_name': fullName,
-    'email': email,
-    'profilePhoto': profilePhoto,
-    'phone': phone,
-    'pinCode': pinCode,
-    'otp': otp,
-    'googleId': googleId,
-    'emailOtp': emailOtp,
-    'otpExpiresAt': otpExpiresAt,
-    'isVerified': isVerified,
-    'is_terms_agreed': isTermsAgreed,
-    'isLogin': isLogin,
-    'isDeleted': isDeleted,
-    'isActive': isActive,
-    'login_attempts': loginAttempts,
-    'withdrawn_amount': withdrawnAmount,
-    'phoneOtp': phoneOtp,
-    'phoneOtpExpiresAt': phoneOtpExpiresAt,
-    'phoneVerified': phoneVerified,
-    'last_login_at': lastLoginAt,
-    'created_at': createdAt,
-    'updated_at': updatedAt,
-    'token_expires_at': tokenExpiresAt,
-    'role': role,
-    'validation_type': validationType,
-    'auth_provider': authProvider,
-    'stripeAccountId': stripeAccountId,
-    'sellerIDStripe': sellerIDStripe,
-    'customerIdStripe': customerIdStripe,
-    'services': services.map((s) => s.toJson()).toList(),
-    'ReviewsGiven': reviewsGiven.map((r) => r.toJson()).toList(),
-    'ReviewsReceived': reviewsReceived.map((r) => r.toJson()).toList(),
-  };
 }
-
-// ==================================================================
-// Service Model
-// ==================================================================
 
 class ServiceModel {
   final String id;
   final String serviceName;
+  final String serviceType;
   final String description;
-  final int price;
+  final double price;
   final String currency;
-  final String creatorId;
-  final String createdAt;
-  final String updatedAt;
   final bool isPost;
   final bool isCustom;
 
   ServiceModel({
     required this.id,
     required this.serviceName,
+    required this.serviceType,
     required this.description,
     required this.price,
     required this.currency,
-    required this.creatorId,
-    required this.createdAt,
-    required this.updatedAt,
     required this.isPost,
     required this.isCustom,
   });
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
     return ServiceModel(
-      id: json['id'] as String,
-      serviceName: json['serviceName'] as String,
-      description: json['description'] as String,
-      price: json['price'] as int,
-      currency: json['currency'].toString(),
-      creatorId: json['creatorId'] as String,
-      createdAt: json['createdAt'].toString(),
-      updatedAt: json['updatedAt'] as String,
-      isPost: json['isPost'] as bool? ?? false,
-      isCustom: json['isCustom'] as bool? ?? false,
+      id: json['id'],
+      serviceName: json['serviceName'] ?? '',
+      serviceType: json['serviceType'] ?? '',
+      description: json['description'] ?? '',
+      price: (json['price'] ?? 0).toDouble(),
+      currency: json['currency'] ?? 'USD',
+      isPost: json['isPost'] ?? false,
+      isCustom: json['isCustom'] ?? false,
     );
   }
-
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'serviceName': serviceName,
-    'description': description,
-    'price': price,
-    'currency': currency,
-    'creatorId': creatorId,
-    'createdAt': createdAt,
-    'updatedAt': updatedAt,
-    'isPost': isPost,
-    'isCustom': isCustom,
-  };
 }
 
-// ==================================================================
-// Review Model
-// ==================================================================
+class ProfileModel {
+  final String userId;
+  final String? profileImageUrl;
+  final String? shortBio;
+  final List<SocialProfileModel> socialProfiles;
 
-class ReviewModel {
-  final String id;
-  final String reviewerId;
-  final String artistId;
-  final int rating;
-  final String reviewText;
-  final String createdAt;
-  final String updatedAt;
-
-  ReviewModel({
-    required this.id,
-    required this.reviewerId,
-    required this.artistId,
-    required this.rating,
-    required this.reviewText,
-    required this.createdAt,
-    required this.updatedAt,
+  ProfileModel({
+    required this.userId,
+    this.profileImageUrl,
+    this.shortBio,
+    required this.socialProfiles,
   });
 
-  factory ReviewModel.fromJson(Map<String, dynamic> json) {
-    return ReviewModel(
-      id: json['id'] as String,
-      reviewerId: json['reviewerId'] as String,
-      artistId: json['artistId'] as String,
-      rating: json['rating'] as int,
-      reviewText: json['reviewText'] as String? ?? '',
-      createdAt: json['createdAt'] as String,
-      updatedAt: json['updatedAt'] as String,
+  factory ProfileModel.fromJson(Map<String, dynamic> json) {
+    return ProfileModel(
+      userId: json['user_id'],
+      profileImageUrl: json['profile_image_url'],
+      shortBio: json['short_bio'],
+      socialProfiles: (json['socialProfiles'] as List? ?? [])
+          .map((e) => SocialProfileModel.fromJson(e))
+          .toList(),
     );
   }
+}
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'reviewerId': reviewerId,
-    'artistId': artistId,
-    'rating': rating,
-    'reviewText': reviewText,
-    'createdAt': createdAt,
-    'updatedAt': updatedAt,
-  };
+class SocialProfileModel {
+  final String id;
+  final String platformName;
+  final String platformLink;
+  final int orderId;
+
+  SocialProfileModel({
+    required this.id,
+    required this.platformName,
+    required this.platformLink,
+    required this.orderId,
+  });
+
+  factory SocialProfileModel.fromJson(Map<String, dynamic> json) {
+    return SocialProfileModel(
+      id: json['id'],
+      platformName: json['platformName'],
+      platformLink: json['platformLink'],
+      orderId: json['orderId'],
+    );
+  }
+}
+
+class ReviewModel {
+  final String? id;
+  final int? rating;
+  final String? reviewText;
+  final ReviewerModel? reviewer;
+
+  ReviewModel({this.id, this.rating, this.reviewText, this.reviewer});
+
+  factory ReviewModel.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return ReviewModel();
+
+    return ReviewModel(
+      id: json['id'],
+      rating: json['rating'],
+      reviewText: json['reviewText'],
+      reviewer: json['reviewer'] != null
+          ? ReviewerModel.fromJson(json['reviewer'])
+          : null,
+    );
+  }
+}
+
+class ReviewerModel {
+  final String? id;
+  final String? fullName;
+  final String? profilePhoto;
+
+  ReviewerModel({this.id, this.fullName, this.profilePhoto});
+
+  factory ReviewerModel.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return ReviewerModel();
+
+    return ReviewerModel(
+      id: json['id'],
+      fullName: json['full_name'],
+      profilePhoto: json['profilePhoto'],
+    );
+  }
 }

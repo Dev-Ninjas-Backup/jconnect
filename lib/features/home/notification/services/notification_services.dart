@@ -58,6 +58,7 @@
 
 // ignore: library_prefixes
 import 'package:flutter/foundation.dart';
+// ignore: library_prefixes
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class NotificationSocketService {

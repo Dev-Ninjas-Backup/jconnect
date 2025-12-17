@@ -16,7 +16,19 @@ class ArtistsDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var controller = Get.put(ArtistsDetailsController());
+    // var controller = Get.put(ArtistsDetailsController());
+    // var controller = Get.put(
+    //   ArtistsDetailsController(
+    //     networkClient: NetworkClient(
+    //       onUnAuthorize: () {
+    //         if (kDebugMode) {
+    //           print("unauthorized");
+    //         }
+    //       },
+    //     ),
+    //   ),
+    // );
+    var controller = Get.find<ArtistsDetailsController>();
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
       body: Padding(
@@ -26,7 +38,15 @@ class ArtistsDetailsPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-              ArtistsDetailsUpperSection(),
+              Obx(() {
+                final artist = controller.artistsDetails.value;
+                if (artist == null) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                return ArtistsDetailsUpperSection(controller: controller);
+              }),
+
+              // ArtistsDetailsUpperSection(controller: controller,),
               SizedBox(height: 30.h),
 
               GradientBorderContainer(
@@ -103,7 +123,19 @@ class ArtistsDetailsPage extends StatelessWidget {
                       ),
                       SizedBox(width: 6.w),
                       Text(
-                        "4.8 (32 reviews)",
+                        controller.artistsDetails.value!.averageRating
+                            .toString(),
+                        style: getTextStyle(
+                          fontsize: sp(12),
+                          fontweight: FontWeight.w500,
+                          color: AppColors.primaryTextColor.withValues(
+                            alpha: .70,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 6.w),
+                      Text(
+                        "(${controller.artistsDetails.value?.reviewsReceived.length}) reviews",
                         style: getTextStyle(
                           fontsize: sp(12),
                           fontweight: FontWeight.w500,
