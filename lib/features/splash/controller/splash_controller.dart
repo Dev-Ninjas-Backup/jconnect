@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
@@ -27,44 +29,24 @@ class SplashController extends GetxController {
     });
   }
 
-  // Future<void> _checkLoginStatus() async {
-  //   final token = await pref.getAccessToken();
-  //   final loginStatus = await pref.checkLogin();
-
-  //   if (loginStatus == true) {
-  //     notificationController.connectSocket(token ?? "");
-
-  //     Get.offAllNamed(AppRoute.navBarScreen);
-  //     print("=================$token ===========");
-  //   } else {
-  //     Get.offAllNamed(AppRoute.onboardingScreen);
-  //   }
-  // }
-
-
-
-Future<void> _checkLoginStatus() async {
-  final tokenRow = await pref.getAccessRowToken();
+  Future<void> _checkLoginStatus() async {
+    final tokenRow = await pref.getAccessRowToken();
     final token = await pref.getAccessToken();
 
     print("==================$tokenRow ===========");
     print(" ==================$token ===========");
 
-  final loginStatus = await pref.checkLogin();
+    final loginStatus = await pref.checkLogin();
 
-  if (loginStatus == true && token != null) {
-    Get.offAllNamed(AppRoute.navBarScreen);
+    if (loginStatus == true && token != null) {
+      Get.offAllNamed(AppRoute.navBarScreen);
 
-    // Delay to avoid lifecycle disconnect
-    Future.delayed(const Duration(milliseconds: 300), () {
-      notificationController.connectSocket(tokenRow ?? " ");
-    });
-  } else {
-    Get.offAllNamed(AppRoute.onboardingScreen);
+      // Delay to avoid lifecycle disconnect
+      Future.delayed(const Duration(milliseconds: 300), () {
+        notificationController.connectSocket(tokenRow ?? " ");
+      });
+    } else {
+      Get.offAllNamed(AppRoute.onboardingScreen);
+    }
   }
-}
-
-
-
-
 }

@@ -11,140 +11,304 @@ import '../../../../core/common/widgets/custom_app_bar2.dart';
 import '../../../../core/common/widgets/custom_primary_button.dart';
 import '../../../../core/common/widgets/custom_secondary_button.dart';
 
+// class ArtistsDetailsUpperSection extends StatelessWidget {
+//   final ArtistsDetailsController controller;
+//   const ArtistsDetailsUpperSection({super.key, required this.controller});
+//   String getSocialIcon(String platform) {
+//     switch (platform.toLowerCase()) {
+//       case 'facebook':
+//         return Iconpath.facebook;
+//       case 'instagram':
+//         return Iconpath.instagram;
+//       case 'tiktok':
+//         return Iconpath.tiktok;
+//       case 'youtube':
+//         return Iconpath.youtube;
+//       default:
+//         return Iconpath.defaultSocial;
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         CustomAppBar2(
+//           title: "Artist Details",
+//           leadingIconUrl: Iconpath.backIcon,
+//           onLeadingTap: () {
+//             Get.back();
+//           },
+//         ),
+//         SizedBox(height: 34.h),
+
+//         Center(
+//           child: Column(
+//             children: [
+//               Image.network(
+//                 controller.artistsDetails.value?.profilePhoto.toString() ?? " ",
+//                 height: 130.w,
+//                 width: 130.w,
+//                 errorBuilder: (context, error, stackTrace) =>
+//                     Icon(Icons.broken_image, size: 130, color: Colors.white),
+//               ),
+//               SizedBox(height: 12.h),
+//               Text(
+//                 controller.artistsDetails.value!.fullName,
+//                 style: getTextStyle(
+//                   fontsize: sp(24),
+//                   fontweight: FontWeight.w600,
+//                 ),
+//               ),
+//               SizedBox(height: 8.h),
+//               Text(
+//                 controller.artistsDetails.value!.email,
+//                 style: getTextStyle(
+//                   fontsize: sp(10),
+//                   fontweight: FontWeight.w400,
+//                   color: AppColors.primaryTextColor.withValues(alpha: .7),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+
+//         SizedBox(height: 30.h),
+//         Row(
+//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//           spacing: 24.w,
+//           children: [
+//             Expanded(
+//               child: CustomSecondaryButton(buttonText: "Message", onTap: () {}),
+//             ),
+//             Expanded(
+//               child: CustomPrimaryButton(
+//                 buttonText: "Request Service",
+//                 onTap: () {
+//                   Get.toNamed(AppRoute.getRequestServiceScreen());
+//                 },
+//                 fontSize: 14,
+//               ),
+//             ),
+//           ],
+//         ),
+//         SizedBox(height: 40.h),
+//         Text(
+//           "Social Links:",
+//           style: getTextStyle(
+//             fontsize: sp(18),
+//             fontweight: FontWeight.w500,
+//             color: AppColors.primaryTextColor.withValues(alpha: .7),
+//           ),
+//         ),
+//         SizedBox(height: 24.h),
+//         Row(
+//           children: List.generate(
+//             controller.artistsDetails.value!.profile!.socialProfiles.length,
+//             (index) {
+//               final iconPath = getSocialIcon(
+//                 controller
+//                         .artistsDetails
+//                         .value!
+//                         .profile!
+//                         .socialProfiles[index]
+//                         .platformName ??
+//                     " ",
+//               );
+
+//               return Padding(
+//                 padding: EdgeInsets.only(right: 34.w),
+//                 child: Image.asset(iconPath, height: 24.w, width: 24.w),
+//               );
+//             },
+//           ),
+//         ),
+
+//         SizedBox(height: 40.h),
+//         Text(
+//           "About  ${controller.artistsDetails.value!.fullName.toString()}",
+//           style: getTextStyle(
+//             fontsize: sp(18),
+//             fontweight: FontWeight.w500,
+//             color: AppColors.primaryTextColor.withValues(alpha: .7),
+//           ),
+//         ),
+//         SizedBox(height: 10.h),
+//         Text(
+//           controller.artistsDetails.value?.profile?.shortBio ??
+//               "No bio available",
+//           style: getTextStyle(
+//             fontsize: sp(12),
+//             color: AppColors.primaryTextColor.withValues(alpha: .5),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
+
 class ArtistsDetailsUpperSection extends StatelessWidget {
   final ArtistsDetailsController controller;
   const ArtistsDetailsUpperSection({super.key, required this.controller});
 
+  String getSocialIcon(String platform) {
+    switch (platform.toLowerCase()) {
+      case 'facebook':
+        return Iconpath.facebook;
+      case 'instagram':
+        return Iconpath.instagram;
+      case 'tiktok':
+        return Iconpath.tiktok;
+      case 'youtube':
+        return Iconpath.youtube;
+      default:
+        return Iconpath.defaultSocial;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CustomAppBar2(
-          title: "Artist Details",
-          leadingIconUrl: Iconpath.backIcon,
-          onLeadingTap: () {
-            Get.back();
-          },
-        ),
-        SizedBox(height: 34.h),
+    return Obx(() {
+      final artist = controller.artistsDetails.value;
 
-        Center(
-          child: Column(
+      // ⛔ Loading state (prevents crash)
+      if (artist == null) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      final socialProfiles = artist.profile?.socialProfiles ?? [];
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomAppBar2(
+            title: "Artist Details",
+            leadingIconUrl: Iconpath.backIcon,
+            onLeadingTap: Get.back,
+          ),
+          SizedBox(height: 34.h),
+
+          Center(
+            child: Column(
+              children: [
+                ClipRRect(
+                borderRadius: BorderRadiusGeometry.circular(50),
+                  child: Image.network(
+                    artist.profilePhoto ?? '',
+                    height: 130.w,
+                    width: 130.w,
+                    errorBuilder: (_, __, ___) =>
+                        ClipRRect(
+                        borderRadius: BorderRadiusGeometry.circular(50),
+                        child: const Icon(Icons.broken_image, size: 130,color: Colors.white,)),
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                Text(
+                  artist.fullName,
+                  style: getTextStyle(
+                    fontsize: sp(24),
+                    fontweight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  artist.email,
+                  style: getTextStyle(
+                    fontsize: sp(10),
+                    fontweight: FontWeight.w400,
+                    color: AppColors.primaryTextColor.withValues(alpha: .7),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 30.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            spacing: 24.w,
             children: [
-              Image.network(
-                controller.artistsDetails.value?.profilePhoto.toString()??" ",
-                height: 130.w,
-                width: 130.w,
-                errorBuilder: (context, error, stackTrace) =>
-                    Icon(Icons.broken_image, size: 130, color: Colors.white),
-              ),
-              SizedBox(height: 12.h),
-              Text(
-                controller.artistsDetails.value!.fullName,
-                style: getTextStyle(
-                  fontsize: sp(24),
-                  fontweight: FontWeight.w600,
+              Expanded(
+                child: CustomSecondaryButton(
+                  buttonText: "Message",
+                  onTap: () {},
                 ),
               ),
-              SizedBox(height: 8.h),
-              Text(
-                controller.artistsDetails.value!.email,
-                style: getTextStyle(
-                  fontsize: sp(10),
-                  fontweight: FontWeight.w400,
-                  color: AppColors.primaryTextColor.withValues(alpha: .7),
+              Expanded(
+                child: CustomPrimaryButton(
+                  buttonText: "Request Service",
+                  onTap: () {
+                    Get.toNamed(AppRoute.getRequestServiceScreen());
+                  },
+                  fontSize: 14,
                 ),
               ),
             ],
           ),
-        ),
 
-        SizedBox(height: 30.h),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          spacing: 24.w,
-          children: [
-            // GestureDetector(
-            //   onTap: () {},
-            //   child: Expanded(
-            //     child: GradientBorderContainer(
-            //       borderRadius: 6.r,
-            //       borderWidth: 0.75,
-            //       gradientColors: [
-            //         AppColors.primaryTextColor,
-            //         AppColors.primaryTextColor.withValues(alpha: .50),
-            //       ],
-            //       padding: EdgeInsets.symmetric(
-            //         horizontal: 10.w,
-            //         vertical: 10.h,
-            //       ),
-            //       child: Center(
-            //         child: Text(
-            //           "Message",
-            //           style: getTextStyle(
-            //             fontsize: sp(14),
-            //             fontweight: FontWeight.w400,
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-            // ),
-            Expanded(
-              child: CustomSecondaryButton(buttonText: "Message", onTap: () {}),
+          SizedBox(height: 40.h),
+          Text(
+            "Social Links:",
+            style: getTextStyle(
+              fontsize: sp(18),
+              fontweight: FontWeight.w500,
+              color: AppColors.primaryTextColor.withValues(alpha: .7),
             ),
-            Expanded(
-              child: CustomPrimaryButton(
-                buttonText: "Request Service",
-                onTap: () {
-                  Get.toNamed(AppRoute.getRequestServiceScreen());
-                },
-                fontSize: 14,
+          ),
+          SizedBox(height: 24.h),
+
+          if (socialProfiles.isNotEmpty)
+            Row(
+              children: List.generate(socialProfiles.length, (index) {
+                final iconPath = getSocialIcon(
+                  socialProfiles[index].platformName ?? '',
+                );
+
+                return Padding(
+                  padding: EdgeInsets.only(right: 34.w),
+                  child: GestureDetector(
+                  onTap: () {
+
+                    final url = socialProfiles[index].platformLink;
+                    if (url != null && url.isNotEmpty) {
+                      controller.launchURL(url);
+                    }
+                    
+                  },
+                  child: Image.asset(iconPath, height: 24.w, width: 24.w)),
+                );
+              }),
+            )
+          else if (socialProfiles.isEmpty)
+            Text(
+              "No social profiles available",
+              style: getTextStyle(
+                fontsize: sp(12),
+                color: AppColors.primaryTextColor.withValues(alpha: .5),
               ),
             ),
-          ],
-        ),
-        SizedBox(height: 40.h),
-        Text(
-          "Social Links:",
-          style: getTextStyle(
-            fontsize: sp(18),
-            fontweight: FontWeight.w500,
-            color: AppColors.primaryTextColor.withValues(alpha: .7),
+
+          SizedBox(height: 40.h),
+          Text(
+            "About ${artist.fullName}",
+            style: getTextStyle(
+              fontsize: sp(18),
+              fontweight: FontWeight.w500,
+              color: AppColors.primaryTextColor.withValues(alpha: .7),
+            ),
           ),
-        ),
-        SizedBox(height: 24.h),
-        Row(
-          children: [
-            Image.asset(Iconpath.instagram, height: 20.h, width: 20.w),
-            SizedBox(width: 36.w),
-            Image.asset(Iconpath.facebook, height: 20.h, width: 20.w),
-            SizedBox(width: 36.w),
-            Image.asset(Iconpath.tiktok, height: 20.h, width: 20.w),
-            SizedBox(width: 36.w),
-            Image.asset(Iconpath.youtube, height: 20.h, width: 28.w),
-          ],
-        ),
-        SizedBox(height: 40.h),
-        Text(
-          "About  ${controller.artistsDetails.value!.fullName.toString()}",
-          style: getTextStyle(
-            fontsize: sp(18),
-            fontweight: FontWeight.w500,
-            color: AppColors.primaryTextColor.withValues(alpha: .7),
+          SizedBox(height: 10.h),
+          Text(
+            artist.profile?.shortBio ?? "No bio available",
+            style: getTextStyle(
+              fontsize: sp(12),
+              color: AppColors.primaryTextColor.withValues(alpha: .5),
+            ),
           ),
-        ),
-        SizedBox(height: 10.h),
-        Text(
-          controller.artistsDetails.value?.profile?.shortBio ??
-              "No bio available",
-          style: getTextStyle(
-            fontsize: sp(12),
-            color: AppColors.primaryTextColor.withValues(alpha: .5),
-          ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 }

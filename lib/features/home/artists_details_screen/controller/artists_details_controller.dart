@@ -1,7 +1,10 @@
+// ignore_for_file: avoid_print
+
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/home/artists_details_screen/model/social_post_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../home_screen/model/artists_model.dart';
 import '../model/service_model.dart';
@@ -27,6 +30,26 @@ class ArtistsDetailsController extends GetxController {
 
     super.onInit();
   }
+
+
+Future<void> launchURL(String url) async {
+  if (!url.startsWith('http')) {
+    url = 'https://$url';
+  }
+
+  final Uri uri = Uri.parse(url);
+
+  try {
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      Get.snackbar('Error', 'Could not launch URL');
+    }
+  } catch (e) {
+    print('Error' 'URL launch failed: $e');
+  }
+}
+
+
+
 
   Future<void> fetchArtistById(String id) async {
     try {
