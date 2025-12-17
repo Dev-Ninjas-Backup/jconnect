@@ -13,8 +13,9 @@ import 'package:jconnect/routes/approute.dart';
 
 class ProfileScreen extends StatelessWidget {
   final ProfileController controller = Get.put(ProfileController());
-    final SharedPreferencesHelperController pref =
-      Get.put(SharedPreferencesHelperController());
+  final SharedPreferencesHelperController pref = Get.put(
+    SharedPreferencesHelperController(),
+  );
 
   ProfileScreen({super.key});
 
@@ -46,11 +47,10 @@ class ProfileScreen extends StatelessWidget {
               ProfileSettingsSection(controller: controller),
               SizedBox(height: 18.h),
               GestureDetector(
-
-              onTap: () async{
-             await pref.clearAllData();
-                Get.toNamed(AppRoute.loginScreen);
-              },
+                onTap: () async {
+                  await pref.clearAllData();
+                  Get.toNamed(AppRoute.loginScreen);
+                },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

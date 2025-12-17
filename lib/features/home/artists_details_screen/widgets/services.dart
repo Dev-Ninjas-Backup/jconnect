@@ -20,9 +20,10 @@ class Services extends StatelessWidget {
       padding: EdgeInsets.zero,
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
-      itemCount: controller.serviceListItem.length,
+      //itemCount: controller.serviceListItem.length,
+      itemCount: controller.services.length,
       itemBuilder: (_, index) {
-        var item = controller.serviceListItem[index];
+        var item = controller.services[index];
         return Padding(
           padding: EdgeInsets.only(bottom: 20.h),
           child: GradientBorderContainer(
@@ -37,7 +38,7 @@ class Services extends StatelessWidget {
               children: [
                 SizedBox(width: 12.w),
                 Text(
-                  item.title,
+                  item.serviceName,
                   style: getTextStyle(
                     fontsize: sp(16),
                     fontweight: FontWeight.w500,
@@ -45,7 +46,7 @@ class Services extends StatelessWidget {
                 ),
                 SizedBox(height: 6.h),
                 Text(
-                  item.subTitle,
+                  item.description,
                   style: getTextStyle(
                     fontsize: sp(10),
                     fontweight: FontWeight.w400,
@@ -62,7 +63,7 @@ class Services extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        "${item.rate}/promotion",
+                        "\$ ${item.price}/promotion",
                         style: getTextStyle(
                           fontsize: sp(12),
                           fontweight: FontWeight.w400,

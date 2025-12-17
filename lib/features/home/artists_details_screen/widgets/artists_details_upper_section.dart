@@ -193,7 +193,7 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
             child: Column(
               children: [
                 ClipRRect(
-                borderRadius: BorderRadiusGeometry.circular(50),
+                borderRadius: BorderRadiusGeometry.circular(100),
                   child: Image.network(
                     artist.profilePhoto ?? '',
                     height: 130.w,
