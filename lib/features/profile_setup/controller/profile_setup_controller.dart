@@ -1,10 +1,10 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/features/user_profile/repository/profile_repository.dart';
+
+// --- MODELS ---
 
 class SocialProfile {
   final int orderId;
@@ -17,14 +17,19 @@ class SocialProfile {
     required this.platformLink,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'orderId': orderId,
-      'platformName': platformName,
-      'platformLink': platformLink,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'orderId': orderId,
+        'platformName': platformName,
+        'platformLink': platformLink,
+      };
 }
+
+class SocialInput {
+  String? selectedPlatform;
+  final TextEditingController urlController = TextEditingController();
+}
+
+// --- CONTROLLER ---
 
 class ProfileSetupController extends GetxController {
   final ImagePicker _picker = ImagePicker();
@@ -35,103 +40,56 @@ class ProfileSetupController extends GetxController {
   String get imagePath => pickedImage.value?.path ?? '';
 
   final bioController = TextEditingController();
-  
-  // Social profiles with platform names and order
-  final socialProfiles = <int, TextEditingController>{
-    1: TextEditingController(), // Instagram
-    2: TextEditingController(), // Facebook
-    3: TextEditingController(), // TikTok
-    4: TextEditingController(), // YouTube
-  };
-
-  final socialPlatforms = <int, String>{
-    1: 'Instagram',
-    2: 'Facebook',
-    3: 'TikTok',
-    4: 'YouTube',
-  };
-
   final RxBool isLoading = false.obs;
 
-  bool get hasAnyLink {
-    return socialProfiles.values.any((controller) => controller.text.trim().isNotEmpty);
+  // Dynamic list for Social Media Dropdowns
+  final RxList<SocialInput> socialInputs = <SocialInput>[
+    SocialInput(), // Starts with one field
+  ].obs;
+
+  final List<String> availablePlatforms = [
+    'Instagram', 'Facebook', 'TikTok', 'YouTube', 'Twitter', 'LinkedIn'
+  ];
+
+  void addSocialField() {
+    socialInputs.add(SocialInput());
+  }
+
+  void removeSocialField(int index) {
+    if (socialInputs.length > 1) {
+      socialInputs.removeAt(index);
+    }
   }
 
   Future<void> pickImage(ImageSource source) async {
     try {
-      final XFile? image = await _picker.pickImage(
-        source: source,
-        maxWidth: 1200,
-        maxHeight: 1200,
-        imageQuality: 85,
-      );
-      if (image != null) {
-        pickedImage.value = image;
-      }
+      final XFile? image = await _picker.pickImage(source: source);
+      if (image != null) pickedImage.value = image;
     } catch (e) {
       EasyLoading.showError('Failed to pick image');
-      rethrow;
     }
   }
 
   void showImageSourceSheet() {
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: Get.theme.scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Take photo'),
-                onTap: () async {
-                  Get.back();
-                  await Future.delayed(const Duration(milliseconds: 300));
-                  pickImage(ImageSource.camera);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('Choose from gallery'),
-                onTap: () async {
-                  Get.back();
-                  await Future.delayed(const Duration(milliseconds: 300));
-                  pickImage(ImageSource.gallery);
-                },
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
+        color: Colors.white,
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: Icon(Icons.camera),
+              title: Text('Camera'),
+              onTap: () { Get.back(); pickImage(ImageSource.camera); },
+            ),
+            ListTile(
+              leading: Icon(Icons.photo_library),
+              title: Text('Gallery'),
+              onTap: () { Get.back(); pickImage(ImageSource.gallery); },
+            ),
+          ],
         ),
       ),
     );
-  }
-
-  void clearImage() {
-    pickedImage.value = null;
-  }
-
-  List<SocialProfile> _buildSocialProfilesArray() {
-    List<SocialProfile> profiles = [];
-    
-    socialProfiles.forEach((orderId, controller) {
-      if (controller.text.trim().isNotEmpty) {
-        profiles.add(
-          SocialProfile(
-            orderId: orderId,
-            platformName: socialPlatforms[orderId] ?? '',
-            platformLink: controller.text.trim(),
-          ),
-        );
-      }
-    });
-    
-    return profiles;
   }
 
   Future<bool> createProfile() async {
@@ -139,30 +97,40 @@ class ProfileSetupController extends GetxController {
       isLoading.value = true;
       EasyLoading.show(status: 'Creating profile...');
 
-      final socialProfilesList = _buildSocialProfilesArray();
+      // Build the list for the API
+      final List<SocialProfile> socialProfilesList = socialInputs
+          .asMap()
+          .entries
+          .where((e) => e.value.selectedPlatform != null && e.value.urlController.text.isNotEmpty)
+          .map((e) => SocialProfile(
+                orderId: e.key + 1,
+                platformName: e.value.selectedPlatform!,
+                platformLink: e.value.urlController.text.trim(),
+              ))
+          .toList();
 
       await profileRepository.createProfile(
         profileImageUrl: imagePath.isNotEmpty ? imagePath : null,
-        shortBio: bioController.text.isNotEmpty ? bioController.text : null,
+        shortBio: bioController.text.trim(),
         socialProfiles: socialProfilesList,
       );
 
-      isLoading.value = false;
       EasyLoading.dismiss();
       return true;
     } catch (e) {
-      isLoading.value = false;
-      EasyLoading.dismiss();
-      EasyLoading.showError('Failed to create profile: $e');
-      print('DEBUG: Create profile error: $e');
+      EasyLoading.showError('Failed to create profile');
       return false;
+    } finally {
+      isLoading.value = false;
     }
   }
 
   @override
   void onClose() {
     bioController.dispose();
-    socialProfiles.forEach((_, controller) => controller.dispose());
+    for (var input in socialInputs) {
+      input.urlController.dispose();
+    }
     super.onClose();
   }
 }
