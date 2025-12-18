@@ -1,3 +1,4 @@
+
 class Endpoint {
   static const String baseUrl = 'https://jconnect-server.saikat.com.bd';
 
@@ -22,4 +23,7 @@ class Endpoint {
   static const String notificationsIO = '$baseUrl/notification';
   static const String getUserSpecificNotification =
       '$baseUrl/notification-setting/user-specific-notification';
+
+  static String serviceRequest =
+      "https://jconnect-server.saikat.com.bd/service-requests";
 }
