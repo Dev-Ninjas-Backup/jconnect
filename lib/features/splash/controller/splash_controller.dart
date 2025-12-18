@@ -8,7 +8,7 @@ import 'package:jconnect/routes/approute.dart';
 
 class SplashController extends GetxController {
   final pref = Get.put(SharedPreferencesHelperController());
-  final notificationController = Get.put(NotificationController());
+  final notificationController = Get.find<NotificationController>();
 
   var progressIndex = 0.obs;
 
