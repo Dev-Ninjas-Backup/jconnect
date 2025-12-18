@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/common/constants/app_colors.dart';
-import '../../../../core/common/constants/imagepath.dart';
 import '../../../../core/common/style/global_text_style.dart';
 import '../../../../core/common/widgets/gradient_border_container.dart';
 
 class ReqestServiceCard extends StatelessWidget {
+final dynamic service;
   const ReqestServiceCard({
+    required this.service,
     super.key,
   });
 
@@ -20,22 +21,24 @@ class ReqestServiceCard extends StatelessWidget {
       child: Row(
         spacing: 8.w,
         children: [
-          Image.asset(
-            Imagepath.profileImage,
-            height: 48.w,
-            width: 48.w,
-          ),
+          // Image.asset(
+          //   Imagepath.profileImage,
+          //   height: 48.w,
+          //   width: 48.w,
+          // ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 //sonic+ rating
                 Text(
-                  "Track Review by DJ Nova",
+                  service.serviceName,
                   style: getTextStyle(fontweight: FontWeight.w500),
                 ),
                 Text(
-                  "@djnova",
+                  service.description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: getTextStyle(
                     fontsize: sp(12),
                     color: AppColors.primaryTextColor.withValues(
@@ -46,39 +49,39 @@ class ReqestServiceCard extends StatelessWidget {
     
                 SizedBox(height: 8.h),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.star_border_outlined,
-                          size: sp(14),
-                          color: AppColors.primaryTextColor,
-                        ),
-                        SizedBox(width: 8.w),
-                        Text(
-                          "4.9",
-                          style: getTextStyle(
-                            fontsize: sp(12),
-                            color: AppColors.primaryTextColor,
-                            fontweight: FontWeight.w500,
-                          ),
-                        ),
-                        SizedBox(width: 8.w),
+                    // Row(
+                    //   children: [
+                    //     Icon(
+                    //       Icons.star_border_outlined,
+                    //       size: sp(14),
+                    //       color: AppColors.primaryTextColor,
+                    //     ),
+                    //     SizedBox(width: 8.w),
+                    //     Text(
+                    //       "4.9",
+                    //       style: getTextStyle(
+                    //         fontsize: sp(12),
+                    //         color: AppColors.primaryTextColor,
+                    //         fontweight: FontWeight.w500,
+                    //       ),
+                    //     ),
+                    //     SizedBox(width: 8.w),
     
-                        Text(
-                          "(124 reviews)",
-                          style: getTextStyle(
-                            fontsize: sp(12),
-                            color: AppColors.primaryTextColor
-                                .withValues(alpha: .7),
-                            fontweight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
+                    //     Text(
+                    //       "(124 reviews)",
+                    //       style: getTextStyle(
+                    //         fontsize: sp(12),
+                    //         color: AppColors.primaryTextColor
+                    //             .withValues(alpha: .7),
+                    //         fontweight: FontWeight.w400,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                     Text(
-                      "\$75",
+                     "\$${service.price.toString()}",
                       style: getTextStyle(
                         fontsize: sp(16),
                         color: AppColors.primaryTextColor,

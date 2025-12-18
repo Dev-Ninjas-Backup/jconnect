@@ -23,8 +23,8 @@ class ArtistsScreen extends StatelessWidget {
           children: [
             CustomAppBar2(
               title: "Artists",
-              actionIconUrl: Iconpath.notificationIcon,
-              actionOnTap: () {},
+             // actionIconUrl: Iconpath.notificationIcon,
+            //  actionOnTap: () {},
               leadingIconUrl: Iconpath.backIcon,
               onLeadingTap: () {
                 Get.back();

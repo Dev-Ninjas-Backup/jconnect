@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/features/home/artists_details_screen/controller/artists_details_controller.dart';
-import 'package:jconnect/routes/approute.dart';
 
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/constants/iconpath.dart';
@@ -240,7 +239,7 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                 child: CustomPrimaryButton(
                   buttonText: "Request Service",
                   onTap: () {
-                    Get.toNamed(AppRoute.getRequestServiceScreen());
+               //     Get.toNamed(AppRoute.getRequestServiceScreen());
                   },
                   fontSize: 14,
                 ),
