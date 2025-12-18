@@ -1,61 +1,93 @@
+import 'dart:convert';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:jconnect/core/endpoint.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/my_orders/model/order_model.dart';
 
 class MyOrdersController extends GetxController {
   RxList<OrderModel> orders = <OrderModel>[].obs;
   RxString selectedTab = 'All Orders'.obs;
   RxString selectedOrderType = 'All Orders'.obs;
+  RxBool isLoading = false.obs;
 
-  List<OrderModel> get filteredOrders {
-    var filtered = orders;
-
-    if (selectedOrderType.value != 'All Orders') {
-      filtered = filtered
-          .where((o) => o.type == selectedOrderType.value)
-          .toList()
-          .obs;
-    }
-
-    if (selectedTab.value != 'All Orders') {
-      filtered = filtered
-          .where((o) => o.status == selectedTab.value)
-          .toList()
-          .obs;
-    }
-
-    return filtered;
+  @override
+  void onInit() {
+    super.onInit();
+    loadOrders();
   }
 
-  void loadOrders() {
-    orders.assignAll([
-      OrderModel(
-        title: 'Instagram Follower Boost',
-        platform: 'Instagram',
-        icon: 'assets/icons/instagram.png',
-        type: 'Given',
-        status: 'Active',
-        price: 29,
-        description: '1000 organic followers, 3-day delivery.',
-      ),
-      OrderModel(
-        title: 'Facebook Page Likes',
-        platform: 'Facebook',
-        icon: 'assets/icons/facebook.png',
-        type: 'Received',
-        status: 'Completed',
-        price: 15,
-        description: 'Boosted through ad campaign in July.',
-      ),
-      OrderModel(
-        title: 'YouTube Watch Hours',
-        platform: 'YouTube',
-        icon: 'assets/icons/youtube.png',
-        type: 'Given',
-        status: 'Pending Confirmation',
-        price: 40,
-        description: '4000 hours target, pending verification.',
-      ),
-    ]);
+  // Map tab label to API status
+  String? _mapTabToApiStatus(String tab) {
+    switch (tab) {
+      case 'Active':
+        return 'ACTIVE';
+      case 'Pending':
+        return 'PENDING';
+      case 'Payment Confirmation':
+        return 'PAYMENTCONFIRM';
+      case 'Completed':
+        return 'COMPLETE';
+      case 'Cancelled':
+        return 'CANCELLED';
+      case 'All Orders':
+        return null;
+      default:
+        return null;
+    }
+  }
+
+  List<OrderModel> get filteredOrders {
+    final apiStatus = _mapTabToApiStatus(selectedTab.value);
+
+    return orders.where((order) {
+      final statusMatch = apiStatus == null || order.status == apiStatus;
+      final typeMatch =
+          selectedOrderType.value == 'All Orders' ||
+          order.type == selectedOrderType.value;
+      return statusMatch && typeMatch;
+    }).toList();
+  }
+
+  Future<void> loadOrders() async {
+    try {
+      isLoading.value = true;
+
+      // Get token using SharedPreferencesHelperController
+      final prefsHelper = SharedPreferencesHelperController();
+      final token = await prefsHelper.getAccessToken();
+
+      if (token == null || token.isEmpty) {
+        print('No access token found. User needs to login.');
+        Get.offAllNamed('/login'); // redirect to login
+        return;
+      }
+
+      final response = await http.get(
+        Uri.parse(Endpoint.orders),
+        headers: {
+          'Authorization': token, // token already includes "Bearer "
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as List;
+        final List<OrderModel> fetchedOrders = data
+            .map((json) => OrderModel.fromJson(json))
+            .toList();
+        orders.assignAll(fetchedOrders);
+      } else if (response.statusCode == 401) {
+        print('Unauthorized! Please login again.');
+        Get.offAllNamed('/login'); // redirect to login
+      } else {
+        print('Failed to fetch orders: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching orders: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   void clearOrders() => orders.clear();

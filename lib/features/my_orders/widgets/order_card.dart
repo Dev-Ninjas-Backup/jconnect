@@ -14,7 +14,7 @@ class OrderCard extends StatelessWidget {
       case 'Active':
         statusColor = Colors.blue;
         break;
-      case 'Pending Confirmation':
+      case 'Payment Confirmation':
         statusColor = Colors.amber;
         break;
       case 'Completed':
@@ -28,12 +28,12 @@ class OrderCard extends StatelessWidget {
         ? const Color(0xFF242629)
         : const Color(0xFF1E1E20);
     final borderColor = order.type == 'Given'
-        ? Colors.blueAccent.withValues(alpha: .3)
-        : Colors.greenAccent.withValues(alpha: .3);
+        ? Colors.blueAccent.withOpacity(0.3)
+        : Colors.greenAccent.withOpacity(0.3);
 
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(10),
@@ -41,8 +41,20 @@ class OrderCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Image.asset(order.icon, width: 28, height: 28),
-          SizedBox(width: 10),
+          Image.network(
+            order.icon,
+            width: 28,
+            height: 28,
+            errorBuilder: (context, error, stackTrace) {
+              return Image.asset(
+                'assets/icons/ordericon.png',
+                width: 28,
+                height: 28,
+              );
+            },
+          ),
+
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,11 +70,11 @@ class OrderCard extends StatelessWidget {
                   order.title,
                   style: getTextStyle(color: AppColors.secondaryTextColor),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 Row(
                   children: [
                     Icon(Icons.circle, size: 14, color: statusColor),
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Text(
                       order.status,
                       style: getTextStyle(color: statusColor, fontsize: 13),
