@@ -45,14 +45,12 @@ class ProfileController extends GetxController {
       ),
     );
   }
+
   void updateFromApi(Map<String, dynamic> json) {
     final existing = user.value;
-    final name = (json['user'] is Map && json['user']['full_name'] != null)
-        ? json['user']['full_name'].toString()
-        : existing.name;
+    final name = json['full_name']?.toString() ?? existing.name;
     // If API returns null for profile_image_url use the app default profile image
-    final imageUrl =
-        json['profile_image_url']?.toString() ?? Imagepath.profileImage;
+    final imageUrl = json['profilePhoto']?.toString() ?? Imagepath.profileImage;
 
     user.value = ProfileModel(
       name: name,
@@ -77,7 +75,7 @@ class ProfileController extends GetxController {
       if (token == null || token.isEmpty) return;
 
       final response = await http.get(
-        Uri.parse(Endpoint.updateProfile),
+        Uri.parse(Endpoint.getProfile),
         headers: {'Authorization': token, 'Content-Type': 'application/json'},
       );
 
