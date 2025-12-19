@@ -1,14 +1,16 @@
 class ProfileModel {
   final String name;
   final String imageUrl;
-  final int followers;
+  final String shortbio;
+  final int totaldeals;
   final double earnings;
   final double rating;
 
   ProfileModel({
     required this.name,
     required this.imageUrl,
-    required this.followers,
+    required this.shortbio,
+    required this.totaldeals,
     required this.earnings,
     required this.rating,
   });

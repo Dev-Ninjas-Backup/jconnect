@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:jconnect/core/common/constants/app_colors.dart';
@@ -9,20 +8,17 @@ import 'package:jconnect/core/service/local_service/shared_preferences_helper.da
 import 'package:jconnect/features/user_profile/profile/model/profile_model.dart';
 
 class ProfileController extends GetxController {
-  // ───────────────────────────────
   // USER PROFILE DATA
-  // ───────────────────────────────
   final Rx<ProfileModel> user = ProfileModel(
-    name: 'DJ Kinseki',
-    imageUrl: 'assets/images/dj.png',
-    followers: 132,
-    earnings: 2450,
-    rating: 4.9,
+    name: '',
+    imageUrl: Imagepath.profileImage,
+    shortbio: '',
+    totaldeals: 0,
+    earnings: 0.0,
+    rating: 0.0,
   ).obs;
 
-  // ───────────────────────────────
   // RATES SECTION
-  // ───────────────────────────────
   final RxList<RateModel> rates = <RateModel>[
     RateModel(
       title: '30 Sec New Track Review',
@@ -51,13 +47,23 @@ class ProfileController extends GetxController {
     final name = json['full_name']?.toString() ?? existing.name;
     // If API returns null for profile_image_url use the app default profile image
     final imageUrl = json['profilePhoto']?.toString() ?? Imagepath.profileImage;
+    final shortbio =
+        json['profile']?['short_bio']?.toString() ?? existing.shortbio;
+    final totaldeals =
+        json['stats']?['totalDeals'] as int? ?? existing.totaldeals;
+    final earnings =
+        (json['stats']?['totalEarnings'] as num?)?.toDouble() ??
+        existing.earnings;
+    final rating =
+        (json['stats']?['avgRating'] as num?)?.toDouble() ?? existing.rating;
 
     user.value = ProfileModel(
       name: name,
       imageUrl: imageUrl,
-      followers: existing.followers,
-      earnings: existing.earnings,
-      rating: existing.rating,
+      shortbio: shortbio,
+      totaldeals: totaldeals,
+      earnings: earnings,
+      rating: rating,
     );
   }
 
@@ -96,9 +102,7 @@ class ProfileController extends GetxController {
   final RxBool darkModeEnabled = false.obs;
   final RxBool privacyModeEnabled = false.obs;
 
-  // ───────────────────────────────
   // NAVIGATION + ACCOUNT ACTIONS
-  // ───────────────────────────────
   void navigateTo(String route) {
     // You can replace this with Get.toNamed(route) when routing is set up
   }

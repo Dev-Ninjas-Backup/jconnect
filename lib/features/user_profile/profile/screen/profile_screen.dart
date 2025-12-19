@@ -24,52 +24,45 @@ class ProfileScreen extends StatelessWidget {
       backgroundColor: AppColors.backGroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildHeader(),
-              SizedBox(height: 12),
-              TextButton(
-                onPressed: () {
-                  Get.toNamed(AppRoute.editProfileScreen);
-                },
-                child: Text(
-                  'Edit Profile',
-                  selectionColor: AppColors.redAccent,
-                ),
-              ),
-              SizedBox(height: 20),
-              ProfileRateSection(controller: controller),
-              SizedBox(height: 20),
-              ProfileActivitySection(controller: controller),
-              SizedBox(height: 20),
-              ProfileSettingsSection(controller: controller),
-              SizedBox(height: 18.h),
-              GestureDetector(
-                onTap: () async {
-                  await pref.clearAllData();
-                  Get.toNamed(AppRoute.loginScreen);
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.delete_forever,
-                      size: 24,
-                      color: AppColors.redColor,
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      'Delete Account',
-                      style: getTextStyle(
-                        fontsize: 16,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildHeader(),
+                SizedBox(height: 20),
+                ProfileRateSection(controller: controller),
+                SizedBox(height: 20),
+                ProfileActivitySection(controller: controller),
+                SizedBox(height: 20),
+                ProfileSettingsSection(controller: controller),
+                SizedBox(height: 18.h),
+                GestureDetector(
+                  onTap: () async {
+                    await pref.clearAllData();
+                    Get.toNamed(AppRoute.loginScreen);
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.delete_forever,
+                        size: 24,
                         color: AppColors.redColor,
                       ),
-                    ),
-                  ],
+                      SizedBox(width: 8),
+                      Text(
+                        'Delete Account',
+                        style: getTextStyle(
+                          fontsize: 16,
+                          color: AppColors.redColor,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -85,8 +78,8 @@ class ProfileScreen extends StatelessWidget {
           CircleAvatar(
             radius: 45,
             backgroundImage: user.imageUrl.startsWith('http')
-                ? NetworkImage(user.imageUrl)
-                : AssetImage(user.imageUrl) as ImageProvider,
+                ? NetworkImage(user.imageUrl) as ImageProvider
+                : AssetImage(user.imageUrl),
           ),
           SizedBox(height: 10),
           Text(
@@ -98,13 +91,19 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
+          Text(
+            user.shortbio,
+            style: getTextStyle(
+              color: AppColors.secondaryTextColor,
+              fontsize: 16,
+            ),
+          ),
+          SizedBox(height: 10),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildStat('${user.followers}', 'Followers'),
-              _divider(),
+              _buildStat('${user.totaldeals}', 'Total Deals'),
               _buildStat('\$${user.earnings}', 'Earnings'),
-              _divider(),
               _buildStat('${user.rating}', 'Rating'),
             ],
           ),
@@ -114,30 +113,36 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildStat(String value, String label) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: getTextStyle(
-              color: Colors.white,
-              fontsize: 16,
-              fontweight: FontWeight.bold,
+    return Container(
+      width: 110,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: AppColors.backGroundColor,
+        border: Border.all(color: Colors.grey.shade700),
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 10),
+        child: Column(
+          children: [
+            Text(
+              value,
+              style: getTextStyle(
+                color: Colors.white,
+                fontsize: 20,
+                fontweight: FontWeight.bold,
+              ),
             ),
-          ),
-          Text(
-            label,
-            style: getTextStyle(
-              color: AppColors.secondaryTextColor,
-              fontsize: 12,
+            SizedBox(height: 8),
+            Text(
+              label,
+              style: getTextStyle(
+                color: AppColors.secondaryTextColor,
+                fontsize: 16,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
-
-  Widget _divider() =>
-      Container(height: 20, width: 1, color: Colors.grey.shade700);
 }
