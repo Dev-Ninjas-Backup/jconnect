@@ -6,6 +6,10 @@ class OrderModel {
   final String status;
   final double price;
   final String? description;
+  final String? orderId;
+  final Map<String, dynamic>? raw;
+  final String sellerName;
+  final String sellerEmail;
 
   OrderModel({
     required this.title,
@@ -15,6 +19,10 @@ class OrderModel {
     required this.status,
     required this.price,
     this.description,
+    this.orderId,
+    this.sellerName = '',
+    this.sellerEmail = '',
+    this.raw,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -25,7 +33,11 @@ class OrderModel {
       type: 'Received',
       status: json['status'] ?? '',
       price: (json['amount'] ?? 0).toDouble(),
-      description: json['service']?['description'],
+      orderId: json['orderCode'] ?? '',
+      raw: json,
+      sellerName: json['seller']?['full_name'] ?? json['seller']?['name'] ?? '',
+      sellerEmail: json['seller']?['email'] ?? '',
+      //description: json['service']?['description'] ?? '',
     );
   }
 }

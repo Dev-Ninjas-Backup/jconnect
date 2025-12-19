@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
+import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/my_orders/model/order_model.dart';
 
@@ -46,11 +47,7 @@ class OrderCard extends StatelessWidget {
             width: 28,
             height: 28,
             errorBuilder: (context, error, stackTrace) {
-              return Image.asset(
-                'assets/icons/ordericon.png',
-                width: 28,
-                height: 28,
-              );
+              return Image.asset(Iconpath.orderIcon, width: 28, height: 28);
             },
           ),
 
@@ -61,13 +58,18 @@ class OrderCard extends StatelessWidget {
               children: [
                 Text(
                   order.platform,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: getTextStyle(
                     color: AppColors.primaryTextColor,
                     fontweight: FontWeight.w600,
                   ),
                 ),
+                SizedBox(height: 4),
                 Text(
                   order.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: getTextStyle(color: AppColors.secondaryTextColor),
                 ),
                 const SizedBox(height: 6),
@@ -75,9 +77,13 @@ class OrderCard extends StatelessWidget {
                   children: [
                     Icon(Icons.circle, size: 14, color: statusColor),
                     const SizedBox(width: 6),
-                    Text(
-                      order.status,
-                      style: getTextStyle(color: statusColor, fontsize: 13),
+                    Flexible(
+                      child: Text(
+                        order.status,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: getTextStyle(color: statusColor, fontsize: 13),
+                      ),
                     ),
                   ],
                 ),

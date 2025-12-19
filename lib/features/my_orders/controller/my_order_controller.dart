@@ -94,5 +94,30 @@ class MyOrdersController extends GetxController {
 
   void deleteOrder(OrderModel order) {
     orders.remove(order);
+    // Optionally, you can also make an API call to delete the order from the server
+    _deleteOrderFromServer(order);
+  }
+
+  Future<void> _deleteOrderFromServer(OrderModel order) async {
+    try {
+      final prefsHelper = SharedPreferencesHelperController();
+      final token = await prefsHelper.getAccessToken();
+
+      final response = await http.delete(
+        Uri.parse('${Endpoint.orders}/${order.orderId}'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Order deleted successfully');
+      } else {
+        print('Failed to delete order: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error deleting order: $e');
+    }
   }
 }

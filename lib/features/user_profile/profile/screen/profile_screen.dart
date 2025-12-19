@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
-import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/user_profile/profile/controller/profile_controller.dart';
@@ -82,9 +81,12 @@ class ProfileScreen extends StatelessWidget {
       final user = controller.user.value;
       return Column(
         children: [
+          // Show network image if the profile image is a URL, otherwise fall back to local asset
           CircleAvatar(
             radius: 45,
-            backgroundImage: AssetImage(Imagepath.profileImage),
+            backgroundImage: user.imageUrl.startsWith('http')
+                ? NetworkImage(user.imageUrl)
+                : AssetImage(user.imageUrl) as ImageProvider,
           ),
           SizedBox(height: 10),
           Text(
