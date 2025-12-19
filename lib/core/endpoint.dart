@@ -1,4 +1,3 @@
-
 class Endpoint {
   static const String baseUrl = 'https://jconnect-server.saikat.com.bd';
 
@@ -18,6 +17,7 @@ class Endpoint {
 
   // Profile endpoints
   static const String updateProfile = '$baseUrl/profiles';
+  static const String getProfile = '$baseUrl/users/me';
 
   // notification
   static const String notificationsIO = '$baseUrl/notification';
