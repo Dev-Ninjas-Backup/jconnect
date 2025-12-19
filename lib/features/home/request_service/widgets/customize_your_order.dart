@@ -1,6 +1,3 @@
-
-
-
 // ignore_for_file: deprecated_member_use
 
 import 'package:dotted_border/dotted_border.dart';
@@ -61,7 +58,9 @@ class CustomizeYourOrder extends StatelessWidget {
                               textAlign: TextAlign.center,
                               style: getTextStyle(
                                 fontsize: sp(12),
-                                color: AppColors.primaryTextColor.withValues(alpha: .4),
+                                color: AppColors.primaryTextColor.withValues(
+                                  alpha: .4,
+                                ),
                               ),
                             ),
                           ],
@@ -110,11 +109,15 @@ class CustomizeYourOrder extends StatelessWidget {
         ),
         SizedBox(height: 12.h),
         CustomTextfield(
-          hintText: "Write a caption or describe what you'd like the artist to say...",
+          hintText:
+              "Write a caption or describe what you'd like the artist to say...",
           controller: controller.captionTextController,
         ),
         SizedBox(height: 24.h),
-        Text("Promotion Date (Optional)", style: getTextStyle(fontsize: sp(12))),
+        Text(
+          "Promotion Date (Optional)",
+          style: getTextStyle(fontsize: sp(12)),
+        ),
         SizedBox(height: 12.h),
         Obx(
           () => GestureDetector(
