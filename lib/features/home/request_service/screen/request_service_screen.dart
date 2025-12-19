@@ -18,7 +18,12 @@ class RequestServiceScreen extends StatelessWidget {
   RequestServiceScreen({super.key});
 
   final service = Get.arguments;
-  // final ServiceModel service = Get.arguments as ServiceModel;
+
+
+  bool get isSocialPost {
+
+    return service.serviceType!= null && service.serviceType == 'SOCIAL_POST';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +36,7 @@ class RequestServiceScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CustomAppBar2(
-                title: "Request Service",
+                title: isSocialPost ? "Buy Post" : "Request Service",
                 leadingIconUrl: Iconpath.backIcon,
                 onLeadingTap: () {
                   Get.back();

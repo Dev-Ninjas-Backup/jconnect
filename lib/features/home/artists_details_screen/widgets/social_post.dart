@@ -78,7 +78,11 @@ class SocialPost extends StatelessWidget {
 
                       buttonText: "Buy Post",
                       onTap: () {
-                        Get.toNamed(AppRoute.getBuySocialPost());
+                        // Get.toNamed(AppRoute.getBuySocialcPost());\
+                        Get.toNamed(
+                          AppRoute.getRequestServiceScreen(),
+                          arguments: item,
+                        );
                       },
                     ),
                   ],
