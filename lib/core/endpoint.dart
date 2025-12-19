@@ -18,6 +18,7 @@ class Endpoint {
   // Profile endpoints
   static const String updateProfile = '$baseUrl/profiles';
   static const String getProfile = '$baseUrl/users/me';
+  static const String earnings = '$baseUrl/orders/my-earnings';
 
   // notification
   static const String notificationsIO = '$baseUrl/notification';
