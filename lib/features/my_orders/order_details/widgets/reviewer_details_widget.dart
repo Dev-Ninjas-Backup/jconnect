@@ -11,6 +11,20 @@ class ReviewerDetails extends StatelessWidget {
   final OrderDetailsModel? order;
   final arguments = Get.arguments;
 
+  ImageProvider _buildReviewerImage(String? path) {
+    // Fallback asset used when reviewer image path is empty or null
+    const fallback = AssetImage('assets/images/profile_image.png');
+
+    if (path == null || path.isEmpty) return fallback;
+
+    // If it's a URL use network image, otherwise assume it's an asset path
+    if (path.startsWith('http')) {
+      return NetworkImage(path);
+    }
+
+    return AssetImage(path);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -47,18 +61,23 @@ class ReviewerDetails extends StatelessWidget {
             ],
           ),
           SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 order!.serviceTitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: getTextStyle(
                   color: AppColors.secondaryTextColor,
                   fontsize: 13,
                 ),
               ),
+              SizedBox(height: 4),
               Text(
                 order!.subServiceTitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: getTextStyle(
                   color: Colors.white54,
                   fontsize: 13,
@@ -82,7 +101,9 @@ class ReviewerDetails extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 20,
-                      backgroundImage: AssetImage(order!.reviewerImage),
+                      backgroundImage: _buildReviewerImage(
+                        order!.reviewerImage,
+                      ),
                     ),
                     SizedBox(width: 10),
                     Expanded(
