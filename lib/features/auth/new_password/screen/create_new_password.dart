@@ -24,7 +24,7 @@ class CreateNewPassword extends StatelessWidget {
           children: [
             SizedBox(height: 40),
             Text(
-              'Create your new password',
+              'Enter Your Old Password',
               style: getTextStyle(
                 fontsize: 14,
                 fontweight: FontWeight.w500,
@@ -32,10 +32,12 @@ class CreateNewPassword extends StatelessWidget {
               ),
             ),
             SizedBox(height: 8),
-            CustomObsecureTextfield(controller: controller.passwordController),
+            CustomObsecureTextfield(
+              controller: controller.oldPasswordController,
+            ),
             SizedBox(height: 12),
             Text(
-              'Confirm Your Password',
+              'Enter Your New Password',
               style: getTextStyle(
                 fontsize: 14,
                 fontweight: FontWeight.w500,
@@ -44,7 +46,7 @@ class CreateNewPassword extends StatelessWidget {
             ),
             SizedBox(height: 12),
             CustomObsecureTextfield(
-              controller: controller.confirmPasswordController,
+              controller: controller.newPasswordController,
             ),
             Spacer(),
             CustomPrimaryButton(

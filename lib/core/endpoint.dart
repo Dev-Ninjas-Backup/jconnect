@@ -20,6 +20,7 @@ class Endpoint {
   static const String getProfile = '$baseUrl/users/me';
   static const String earnings = '$baseUrl/payments/earnings-payouts';
   static const String getReview = '$baseUrl/reviews/my-reviews';
+  static const String changePassword = '$baseUrl/users/reset_Password';
 
   // notification
   static const String notificationsIO = '$baseUrl/notification';

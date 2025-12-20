@@ -4,10 +4,13 @@ import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
-import 'package:jconnect/routes/approute.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 
 class CongratulationsDialog extends StatelessWidget {
-  const CongratulationsDialog({
+
+  final SharedPreferencesHelperController pref =
+      Get.find<SharedPreferencesHelperController>();
+   CongratulationsDialog({
     super.key,
   });
 
@@ -54,9 +57,11 @@ class CongratulationsDialog extends StatelessWidget {
             SizedBox(height: 28),
             CustomPrimaryButton(
               buttonText: 'Continue',
-              onTap: () {
-                Get.toNamed(AppRoute.loginScreen);
-              },
+              onTap: () async {
+              await pref.clearAllData();
+              Get.offAllNamed('/loginScreen');
+            },
+              
             ),
           ],
         ),
