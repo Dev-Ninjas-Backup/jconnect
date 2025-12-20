@@ -12,7 +12,10 @@ class EarningChart extends StatelessWidget {
     return BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceAround,
-        maxY: 1500,
+        //using slightly higher maxY to show top border of the highest bar
+        //and slightly lower minY to show bottom border of the lowest bar
+        maxY: 1500.01,
+        minY: -0.01,
         barTouchData: BarTouchData(enabled: true),
         gridData: FlGridData(
           show: true,
@@ -25,6 +28,7 @@ class EarningChart extends StatelessWidget {
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
+              interval: 300,
               reservedSize: 40,
               getTitlesWidget: (value, meta) => Text(
                 '\$${value.toInt()}',
@@ -38,7 +42,6 @@ class EarningChart extends StatelessWidget {
               getTitlesWidget: (value, meta) {
                 int index = value.toInt();
                 if (index >= 0 && index < data.length) {
-                  // FIX: Pass the 'meta' object. 'axisSide' is NOT a parameter in v1.1.1
                   return SideTitleWidget(
                     meta: meta,
                     space: 8,
