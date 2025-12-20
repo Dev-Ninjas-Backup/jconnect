@@ -5,10 +5,12 @@ import 'package:jconnect/core/endpoint.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 
 class EarningsController extends GetxController {
-  // Use .obs to make these variables reactive
   var totalEarnings = 0.obs;
   var pendingClearance = 0.obs;
   var availableToWithdraw = 0.obs;
+
+  // Observable list for the chart
+  var monthlyEarnings = <Map<String, dynamic>>[].obs;
 
   @override
   void onInit() {
@@ -20,33 +22,39 @@ class EarningsController extends GetxController {
     try {
       final prefs = SharedPreferencesHelperController();
       final token = await prefs.getAccessToken();
-      if (token == null || token.isEmpty) return;
+
+      if (token == null) {
+        return;
+      }
 
       final response = await http.get(
         Uri.parse(Endpoint.earnings),
-        headers: {
-          'Authorization': token, // Add 'Bearer ' if your backend requires it
-          'Content-Type': 'application/json',
-        },
+        headers: {'Authorization': token, 'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> map = json.decode(response.body);
-        updateFromApi(map);
+        final Map<String, dynamic> data = json.decode(response.body);
+        updateFromApi(data);
       }
     } catch (e) {
-      // Error handling logic
+      return;
     }
   }
 
   void updateFromApi(Map<String, dynamic> json) {
-    totalEarnings.value = (json['totalEarning'] as num?)?.toInt() ?? 0;
+    totalEarnings.value = (json['totalEarnings'] as num?)?.toInt() ?? 0;
     pendingClearance.value = (json['pendingClearance'] as num?)?.toInt() ?? 0;
     availableToWithdraw.value =
-        (json['availableBalance'] as num?)?.toInt() ?? 0;
+        (json['availableToWithdraw'] as num?)?.toInt() ?? 0;
+
+    if (json['monthlyEarnings'] != null) {
+      // .assignAll is VITAL. It replaces the list AND tells GetX to rebuild the UI.
+      monthlyEarnings.assignAll(
+        List<Map<String, dynamic>>.from(json['monthlyEarnings']),
+      );
+    }
   }
 
-  // Keeping your existing logic for the buttons
   void processWithdrawal(int amount) {
     if (amount <= 0 || amount > availableToWithdraw.value) return;
     availableToWithdraw.value -= amount;
