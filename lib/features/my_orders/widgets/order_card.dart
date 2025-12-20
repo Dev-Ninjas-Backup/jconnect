@@ -21,6 +21,12 @@ class OrderCard extends StatelessWidget {
       case 'Completed':
         statusColor = Colors.green;
         break;
+      case 'Cancelled':
+        statusColor = Colors.red;
+        break;
+      case ' Pending':
+        statusColor = Colors.orange;
+        break;
       default:
         statusColor = Colors.grey;
     }
