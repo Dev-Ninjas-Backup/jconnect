@@ -20,10 +20,11 @@ class LoginScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Positioned.fill(
-            child: Container(color: Colors.black.withValues(alpha: .4)),
+            child: Container(color: Colors.black.withValues(alpha: 0.4)),
           ),
 
           Positioned(
