@@ -93,6 +93,7 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             user.shortbio,
+            textAlign: TextAlign.center,
             style: getTextStyle(
               color: AppColors.secondaryTextColor,
               fontsize: 16,
