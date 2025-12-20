@@ -24,7 +24,6 @@ class ReviewController extends GetxController {
       final prefs = SharedPreferencesHelperController();
       final token = await prefs.getAccessToken();
       if (token == null || token.isEmpty) {
-        print('❌ Token not found');
         return;
       }
 
@@ -49,15 +48,13 @@ class ReviewController extends GetxController {
             (decoded['averageRating'] as num?)?.toDouble() ?? 0.0;
         totalReviews.value = decoded['totalReviews'] ?? 0;
 
-        print('✅ Reviews Loaded: ${reviews.length}');
 
         // Fetch reviewer images after reviews loaded
         await fetchReviewerImages(tempReviews);
       } else {
-        print('❌ Review API Error: ${response.statusCode}');
       }
     } catch (e) {
-      print('❌ Review Exception: $e');
+      // ignore: avoid_print
     } finally {
       isLoading.value = false;
     }
