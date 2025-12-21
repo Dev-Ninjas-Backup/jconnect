@@ -29,8 +29,9 @@ class ProfileRepository {
     request.fields['full_name'] = fullName;
     request.fields['phone'] = phone;
     request.fields['short_bio'] = shortBio;
-    request.fields['socialProfiles'] =
-        jsonEncode(socialProfiles.map((e) => e.toJson()).toList());
+    request.fields['socialProfiles'] = jsonEncode(
+      socialProfiles.map((e) => e.toJson()).toList(),
+    );
 
     if (imagePath != null && imagePath.isNotEmpty) {
       // Detect file extension

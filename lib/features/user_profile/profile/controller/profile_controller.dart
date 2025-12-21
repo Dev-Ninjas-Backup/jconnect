@@ -45,6 +45,8 @@ class ProfileController extends GetxController {
   void updateFromApi(Map<String, dynamic> json) {
     final existing = user.value;
     final name = json['full_name']?.toString() ?? existing.name;
+    //final fullName = json['full_name']?.toString() ?? existing.fullName;
+    final phone = json['phone']?.toString() ?? existing.phone;
     // If API returns null for profile_image_url use the app default profile image
     final imageUrl = json['profilePhoto']?.toString() ?? Imagepath.profileImage;
     final shortbio =
@@ -57,6 +59,21 @@ class ProfileController extends GetxController {
     final rating =
         (json['stats']?['avgRating'] as num?)?.toDouble() ?? existing.rating;
 
+    // Extract social profiles - try multiple possible keys
+    List<SocialProfileModel>? socialProfiles;
+    final socialData = json['profile']?['socialProfiles'];
+
+    if (socialData != null) {
+      socialProfiles = (socialData as List?)
+          ?.map(
+            (profile) => SocialProfileModel(
+              platformName: profile['platformName']?.toString(),
+              platformLink: profile['platformLink']?.toString(),
+            ),
+          )
+          .toList();
+    }
+
     user.value = ProfileModel(
       name: name,
       imageUrl: imageUrl,
@@ -64,6 +81,9 @@ class ProfileController extends GetxController {
       totaldeals: totaldeals,
       earnings: earnings,
       rating: rating,
+      //fullName: fullName,
+      phone: phone,
+      socialProfiles: socialProfiles,
     );
   }
 
