@@ -9,6 +9,7 @@ import 'package:jconnect/features/home/home_screen/controller/home_controller.da
 import 'package:jconnect/features/home/home_screen/widgets/top_rated_artists.dart';
 import 'package:jconnect/features/home/home_screen/widgets/start_deal.dart';
 import 'package:jconnect/features/home/home_screen/widgets/suggested_for_you.dart';
+import 'package:jconnect/features/home/notification/controller/notification_controller.dart';
 import '../../../../routes/approute.dart';
 import '../widgets/recent_artists.dart';
 
@@ -17,6 +18,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     HomeController controller = Get.put(HomeController());
+    final notificationController = Get.find<NotificationController>();
 
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
@@ -29,8 +31,9 @@ class HomePage extends StatelessWidget {
               CustomAppBar2(
                 title: "Home",
                 actionIconUrl: Iconpath.notificationIcon,
-                actionOnTap: () {
+                actionOnTap: () async {
                   Get.toNamed(AppRoute.notificationScreen);
+                  await notificationController.fetchNotifications();
                 },
               ),
 

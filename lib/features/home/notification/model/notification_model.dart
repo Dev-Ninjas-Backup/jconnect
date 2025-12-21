@@ -1,4 +1,5 @@
 class AppNotification {
+final String ?id;
   final String type;
   final String title;
   final String message;
@@ -11,6 +12,7 @@ class AppNotification {
     required this.message,
     required this.createdAt,
     this.meta,
+    this.id
   });
 
   factory AppNotification.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class AppNotification {
       message: json['message'],
       createdAt: DateTime.parse(json['createdAt']),
       meta: json['meta'],
+      id: json['id'],
     );
   }
 }
