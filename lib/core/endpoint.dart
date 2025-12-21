@@ -29,4 +29,7 @@ class Endpoint {
 
   static String serviceRequest =
       "https://jconnect-server.saikat.com.bd/service-requests";
+
+      //chat
+  static const String chatSocketIO = 'https://jconnect-server.saikat.com.bd/dj/chat';
 }

@@ -90,6 +90,7 @@ class SignupOtpVerificationController extends GetxController {
       if (token != null && token.toString().isNotEmpty) {
         await pref.saveToken(token.toString());
         await pref.saveRowToken(token.toString());
+        await pref.saveUserId(response['data']['user']['id'].toString());
         print('DEBUG: Token saved after email verification: $token');
       } else {
         print('DEBUG: No token found in email OTP response: $response');
