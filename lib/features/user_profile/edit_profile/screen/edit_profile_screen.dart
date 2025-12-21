@@ -63,21 +63,6 @@ class EditProfileScreen extends StatelessWidget {
                               controller: controller.bioController,
                             ),
                             SizedBox(height: 14.h),
-                            Text('About Info', style: getTextStyle()),
-                            SizedBox(height: 6.h),
-                            CustomTextfield(
-                              hintText: 'About Info',
-                              controller: controller.aboutInfoController,
-                            ),
-                            SizedBox(height: 14.h),
-                            Text('Email', style: getTextStyle()),
-                            SizedBox(height: 6.h),
-                            CustomTextfield(
-                              hintText: 'Email',
-                              controller: controller.emailController,
-                              keyboardType: TextInputType.emailAddress,
-                            ),
-                            SizedBox(height: 14.h),
                             Text('Phone', style: getTextStyle()),
                             SizedBox(height: 6.h),
                             CustomTextfield(

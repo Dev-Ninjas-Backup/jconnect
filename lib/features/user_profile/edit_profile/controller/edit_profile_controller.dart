@@ -17,8 +17,6 @@ class EditProfileController extends GetxController {
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final bioController = TextEditingController();
-  final aboutInfoController = TextEditingController();
-  final emailController = TextEditingController();
   final phoneController = TextEditingController();
 
   final RxList<Map<String, TextEditingController>> socialLinks =
@@ -32,10 +30,22 @@ class EditProfileController extends GetxController {
 
   void _initializeSocialLinks() {
     socialLinks.value = [
-      {'platform': TextEditingController(text: 'Instagram'), 'username': TextEditingController()},
-      {'platform': TextEditingController(text: 'Facebook'), 'username': TextEditingController()},
-      {'platform': TextEditingController(text: 'TikTok'), 'username': TextEditingController()},
-      {'platform': TextEditingController(text: 'YouTube'), 'username': TextEditingController()},
+      {
+        'platform': TextEditingController(text: 'Instagram'),
+        'username': TextEditingController(),
+      },
+      {
+        'platform': TextEditingController(text: 'Facebook'),
+        'username': TextEditingController(),
+      },
+      {
+        'platform': TextEditingController(text: 'TikTok'),
+        'username': TextEditingController(),
+      },
+      {
+        'platform': TextEditingController(text: 'YouTube'),
+        'username': TextEditingController(),
+      },
     ];
   }
 
@@ -115,8 +125,6 @@ class EditProfileController extends GetxController {
     firstNameController.dispose();
     lastNameController.dispose();
     bioController.dispose();
-    aboutInfoController.dispose();
-    emailController.dispose();
     phoneController.dispose();
 
     for (var link in socialLinks) {
