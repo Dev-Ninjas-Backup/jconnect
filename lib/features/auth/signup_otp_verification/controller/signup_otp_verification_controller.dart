@@ -11,7 +11,9 @@ class SignupOtpVerificationController extends GetxController {
   var remainingSeconds = 50.obs;
   Timer? timer;
   final authRepository = AuthRepository();
-  final SharedPreferencesHelperController pref = Get.put(SharedPreferencesHelperController());
+  final SharedPreferencesHelperController pref = Get.put(
+    SharedPreferencesHelperController(),
+  );
   RxBool isLoading = false.obs;
 
   late String email;
@@ -102,7 +104,8 @@ class SignupOtpVerificationController extends GetxController {
       // Navigate to profile setup screen after email verification
       EasyLoading.showSuccess('Email verified successfully!');
       Future.delayed(Duration(seconds: 1), () {
-        Get.toNamed(AppRoute.profileSetupScreen);
+        //Get.toNamed(AppRoute.profileSetupScreen);
+        Get.toNamed(AppRoute.getAddserviceScreen());
       });
     } catch (e) {
       isLoading.value = false;

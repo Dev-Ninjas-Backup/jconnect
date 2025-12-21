@@ -37,6 +37,12 @@ class ProfileScreen extends StatelessWidget {
                 SizedBox(height: 20),
                 ProfileSettingsSection(controller: controller),
                 SizedBox(height: 18.h),
+                ElevatedButton(
+                  onPressed: () {
+                    Get.toNamed(AppRoute.addServiceScreen);
+                  },
+                  child: Text('Add Service'),
+                ),
                 GestureDetector(
                   onTap: () async {
                     await pref.clearAllData();
@@ -51,6 +57,7 @@ class ProfileScreen extends StatelessWidget {
                         color: AppColors.redColor,
                       ),
                       SizedBox(width: 8),
+
                       Text(
                         'Delete Account',
                         style: getTextStyle(
@@ -80,7 +87,6 @@ class ProfileScreen extends StatelessWidget {
             backgroundImage: user.imageUrl.startsWith('http')
                 ? NetworkImage(user.imageUrl) as ImageProvider
                 : AssetImage(user.imageUrl) as ImageProvider,
-
           ),
           SizedBox(height: 10),
           Text(
