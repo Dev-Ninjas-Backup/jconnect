@@ -108,68 +108,84 @@ class ProfileSetupScreen extends StatelessWidget {
               const SizedBox(height: 16),
 
               /// --- DYNAMIC SOCIAL MEDIA SECTION ---
-              Obx(() => ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: controller.socialInputs.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final item = controller.socialInputs[index];
-                      return Row(
-                        children: [
-                          // --- PLATFORM DROPDOWN ---
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.05),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.white10),
-                            ),
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                value: item.selectedPlatform,
-                                hint: Text(
-                                  "Platform",
-                                  style: getTextStyle(
-                                      fontsize: 12, color: AppColors.secondaryTextColor),
+              Obx(
+                () => ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: controller.socialInputs.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final item = controller.socialInputs[index];
+                    return Row(
+                      children: [
+                        // --- PLATFORM DROPDOWN ---
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.white10),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: item.selectedPlatform,
+                              hint: Text(
+                                "Platform",
+                                style: getTextStyle(
+                                  fontsize: 12,
+                                  color: AppColors.secondaryTextColor,
                                 ),
-                                dropdownColor: AppColors.backGroundColor,
-                                icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                                items: controller.availablePlatforms.map((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(
-                                      value,
-                                      style: getTextStyle(fontsize: 14, color: Colors.white),
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: (newValue) {
-                                  item.selectedPlatform = newValue;
-                                  controller.socialInputs.refresh();
-                                },
                               ),
+                              dropdownColor: AppColors.backGroundColor,
+                              icon: const Icon(
+                                Icons.arrow_drop_down,
+                                color: Colors.white,
+                              ),
+                              items: controller.availablePlatforms.map((
+                                String value,
+                              ) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(
+                                    value,
+                                    style: getTextStyle(
+                                      fontsize: 14,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (newValue) {
+                                item.selectedPlatform = newValue;
+                                controller.socialInputs.refresh();
+                              },
                             ),
                           ),
-                          const SizedBox(width: 12),
+                        ),
+                        const SizedBox(width: 12),
 
-                          // --- URL INPUT ---
-                          Expanded(
-                            child: CustomTextfield(
-                              hintText: 'Profile URL / Username',
-                              controller: item.urlController,
-                            ),
+                        // --- URL INPUT ---
+                        Expanded(
+                          child: CustomTextfield(
+                            hintText: 'Profile URL / Username',
+                            controller: item.urlController,
                           ),
+                        ),
 
-                          // --- REMOVE BUTTON ---
-                          IconButton(
-                            icon: const Icon(Icons.remove_circle_outline, color: Colors.redAccent),
-                            onPressed: () => controller.removeSocialField(index),
+                        // --- REMOVE BUTTON ---
+                        IconButton(
+                          icon: const Icon(
+                            Icons.remove_circle_outline,
+                            color: Colors.redAccent,
                           ),
-                        ],
-                      );
-                    },
-                  )),
+                          onPressed: () => controller.removeSocialField(index),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
 
               const SizedBox(height: 12),
 
@@ -178,7 +194,11 @@ class ProfileSetupScreen extends StatelessWidget {
                 onTap: controller.addSocialField,
                 child: Row(
                   children: [
-                    const Icon(Icons.add_circle_outline, color: AppColors.primaryTextColor, size: 20),
+                    const Icon(
+                      Icons.add_circle_outline,
+                      color: AppColors.primaryTextColor,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       "Add another social link",
@@ -196,7 +216,9 @@ class ProfileSetupScreen extends StatelessWidget {
 
               Obx(
                 () => CustomPrimaryButton(
-                  buttonText: controller.isLoading.value ? 'Creating...' : 'Next',
+                  buttonText: controller.isLoading.value
+                      ? 'Creating...'
+                      : 'Next',
                   onTap: () {
                     if (!controller.isLoading.value) {
                       _createProfileAndShowSuccess(context, controller);

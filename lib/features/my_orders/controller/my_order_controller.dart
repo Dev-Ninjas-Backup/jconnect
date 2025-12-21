@@ -58,7 +58,6 @@ class MyOrdersController extends GetxController {
       final token = await prefsHelper.getAccessToken();
 
       if (token == null || token.isEmpty) {
-        print('No access token found. User needs to login.');
         Get.offAllNamed('/login'); // redirect to login
         return;
       }
@@ -78,13 +77,11 @@ class MyOrdersController extends GetxController {
             .toList();
         orders.assignAll(fetchedOrders);
       } else if (response.statusCode == 401) {
-        print('Unauthorized! Please login again.');
         Get.offAllNamed('/login'); // redirect to login
       } else {
-        print('Failed to fetch orders: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching orders: $e');
+      return;
     } finally {
       isLoading.value = false;
     }
@@ -112,12 +109,10 @@ class MyOrdersController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        print('Order deleted successfully');
       } else {
-        print('Failed to delete order: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error deleting order: $e');
+      return;
     }
   }
 }

@@ -2,27 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+//import 'package:jconnect/features/user_profile/edit_profile/model/social_profile_model.dart';
 import 'package:jconnect/features/user_profile/repository/profile_repository.dart';
 
 // --- MODELS ---
 
-class SocialProfile {
-  final int orderId;
-  final String platformName;
-  final String platformLink;
+// class SocialProfile {
+//   final int orderId;
+//   final String platformName;
+//   final String platformLink;
 
-  SocialProfile({
-    required this.orderId,
-    required this.platformName,
-    required this.platformLink,
-  });
+//   SocialProfile({
+//     required this.orderId,
+//     required this.platformName,
+//     required this.platformLink,
+//   });
 
-  Map<String, dynamic> toJson() => {
-        'orderId': orderId,
-        'platformName': platformName,
-        'platformLink': platformLink,
-      };
-}
+//   Map<String, dynamic> toJson() => {
+//         'orderId': orderId,
+//         'platformName': platformName,
+//         'platformLink': platformLink,
+//       };
+// }
 
 class SocialInput {
   String? selectedPlatform;
@@ -48,7 +49,12 @@ class ProfileSetupController extends GetxController {
   ].obs;
 
   final List<String> availablePlatforms = [
-    'Instagram', 'Facebook', 'TikTok', 'YouTube', 'Twitter', 'LinkedIn'
+    'Instagram',
+    'Facebook',
+    'TikTok',
+    'YouTube',
+    'Twitter',
+    'LinkedIn',
   ];
 
   void addSocialField() {
@@ -79,12 +85,18 @@ class ProfileSetupController extends GetxController {
             ListTile(
               leading: Icon(Icons.camera),
               title: Text('Camera'),
-              onTap: () { Get.back(); pickImage(ImageSource.camera); },
+              onTap: () {
+                Get.back();
+                pickImage(ImageSource.camera);
+              },
             ),
             ListTile(
               leading: Icon(Icons.photo_library),
               title: Text('Gallery'),
-              onTap: () { Get.back(); pickImage(ImageSource.gallery); },
+              onTap: () {
+                Get.back();
+                pickImage(ImageSource.gallery);
+              },
             ),
           ],
         ),
@@ -98,21 +110,27 @@ class ProfileSetupController extends GetxController {
       EasyLoading.show(status: 'Creating profile...');
 
       // Build the list for the API
-      final List<SocialProfile> socialProfilesList = socialInputs
-          .asMap()
-          .entries
-          .where((e) => e.value.selectedPlatform != null && e.value.urlController.text.isNotEmpty)
-          .map((e) => SocialProfile(
-                orderId: e.key + 1,
-                platformName: e.value.selectedPlatform!,
-                platformLink: e.value.urlController.text.trim(),
-              ))
-          .toList();
+      // final List<SocialProfile> socialProfilesList = socialInputs
+      //     .asMap()
+      //     .entries
+      //     .where(
+      //       (e) =>
+      //           e.value.selectedPlatform != null &&
+      //           e.value.urlController.text.isNotEmpty,
+      //     )
+      //     .map(
+      //       (e) => SocialProfile(
+      //         orderId: e.key + 1,
+      //         platformName: e.value.selectedPlatform!,
+      //         platformLink: e.value.urlController.text.trim(),
+      //       ),
+      //     )
+      //     .toList();
 
       await profileRepository.createProfile(
-        profileImageUrl: imagePath.isNotEmpty ? imagePath : null,
-        shortBio: bioController.text.trim(),
-        socialProfiles: socialProfilesList,
+        // profile_image_url: imagePath.isNotEmpty ? imagePath : null,
+        // shortBio: bioController.text.trim(),
+        // socialProfiles: socialProfilesList,
       );
 
       EasyLoading.dismiss();
