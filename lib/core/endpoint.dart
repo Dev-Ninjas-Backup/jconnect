@@ -34,4 +34,5 @@ class Endpoint {
   //chat
   static const String chatSocketIO =
       'https://jconnect-server.saikat.com.bd/dj/chat';
+      static const String userNotifications ="https://jconnect-server.saikat.com.bd/notification-setting/user-specific-notification";
 }

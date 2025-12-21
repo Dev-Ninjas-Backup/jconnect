@@ -133,14 +133,17 @@ class AddServiceRepository {
             return body.map((e) => e.toString()).toList();
           }
           if (body is Map) {
-            if (body['data'] is List)
+            if (body['data'] is List) {
               return (body['data'] as List).map((e) => e.toString()).toList();
-            if (body['types'] is List)
+            }
+            if (body['types'] is List) {
               return (body['types'] as List).map((e) => e.toString()).toList();
-            if (body['serviceTypes'] is List)
+            }
+            if (body['serviceTypes'] is List) {
               return (body['serviceTypes'] as List)
                   .map((e) => e.toString())
                   .toList();
+            }
           }
         }
       } catch (e) {

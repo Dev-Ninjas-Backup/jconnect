@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:jconnect/core/endpoint.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/home/notification/model/notification_model.dart';
@@ -15,7 +16,9 @@ class NotificationServiceRest {
     if (response.isSuccess &&
         (response.statusCode == 200 || response.statusCode == 201)) {
       final List list = response.responseData!['data']['notifications'];
-      print("Notification List: $list");
+      if (kDebugMode) {
+        print("Notification List: $list");
+      }
 
       return list
           .map((e) => AppNotification.fromJson(e))
