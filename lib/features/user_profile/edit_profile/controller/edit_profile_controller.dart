@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jconnect/features/user_profile/repository/profile_repository.dart';
+import 'package:jconnect/features/user_profile/profile/controller/profile_controller.dart';
 
 import '../model/social_profile_model.dart';
 
@@ -25,28 +26,93 @@ class EditProfileController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _initializeSocialLinks();
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    try {
+      final profileController = Get.find<ProfileController>();
+      final user = profileController.user.value;
+
+      // Parse full name into first and last name
+      final fullName = user.fullName ?? user.name;
+      final nameParts = fullName.split(' ');
+
+      firstNameController.text = nameParts.isNotEmpty ? nameParts.first : '';
+      lastNameController.text = nameParts.length > 1
+          ? nameParts.sublist(1).join(' ')
+          : '';
+
+      bioController.text = user.shortbio;
+      phoneController.text = user.phone ?? '';
+
+      // Initialize social links with API data
+      _initializeSocialLinks();
+    } catch (e) {
+      print('Error loading profile data: $e');
+      _initializeSocialLinks();
+    }
   }
 
   void _initializeSocialLinks() {
-    socialLinks.value = [
-      {
-        'platform': TextEditingController(text: 'Instagram'),
-        'username': TextEditingController(),
-      },
-      {
-        'platform': TextEditingController(text: 'Facebook'),
-        'username': TextEditingController(),
-      },
-      {
-        'platform': TextEditingController(text: 'TikTok'),
-        'username': TextEditingController(),
-      },
-      {
-        'platform': TextEditingController(text: 'YouTube'),
-        'username': TextEditingController(),
-      },
-    ];
+    try {
+      final profileController = Get.find<ProfileController>();
+      final user = profileController.user.value;
+
+      // Clear existing links
+      socialLinks.clear();
+
+      // If user has existing social profiles, populate them
+      if (user.socialProfiles != null && user.socialProfiles!.isNotEmpty) {
+        for (var profile in user.socialProfiles!) {
+          socialLinks.add({
+            'platform': TextEditingController(text: profile.platformName ?? ''),
+            'username': TextEditingController(text: profile.platformLink ?? ''),
+          });
+        }
+      } else {
+        // Default empty social links
+        socialLinks.value = [
+          {
+            'platform': TextEditingController(text: 'Instagram'),
+            'username': TextEditingController(),
+          },
+          {
+            'platform': TextEditingController(text: 'Facebook'),
+            'username': TextEditingController(),
+          },
+          {
+            'platform': TextEditingController(text: 'TikTok'),
+            'username': TextEditingController(),
+          },
+          {
+            'platform': TextEditingController(text: 'YouTube'),
+            'username': TextEditingController(),
+          },
+        ];
+      }
+    } catch (e) {
+      print('Error initializing social links: $e');
+      // Fallback to default links
+      socialLinks.value = [
+        {
+          'platform': TextEditingController(text: 'Instagram'),
+          'username': TextEditingController(),
+        },
+        {
+          'platform': TextEditingController(text: 'Facebook'),
+          'username': TextEditingController(),
+        },
+        {
+          'platform': TextEditingController(text: 'TikTok'),
+          'username': TextEditingController(),
+        },
+        {
+          'platform': TextEditingController(text: 'YouTube'),
+          'username': TextEditingController(),
+        },
+      ];
+    }
   }
 
   Future<void> pickImage() async {
@@ -76,27 +142,23 @@ class EditProfileController extends GetxController {
       isLoading.value = true;
       EasyLoading.show(status: 'Updating profile...');
 
-      final platformOrder = {
-        'instagram': 1,
-        'facebook': 2,
-        'tiktok': 3,
-        'youtube': 4,
-      };
-
       final List<SocialProfile> socialProfiles = [];
+      int orderId = 1;
 
       for (var link in socialLinks) {
-        final platform = link['platform']?.text.trim().toLowerCase() ?? '';
+        final platform = link['platform']?.text.trim() ?? '';
         final value = link['username']?.text.trim() ?? '';
 
-        if (value.isNotEmpty && platformOrder.containsKey(platform)) {
+        // Accept any platform name as long as the username/value is not empty
+        if (value.isNotEmpty && platform.isNotEmpty) {
           socialProfiles.add(
             SocialProfile(
-              orderId: platformOrder[platform]!,
-              platformName: link['platform']!.text,
+              orderId: orderId,
+              platformName: platform,
               platformLink: value,
             ),
           );
+          orderId++;
         }
       }
 
