@@ -48,7 +48,7 @@ class ServiceFormWidget extends StatelessWidget {
     final serviceTypes = ['SOCIAL_POST', 'SERVICE'];
 
     return DropdownButtonFormField<String>(
-      value: controller.selectedServiceType.value,
+      initialValue: controller.selectedServiceType.value,
       decoration: InputDecoration(
         labelText: 'Service Type',
         labelStyle: getTextStyle(color: AppColors.secondaryTextColor),
