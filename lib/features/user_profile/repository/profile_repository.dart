@@ -1,131 +1,81 @@
-// ignore_for_file: avoid_print
-
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:jconnect/core/endpoint.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
-import 'package:get/get.dart';
+import 'package:jconnect/features/user_profile/edit_profile/model/social_profile_model.dart';
 
 class ProfileRepository {
-  final SharedPreferencesHelperController pref =
-      Get.find<SharedPreferencesHelperController>();
+  final _prefs = SharedPreferencesHelperController();
 
-  Future<Map<String, dynamic>> getProfile() async {
-    try {
-      final token = await pref.getAccessToken();
-      if (token == null || token.isEmpty) {
-        throw Exception('No authentication token found');
-      }
+  Future<void> updateProfile({
+    required String fullName,
+    required String phone,
+    required String shortBio,
+    String? imagePath,
+    required List<SocialProfile> socialProfiles,
+  }) async {
+    final token = await _prefs.getAccessToken();
+    if (token == null) throw Exception("Access token not found");
 
-      final response = await http.get(
-        Uri.parse(Endpoint.updateProfile),
-        headers: {'Content-Type': 'application/json', 'Authorization': token},
-      );
+    final request = http.MultipartRequest(
+      'PATCH',
+      Uri.parse(Endpoint.editProfile),
+    );
 
-      print('DEBUG: Get Profile Status: ${response.statusCode}');
-      print('DEBUG: Get Profile Response: ${response.body}');
+    // Headers
+    request.headers['Authorization'] = token;
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+    request.fields['full_name'] = fullName;
+    request.fields['phone'] = phone;
+    request.fields['short_bio'] = shortBio;
+    request.fields['socialProfiles'] =
+        jsonEncode(socialProfiles.map((e) => e.toJson()).toList());
+
+    if (imagePath != null && imagePath.isNotEmpty) {
+      // Detect file extension
+      final extension = imagePath.split('.').last.toLowerCase();
+      String mimeType;
+      if (extension == 'jpg' || extension == 'jpeg') {
+        mimeType = 'jpeg';
+      } else if (extension == 'png') {
+        mimeType = 'png';
       } else {
-        throw Exception('Get profile failed: ${response.body}');
+        throw Exception('Only JPG, JPEG, or PNG files are allowed!');
       }
-    } catch (e) {
-      throw Exception('Get profile error: $e');
+
+      final multipartFile = await http.MultipartFile.fromPath(
+        'image',
+        imagePath,
+        contentType: MediaType('image', mimeType),
+      );
+      request.files.add(multipartFile);
+    }
+
+    final response = await request.send();
+    final body = await response.stream.bytesToString();
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception(body);
     }
   }
 
-  Future<Map<String, dynamic>> createProfile({
-    required String? profileImageUrl,
-    required String? shortBio,
-    required List<dynamic>? socialProfiles,
-  }) async {
-    try {
-      final token = await pref.getAccessToken();
-      if (token == null || token.isEmpty) {
-        throw Exception('No authentication token found');
-      }
+  Future<void> createProfile() async {
+    final token = await _prefs.getAccessToken();
+    if (token == null) throw Exception("Access token not found");
 
-      final body = <String, dynamic>{};
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse(Endpoint.editProfile),
+    );
 
-      if (profileImageUrl != null && profileImageUrl.isNotEmpty) {
-        body['profile_image_url'] = profileImageUrl;
-      }
-      if (shortBio != null && shortBio.isNotEmpty) {
-        body['short_bio'] = shortBio;
-      }
-      if (socialProfiles != null && socialProfiles.isNotEmpty) {
-        body['socialProfiles'] = socialProfiles.map((profile) {
-          if (profile is Map<String, dynamic>) {
-            return profile;
-          }
-          return profile.toJson();
-        }).toList();
-      }
+    request.headers['Authorization'] = token;
 
-      final response = await http.post(
-        Uri.parse(Endpoint.updateProfile),
-        headers: {'Content-Type': 'application/json', 'Authorization': token},
-        body: jsonEncode(body),
-      );
+    final response = await request.send();
+    final body = await response.stream.bytesToString();
 
-      print('DEBUG: Create Profile Status: ${response.statusCode}');
-      print('DEBUG: Create Profile Response: ${response.body}');
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return jsonDecode(response.body);
-      } else {
-        throw Exception('Create profile failed: ${response.body}');
-      }
-    } catch (e) {
-      throw Exception('Create profile error: $e');
-    }
-  }
-
-  Future<Map<String, dynamic>> updateProfile({
-    required String? profileImageUrl,
-    required String? shortBio,
-    required List<dynamic>? socialProfiles,
-  }) async {
-    try {
-      final token = await pref.getAccessToken();
-      if (token == null || token.isEmpty) {
-        throw Exception('No authentication token found');
-      }
-
-      final body = <String, dynamic>{};
-
-      if (profileImageUrl != null && profileImageUrl.isNotEmpty) {
-        body['profile_image_url'] = profileImageUrl;
-      }
-      if (shortBio != null && shortBio.isNotEmpty) {
-        body['short_bio'] = shortBio;
-      }
-      if (socialProfiles != null && socialProfiles.isNotEmpty) {
-        body['socialProfiles'] = socialProfiles.map((profile) {
-          if (profile is Map<String, dynamic>) {
-            return profile;
-          }
-          return profile.toJson();
-        }).toList();
-      }
-
-      final response = await http.put(
-        Uri.parse(Endpoint.updateProfile),
-        headers: {'Content-Type': 'application/json', 'Authorization': token},
-        body: jsonEncode(body),
-      );
-
-      print('DEBUG: Update Profile Status: ${response.statusCode}');
-      print('DEBUG: Update Profile Response: ${response.body}');
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return jsonDecode(response.body);
-      } else {
-        throw Exception('Update profile failed: ${response.body}');
-      }
-    } catch (e) {
-      throw Exception('Update profile error: $e');
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception(body);
     }
   }
 }

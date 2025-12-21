@@ -16,7 +16,7 @@ class Endpoint {
   static const String allArtists = "$baseUrl/users/artist";
 
   // Profile endpoints
-  static const String updateProfile = '$baseUrl/profiles';
+  static const String editProfile = '$baseUrl/users/me';
   static const String getProfile = '$baseUrl/users/me';
   static const String earnings = '$baseUrl/payments/earnings-payouts';
   static const String getReview = '$baseUrl/reviews/my-reviews';

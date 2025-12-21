@@ -79,7 +79,8 @@ class ProfileScreen extends StatelessWidget {
             radius: 45,
             backgroundImage: user.imageUrl.startsWith('http')
                 ? NetworkImage(user.imageUrl) as ImageProvider
-                : AssetImage(user.imageUrl),
+                : AssetImage(user.imageUrl) as ImageProvider,
+
           ),
           SizedBox(height: 10),
           Text(
