@@ -20,6 +20,8 @@ class ServiceFormWidget extends StatelessWidget {
           "e.g: Track Review, Promo Collaboration",
         ),
         const SizedBox(height: 16),
+        _buildServiceTypeField(),
+        const SizedBox(height: 16),
         _buildTextField(
           controller.descriptionController,
           "Description",
@@ -38,6 +40,34 @@ class ServiceFormWidget extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildServiceTypeField() {
+    // provide fixed service type options used across the app
+    final serviceTypes = ['SOCIAL_POST', 'SERVICE'];
+
+    return DropdownButtonFormField<String>(
+      value: controller.selectedServiceType.value,
+      decoration: InputDecoration(
+        labelText: 'Service Type',
+        labelStyle: getTextStyle(color: AppColors.secondaryTextColor),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: AppColors.secondaryTextColor),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: AppColors.redColor),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      items: serviceTypes
+          .map((t) => DropdownMenuItem<String>(value: t, child: Text(t)))
+          .toList(),
+      onChanged: (val) {
+        controller.selectedServiceType.value = val;
+        if (onChanged != null && val != null) onChanged!(val);
+      },
     );
   }
 

@@ -26,11 +26,12 @@ class Endpoint {
   static const String notificationsIO = '$baseUrl/notification';
   static const String getUserSpecificNotification =
       '$baseUrl/notification-setting/user-specific-notification';
+  static const String addService = '$baseUrl/services';
 
   static String serviceRequest =
       "https://jconnect-server.saikat.com.bd/service-requests";
 
-      //chat
-  static const String chatSocketIO = 'https://jconnect-server.saikat.com.bd/dj/chat';
-  static const String userNotifications="https://jconnect-server.saikat.com.bd/notification-setting/user-specific-notification";
+  //chat
+  static const String chatSocketIO =
+      'https://jconnect-server.saikat.com.bd/dj/chat';
 }

@@ -151,7 +151,9 @@ class AddServiceScreen extends StatelessWidget {
             controller.isSaveEnabled.value =
                 controller.serviceNameController.text.isNotEmpty &&
                 controller.descriptionController.text.isNotEmpty &&
-                controller.priceController.text.isNotEmpty;
+                controller.priceController.text.isNotEmpty &&
+                controller.selectedServiceType.value != null &&
+                controller.selectedServiceType.value!.isNotEmpty;
           }
 
           return Container(
@@ -191,7 +193,7 @@ class AddServiceScreen extends StatelessWidget {
                         buttonText: 'Save&Continue',
                         onTap: () async {
                           if (controller.isSaveEnabled.value) {
-                            controller.addService();
+                            await controller.addService();
                             Get.back();
 
                             await Future.delayed(const Duration(seconds: 1));
