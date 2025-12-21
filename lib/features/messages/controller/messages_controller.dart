@@ -3,11 +3,88 @@ import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
+import 'package:jconnect/features/messages/model/chat_conversation_model.dart';
+import 'package:jconnect/features/messages/socket_service/message_socket_service.dart';
 
 class MessagesController extends GetxController {
+  final MessageSocketService _socket = MessageSocketService();
+
+  /// Reactive message list for current conversation
+  final RxList<ChatMessage> messages = <ChatMessage>[].obs;
+
+  /// Active conversation id
+  String? _conversationId;
+
+  /// Logged-in user id
+  late final String _myUserId;
+
+  /* -------------------- Socket Lifecycle -------------------- */
+
+  void connectSocket({required String token, required String userId}) {
+    _myUserId = userId;
+
+    _socket.connect(token: token, onNewMessage: _handleIncomingMessage);
+  }
+
+  @override
+  void onClose() {
+    _socket.disconnect();
+    super.onClose();
+  }
+
+  /* -------------------- Conversation -------------------- */
+
+  void initConversation({
+    required String conversationId,
+    required List<ChatMessage> initialMessages,
+  }) {
+    _conversationId = conversationId;
+    messages
+      ..clear()
+      ..addAll(initialMessages);
+  }
+
+  /* -------------------- Messaging -------------------- */
+
+  void _handleIncomingMessage(dynamic data) {
+    final ChatMessage message = ChatMessage.fromJson(data);
+
+    // Ignore messages from other conversations
+    if (message.conversationId != _conversationId) return;
+
+    messages.add(message);
+    print("message received: $data");
+
+        print("message recevvvived: $message");
+
+
+  }
+
+  void sendMessage({
+    required String recipientId,
+    required String content,
+    String? serviceId,
+    List<String>? files,
+  }) {
+    if (content.trim().isEmpty && (files == null || files.isEmpty)) return;
+
+    _socket.sendMessage(
+      recipientId: recipientId,
+      content: content.trim(),
+      serviceId: serviceId,
+      files: files,
+    );
+  }
+
+  /* -------------------- Helpers -------------------- */
+
+  bool isMyMessage(ChatMessage message) {
+    return message.senderId == _myUserId;
+  }
+
   final selectedTab = 'All Chats'.obs;
 
-  var messages = [
+  var messages1 = [
     {
       'name': 'John Doe',
       'content': 'Hey there! How are you?',

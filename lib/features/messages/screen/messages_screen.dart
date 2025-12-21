@@ -67,7 +67,7 @@ class MessagesScreen extends StatelessWidget {
   }
 
   List<Map<String, dynamic>> filterMessages(String tab) {
-    final msgs = controller.messages;
+    final msgs = controller.messages1;
     if (tab == 'All Chats') return msgs.toList();
     if (tab == 'Active Deals') {
       return msgs.where((msg) => (msg['activeDeal'] as bool)).toList();

@@ -1,5 +1,6 @@
 // ignore: library_prefixes
 import 'package:flutter/foundation.dart';
+import 'package:jconnect/core/endpoint.dart';
 // ignore: library_prefixes
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -17,7 +18,7 @@ class NotificationSocketService {
     required Function(dynamic data) onNotification,
   }) {
     socket = IO.io(
-      'https://jconnect-server.saikat.com.bd/notification',
+      Endpoint.notificationsIO,
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
