@@ -17,6 +17,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     HomeController controller = Get.put(HomeController());
+   // final notificationController = Get.find<NotificationController>();
 
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
@@ -29,8 +30,9 @@ class HomePage extends StatelessWidget {
               CustomAppBar2(
                 title: "Home",
                 actionIconUrl: Iconpath.notificationIcon,
-                actionOnTap: () {
+                actionOnTap: ()  {
                   Get.toNamed(AppRoute.notificationScreen);
+                 // await notificationController.fetchNotifications();
                 },
               ),
 
