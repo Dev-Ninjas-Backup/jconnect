@@ -3,14 +3,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
-import 'package:jconnect/features/messages/chat_details/controller/chat_details_controller.dart';
+import 'package:jconnect/features/messages/controller/messages_controller.dart';
 
 class SendFileDialogWidget extends StatelessWidget {
   const SendFileDialogWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<ChatDetailsController>();
+    final controller = Get.find<MessagesController>();
 
     return Dialog(
       backgroundColor: Colors.black,

@@ -1,7 +1,10 @@
 // ignore_for_file: avoid_print
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
@@ -20,17 +23,38 @@ class MessagesController extends GetxController {
     ),
   );
 
+  var messageController = TextEditingController();
+  var showSidebar = false.obs;
+
+  var pickedFile = Rxn<File>();
+
+  final ImagePicker _picker = ImagePicker();
+
+  void toggleSidebar() {
+    showSidebar.value = !showSidebar.value;
+  }
+
+  Future<void> pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      pickedFile.value = File(image.path);
+    }
+  }
+
   var allChats = <ChatItem>[].obs;
 
   Future<void> fetchallchatMethod() async {
     try {
       final resp = await messageServiceRest.fetchMessages();
       allChats.assignAll(resp.data ?? []);
-      print("===================Fetched  msg length: ${allChats.length} ===========");
+      print(
+        "===================Fetched  msg length: ${allChats.length} ===========",
+      );
     } catch (e) {
       print('❌ Error fetching messages: $e');
     }
   }
+
   @override
   void onInit() {
     fetchallchatMethod();
@@ -109,8 +133,6 @@ class MessagesController extends GetxController {
   bool isMyMessage(ChatMessage message) {
     return message.senderId == _myUserId;
   }
-
-
 
   /// 🔹 Delete confirmation dialog (bottom sheet style)
   void showDeleteDialog(BuildContext context, dynamic msg) {
@@ -219,10 +241,12 @@ class MessagesController extends GetxController {
                       if (msg != null) {
                         final id = msg is Map ? msg['id'] : (msg.id ?? null);
                         if (id != null) {
-                          allChats.removeWhere((c) =>
-                              c.chatId == id ||
-                              c.lastMessage?.id == id ||
-                              c.participant?.id == id);
+                          allChats.removeWhere(
+                            (c) =>
+                                c.chatId == id ||
+                                c.lastMessage?.id == id ||
+                                c.participant?.id == id,
+                          );
                           messages.removeWhere((m) => m.id == id);
                         }
                       }

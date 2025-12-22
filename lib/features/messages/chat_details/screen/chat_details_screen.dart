@@ -3,18 +3,34 @@ import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
-import 'package:jconnect/features/messages/chat_details/controller/chat_details_controller.dart';
 import 'package:jconnect/features/messages/chat_details/widgets/cancel_deal_widget.dart';
 import 'package:jconnect/features/messages/chat_details/widgets/payment_dailog_widget.dart';
 import 'package:jconnect/features/messages/chat_details/widgets/send_file_dailog_widget.dart';
 import 'package:jconnect/features/messages/chat_details/widgets/set_date_widget.dart';
 import 'package:jconnect/features/messages/chat_details/widgets/view_oder_details_widget.dart';
+import 'package:jconnect/features/messages/controller/messages_controller.dart';
 
-class ChatDetailsScreen extends StatelessWidget {
-  final ChatDetailsController controller = Get.put(ChatDetailsController());
+class ChatDetailsScreen extends StatefulWidget {
+  const ChatDetailsScreen({super.key});
 
-  ChatDetailsScreen({super.key});
-  final msg = Get.arguments;
+  @override
+  State<ChatDetailsScreen> createState() => _ChatDetailsScreenState();
+}
+
+class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
+  final controller = Get.find<MessagesController>();
+  final dynamic msg = Get.arguments;
+
+  @override
+  void initState() {
+    super.initState();
+    if (msg != null) {
+      controller.initConversation(
+        conversationId: msg.chatId ?? '',
+        initialMessages: [],
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +51,9 @@ class ChatDetailsScreen extends StatelessWidget {
                       ),
                       SizedBox(width: 10),
                       CircleAvatar(
-                        backgroundImage:NetworkImage(msg.participant?.profilePhoto ?? ''),
+                        backgroundImage: NetworkImage(
+                          msg.participant?.profilePhoto ?? '',
+                        ),
                       ),
                       SizedBox(width: 10),
                       Column(
@@ -74,7 +92,7 @@ class ChatDetailsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'You started a chat with DJ NovaX',
+                      'You started a chat with ${msg.participant.fullName ?? ''}',
                       style: getTextStyle(
                         fontsize: 12,
                         fontweight: FontWeight.w400,
@@ -103,7 +121,7 @@ class ChatDetailsScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            controller.messages[index],
+                            controller.messages[index].content,
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
@@ -150,7 +168,13 @@ class ChatDetailsScreen extends StatelessWidget {
                     ),
                     IconButton(
                       icon: Image.asset(Iconpath.send, height: 20, width: 20),
-                      onPressed: controller.sendMessage,
+                      onPressed: () {
+                        controller.sendMessage(
+                          recipientId: msg.participant.id ?? "",
+                          content: controller.messageController.text,
+                        );
+                        controller.messageController.clear();
+                      },
                     ),
                   ],
                 ),
