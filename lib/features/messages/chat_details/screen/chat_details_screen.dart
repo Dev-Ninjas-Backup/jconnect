@@ -10,12 +10,27 @@ import 'package:jconnect/features/messages/chat_details/widgets/set_date_widget.
 import 'package:jconnect/features/messages/chat_details/widgets/view_oder_details_widget.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
 
-class ChatDetailsScreen extends StatelessWidget {
-  //final ChatDetailsController controller = Get.put(ChatDetailsController());
-  final controller = Get.find<MessagesController>();
+class ChatDetailsScreen extends StatefulWidget {
+  const ChatDetailsScreen({super.key});
 
-  ChatDetailsScreen({super.key});
-  final msg = Get.arguments;
+  @override
+  State<ChatDetailsScreen> createState() => _ChatDetailsScreenState();
+}
+
+class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
+  final controller = Get.find<MessagesController>();
+  final dynamic msg = Get.arguments;
+
+  @override
+  void initState() {
+    super.initState();
+    if (msg != null) {
+      controller.initConversation(
+        conversationId: msg.chatId ?? '',
+        initialMessages: [],
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,10 +168,13 @@ class ChatDetailsScreen extends StatelessWidget {
                     ),
                     IconButton(
                       icon: Image.asset(Iconpath.send, height: 20, width: 20),
-                      onPressed: () => controller.sendMessage(
-                        recipientId: msg.participant.id ?? "",
-                        content: controller.messageController.text,
-                      ),
+                      onPressed: () {
+                        controller.sendMessage(
+                          recipientId: msg.participant.id ?? "",
+                          content: controller.messageController.text,
+                        );
+                        controller.messageController.clear();
+                      },
                     ),
                   ],
                 ),
