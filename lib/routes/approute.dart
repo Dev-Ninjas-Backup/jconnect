@@ -146,7 +146,7 @@ class AppRoute {
     GetPage(name: notificationScreen, page: () => NotificationScreen()),
     GetPage(
       name: chatDetailsScreen,
-      page: () => ChatDetailsScreen(profileImage: ''),
+      page: () => ChatDetailsScreen(),
     ),
   ];
 }

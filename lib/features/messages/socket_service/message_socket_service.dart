@@ -61,6 +61,7 @@ class MessageSocketService {
       'serviceId': serviceId,
       'files': files ?? [],
     });
+    debugPrint('📤 Message sent: to $recipientId, content: $content');
   }
 
   void disconnect() {
