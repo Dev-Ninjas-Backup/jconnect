@@ -90,8 +90,8 @@ class SignupOtpVerificationController extends GetxController {
       // Extract and save the authentication token
       final token = response['data']?['token'] ?? response['token'];
       if (token != null && token.toString().isNotEmpty) {
-        await pref.saveToken(token.toString());
-        await pref.saveRowToken(token.toString());
+       // await pref.saveToken(token.toString());
+        //await pref.saveRowToken(token.toString());
         await pref.saveUserId(response['data']['user']['id'].toString());
         print('DEBUG: Token saved after email verification: $token');
       } else {

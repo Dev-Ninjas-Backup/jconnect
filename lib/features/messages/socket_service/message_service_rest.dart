@@ -9,18 +9,14 @@ NetworkClient networkClient;
   MessageServiceRest({required this.networkClient});
 
 
-  Future<List<LastMessage>> fetchMessages() async {
+  Future<ChatListResponse> fetchMessages() async {
     final response = await networkClient.getRequest(
       url: Endpoint.allChats,
     );
 
     if (response.isSuccess &&
         (response.statusCode == 200 || response.statusCode == 201)) {
-      final List list = response.responseData!['data'];
-
-      return list
-          .map((e) => LastMessage.fromJson(e))
-          .toList();
+        return ChatListResponse.fromJson(response.responseData!);
     } else {
       throw Exception('Failed to load messages');
     }

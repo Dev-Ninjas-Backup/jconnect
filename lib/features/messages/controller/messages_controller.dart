@@ -20,12 +20,12 @@ class MessagesController extends GetxController {
     ),
   );
 
-  var allChats = <LastMessage>[].obs;
+  var allChats = <ChatItem>[].obs;
 
   Future<void> fetchallchatMethod() async {
     try {
-      final messages = await messageServiceRest.fetchMessages();
-      allChats.addAll(messages);
+      final resp = await messageServiceRest.fetchMessages();
+      allChats.assignAll(resp.data ?? []);
       print("===================Fetched  msg length: ${allChats.length} ===========");
     } catch (e) {
       print('❌ Error fetching messages: $e');
@@ -219,7 +219,10 @@ class MessagesController extends GetxController {
                       if (msg != null) {
                         final id = msg is Map ? msg['id'] : (msg.id ?? null);
                         if (id != null) {
-                          allChats.removeWhere((c) => c.id == id);
+                          allChats.removeWhere((c) =>
+                              c.chatId == id ||
+                              c.lastMessage?.id == id ||
+                              c.participant?.id == id);
                           messages.removeWhere((m) => m.id == id);
                         }
                       }

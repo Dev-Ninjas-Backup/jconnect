@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
-import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/messages/chat_details/controller/chat_details_controller.dart';
 import 'package:jconnect/features/messages/chat_details/widgets/cancel_deal_widget.dart';
@@ -14,7 +13,8 @@ import 'package:jconnect/features/messages/chat_details/widgets/view_oder_detail
 class ChatDetailsScreen extends StatelessWidget {
   final ChatDetailsController controller = Get.put(ChatDetailsController());
 
-  ChatDetailsScreen({super.key, required String profileImage});
+  ChatDetailsScreen({super.key});
+  final msg = Get.arguments;
 
   @override
   Widget build(BuildContext context) {
@@ -35,14 +35,14 @@ class ChatDetailsScreen extends StatelessWidget {
                       ),
                       SizedBox(width: 10),
                       CircleAvatar(
-                        backgroundImage: AssetImage(Imagepath.profileImage),
+                        backgroundImage:NetworkImage(msg.participant?.profilePhoto ?? ''),
                       ),
                       SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'DJ NovaX',
+                            msg.participant.fullName ?? '',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
