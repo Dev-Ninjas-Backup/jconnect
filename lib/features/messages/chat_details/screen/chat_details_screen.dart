@@ -108,8 +108,12 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     itemCount: controller.messages.length,
                     itemBuilder: (context, index) {
+                      final msgItem = controller.messages[index];
+                      final isMine = controller.isMyMessage(msgItem);
+
                       return Align(
-                        alignment: Alignment.centerRight,
+                        alignment:
+                            isMine ? Alignment.centerRight : Alignment.centerLeft,
                         child: Container(
                           margin: EdgeInsets.symmetric(vertical: 5),
                           padding: EdgeInsets.symmetric(
@@ -117,12 +121,20 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                             vertical: 12,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.redColor,
-                            borderRadius: BorderRadius.circular(20),
+                            color: isMine ? AppColors.redColor : Colors.grey[800],
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
+                              bottomLeft:
+                                  isMine ? Radius.circular(20) : Radius.circular(0),
+                              bottomRight:
+                                  isMine ? Radius.circular(0) : Radius.circular(20),
+                            ),
                           ),
                           child: Text(
-                            controller.messages[index].content,
-                            style: TextStyle(color: Colors.white),
+                            msgItem.content,
+                            style: TextStyle(
+                                color: isMine ? Colors.white : Colors.white70),
                           ),
                         ),
                       );
