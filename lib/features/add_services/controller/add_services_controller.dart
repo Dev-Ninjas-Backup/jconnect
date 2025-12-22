@@ -9,26 +9,49 @@ class AddServiceController extends GetxController {
   final descriptionController = TextEditingController();
   final priceController = TextEditingController();
 
-  // selected service type (SOCIAL_POST, SERVICE, ...)
   final RxnString selectedServiceType = RxnString();
 
-  var services = <Map<String, String>>[].obs;
+  /// Stores id + name + desc + price
+  var services = <Map<String, dynamic>>[].obs;
 
-  // Currency formatter for price input
   final currencyFormatter = CurrencyTextInputFormatter(symbol: '\$');
-
-  // Reactive variable to track if Save button should be enabled
   var isSaveEnabled = false.obs;
 
   final AddServiceRepository repository = AddServiceRepository();
 
-  Future<void> addService() async {
-    if (serviceNameController.text.isEmpty ||
-        descriptionController.text.isEmpty ||
-        priceController.text.isEmpty ||
-        selectedServiceType.value == null) {
-      return;
+  @override
+  void onInit() {
+    super.onInit();
+    fetchServicesFromProfile();
+  }
+
+  /// 🔹 LOAD SERVICES
+  Future<void> fetchServicesFromProfile() async {
+    try {
+      EasyLoading.show(status: 'Loading services...');
+      final response = await repository.fetchMyProfile();
+      EasyLoading.dismiss();
+
+      if (response['services'] is List) {
+        services.assignAll(
+          (response['services'] as List).map((svc) {
+            return {
+              'id': svc['id'],
+              'name': svc['serviceName'],
+              'desc': svc['description'],
+              'price': '\$${svc['price']}',
+            };
+          }).toList(),
+        );
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
     }
+  }
+
+  /// 🔹 ADD SERVICE
+  Future<void> addService() async {
+    if (!isSaveEnabled.value) return;
 
     final priceValue = double.tryParse(
           priceController.text.replaceAll(RegExp(r'[^\d.]'), ''),
@@ -47,43 +70,46 @@ class AddServiceController extends GetxController {
 
       EasyLoading.dismiss();
 
-      if (response.containsKey('service')) {
-        final svc = response['service'];
-        services.add({
-          'name':
-              svc['serviceName']?.toString() ??
-              serviceNameController.text.trim(),
-          'desc':
-              svc['description']?.toString() ??
-              descriptionController.text.trim(),
-          'price': (svc['price'] != null)
-              ? svc['price'].toString()
-              : priceController.text.trim(),
-        });
+      final svc = response['service'];
 
-        // Clear form
-        serviceNameController.clear();
-        descriptionController.clear();
-        priceController.clear();
-        selectedServiceType.value = null;
+      services.add({
+        'id': svc['id'],
+        'name': svc['serviceName'],
+        'desc': svc['description'],
+        'price': '\$${svc['price']}',
+      });
 
-        isSaveEnabled.value = false;
-      } else {
-        // Fallback if API returns only a message
-        services.add({
-          'name': serviceNameController.text.trim(),
-          'desc': descriptionController.text.trim(),
-          'price': priceController.text.trim(),
-        });
-      }
+      serviceNameController.clear();
+      descriptionController.clear();
+      priceController.clear();
+      selectedServiceType.value = null;
+      isSaveEnabled.value = false;
     } catch (e) {
       EasyLoading.dismiss();
-      rethrow;
     }
   }
 
-  void removeService(int index) {
+  /// 🔹 DELETE SERVICE (API + ROLLBACK)
+  Future<void> deleteService(int index) async {
+    final removedService = services[index];
+    final serviceId = removedService['id'];
+
     services.removeAt(index);
+
+    try {
+      EasyLoading.show(status: 'Deleting service...');
+      await repository.deleteService(serviceId);
+      EasyLoading.dismiss();
+    } catch (e) {
+      EasyLoading.dismiss();
+      services.insert(index, removedService);
+
+      Get.snackbar(
+        'Error',
+        'Failed to delete service',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
   void checkIfSaveEnabled() {
@@ -91,8 +117,7 @@ class AddServiceController extends GetxController {
         serviceNameController.text.isNotEmpty &&
         descriptionController.text.isNotEmpty &&
         priceController.text.isNotEmpty &&
-        selectedServiceType.value != null &&
-        selectedServiceType.value!.isNotEmpty;
+        selectedServiceType.value != null;
   }
 
   @override
@@ -104,10 +129,9 @@ class AddServiceController extends GetxController {
   }
 }
 
-/// TextInputFormatter for currency input
+/// Currency formatter
 class CurrencyTextInputFormatter extends TextInputFormatter {
   final String symbol;
-
   CurrencyTextInputFormatter({this.symbol = '\$'});
 
   @override
@@ -116,9 +140,7 @@ class CurrencyTextInputFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final digitsOnly = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    if (digitsOnly.isEmpty) {
-      return newValue.copyWith(text: '');
-    }
+    if (digitsOnly.isEmpty) return const TextEditingValue(text: '');
 
     final value = double.parse(digitsOnly) / 100;
     final newText = '$symbol${value.toStringAsFixed(2)}';
