@@ -34,6 +34,11 @@ class Endpoint {
   //chat
   static const String chatSocketIO =
       'https://jconnect-server.saikat.com.bd/dj/chat';
-      static const String userNotifications ="https://jconnect-server.saikat.com.bd/notification-setting/user-specific-notification";
-      static const String allChats="https://jconnect-server.saikat.com.bd/private-chat";
+  static const String userNotifications =
+      "https://jconnect-server.saikat.com.bd/notification-setting/user-specific-notification";
+  static const String allChats =
+      "https://jconnect-server.saikat.com.bd/private-chat";
+  //dispute
+  static const String dispute = '$baseUrl/disputes/my';
+  static const String raiseDispute = '$baseUrl/disputes';
 }
