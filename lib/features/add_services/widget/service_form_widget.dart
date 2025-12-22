@@ -48,6 +48,7 @@ class ServiceFormWidget extends StatelessWidget {
     final serviceTypes = ['SOCIAL_POST', 'SERVICE'];
 
     return DropdownButtonFormField<String>(
+      dropdownColor: AppColors.backGroundColor,
       initialValue: controller.selectedServiceType.value,
       decoration: InputDecoration(
         labelText: 'Service Type',
@@ -62,7 +63,15 @@ class ServiceFormWidget extends StatelessWidget {
         ),
       ),
       items: serviceTypes
-          .map((t) => DropdownMenuItem<String>(value: t, child: Text(t)))
+          .map(
+            (t) => DropdownMenuItem<String>(
+              value: t,
+              child: Text(
+                t,
+                style: getTextStyle(color: AppColors.secondaryTextColor),
+              ),
+            ),
+          )
           .toList(),
       onChanged: (val) {
         controller.selectedServiceType.value = val;
