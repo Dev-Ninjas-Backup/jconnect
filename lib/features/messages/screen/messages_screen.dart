@@ -7,10 +7,9 @@ import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/messages/chat_details/screen/chat_details_screen.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
-import 'package:jconnect/features/messages/widget/messages_tab_bar.dart';
 
 class MessagesScreen extends StatelessWidget {
-  final MessagesController controller = Get.put(MessagesController());
+  final controller = Get.find<MessagesController>();
 
   MessagesScreen({super.key});
 
@@ -22,67 +21,29 @@ class MessagesScreen extends StatelessWidget {
         title: Text('Messages', style: getTextStyle(fontsize: 24.sp)),
         backgroundColor: AppColors.backGroundColor,
         elevation: 0,
-        actions: [
-          Container(
-            margin: EdgeInsets.only(right: 16.w, top: 8.h, bottom: 8.h),
-            decoration: BoxDecoration(
-              color: Colors.white12,
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: IconButton(
-              icon: Icon(
-                Icons.search,
-                color: AppColors.primaryTextColor,
-                size: 24.sp,
-              ),
-              onPressed: () {},
-              splashRadius: 24.sp,
-            ),
-          ),
-        ],
       ),
       body: Column(
         children: [
           SizedBox(height: 10.h),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.w),
-            child: MessagesTabBar(controller: controller),
-          ),
+
           SizedBox(height: 16.h),
           Expanded(
-            child: Obx(() {
-              final filtered = filterMessages(controller.selectedTab.value);
-              return ListView.builder(
-                itemCount: filtered.length,
+            child: Obx(
+              () => ListView.builder(
+                itemCount: controller.allChats.length,
                 itemBuilder: (_, idx) {
-                  final msg = filtered[idx];
-                  return buildSwipeItem(context, msg);
+                  final last = controller.allChats[idx];
+                  return buildSwipeItem(context, last, idx);
                 },
-              );
-            }),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  List<Map<String, dynamic>> filterMessages(String tab) {
-    final msgs = controller.messages1;
-    if (tab == 'All Chats') return msgs.toList();
-    if (tab == 'Active Deals') {
-      return msgs.where((msg) => (msg['activeDeal'] as bool)).toList();
-    }
-    if (tab == 'Unread') {
-      return msgs.where((msg) => (msg['unread'] as bool)).toList();
-    }
-    if (tab == 'Archived') {
-      return msgs.where((msg) => (msg['archived'] as bool)).toList();
-    }
-
-    return msgs.toList();
-  }
-
-  Widget buildSwipeItem(BuildContext context, Map msg) {
+  Widget buildSwipeItem(BuildContext context, dynamic msg, int idx) {
     double dragOffset = 0.0;
     final maxOffset = -80.0;
 
@@ -155,8 +116,11 @@ class MessagesScreen extends StatelessWidget {
                   onTap: () {
                     Get.to(
                       () => ChatDetailsScreen(
-                        key: ValueKey(msg['name']), // optional
-                        profileImage: Imagepath.profileImage,
+                        // key: ValueKey(msg['name']), // optional
+                        profileImage:
+                            controller.allChats[idx].sender?.profilePhoto
+                                .toString() ??
+                            Imagepath.profileImage,
                       ),
                     );
                   },
@@ -171,7 +135,11 @@ class MessagesScreen extends StatelessWidget {
                       children: [
                         CircleAvatar(
                           radius: 22.r,
-                          backgroundImage: AssetImage(Imagepath.profileImage),
+                          backgroundImage: NetworkImage(
+                            controller.allChats[idx].sender?.profilePhoto
+                                    .toString() ??
+                                Imagepath.profileImage,
+                          ),
                         ),
                         SizedBox(width: 12.w),
                         Expanded(
@@ -184,28 +152,25 @@ class MessagesScreen extends StatelessWidget {
                                     child: Row(
                                       children: [
                                         Text(
-                                          msg['name'],
+                                          controller
+                                                  .allChats[idx]
+                                                  .sender
+                                                  ?.fullName
+                                                  .toString() ??
+                                              "Unknown",
+
                                           style: getTextStyle(
                                             color: Colors.white,
                                           ),
                                         ),
                                         SizedBox(width: 8.w),
-                                        if (msg['activeDeal'] == true)
-                                          buildTag(
-                                            'Active Deal',
-                                            AppColors.redColor,
-                                          ),
-                                        if (msg['completedDeal'] == true)
-                                          buildTag(
-                                            'Completed Deal',
-                                            Color(0xFF222222),
-                                            textColor: Color(0xFF7E7E7E),
-                                          ),
+                                        // no deal tags for LastMessage
                                       ],
                                     ),
                                   ),
                                   Text(
-                                    msg['time'],
+                                    controller.allChats[idx].createdAt
+                                        .toString(),
                                     style: TextStyle(
                                       color: Color(0xFF7E7E7E),
                                       fontSize: 11.sp,
@@ -215,13 +180,10 @@ class MessagesScreen extends StatelessWidget {
                               ),
                               SizedBox(height: 2.h),
                               Text(
-                                msg['content'],
+                                controller.allChats[idx].content.toString(),
                                 style: TextStyle(
                                   color: Color(0xFFA3A3A3),
                                   fontSize: 12.sp,
-                                  fontWeight: msg['unread']
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
