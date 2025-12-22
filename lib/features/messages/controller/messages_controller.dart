@@ -5,10 +5,38 @@ import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
+import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/messages/model/chat_conversation_model.dart';
+import 'package:jconnect/features/messages/model/message_model2.dart';
+import 'package:jconnect/features/messages/socket_service/message_service_rest.dart';
 import 'package:jconnect/features/messages/socket_service/message_socket_service.dart';
 
 class MessagesController extends GetxController {
+  MessageServiceRest messageServiceRest = MessageServiceRest(
+    networkClient: NetworkClient(
+      onUnAuthorize: () {
+        print("Unauthorized access - Messages");
+      },
+    ),
+  );
+
+  var allChats = <LastMessage>[].obs;
+
+  Future<void> fetchallchatMethod() async {
+    try {
+      final messages = await messageServiceRest.fetchMessages();
+      allChats.addAll(messages);
+      print("===================Fetched  msg length: ${allChats.length} ===========");
+    } catch (e) {
+      print('❌ Error fetching messages: $e');
+    }
+  }
+  @override
+  void onInit() {
+    fetchallchatMethod();
+    super.onInit();
+  }
+
   final MessageSocketService _socket = MessageSocketService();
 
   /// Reactive message list for current conversation
@@ -57,9 +85,7 @@ class MessagesController extends GetxController {
     messages.add(message);
     print("message received: $data");
 
-        print("message recevvvived: $message");
-
-
+    print("message recevvvived: $message");
   }
 
   void sendMessage({
@@ -84,76 +110,10 @@ class MessagesController extends GetxController {
     return message.senderId == _myUserId;
   }
 
-  final selectedTab = 'All Chats'.obs;
 
-  var messages1 = [
-    {
-      'name': 'John Doe',
-      'content': 'Hey there! How are you?',
-      'time': '10:45 AM',
-      'unread': true,
-      'activeDeal': true,
-      'completedDeal': false,
-      'archived': false,
-    },
-    {
-      'name': 'Alice Smith',
-      'content': 'Let’s catch up later.',
-      'time': 'Yesterday',
-      'unread': false,
-      'activeDeal': false,
-      'completedDeal': true,
-      'archived': false,
-    },
-    {
-      'name': 'Michael Johnson',
-      'content': 'I sent you the files.',
-      'time': '9:30 AM',
-      'unread': true,
-      'activeDeal': false,
-      'completedDeal': false,
-      'archived': false,
-    },
-    {
-      'name': 'Emma Williams',
-      'content': 'Can we reschedule the meeting?',
-      'time': 'Yesterday',
-      'unread': false,
-      'activeDeal': true,
-      'completedDeal': false,
-      'archived': false,
-    },
-    {
-      'name': 'David Brown',
-      'content': 'Thanks for your support!',
-      'time': 'Sep 20',
-      'unread': true,
-      'activeDeal': false,
-      'completedDeal': true,
-      'archived': false,
-    },
-    {
-      'name': 'Sophia Davis',
-      'content': 'Please check the document attached.',
-      'time': 'Sep 18',
-      'unread': false,
-      'activeDeal': false,
-      'completedDeal': false,
-      'archived': false,
-    },
-    {
-      'name': 'James Wilson',
-      'content': 'Looking forward to our collaboration.',
-      'time': 'Sep 15',
-      'unread': true,
-      'activeDeal': true,
-      'completedDeal': false,
-      'archived': false,
-    },
-  ].obs;
 
   /// 🔹 Delete confirmation dialog (bottom sheet style)
-  void showDeleteDialog(BuildContext context, Map msg) {
+  void showDeleteDialog(BuildContext context, dynamic msg) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
@@ -247,7 +207,24 @@ class MessagesController extends GetxController {
                     ),
                   ),
                   onPressed: () {
-                    messages.remove(msg);
+                    // remove from allChats if present, otherwise try messages
+                    try {
+                      if (allChats.contains(msg)) {
+                        allChats.remove(msg);
+                      } else {
+                        messages.remove(msg);
+                      }
+                    } catch (_) {
+                      // fallback: if msg has an id, remove by matching id
+                      if (msg != null) {
+                        final id = msg is Map ? msg['id'] : (msg.id ?? null);
+                        if (id != null) {
+                          allChats.removeWhere((c) => c.id == id);
+                          messages.removeWhere((m) => m.id == id);
+                        }
+                      }
+                    }
+
                     Get.back();
                   },
                   child: Text(
