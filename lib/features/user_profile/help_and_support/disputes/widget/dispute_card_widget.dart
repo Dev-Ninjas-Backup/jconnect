@@ -10,12 +10,12 @@ class DisputeCardWidget extends StatelessWidget {
   const DisputeCardWidget({super.key, required this.dispute});
 
   Color getStatusColor(String status) {
-    switch (status) {
-      case 'Under Review':
+    switch (status.toUpperCase()) {
+      case 'UNDER_REVIEW':
         return Colors.amber;
-      case 'Resolved':
+      case 'RESOLVED':
         return Colors.green;
-      case 'Pending':
+      case 'PENDING':
         return Colors.blue;
       default:
         return Colors.grey;
@@ -28,7 +28,7 @@ class DisputeCardWidget extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 12.h),
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: AppColors.primaryTextColor.withValues(alpha: .05),
+        color: AppColors.primaryTextColor.withOpacity(0.05),
         borderRadius: BorderRadius.circular(8.r),
         border: Border.all(color: AppColors.secondaryTextColor),
       ),

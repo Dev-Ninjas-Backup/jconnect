@@ -7,6 +7,7 @@ import 'package:jconnect/features/add_services/controller/add_services_controlle
 class ServiceFormWidget extends StatelessWidget {
   final AddServiceController controller;
   final Function(String)? onChanged;
+
   const ServiceFormWidget(this.controller, {this.onChanged, super.key});
 
   @override
@@ -33,10 +34,11 @@ class ServiceFormWidget extends StatelessWidget {
           controller.priceController,
           "Price/promotion",
           "\$ Enter Price",
-          keyboardType: TextInputType.number,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-            controller.currencyFormatter,
+            FilteringTextInputFormatter.allow(
+              RegExp(r'^\d*\.?\d{0,2}'),
+            ), // allow up to 2 decimals
           ],
         ),
       ],
@@ -44,7 +46,6 @@ class ServiceFormWidget extends StatelessWidget {
   }
 
   Widget _buildServiceTypeField() {
-    // provide fixed service type options used across the app
     final serviceTypes = ['SOCIAL_POST', 'SERVICE'];
 
     return DropdownButtonFormField<String>(

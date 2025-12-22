@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/features/add_services/repository/add_service_repository.dart';
@@ -11,10 +10,9 @@ class AddServiceController extends GetxController {
 
   final RxnString selectedServiceType = RxnString();
 
-  /// Stores id + name + desc + price
+  // Stores id + name + desc + price
   var services = <Map<String, dynamic>>[].obs;
 
-  final currencyFormatter = CurrencyTextInputFormatter(symbol: '\$');
   var isSaveEnabled = false.obs;
 
   final AddServiceRepository repository = AddServiceRepository();
@@ -25,7 +23,7 @@ class AddServiceController extends GetxController {
     fetchServicesFromProfile();
   }
 
-  /// 🔹 LOAD SERVICES
+  // LOAD SERVICES
   Future<void> fetchServicesFromProfile() async {
     try {
       EasyLoading.show(status: 'Loading services...');
@@ -49,14 +47,12 @@ class AddServiceController extends GetxController {
     }
   }
 
-  /// 🔹 ADD SERVICE
+  // ADD SERVICE
   Future<void> addService() async {
     if (!isSaveEnabled.value) return;
 
-    final priceValue = double.tryParse(
-          priceController.text.replaceAll(RegExp(r'[^\d.]'), ''),
-        ) ??
-        0.0;
+    // Parse price as double, default to 0.0 if invalid
+    final priceValue = double.tryParse(priceController.text) ?? 0.0;
 
     try {
       EasyLoading.show(status: 'Saving service...');
@@ -65,7 +61,7 @@ class AddServiceController extends GetxController {
         serviceName: serviceNameController.text.trim(),
         serviceType: selectedServiceType.value!,
         description: descriptionController.text.trim(),
-        price: priceValue.toString(),
+        price: priceValue.toString(), // send as float string
       );
 
       EasyLoading.dismiss();
@@ -76,9 +72,10 @@ class AddServiceController extends GetxController {
         'id': svc['id'],
         'name': svc['serviceName'],
         'desc': svc['description'],
-        'price': '\$${svc['price']}',
+        'price': svc['price'], // just show as normal float
       });
 
+      // Clear inputs
       serviceNameController.clear();
       descriptionController.clear();
       priceController.clear();
@@ -86,10 +83,15 @@ class AddServiceController extends GetxController {
       isSaveEnabled.value = false;
     } catch (e) {
       EasyLoading.dismiss();
+      Get.snackbar(
+        'Error',
+        'Failed to add service',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 
-  /// 🔹 DELETE SERVICE (API + ROLLBACK)
+  //  DELETE SERVICE (API + ROLLBACK)
   Future<void> deleteService(int index) async {
     final removedService = services[index];
     final serviceId = removedService['id'];
@@ -126,28 +128,5 @@ class AddServiceController extends GetxController {
     descriptionController.dispose();
     priceController.dispose();
     super.onClose();
-  }
-}
-
-/// Currency formatter
-class CurrencyTextInputFormatter extends TextInputFormatter {
-  final String symbol;
-  CurrencyTextInputFormatter({this.symbol = '\$'});
-
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final digitsOnly = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    if (digitsOnly.isEmpty) return const TextEditingValue(text: '');
-
-    final value = double.parse(digitsOnly) / 100;
-    final newText = '$symbol${value.toStringAsFixed(2)}';
-
-    return TextEditingValue(
-      text: newText,
-      selection: TextSelection.collapsed(offset: newText.length),
-    );
   }
 }
