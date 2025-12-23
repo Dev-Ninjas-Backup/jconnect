@@ -46,90 +46,103 @@ class AddServiceScreen extends StatelessWidget {
                 SizedBox(height: 30),
 
                 Expanded(
-                  child: Column(
-                    children: [
-                      if (hasServices)
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: controller.services.length,
-                            itemBuilder: (context, index) =>
-                                ServiceCardWidget(controller, index),
-                          ),
-                        )
-                      else
-                        ServiceFormWidget(
-                          controller,
-                          onChanged: (_) => controller.checkIfSaveEnabled(),
-                        ),
-
-                      const SizedBox(height: 16),
-
-                      Row(
+                  child: SingleChildScrollView(
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                      ),
+                      child: Column(
                         children: [
-                          Expanded(
-                            child: Obx(
-                              () => ElevatedButton(
-                                onPressed: controller.isSaveEnabled.value
-                                    ? controller.addService
-                                    : null,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      controller.isSaveEnabled.value
-                                      ? AppColors.redAccent
-                                      : Colors.grey,
-                                  padding: EdgeInsets.symmetric(vertical: 14),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                          if (hasServices)
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: controller.services.length,
+                              itemBuilder: (context, index) =>
+                                  ServiceCardWidget(controller, index),
+                            )
+                          else
+                            ServiceFormWidget(
+                              controller,
+                              onChanged: (_) => controller.checkIfSaveEnabled(),
+                            ),
+
+                          const SizedBox(height: 16),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Obx(
+                                  () => ElevatedButton(
+                                    onPressed: controller.isSaveEnabled.value
+                                        ? () async {
+                                            await controller.addService();
+                                          }
+                                        : null,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          controller.isSaveEnabled.value
+                                          ? AppColors.redAccent
+                                          : Colors.grey,
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    child: Text("Save"),
                                   ),
                                 ),
-                                child: Text("Save"),
                               ),
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () {
-                                Get.toNamed(AppRoute.navBarScreen);
-                              },
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(color: Colors.white24),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: Text(
-                                "Skip for Now",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(height: 16),
-
-                      if (hasServices)
-                        GestureDetector(
-                          onTap: () =>
-                              _showAddServiceSheet(context, controller),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.add, color: Colors.white),
-                              SizedBox(width: 6),
-                              Text(
-                                "Add More Services",
-                                style: getTextStyle(
-                                  color: Colors.white,
-                                  fontsize: 15,
-                                  fontweight: FontWeight.w500,
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () {
+                                    Get.toNamed(AppRoute.navBarScreen);
+                                  },
+                                  style: OutlinedButton.styleFrom(
+                                    side: BorderSide(color: Colors.white24),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    "Skip for Now",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                    ],
+
+                          SizedBox(height: 16),
+
+                          if (hasServices)
+                            GestureDetector(
+                              onTap: () =>
+                                  _showAddServiceSheet(context, controller),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.add, color: Colors.white),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    "Add More Services",
+                                    style: getTextStyle(
+                                      color: Colors.white,
+                                      fontsize: 15,
+                                      fontweight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],

@@ -39,6 +39,13 @@ class ProfileActivitySection extends StatelessWidget {
         'label': 'Reviews',
         'onTap': () => {Get.toNamed(AppRoute.reviewScreen)},
       },
+      {
+        'icon': Icons.build_circle_outlined,
+        'label': 'My Services',
+        'onTap': () {
+          Get.toNamed(AppRoute.addServiceScreen);
+        },
+      },
     ];
 
     return Container(

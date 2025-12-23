@@ -37,9 +37,7 @@ class PrivacySecurityScreen extends StatelessWidget {
                     _buildSettingsTile(
                       title: 'Privacy Policy',
                       onTap: () {
-                        EasyLoading.showInfo(
-                          'This Data Will Come from Backend',
-                        );
+                        EasyLoading.showInfo('NO Privacy Policy Added Yet');
                       },
                     ),
                     SizedBox(height: 12.h),
@@ -47,7 +45,7 @@ class PrivacySecurityScreen extends StatelessWidget {
                       title: 'Terms and conditions',
                       onTap: () {
                         EasyLoading.showInfo(
-                          'This Data Will Come From backend',
+                          'NO Terms and Conditions Added Yet',
                         );
                       },
                     ),
