@@ -19,28 +19,28 @@ class ProfileController extends GetxController {
   ).obs;
 
   // RATES SECTION
-  final RxList<RateModel> rates = <RateModel>[
-    RateModel(
-      title: '30 Sec New Track Review',
-      description: 'Short review of a new track with quick feedback',
-      price: 25.0,
-    ),
-    RateModel(
-      title: 'Social Shoutout',
-      description: 'Post your track to my 10k+ audience',
-      price: 60.0,
-    ),
-  ].obs;
+  // final RxList<RateModel> rates = <RateModel>[
+  //   RateModel(
+  //     title: '30 Sec New Track Review',
+  //     description: 'Short review of a new track with quick feedback',
+  //     price: 25.0,
+  //   ),
+  //   RateModel(
+  //     title: 'Social Shoutout',
+  //     description: 'Post your track to my 10k+ audience',
+  //     price: 60.0,
+  //   ),
+  // ].obs;
 
-  void addNewRate() {
-    rates.add(
-      RateModel(
-        title: 'New Custom Rate',
-        description: 'Describe your service...',
-        price: 0.0,
-      ),
-    );
-  }
+  // void addNewRate() {
+  //   rates.add(
+  //     RateModel(
+  //       title: 'New Custom Rate',
+  //       description: 'Describe your service...',
+  //       price: 0.0,
+  //     ),
+  //   );
+  // }
 
   void updateFromApi(Map<String, dynamic> json) {
     final existing = user.value;

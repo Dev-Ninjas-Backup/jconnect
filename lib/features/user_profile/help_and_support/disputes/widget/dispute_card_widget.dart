@@ -28,7 +28,7 @@ class DisputeCardWidget extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 12.h),
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: AppColors.primaryTextColor.withOpacity(0.05),
+        color: AppColors.primaryTextColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(8.r),
         border: Border.all(color: AppColors.secondaryTextColor),
       ),

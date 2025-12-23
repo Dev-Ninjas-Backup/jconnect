@@ -6,7 +6,7 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/user_profile/profile/controller/profile_controller.dart';
 import 'package:jconnect/features/user_profile/profile/widgets/profile_activity_section.dart';
-import 'package:jconnect/features/user_profile/profile/widgets/profile_rate_section.dart';
+//import 'package:jconnect/features/user_profile/profile/widgets/profile_rate_section.dart';
 import 'package:jconnect/features/user_profile/profile/widgets/profile_settings_section.dart';
 import 'package:jconnect/routes/approute.dart';
 
@@ -30,43 +30,37 @@ class ProfileScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 _buildHeader(),
+                // SizedBox(height: 20),
+                // GestureDetector(
+                //   onTap: () {
+                //     Get.toNamed(AppRoute.addServiceScreen);
+                //   },
+                //   child: Container(
+                //     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                //     decoration: BoxDecoration(
+                //       border: Border.all(
+                //         width: 1,
+                //         color: AppColors.secondaryTextColor,
+                //       ),
+                //       borderRadius: BorderRadius.circular(8),
+                //     ),
+                //     child: Text(
+                //       'Add New Service',
+                //       style: getTextStyle(
+                //         color: Colors.white,
+                //         fontsize: 16,
+                //         fontweight: FontWeight.w600,
+                //       ),
+                //     ),
+                //   ),
+                // ),
                 SizedBox(height: 20),
-                GestureDetector(
-                  onTap: () {
-                    Get.toNamed(AppRoute.addServiceScreen);
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        width: 1,
-                        color: AppColors.secondaryTextColor,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      'Add New Service',
-                      style: getTextStyle(
-                        color: Colors.white,
-                        fontsize: 16,
-                        fontweight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                ProfileRateSection(controller: controller),
+                //ProfileRateSection(controller: controller),
                 SizedBox(height: 20),
                 ProfileActivitySection(controller: controller),
                 SizedBox(height: 20),
                 ProfileSettingsSection(controller: controller),
                 SizedBox(height: 18.h),
-                // ElevatedButton(
-                //   onPressed: () {
-                //     Get.toNamed(AppRoute.addServiceScreen);
-                //   },
-                //   child: Text('Add Service'),
-                // ),
                 GestureDetector(
                   onTap: () async {
                     await pref.clearAllData();

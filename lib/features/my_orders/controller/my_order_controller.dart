@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -22,7 +24,7 @@ class MyOrdersController extends GetxController {
     switch (tab) {
       case 'Active':
         return 'ACTIVE';
-      case 'Pending Confirmation':
+      case 'Payment Confirmation':
         return 'PAYMENTCONFIRM';
       case 'Pending':
         return 'PENDING';
@@ -63,16 +65,14 @@ class MyOrdersController extends GetxController {
 
       final response = await http.get(
         Uri.parse(Endpoint.orders),
-        headers: {
-          'Authorization': token,
-          'Content-Type': 'application/json',
-        },
+        headers: {'Authorization': token, 'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List;
-        final List<OrderModel> fetchedOrders =
-            data.map((json) => OrderModel.fromJson(json)).toList();
+        final List<OrderModel> fetchedOrders = data
+            .map((json) => OrderModel.fromJson(json))
+            .toList();
         orders.assignAll(fetchedOrders);
       } else if (response.statusCode == 401) {
         Get.offAllNamed('/login');
