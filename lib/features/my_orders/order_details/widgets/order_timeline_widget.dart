@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
-import 'package:jconnect/features/my_orders/order_details/model/order_details_model.dart';
+import 'package:jconnect/features/my_orders/order_details/model/order_timeline_step.dart';
 
 class OrderTimelineWidget extends StatelessWidget {
-  final List<TimelineStep> timeline;
+  final List<OrderTimelineStep> timeline;
 
   const OrderTimelineWidget({super.key, required this.timeline});
 
