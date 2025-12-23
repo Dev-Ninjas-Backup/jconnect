@@ -117,9 +117,9 @@ class MessagesController extends GetxController {
     _updateChatListWithMessage(message);
 
     // If this conversation is active, add to messages shown in details
-    if (message.conversationId == _conversationId) {
-      messages.add(message);
-    }
+    // if (message.conversationId == _conversationId) {
+    //   messages.add(message);
+    // }
 
     print("message received: $data");
     print("message recevvvived: ${message.content}");
