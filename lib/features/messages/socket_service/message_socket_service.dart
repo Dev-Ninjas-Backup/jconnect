@@ -17,7 +17,7 @@ class MessageSocketService {
   }) {
     socket = IO.io(
       Endpoint.chatSocketIO,
-        IO.OptionBuilder()
+      IO.OptionBuilder()
           .setTransports(['websocket'])
           .setAuth({'token': token})
           .setExtraHeaders({'Authorization': 'Bearer $token'})
@@ -42,6 +42,19 @@ class MessageSocketService {
       debugPrint('📩 Private new message received: $data');
       onNewMessage(data);
     });
+
+    socket!.on('private:conversation_list', (data) {
+      debugPrint('✅ List of conversations: $data');
+      onNewMessage(data);
+      // Handle read receipt if needed
+    });
+
+    socket!.on('private:new_conversation', (data) {
+      debugPrint('✅Update convesation list: $data');
+      onNewMessage(data);
+      // Handle read receipt if needed
+    });
+
     // Manually connect after setting up listeners when auto-connect is disabled
     socket!.connect();
   }
@@ -62,6 +75,22 @@ class MessageSocketService {
       'files': files ?? [],
     });
     debugPrint('📤 Message sent: to $recipientId, content: $content');
+  }
+
+  void loadConversation({required String conversationId}) {
+    if (socket == null || !socket!.connected) return;
+
+    socket!.emit('private:load_single_conversation', {
+      'conversationId': conversationId,
+    });
+    debugPrint('🔄 Load conversation: $conversationId');
+  }
+
+  void loadAllChatConversation() {
+    if (socket == null || !socket!.connected) return;
+
+    socket!.emit('private:load_conversations', {});
+    debugPrint('🔄 Load all conversations');
   }
 
   void disconnect() {

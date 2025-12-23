@@ -9,6 +9,9 @@ import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import 'package:jconnect/features/messages/model/chat_conversation_model.dart';
 import 'package:jconnect/features/messages/model/message_model2.dart';
 import 'package:jconnect/features/messages/socket_service/message_service_rest.dart';
@@ -88,28 +91,38 @@ class MessagesController extends GetxController {
 
   /* -------------------- Conversation -------------------- */
 
-  void initConversation({
+  Future<void> initConversation({
     required String conversationId,
     required List<ChatMessage> initialMessages,
-  }) {
+  }) async {
     _conversationId = conversationId;
-    messages
-      ..clear()
-      ..addAll(initialMessages);
+    messages.clear();
+
+    if (initialMessages.isNotEmpty) {
+      messages.addAll(initialMessages);
+    } else {
+      final persisted = await _loadMessagesFromStorage(conversationId);
+      messages.addAll(persisted);
+    }
   }
 
   /* -------------------- Messaging -------------------- */
 
   void _handleIncomingMessage(dynamic data) {
     final ChatMessage message = ChatMessage.fromJson(data);
+    // Persist message for the conversation
+    _appendMessageToStorage(message);
 
-    // Ignore messages from other conversations
-    if (message.conversationId != _conversationId) return;
+    // Update conversation list (last message + move to top)
+    _updateChatListWithMessage(message);
 
-    messages.add(message);
+    // If this conversation is active, add to messages shown in details
+    if (message.conversationId == _conversationId) {
+      messages.add(message);
+    }
+
     print("message received: $data");
-
-    print("message recevvvived: $message");
+    print("message recevvvived: ${message.content}");
   }
 
   void sendMessage({
@@ -126,6 +139,108 @@ class MessagesController extends GetxController {
       serviceId: serviceId,
       files: files,
     );
+
+    // Add outgoing message locally so UI updates immediately
+    if (_conversationId != null) {
+      final id = Uuid().v4();
+      final outgoing = ChatMessage(
+        id: id,
+        content: content.trim(),
+        files: files ?? [],
+        createdAt: DateTime.now(),
+        senderId: _myUserId,
+        conversationId: _conversationId!,
+        serviceId: serviceId,
+        service: null,
+        sender: SenderInfo(id: _myUserId, fullName: '', profilePhoto: null),
+      );
+
+      messages.add(outgoing);
+      _appendMessageToStorage(outgoing);
+      _updateChatListWithMessage(outgoing);
+    }
+  }
+
+  void _updateChatListWithMessage(ChatMessage message) {
+    try {
+      final lastMsg = LastMessage(
+        id: message.id,
+        content: message.content,
+        createdAt: message.createdAt.toIso8601String(),
+        sender: MessageSender(
+          id: message.sender.id,
+          profilePhoto: message.sender.profilePhoto,
+          fullName: message.sender.fullName,
+        ),
+      );
+
+      final idx = allChats.indexWhere((c) => c.chatId == message.conversationId);
+      if (idx != -1) {
+        final existing = allChats[idx];
+        final updated = ChatItem(
+          type: existing.type,
+          chatId: existing.chatId,
+          participant: existing.participant,
+          lastMessage: lastMsg,
+          updatedAt: lastMsg.createdAt,
+        );
+        // move to top
+        allChats.removeAt(idx);
+        allChats.insert(0, updated);
+      } else {
+        final participant = ChatParticipant(
+          id: message.senderId,
+          profilePhoto: message.sender.profilePhoto,
+          fullName: message.sender.fullName,
+        );
+        final newChat = ChatItem(
+          type: 'private',
+          chatId: message.conversationId,
+          participant: participant,
+          lastMessage: lastMsg,
+          updatedAt: lastMsg.createdAt,
+        );
+        allChats.insert(0, newChat);
+      }
+      allChats.refresh();
+    } catch (e) {
+      print('Failed to update chat list: $e');
+    }
+  }
+
+  /* -------------------- Persistence -------------------- */
+
+  String _storageKeyFor(String conversationId) => 'conv_msgs_$conversationId';
+
+  Future<void> _appendMessageToStorage(ChatMessage msg) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final key = _storageKeyFor(msg.conversationId);
+      final existing = prefs.getString(key);
+      List<Map<String, dynamic>> list = [];
+      if (existing != null) {
+        final decoded = jsonDecode(existing) as List<dynamic>;
+        list = decoded.cast<Map<String, dynamic>>();
+      }
+      list.add(msg.toJson());
+      await prefs.setString(key, jsonEncode(list));
+    } catch (e) {
+      print('Failed to persist message: $e');
+    }
+  }
+
+  Future<List<ChatMessage>> _loadMessagesFromStorage(String conversationId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final key = _storageKeyFor(conversationId);
+      final existing = prefs.getString(key);
+      if (existing == null) return [];
+      final decoded = jsonDecode(existing) as List<dynamic>;
+      return decoded.map((e) => ChatMessage.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (e) {
+      print('Failed to load persisted messages: $e');
+      return [];
+    }
   }
 
   /* -------------------- Helpers -------------------- */
