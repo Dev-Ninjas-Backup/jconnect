@@ -5,13 +5,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_appbar.dart';
-import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/common/constants/custom_textfield.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/features/user_profile/edit_profile/controller/edit_profile_controller.dart';
+import 'package:jconnect/features/user_profile/profile/controller/profile_controller.dart';
 
 class EditProfileScreen extends StatelessWidget {
   final EditProfileController controller = Get.put(EditProfileController());
+  final ProfileController profileController = Get.find<ProfileController>();
 
   EditProfileScreen({super.key});
 
@@ -60,21 +61,6 @@ class EditProfileScreen extends StatelessWidget {
                             CustomTextfield(
                               hintText: 'Bio',
                               controller: controller.bioController,
-                            ),
-                            SizedBox(height: 14.h),
-                            Text('About Info', style: getTextStyle()),
-                            SizedBox(height: 6.h),
-                            CustomTextfield(
-                              hintText: 'About Info',
-                              controller: controller.aboutInfoController,
-                            ),
-                            SizedBox(height: 14.h),
-                            Text('Email', style: getTextStyle()),
-                            SizedBox(height: 6.h),
-                            CustomTextfield(
-                              hintText: 'Email',
-                              controller: controller.emailController,
-                              keyboardType: TextInputType.emailAddress,
                             ),
                             SizedBox(height: 14.h),
                             Text('Phone', style: getTextStyle()),
@@ -150,9 +136,10 @@ class EditProfileScreen extends StatelessWidget {
                                 buttonText: controller.isLoading.value
                                     ? 'Saving...'
                                     : 'Save',
-                                onTap: () {
+                                onTap: () async {
                                   if (!controller.isLoading.value) {
-                                    controller.saveProfile();
+                                    await controller.saveProfile();
+                                    await profileController.fetchProfile();
                                   }
                                 },
                               ),
@@ -180,7 +167,9 @@ class EditProfileScreen extends StatelessWidget {
                 radius: 50.r,
                 backgroundImage: controller.imagePath.value.isNotEmpty
                     ? FileImage(File(controller.imagePath.value))
-                    : AssetImage(Imagepath.profileImage) as ImageProvider,
+                    : profileController.user.value.imageUrl.startsWith('http')
+                    ? NetworkImage(profileController.user.value.imageUrl)
+                    : AssetImage(profileController.user.value.imageUrl),
               ),
             ),
             SizedBox(height: 8.h),

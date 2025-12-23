@@ -20,9 +20,9 @@ class SocialPost extends StatelessWidget {
       padding: EdgeInsets.zero,
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
-      itemCount: controller.socialPostListItem.length,
+      itemCount: controller.socialPosts.length,
       itemBuilder: (_, index) {
-        var item = controller.socialPostListItem[index];
+        var item = controller.socialPosts[index];
         return Padding(
           padding: EdgeInsets.only(bottom: 20.h),
           child: GradientBorderContainer(
@@ -34,10 +34,10 @@ class SocialPost extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Image.asset(item.iconUrl, height: 22, width: 22),
-                    SizedBox(width: 12.w),
+                    // Image.asset(item.iconUrl, height: 22, width: 22),
+                    // SizedBox(width: 12.w),
                     Text(
-                      item.title,
+                      item.serviceName,
                       style: getTextStyle(
                         fontsize: sp(16),
                         fontweight: FontWeight.w500,
@@ -47,7 +47,7 @@ class SocialPost extends StatelessWidget {
                 ),
                 SizedBox(height: 10.h),
                 Text(
-                  item.subTitle,
+                  item.description,
                   style: getTextStyle(
                     fontsize: sp(10),
                     fontweight: FontWeight.w400,
@@ -62,7 +62,7 @@ class SocialPost extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        "${item.rate}/promotion",
+                        "\$ ${item.price}/promotion",
                         style: getTextStyle(
                           fontsize: sp(12),
                           fontweight: FontWeight.w400,
@@ -78,7 +78,11 @@ class SocialPost extends StatelessWidget {
 
                       buttonText: "Buy Post",
                       onTap: () {
-                        Get.toNamed(AppRoute.getBuySocialPost());
+                        // Get.toNamed(AppRoute.getBuySocialcPost());\
+                        Get.toNamed(
+                          AppRoute.getRequestServiceScreen(),
+                          arguments: item,
+                        );
                       },
                     ),
                   ],

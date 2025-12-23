@@ -12,10 +12,11 @@ class EarningsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetX<EarningsController>(
+      // Ensure the controller is initialized only once
       init: EarningsController(),
       builder: (controller) {
         return Container(
-          padding: EdgeInsets.all(14),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: AppColors.backGroundColor,
             borderRadius: BorderRadius.circular(10),
@@ -23,16 +24,20 @@ class EarningsSection extends StatelessWidget {
           ),
           child: Column(
             children: [
-              _buildRow('Total Earnings', '\$${controller.totalEarnings}'),
+              // Added .value to display the number correctly
+              _buildRow(
+                'Total Earnings',
+                '\$${controller.totalEarnings.value}',
+              ),
               Divider(color: AppColors.secondaryTextColor),
               _buildRow(
                 'Pending Clearance',
-                '\$${controller.pendingClearance}',
+                '\$${controller.pendingClearance.value}',
               ),
               Divider(color: AppColors.secondaryTextColor),
               _buildRow(
                 'Available to Withdraw',
-                '\$${controller.availableToWithdraw}',
+                '\$${controller.availableToWithdraw.value}',
               ),
               SizedBox(height: 16.h),
               CustomPrimaryButton(

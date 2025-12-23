@@ -1,11 +1,14 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/core/common/widgets/custom_secondary_button.dart';
+import 'package:jconnect/core/service/network_service/network_client.dart';
+import 'package:jconnect/features/home/artists_details_screen/controller/artists_details_controller.dart';
 import 'package:jconnect/features/home/artists_screen/controller/artists_controller.dart';
 import 'package:jconnect/features/home/home_screen/controller/home_controller.dart';
 import 'package:jconnect/features/home/home_screen/model/artists_model.dart';
@@ -14,10 +17,22 @@ import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/style/global_text_style.dart';
 import '../../../../core/common/widgets/gradient_border_container.dart';
 
+// ignore: must_be_immutable
 class ArtistsItem extends StatelessWidget {
   final ArtistsController controller;
-  ArtistsItem({required this.controller, super.key});
+   ArtistsItem({required this.controller, super.key});
   final HomeController homeController = Get.find<HomeController>();
+  var artistsDetailsController = Get.put(
+    ArtistsDetailsController(
+      networkClient: NetworkClient(
+        onUnAuthorize: () {
+          if (kDebugMode) {
+            print("unauthorized");
+          }
+        },
+      ),
+    ),
+  );
 
   // List<ArtistsModel> get currentList {
   //   if (controller.searchArtistItems.isNotEmpty &&
@@ -92,7 +107,7 @@ class ArtistsItem extends StatelessWidget {
             final avgRating = reviews.isEmpty
                 ? 0.0
                 : reviews
-                          .map((r) => r.rating.toDouble())
+                          .map((r) => r.rating!.toDouble())
                           .reduce((a, b) => a + b) /
                       reviews.length;
 
@@ -108,8 +123,12 @@ class ArtistsItem extends StatelessWidget {
                   // Profile Photo (Fixed: placeholder + error handling)
                   Center(
                     child: GestureDetector(
-                      onTap: () {
-                        Get.toNamed(AppRoute.artistsDetailsPage);
+                      onTap: () async{
+                        await artistsDetailsController.fetchArtistById(artist.id);
+                        Get.toNamed(
+                          AppRoute.artistsDetailsPage,
+                          // arguments: artist.id
+                        );
                       },
 
                       child: ClipRRect(

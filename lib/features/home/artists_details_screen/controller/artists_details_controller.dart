@@ -1,126 +1,78 @@
-import 'package:get/get.dart';
-import 'package:jconnect/core/common/constants/iconpath.dart';
-import 'package:jconnect/core/common/constants/imagepath.dart';
-import 'package:jconnect/features/home/artists_details_screen/model/review_rating_model.dart';
-import 'package:jconnect/features/home/artists_details_screen/model/social_post_model.dart';
+// ignore_for_file: avoid_print
 
-import '../model/service_model.dart';
+import 'package:get/get.dart';
+import 'package:jconnect/core/service/network_service/network_client.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../home_screen/model/artists_model.dart';
 
 class ArtistsDetailsController extends GetxController {
-  final RxList<SocialPostModel> socialPostListItem = <SocialPostModel>[].obs;
-  final RxList<ReviewRatingModel> reviewAndRatingListItem =
-      <ReviewRatingModel>[].obs;
-  final RxList<ServiceModel> serviceListItem = <ServiceModel>[].obs;
+  final NetworkClient networkClient;
+
+  ArtistsDetailsController({required this.networkClient});
+
+  // Observables
+  var isLoading = false.obs;
+  var artistsDetails = Rxn<ArtistsModel>();
+
+  var socialPosts = <ServiceModel>[].obs;
+  var services = <ServiceModel>[].obs;
 
   final RxString selectSocialOrService = "social".obs;
-  @override
-  void onInit() {
-    socialPostItems();
-    reviewAndRatingItem();
-    serviceItem();
 
-    super.onInit();
+  /// Launch external URL
+  Future<void> launchURL(String url) async {
+    if (!url.startsWith('http')) url = 'https://$url';
+    final Uri uri = Uri.parse(url);
+
+    try {
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        Get.snackbar('Error', 'Could not launch URL');
+      }
+    } catch (e) {
+      print('Error URL launch failed: $e');
+    }
   }
 
-  //social post like insta-facebook-youTube-tiktok
-  void socialPostItems() {
-    socialPostListItem.addAll([
-      SocialPostModel(
-        iconUrl: Iconpath.instagram,
-        title: "Instagram",
-        subTitle: "Best for visual posts, reels, and stories",
-        rate: 50,
-      ),
+  /// Fetch artist by ID from API
+  Future<void> fetchArtistById(String id) async {
+    try {
+      isLoading(true);
 
-      SocialPostModel(
-        iconUrl: Iconpath.facebook,
-        title: "Facebook",
-        subTitle: "Great for event promotions and targeted reach",
-        rate: 30,
-      ),
+      final response = await networkClient.getRequest(
+        url: 'https://jconnect-server.saikat.com.bd/users/$id',
+      );
 
-      SocialPostModel(
-        iconUrl: Iconpath.youtube,
-        title: "YouTube",
-        subTitle: "Best for long-form content, reviews",
-        rate: 40,
-      ),
+      if (response.isSuccess &&
+          response.responseData != null &&
+          (response.statusCode == 200 || response.statusCode == 201)) {
+        artistsDetails.value = ArtistsModel.fromJson(response.responseData!);
 
-      SocialPostModel(
-        iconUrl: Iconpath.tiktok,
-        title: "TikTok",
-        subTitle: "Perfect for short, viral content with high engagement",
-        rate: 45,
-      ),
-    ]);
+        // Automatically filter services after fetching
+        _filterServices();
+      } else {
+        Get.snackbar(
+          'Error',
+          response.errorMessage ?? 'Failed to fetch artist',
+        );
+      }
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
+    } finally {
+      isLoading(false);
+    }
   }
 
-  //service
-  void serviceItem() {
-    serviceListItem.addAll([
-      ServiceModel(
-        title: "Social Shoutout",
-        subTitle:
-            "Get featured in a story or post from a verified DJ to boost your reach",
-        rate: 3.5,
-      ),
+  /// Filter services into SOCIAL_POST and SERVICE lists
+  void _filterServices() {
+    if (artistsDetails.value == null) return;
 
-      ServiceModel(
-        title: "Social Shoutout",
-        subTitle:
-            "Get featured in a story or post from a verified DJ to boost your reach",
-        rate: 3.5,
-      ),
+    socialPosts.value = artistsDetails.value!.services
+        .where((s) => s.serviceType == "SOCIAL_POST")
+        .toList();
 
-      ServiceModel(
-        title: "Social Shoutout",
-        subTitle:
-            "Get featured in a story or post from a verified DJ to boost your reach",
-        rate: 3.5,
-      ),
-
-      ServiceModel(
-        title: "Social Shoutout",
-        subTitle:
-            "Get featured in a story or post from a verified DJ to boost your reach",
-        rate: 3.5,
-      ),
-
-      ServiceModel(
-        title: "Social Shoutout",
-        subTitle:
-            "Get featured in a story or post from a verified DJ to boost your reach",
-        rate: 3.5,
-      ),
-    ]);
-  }
-
-  //review and rating
-  void reviewAndRatingItem() {
-    reviewAndRatingListItem.addAll([
-      ReviewRatingModel(
-        imageUrl: Imagepath.profileImage,
-        title: "@SonicMuse",
-        subTitle:
-            "Got valuable response that helped me launch my track in a big release!",
-        rating: 9.5,
-      ),
-
-      ReviewRatingModel(
-        imageUrl: Imagepath.profileImage,
-        title: "@SonicMuse",
-        subTitle:
-            "Got valuable response that helped me launch my track in a big release!",
-        rating: 9.5,
-      ),
-
-      ReviewRatingModel(
-        imageUrl: Imagepath.profileImage,
-        title: "@SonicMuse",
-        subTitle:
-            "Got valuable response that helped me launch my track in a big release!",
-        rating: 9.5,
-      ),
-    ]);
+    services.value = artistsDetails.value!.services
+        .where((s) => s.serviceType == "SERVICE")
+        .toList();
   }
 }

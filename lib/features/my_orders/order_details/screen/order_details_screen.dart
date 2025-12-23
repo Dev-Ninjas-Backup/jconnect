@@ -59,7 +59,7 @@ class OrderDetailsScreen extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          _buildDetailRow('Order ID', order.id),
+                          _buildDetailRow('Order ID', order.orderCode),
                           _buildDetailRow('Order Created', order.orderCreated),
                           _buildDetailRow('Delivery Date', order.deliveryDate),
                           _buildDetailRow(
@@ -67,7 +67,7 @@ class OrderDetailsScreen extends StatelessWidget {
                             '\$${order.servicePrice.toStringAsFixed(2)}',
                           ),
                           _buildDetailRow(
-                            'Platform Fee (10%)',
+                            'Platform Fee (${order.platformRate}%)',
                             '\$${order.platformFee.toStringAsFixed(0)}',
                           ),
                           Divider(

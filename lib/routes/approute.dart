@@ -144,6 +144,10 @@ class AppRoute {
     GetPage(name: manageViaStripe, page: () => ManageViaStripe()),
     GetPage(name: helpAndSupportScreen, page: () => HelpAndSupportScreen()),
     GetPage(name: notificationScreen, page: () => NotificationScreen()),
-    GetPage(name: chatDetailsScreen, page: () => ChatDetailsScreen()),
+
+    GetPage(
+      name: chatDetailsScreen,
+      page: () => ChatDetailsScreen(),
+    ),
   ];
 }

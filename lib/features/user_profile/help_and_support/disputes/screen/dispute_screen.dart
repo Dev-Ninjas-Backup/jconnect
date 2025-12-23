@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
-import 'package:jconnect/features/user_profile/help_and_support/disputes/widget/dispute_card_widget.dart';
-import 'package:jconnect/features/user_profile/help_and_support/disputes/widget/raise_dispute_dialog.dart';
 import '../controller/dispute_controller.dart';
+import '../widget/dispute_card_widget.dart';
+import '../widget/raise_dispute_dialog.dart';
 
 class MyDisputesScreen extends StatelessWidget {
   const MyDisputesScreen({super.key});
@@ -26,31 +26,31 @@ class MyDisputesScreen extends StatelessWidget {
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Get.back(),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.filter_list, color: Colors.white),
-          ),
-        ],
       ),
-
       body: Padding(
         padding: EdgeInsets.all(16.sp),
-        child: Obx(
-          () => ListView.builder(
+        child: Obx(() {
+          if (controller.disputes.isEmpty) {
+            return Center(
+              child: Text(
+                'No disputes found.',
+                style: getTextStyle(fontsize: 18),
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
+          return ListView.builder(
             itemCount: controller.disputes.length,
             itemBuilder: (context, index) {
               final dispute = controller.disputes[index];
               return DisputeCardWidget(dispute: dispute);
             },
-          ),
-        ),
+          );
+        }),
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppColors.redColor,
-        onPressed: () {
-          Get.dialog(RaiseDisputeDialog(controller: controller));
-        },
+        onPressed: () => Get.dialog(RaiseDisputeDialog(controller: controller)),
         label: Text('+ Raise a Dispute', style: getTextStyle()),
       ),
     );

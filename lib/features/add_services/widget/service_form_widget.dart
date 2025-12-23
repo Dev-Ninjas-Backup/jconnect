@@ -7,6 +7,7 @@ import 'package:jconnect/features/add_services/controller/add_services_controlle
 class ServiceFormWidget extends StatelessWidget {
   final AddServiceController controller;
   final Function(String)? onChanged;
+
   const ServiceFormWidget(this.controller, {this.onChanged, super.key});
 
   @override
@@ -20,6 +21,8 @@ class ServiceFormWidget extends StatelessWidget {
           "e.g: Track Review, Promo Collaboration",
         ),
         const SizedBox(height: 16),
+        _buildServiceTypeField(),
+        const SizedBox(height: 16),
         _buildTextField(
           controller.descriptionController,
           "Description",
@@ -31,13 +34,50 @@ class ServiceFormWidget extends StatelessWidget {
           controller.priceController,
           "Price/promotion",
           "\$ Enter Price",
-          keyboardType: TextInputType.number,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-            controller.currencyFormatter,
+            FilteringTextInputFormatter.allow(
+              RegExp(r'^\d*\.?\d{0,2}'),
+            ), // allow up to 2 decimals
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildServiceTypeField() {
+    final serviceTypes = ['SOCIAL_POST', 'SERVICE'];
+
+    return DropdownButtonFormField<String>(
+      dropdownColor: AppColors.backGroundColor,
+      initialValue: controller.selectedServiceType.value,
+      decoration: InputDecoration(
+        labelText: 'Service Type',
+        labelStyle: getTextStyle(color: AppColors.secondaryTextColor),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: AppColors.secondaryTextColor),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: AppColors.redColor),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      items: serviceTypes
+          .map(
+            (t) => DropdownMenuItem<String>(
+              value: t,
+              child: Text(
+                t,
+                style: getTextStyle(color: AppColors.secondaryTextColor),
+              ),
+            ),
+          )
+          .toList(),
+      onChanged: (val) {
+        controller.selectedServiceType.value = val;
+        if (onChanged != null && val != null) onChanged!(val);
+      },
     );
   }
 

@@ -23,7 +23,7 @@ class ProfileSetupScreen extends StatelessWidget {
       backgroundColor: AppColors.backGroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -53,7 +53,7 @@ class ProfileSetupScreen extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 32),
+              const SizedBox(height: 32),
 
               Text(
                 'Upload Profile Image',
@@ -63,11 +63,11 @@ class ProfileSetupScreen extends StatelessWidget {
                   color: AppColors.primaryTextColor,
                 ),
               ),
-              SizedBox(height: 18),
+              const SizedBox(height: 18),
 
               ProfileImage(controller: controller, size: size),
 
-              SizedBox(height: 32),
+              const SizedBox(height: 32),
 
               Text(
                 'Add Short Bio',
@@ -77,7 +77,7 @@ class ProfileSetupScreen extends StatelessWidget {
                   color: AppColors.primaryTextColor,
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
 
               CustomTextfield(
                 hintText:
@@ -85,7 +85,7 @@ class ProfileSetupScreen extends StatelessWidget {
                 controller: controller.bioController,
               ),
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 'Tip: Keep it short, describe your role and what makes your style unique.',
                 style: getTextStyle(
@@ -95,7 +95,7 @@ class ProfileSetupScreen extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 32),
+              const SizedBox(height: 32),
 
               Text(
                 'Link your socials',
@@ -107,31 +107,109 @@ class ProfileSetupScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              _buildSocialField(
-                controller: controller.socialProfiles[1]!,
-                iconPath: 'assets/icons/instagram.png',
-                hintText: 'Profile URL / Username',
+              /// --- DYNAMIC SOCIAL MEDIA SECTION ---
+              Obx(
+                () => ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: controller.socialInputs.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final item = controller.socialInputs[index];
+                    return Row(
+                      children: [
+                        // --- PLATFORM DROPDOWN ---
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.white10),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: item.selectedPlatform,
+                              hint: Text(
+                                "Platform",
+                                style: getTextStyle(
+                                  fontsize: 12,
+                                  color: AppColors.secondaryTextColor,
+                                ),
+                              ),
+                              dropdownColor: AppColors.backGroundColor,
+                              icon: const Icon(
+                                Icons.arrow_drop_down,
+                                color: Colors.white,
+                              ),
+                              items: controller.availablePlatforms.map((
+                                String value,
+                              ) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(
+                                    value,
+                                    style: getTextStyle(
+                                      fontsize: 14,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (newValue) {
+                                item.selectedPlatform = newValue;
+                                controller.socialInputs.refresh();
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+
+                        // --- URL INPUT ---
+                        Expanded(
+                          child: CustomTextfield(
+                            hintText: 'Profile URL / Username',
+                            controller: item.urlController,
+                          ),
+                        ),
+
+                        // --- REMOVE BUTTON ---
+                        IconButton(
+                          icon: const Icon(
+                            Icons.remove_circle_outline,
+                            color: Colors.redAccent,
+                          ),
+                          onPressed: () => controller.removeSocialField(index),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
+
               const SizedBox(height: 12),
 
-              _buildSocialField(
-                controller: controller.socialProfiles[2]!,
-                iconPath: 'assets/icons/facebook.png',
-                hintText: 'Profile URL / Username',
-              ),
-              const SizedBox(height: 12),
-
-              _buildSocialField(
-                controller: controller.socialProfiles[3]!,
-                iconPath: 'assets/icons/tiktok.png',
-                hintText: 'Profile URL / Username',
-              ),
-              const SizedBox(height: 12),
-
-              _buildSocialField(
-                controller: controller.socialProfiles[4]!,
-                iconPath: 'assets/icons/youtube.png',
-                hintText: 'Channel URL / Channel Name',
+              // --- ADD BUTTON ---
+              GestureDetector(
+                onTap: controller.addSocialField,
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.add_circle_outline,
+                      color: AppColors.primaryTextColor,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Add another social link",
+                      style: getTextStyle(
+                        fontsize: 14,
+                        fontweight: FontWeight.w500,
+                        color: AppColors.primaryTextColor,
+                      ),
+                    ),
+                  ],
+                ),
               ),
 
               const SizedBox(height: 40),
@@ -155,22 +233,6 @@ class ProfileSetupScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSocialField({
-    required TextEditingController controller,
-    required String iconPath,
-    required String hintText,
-  }) {
-    return Row(
-      children: [
-        Image.asset(iconPath, height: 24, width: 24),
-        const SizedBox(width: 12),
-        Expanded(
-          child: CustomTextfield(hintText: hintText, controller: controller),
-        ),
-      ],
-    );
-  }
-
   Future<void> _createProfileAndShowSuccess(
     BuildContext context,
     ProfileSetupController controller,
@@ -186,16 +248,16 @@ class ProfileSetupScreen extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.backGroundColor,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) {
         return Padding(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Text(
                 "You’re all set!",
                 style: getTextStyle(
@@ -204,7 +266,7 @@ class ProfileSetupScreen extends StatelessWidget {
                   color: AppColors.primaryTextColor,
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Text(
                 "Your profile is live. You can now explore top artists, and creators, or start offering your own services.",
                 textAlign: TextAlign.center,
@@ -214,16 +276,15 @@ class ProfileSetupScreen extends StatelessWidget {
                   color: AppColors.secondaryTextColor,
                 ),
               ),
-              SizedBox(height: 28),
-
+              const SizedBox(height: 28),
               CustomPrimaryButton(
                 buttonText: 'Browse Feed',
                 onTap: () {
                   Get.back();
-                  Get.toNamed(AppRoute.navBarScreen);
+                  Get.offAllNamed(AppRoute.navBarScreen);
                 },
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               CustomSecondaryButton(
                 buttonText: 'Add Your Services',
                 onTap: () {
@@ -231,8 +292,7 @@ class ProfileSetupScreen extends StatelessWidget {
                   Get.toNamed(AppRoute.addServiceScreen);
                 },
               ),
-
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 "You can always edit your profile or add more services later from your Profile tab.",
                 textAlign: TextAlign.center,
@@ -242,7 +302,7 @@ class ProfileSetupScreen extends StatelessWidget {
                   color: AppColors.secondaryTextColor,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
             ],
           ),
         );

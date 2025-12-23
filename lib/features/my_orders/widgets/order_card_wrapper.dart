@@ -34,7 +34,11 @@ class OrderCardWrapper extends StatelessWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
-        onTap: () => Get.toNamed(AppRoute.orderDetails, arguments: order),
+        onTap: () => Get.toNamed(
+          AppRoute.orderDetails,
+          // pass both the lightweight OrderModel and the raw JSON (if available)
+          arguments: {'order': order, 'raw': order.raw},
+        ),
         child: OrderCard(order: order),
       ),
     );

@@ -5,11 +5,13 @@ import 'package:jconnect/features/add_services/controller/add_services_controlle
 class ServiceCardWidget extends StatelessWidget {
   final AddServiceController controller;
   final int index;
+
   const ServiceCardWidget(this.controller, this.index, {super.key});
 
   @override
   Widget build(BuildContext context) {
     final service = controller.services[index];
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -18,15 +20,13 @@ class ServiceCardWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  service['name'] ?? '',
+                  service['name'],
                   style: getTextStyle(
                     color: Colors.white,
                     fontsize: 16,
@@ -35,12 +35,12 @@ class ServiceCardWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  service['desc'] ?? '',
+                  service['desc'],
                   style: getTextStyle(color: Colors.white70, fontsize: 13),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 Text(
-                  service['price'] ?? '',
+                  service['price'].toString(),
                   style: getTextStyle(
                     color: Colors.white,
                     fontsize: 14,
@@ -51,8 +51,8 @@ class ServiceCardWidget extends StatelessWidget {
             ),
           ),
           IconButton(
-            onPressed: () => controller.removeService(index),
             icon: const Icon(Icons.close, color: Colors.white70),
+            onPressed: () => controller.deleteService(index),
           ),
         ],
       ),

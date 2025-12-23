@@ -1,51 +1,74 @@
-import 'package:get/get.dart';
-import 'package:jconnect/core/common/constants/iconpath.dart';
-import '../model/notification_model.dart';
+// ignore_for_file: avoid_print
+
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
+import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:jconnect/core/service/network_service/network_client.dart';
+import 'package:jconnect/features/home/notification/model/notification_model.dart';
+import 'package:jconnect/features/home/notification/services/notification_service_rest.dart';
+import 'package:jconnect/features/home/notification/services/notification_services.dart';
 
 class NotificationController extends GetxController {
-  var notifications = <NotificationModel>[].obs;
+  late final NotificationServiceRest notificationServiceREST;
+
+  NotificationController() {
+    notificationServiceREST = NotificationServiceRest(
+      networkClient: NetworkClient(
+        onUnAuthorize: () {
+          print("Unauthorized access - Notification");
+        },
+      ),
+    );
+  }
+
+  final RxBool isLoading = false.obs;
+  final RxList<AppNotification> notifications = <AppNotification>[].obs;
+
+  final NotificationSocketService _socketService = NotificationSocketService();
 
   @override
   void onInit() {
     super.onInit();
-    fetchNotifications();
+    loadNotifications();
   }
 
-  void fetchNotifications() {
-    // Static mock data (replace with API later)
-    notifications.value = [
-      NotificationModel(
-        title: "Payment Successful",
-        message: "Your payment for order #12345 was completed successfully.",
-        time: "2m ago",
-        isRead: false,
-        iconPath: Iconpath.paymentIcon,
-      ),
-      NotificationModel(
-        title: "New Message",
-        message: "You have a new message from John Doe.",
-        time: "1h ago",
-        isRead: true,
-        iconPath: Iconpath.messageIcon,
-      ),
-
-      NotificationModel(
-        title: "Weekly Report",
-        message: "Your weekly performance report is now available.",
-        time: "1d ago",
-        isRead: true,
-        iconPath: Iconpath.reportIcon,
-      ),
-    ];
+  void connectSocket(String token) {
+    _socketService.connect(token: token, onNotification: _handleNotification);
   }
 
-  void markAsRead(int index) {
-    notifications[index] = NotificationModel(
-      title: notifications[index].title,
-      message: notifications[index].message,
-      time: notifications[index].time,
-      isRead: true,
-      iconPath: notifications[index].iconPath,
-    );
+  void _handleNotification(dynamic data) {
+    try {
+      final notification = AppNotification.fromJson(
+        Map<String, dynamic>.from(data),
+      );
+
+      // 🔥 PREVENT DUPLICATE SOCKET + HTTP
+      final exists = notifications.any((n) => n.id == notification.id);
+
+      if (!exists) {
+        notifications.insert(0, notification);
+      }
+    } catch (e) {
+      print('❌ Notification parse error: $e');
+    }
+  }
+
+  Future<void> loadNotifications() async {
+    try {
+      isLoading.value = true;
+      final notification = await notificationServiceREST.fetchNotifications();
+
+      notifications.addAll(notification);
+      print(
+        "===================Notification Length: ${notification.length}===================",
+      );
+    } catch (e) {
+      print("❌ Error fetching notifications: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void disconnectSocket() {
+    _socketService.disconnect();
   }
 }

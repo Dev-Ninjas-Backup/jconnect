@@ -1,9 +1,17 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
+import 'package:jconnect/features/home/notification/controller/notification_controller.dart';
+import 'package:jconnect/features/messages/controller/messages_controller.dart';
 import 'package:jconnect/routes/approute.dart';
 
 class SplashController extends GetxController {
+  final pref = Get.put(SharedPreferencesHelperController());
+  final notificationController = Get.find<NotificationController>();
+  final messageController=Get.find<MessagesController>();
+
   var progressIndex = 0.obs;
 
   @override
@@ -24,10 +32,25 @@ class SplashController extends GetxController {
   }
 
   Future<void> _checkLoginStatus() async {
-    final loginStatus = await SharedPreferencesHelperController().checkLogin();
+    final tokenRow = await pref.getAccessRowToken();
+    final token = await pref.getAccessToken();
+    final userId = await pref.getUserId();
 
-    if (loginStatus == true) {
+    print("==================$tokenRow ===========");
+    print(" ==================$token ===========");
+    print(  " =========user id=========$userId ===========");
+
+    final loginStatus = await pref.checkLogin();
+
+    if (loginStatus == true && token != null) {
       Get.offAllNamed(AppRoute.navBarScreen);
+
+      // Delay to avoid lifecycle disconnect
+      Future.delayed(const Duration(milliseconds: 300), () {
+        notificationController.connectSocket(tokenRow ?? " ");
+        messageController.connectSocket(token: tokenRow ?? " ", userId: userId ?? " ");
+
+      });
     } else {
       Get.offAllNamed(AppRoute.onboardingScreen);
     }

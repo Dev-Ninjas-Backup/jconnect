@@ -11,7 +11,9 @@ class SignupOtpVerificationController extends GetxController {
   var remainingSeconds = 50.obs;
   Timer? timer;
   final authRepository = AuthRepository();
-  final SharedPreferencesHelperController pref = Get.put(SharedPreferencesHelperController());
+  final SharedPreferencesHelperController pref = Get.put(
+    SharedPreferencesHelperController(),
+  );
   RxBool isLoading = false.obs;
 
   late String email;
@@ -88,7 +90,9 @@ class SignupOtpVerificationController extends GetxController {
       // Extract and save the authentication token
       final token = response['data']?['token'] ?? response['token'];
       if (token != null && token.toString().isNotEmpty) {
-        await pref.saveToken(token.toString());
+        // await pref.saveToken(token.toString());
+        //await pref.saveRowToken(token.toString());
+        await pref.saveUserId(response['data']['user']['id'].toString());
         print('DEBUG: Token saved after email verification: $token');
       } else {
         print('DEBUG: No token found in email OTP response: $response');
@@ -100,7 +104,8 @@ class SignupOtpVerificationController extends GetxController {
       // Navigate to profile setup screen after email verification
       EasyLoading.showSuccess('Email verified successfully!');
       Future.delayed(Duration(seconds: 1), () {
-        Get.toNamed(AppRoute.profileSetupScreen);
+        //Get.toNamed(AppRoute.profileSetupScreen);
+        Get.toNamed(AppRoute.loginScreen);
       });
     } catch (e) {
       isLoading.value = false;

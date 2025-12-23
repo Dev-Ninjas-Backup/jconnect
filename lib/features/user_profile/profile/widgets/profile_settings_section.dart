@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/user_profile/profile/controller/profile_controller.dart';
 import 'package:jconnect/routes/approute.dart';
 
 class ProfileSettingsSection extends StatelessWidget {
   final ProfileController controller;
+  final SharedPreferencesHelperController pref =
+      Get.find<SharedPreferencesHelperController>();
 
-  const ProfileSettingsSection({super.key, required this.controller});
+  ProfileSettingsSection({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +78,8 @@ class ProfileSettingsSection extends StatelessWidget {
             icon: Icons.logout,
             title: 'Logout',
             isLogout: true,
-            onTap: () {
+            onTap: () async {
+              await pref.clearAllData();
               Get.offAllNamed('/loginScreen');
             },
           ),

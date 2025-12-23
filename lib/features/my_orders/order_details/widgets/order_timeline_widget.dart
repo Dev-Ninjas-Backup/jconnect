@@ -1,12 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
-import 'package:jconnect/features/my_orders/order_details/model/order_details_model.dart';
+import 'package:jconnect/features/my_orders/order_details/model/order_timeline_step.dart';
 
 class OrderTimelineWidget extends StatelessWidget {
-  final List<TimelineStep> timeline;
+  final List<OrderTimelineStep> timeline;
 
   const OrderTimelineWidget({super.key, required this.timeline});
+
+  String _formatDateShort(String iso) {
+    try {
+      final dt = DateTime.parse(iso);
+      // Build a short readable representation: "dd MMM • hh:mm a"
+      const months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+      final day = dt.day.toString().padLeft(2, '0');
+      final month = months[dt.month - 1];
+      int hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+      final minute = dt.minute.toString().padLeft(2, '0');
+      final ampm = dt.hour >= 12 ? 'PM' : 'AM';
+      return '$day $month • $hour:$minute $ampm';
+    } catch (_) {
+      // If parsing fails return the original (or truncated) string
+      return iso;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,19 +84,31 @@ class OrderTimelineWidget extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            step.title,
-                            style: getTextStyle(
-                              color: AppColors.primaryTextColor,
-                              fontweight: FontWeight.w500,
+                          // Title on the left — allow up to 2 lines to keep original design
+                          Expanded(
+                            child: Text(
+                              step.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: getTextStyle(
+                                color: AppColors.primaryTextColor,
+                                fontweight: FontWeight.w500,
+                              ),
                             ),
                           ),
+                          // Timestamp on the right — format shortened to avoid overflow
                           if (step.dateTime.isNotEmpty)
-                            Text(
-                              step.dateTime,
-                              style: getTextStyle(
-                                color: AppColors.secondaryTextColor,
-                                fontsize: 12,
+                            ConstrainedBox(
+                              constraints: BoxConstraints(maxWidth: 140),
+                              child: Text(
+                                _formatDateShort(step.dateTime),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.right,
+                                style: getTextStyle(
+                                  color: AppColors.secondaryTextColor,
+                                  fontsize: 12,
+                                ),
                               ),
                             ),
                         ],

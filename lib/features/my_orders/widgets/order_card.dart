@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
+import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/my_orders/model/order_model.dart';
 
@@ -14,11 +15,17 @@ class OrderCard extends StatelessWidget {
       case 'Active':
         statusColor = Colors.blue;
         break;
-      case 'Pending Confirmation':
+      case 'Payment Confirmation':
         statusColor = Colors.amber;
         break;
       case 'Completed':
         statusColor = Colors.green;
+        break;
+      case 'Cancelled':
+        statusColor = Colors.red;
+        break;
+      case ' Pending':
+        statusColor = Colors.orange;
         break;
       default:
         statusColor = Colors.grey;
@@ -28,12 +35,12 @@ class OrderCard extends StatelessWidget {
         ? const Color(0xFF242629)
         : const Color(0xFF1E1E20);
     final borderColor = order.type == 'Given'
-        ? Colors.blueAccent.withValues(alpha: .3)
-        : Colors.greenAccent.withValues(alpha: .3);
+        ? Colors.blueAccent.withValues(alpha: 0.3)
+        : Colors.greenAccent.withValues(alpha: 0.3);
 
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(10),
@@ -41,31 +48,48 @@ class OrderCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Image.asset(order.icon, width: 28, height: 28),
-          SizedBox(width: 10),
+          Image.network(
+            order.icon,
+            width: 28,
+            height: 28,
+            errorBuilder: (context, error, stackTrace) {
+              return Image.asset(Iconpath.orderIcon, width: 28, height: 28);
+            },
+          ),
+
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  order.platform,
+                  order.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: getTextStyle(
                     color: AppColors.primaryTextColor,
                     fontweight: FontWeight.w600,
                   ),
                 ),
+                SizedBox(height: 4),
                 Text(
-                  order.title,
+                  order.description!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: getTextStyle(color: AppColors.secondaryTextColor),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 Row(
                   children: [
                     Icon(Icons.circle, size: 14, color: statusColor),
-                    SizedBox(width: 6),
-                    Text(
-                      order.status,
-                      style: getTextStyle(color: statusColor, fontsize: 13),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        order.status,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: getTextStyle(color: statusColor, fontsize: 13),
+                      ),
                     ),
                   ],
                 ),
