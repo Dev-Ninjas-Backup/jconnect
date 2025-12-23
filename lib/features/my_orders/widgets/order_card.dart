@@ -35,8 +35,8 @@ class OrderCard extends StatelessWidget {
         ? const Color(0xFF242629)
         : const Color(0xFF1E1E20);
     final borderColor = order.type == 'Given'
-        ? Colors.blueAccent.withValues(alpha:  0.3)
-        : Colors.greenAccent.withValues(alpha:  0.3);
+        ? Colors.blueAccent.withValues(alpha: 0.3)
+        : Colors.greenAccent.withValues(alpha: 0.3);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -63,7 +63,7 @@ class OrderCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  order.platform,
+                  order.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: getTextStyle(
@@ -73,7 +73,7 @@ class OrderCard extends StatelessWidget {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  order.title,
+                  order.description!,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: getTextStyle(color: AppColors.secondaryTextColor),

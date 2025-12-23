@@ -6,7 +6,8 @@ class OrderModel {
   final String status;
   final double price;
   final String? description;
-  final String? orderId;
+  final String orderId;      // database ID for API calls
+  final String orderCode;    // displayed to user
   final Map<String, dynamic>? raw;
   final String sellerName;
   final String sellerEmail;
@@ -19,7 +20,8 @@ class OrderModel {
     required this.status,
     required this.price,
     this.description,
-    this.orderId,
+    required this.orderId,
+    required this.orderCode,
     this.sellerName = '',
     this.sellerEmail = '',
     this.raw,
@@ -29,15 +31,16 @@ class OrderModel {
     return OrderModel(
       title: json['service']?['serviceName'] ?? '',
       platform: json['service']?['serviceType'] ?? '',
-      icon: '',
+      icon: '', // replace if you have service icon
       type: 'Received',
       status: json['status'] ?? '',
       price: (json['amount'] ?? 0).toDouble(),
-      orderId: json['orderCode'] ?? '',
+      description: json['service']?['description'] ?? '',
+      orderId: json['id'] ?? '',           // DATABASE ID for API
+      orderCode: json['orderCode'] ?? '',  // display to user
       raw: json,
-      sellerName: json['seller']?['full_name'] ?? json['seller']?['name'] ?? '',
+      sellerName: json['seller']?['full_name'] ?? '',
       sellerEmail: json['seller']?['email'] ?? '',
-      //description: json['service']?['description'] ?? '',
     );
   }
 }

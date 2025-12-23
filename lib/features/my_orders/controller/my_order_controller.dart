@@ -22,10 +22,10 @@ class MyOrdersController extends GetxController {
     switch (tab) {
       case 'Active':
         return 'ACTIVE';
+      case 'Pending Confirmation':
+        return 'PAYMENTCONFIRM';
       case 'Pending':
         return 'PENDING';
-      case 'Payment Confirmation':
-        return 'PAYMENTCONFIRM';
       case 'Completed':
         return 'COMPLETE';
       case 'Cancelled':
@@ -53,35 +53,32 @@ class MyOrdersController extends GetxController {
     try {
       isLoading.value = true;
 
-      // Get token using SharedPreferencesHelperController
       final prefsHelper = SharedPreferencesHelperController();
       final token = await prefsHelper.getAccessToken();
 
       if (token == null || token.isEmpty) {
-        Get.offAllNamed('/login'); // redirect to login
+        Get.offAllNamed('/login');
         return;
       }
 
       final response = await http.get(
         Uri.parse(Endpoint.orders),
         headers: {
-          'Authorization': token, // token already includes "Bearer "
+          'Authorization': token,
           'Content-Type': 'application/json',
         },
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List;
-        final List<OrderModel> fetchedOrders = data
-            .map((json) => OrderModel.fromJson(json))
-            .toList();
+        final List<OrderModel> fetchedOrders =
+            data.map((json) => OrderModel.fromJson(json)).toList();
         orders.assignAll(fetchedOrders);
       } else if (response.statusCode == 401) {
-        Get.offAllNamed('/login'); // redirect to login
-      } else {
+        Get.offAllNamed('/login');
       }
     } catch (e) {
-      return;
+      print('Error loading orders: $e');
     } finally {
       isLoading.value = false;
     }
@@ -91,7 +88,6 @@ class MyOrdersController extends GetxController {
 
   void deleteOrder(OrderModel order) {
     orders.remove(order);
-    // Optionally, you can also make an API call to delete the order from the server
     _deleteOrderFromServer(order);
   }
 
@@ -101,7 +97,7 @@ class MyOrdersController extends GetxController {
       final token = await prefsHelper.getAccessToken();
 
       final response = await http.delete(
-        Uri.parse('${Endpoint.orders}/${order.orderId}'),
+        Uri.parse('${Endpoint.orders}/${order.orderId}'), // DATABASE ID
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -109,10 +105,12 @@ class MyOrdersController extends GetxController {
       );
 
       if (response.statusCode == 200) {
+        print('Order deleted successfully');
       } else {
+        print('Failed to delete order');
       }
     } catch (e) {
-      return;
+      print('Delete order error: $e');
     }
   }
 }

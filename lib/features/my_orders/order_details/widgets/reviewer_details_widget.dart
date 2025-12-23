@@ -11,20 +11,6 @@ class ReviewerDetails extends StatelessWidget {
   final OrderDetailsModel? order;
   final arguments = Get.arguments;
 
-  ImageProvider _buildReviewerImage(String? path) {
-    // Fallback asset used when reviewer image path is empty or null
-    const fallback = AssetImage('assets/images/profile_image.png');
-
-    if (path == null || path.isEmpty) return fallback;
-
-    // If it's a URL use network image, otherwise assume it's an asset path
-    if (path.startsWith('http')) {
-      return NetworkImage(path);
-    }
-
-    return AssetImage(path);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -38,15 +24,27 @@ class ReviewerDetails extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Image.asset(Iconpath.instagram, width: 24),
-                  SizedBox(width: 8),
                   Text(
-                    order!.platform,
+                    order!.serviceTitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: getTextStyle(
-                      color: AppColors.primaryTextColor,
-                      fontweight: FontWeight.w600,
+                      color: AppColors.secondaryTextColor,
+                      fontsize: 13,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    order!.subServiceTitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: getTextStyle(
+                      color: Colors.white54,
+                      fontsize: 13,
+                      fontweight: FontWeight.w400,
                     ),
                   ),
                 ],
@@ -60,32 +58,7 @@ class ReviewerDetails extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 4),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                order!.serviceTitle,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: getTextStyle(
-                  color: AppColors.secondaryTextColor,
-                  fontsize: 13,
-                ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                order!.subServiceTitle,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: getTextStyle(
-                  color: Colors.white54,
-                  fontsize: 13,
-                  fontweight: FontWeight.w400,
-                ),
-              ),
-            ],
-          ),
+          //SizedBox(height: 4),
           SizedBox(height: 14),
           Container(
             padding: EdgeInsets.all(10),
@@ -99,26 +72,19 @@ class ReviewerDetails extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundImage: _buildReviewerImage(
-                        order!.reviewerImage,
-                      ),
-                    ),
-                    SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            order!.reviewerName,
+                            order!.sellerName,
                             style: getTextStyle(
                               color: AppColors.primaryTextColor,
                               fontweight: FontWeight.w600,
                             ),
                           ),
                           Text(
-                            order!.reviewerHandle,
+                            order!.sellerEmail,
                             style: getTextStyle(
                               color: AppColors.secondaryTextColor,
                               fontsize: 13,
