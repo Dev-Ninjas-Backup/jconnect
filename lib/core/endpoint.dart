@@ -7,7 +7,7 @@ class Endpoint {
   static const String verifyPhoneOtp = '$baseUrl/auth/phone/verify-otp';
   static const String verifyEmailOtp = '$baseUrl/auth/signup-verify-otp';
   static const String login = '$baseUrl/auth/login';
-
+  static const String orders = '$baseUrl/orders/my-orders';
   static const String recentArtis =
       "$baseUrl/users/artist?filter=recently-updated";
   static const String topRatedArtis = "$baseUrl/users/artist?filter=top-rated";
@@ -16,5 +16,37 @@ class Endpoint {
   static const String allArtists = "$baseUrl/users/artist";
 
   // Profile endpoints
-  static const String updateProfile = '$baseUrl/profiles';
+  static const String editProfile = '$baseUrl/users/me';
+  static const String getProfile = '$baseUrl/users/me';
+  static const String earnings = '$baseUrl/payments/earnings-payouts';
+  static const String getReview = '$baseUrl/reviews/my-reviews';
+  static const String changePassword = '$baseUrl/users/reset_Password';
+
+  // notification
+  static const String notificationsIO = '$baseUrl/notification';
+  static const String getUserSpecificNotification =
+      '$baseUrl/notification-setting/user-specific-notification';
+  static const String addService = '$baseUrl/services';
+
+  static String serviceRequest =
+      "https://jconnect-server.saikat.com.bd/service-requests";
+
+  //chat
+  static const String chatSocketIO = '$baseUrl/dj/chat';
+  static const String allChats = '$baseUrl/private-chat';
+  static String getChat(String conversationId) =>
+      '$baseUrl/private-chat/$conversationId';
+  static String sendMessage(String recipientId) =>
+      '$baseUrl/private-chat/send-message/$recipientId';
+  static String markMessageAsRead(String messageId) =>
+      '$baseUrl/private-chat/make-private-message-read/$messageId';
+  static String deleteConversation(String conversationId) =>
+      '$baseUrl/private-chat/$conversationId';
+
+  static const String userNotifications =
+      "$baseUrl/notification-setting/user-specific-notification";
+
+  //dispute
+  static const String dispute = '$baseUrl/disputes/my';
+  static const String raiseDispute = '$baseUrl/disputes';
 }

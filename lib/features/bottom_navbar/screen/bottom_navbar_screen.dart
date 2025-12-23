@@ -6,6 +6,7 @@ import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/bottom_navbar/controller/bottom_navbar_controller.dart';
 import 'package:jconnect/features/home/home_screen/screen/home_page.dart';
+import 'package:jconnect/features/messages/controller/messages_controller.dart';
 import 'package:jconnect/features/messages/screen/messages_screen.dart';
 import 'package:jconnect/features/my_orders/screen/my_orders_screen.dart';
 import 'package:jconnect/features/user_profile/profile/screen/profile_screen.dart';
@@ -16,6 +17,11 @@ class NavBarScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final NavBarController controller = Get.put(NavBarController());
+
+    // Ensure MessagesController exists before MessagesScreen tries Get.find().
+    if (!Get.isRegistered<MessagesController>()) {
+      Get.put(MessagesController(), permanent: true);
+    }
 
     final List<Widget> pages = [
       const HomePage(),

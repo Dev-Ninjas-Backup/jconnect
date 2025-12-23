@@ -1,5 +1,7 @@
 // artists_model.dart
 
+import 'package:jconnect/features/messages/model/message_model2.dart';
+
 class ArtistsModel {
   final String id;
   final String fullName;
@@ -19,11 +21,11 @@ class ArtistsModel {
   final int loginAttempts;
   final int withdrawnAmount;
 
-  final int? phoneOtp; 
+  final int? phoneOtp;
   final String? phoneOtpExpiresAt;
   final bool phoneVerified;
 
-  final String? lastLoginAt; 
+  final String? lastLoginAt;
   final String createdAt;
   final String updatedAt;
   final String? tokenExpiresAt;
@@ -92,9 +94,15 @@ class ArtistsModel {
       isLogin: json['isLogin'] as bool,
       isDeleted: json['isDeleted'] as bool,
       isActive: json['isActive'] as bool,
-      loginAttempts: json['login_attempts'] as int,
-      withdrawnAmount: json['withdrawn_amount'] as int,
-      phoneOtp: json['phoneOtp'] as int?,
+      loginAttempts: (json['login_attempts'] is int)
+          ? json['login_attempts'] as int
+          : (json['login_attempts'] as num?)?.toInt() ?? 0,
+      withdrawnAmount: (json['withdrawn_amount'] is int)
+          ? json['withdrawn_amount'] as int
+          : (json['withdrawn_amount'] as num?)?.toInt() ?? 0,
+      phoneOtp: (json['phoneOtp'] is int)
+          ? json['phoneOtp'] as int?
+          : (json['phoneOtp'] as num?)?.toInt(),
       phoneOtpExpiresAt: json['phoneOtpExpiresAt'].toString(),
       phoneVerified: json['phoneVerified'] as bool,
       lastLoginAt: json['last_login_at'].toString(),
@@ -104,7 +112,9 @@ class ArtistsModel {
       role: json['role'] as String,
       validationType: json['validation_type'] as String,
       authProvider: json['auth_provider'] as String?,
-      stripeAccountId: json['stripeAccountId'] as int?,
+      stripeAccountId: (json['stripeAccountId'] is int)
+          ? json['stripeAccountId'] as int?
+          : (json['stripeAccountId'] as num?)?.toInt(),
       sellerIDStripe: json['sellerIDStripe'].toString(),
       customerIdStripe: json['customerIdStripe'].toString(),
       services: (json['services'] as List<dynamic>? ?? [])
@@ -154,6 +164,10 @@ class ArtistsModel {
     'ReviewsGiven': reviewsGiven.map((r) => r.toJson()).toList(),
     'ReviewsReceived': reviewsReceived.map((r) => r.toJson()).toList(),
   };
+
+  /// Returns a ChatParticipant object for use in messaging contexts
+  ChatParticipant get participant =>
+      ChatParticipant(id: id, profilePhoto: profilePhoto, fullName: fullName);
 }
 
 // ==================================================================
@@ -190,7 +204,7 @@ class ServiceModel {
       id: json['id'] as String,
       serviceName: json['serviceName'] as String,
       description: json['description'] as String,
-      price: json['price'] as int,
+      price: (json['price'] as num?)?.toInt() ?? 0,
       currency: json['currency'].toString(),
       creatorId: json['creatorId'] as String,
       createdAt: json['createdAt'].toString(),
@@ -242,7 +256,7 @@ class ReviewModel {
       id: json['id'] as String,
       reviewerId: json['reviewerId'] as String,
       artistId: json['artistId'] as String,
-      rating: json['rating'] as int,
+      rating: (json['rating'] as num?)?.toInt() ?? 0,
       reviewText: json['reviewText'] as String? ?? '',
       createdAt: json['createdAt'] as String,
       updatedAt: json['updatedAt'] as String,

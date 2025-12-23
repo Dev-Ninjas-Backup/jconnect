@@ -247,7 +247,7 @@ class ArtistsItem extends StatelessWidget {
                     buttonText: "Message",
                     onTap: () => Get.toNamed(
                       AppRoute.chatDetailsScreen,
-                      //  arguments: artist,
+                      arguments: artist,
                     ),
                   ),
                   SizedBox(height: 14.h),

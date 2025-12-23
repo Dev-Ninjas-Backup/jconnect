@@ -2,22 +2,111 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
-import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
-import 'package:jconnect/features/messages/chat_details/controller/chat_details_controller.dart';
 import 'package:jconnect/features/messages/chat_details/widgets/cancel_deal_widget.dart';
 import 'package:jconnect/features/messages/chat_details/widgets/payment_dailog_widget.dart';
 import 'package:jconnect/features/messages/chat_details/widgets/send_file_dailog_widget.dart';
 import 'package:jconnect/features/messages/chat_details/widgets/set_date_widget.dart';
 import 'package:jconnect/features/messages/chat_details/widgets/view_oder_details_widget.dart';
+import 'package:jconnect/features/messages/controller/messages_controller.dart';
+import 'package:jconnect/features/home/home_screen/model/artists_model.dart';
+import 'package:jconnect/features/messages/model/message_model2.dart';
 
-class ChatDetailsScreen extends StatelessWidget {
-  final ChatDetailsController controller = Get.put(ChatDetailsController());
+class ChatDetailsScreen extends StatefulWidget {
+  const ChatDetailsScreen({super.key});
 
-  ChatDetailsScreen({super.key, required String profileImage});
+  @override
+  State<ChatDetailsScreen> createState() => _ChatDetailsScreenState();
+}
+
+class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
+  final controller = Get.find<MessagesController>();
+  final dynamic _argument = Get.arguments;
+  late ScrollController _scrollController;
+  Worker? _messagesWorker;
+
+  ChatParticipant? _participant;
+
+  Future<void> _initFromArgument() async {
+    // Open from message list
+    if (_argument is ChatItem) {
+      final item = _argument;
+      setState(() {
+        _participant = item.participant;
+      });
+
+      if ((item.chatId ?? '').isNotEmpty) {
+        await controller.initConversation(
+          conversationId: item.chatId ?? '',
+          initialMessages: const [],
+        );
+      }
+      return;
+    }
+
+    // Open from artist card
+    if (_argument is ArtistsModel) {
+      final artist = _argument;
+      final participant = ChatParticipant(
+        id: artist.id,
+        profilePhoto: artist.profilePhoto,
+        fullName: artist.fullName,
+      );
+
+      setState(() {
+        _participant = participant;
+      });
+
+      final resolved = await controller.resolveChatByParticipant(participant);
+      setState(() {
+        _participant = resolved.participant ?? _participant;
+      });
+
+      await controller.initConversation(
+        conversationId: resolved.chatId ?? 'new_${participant.id}',
+        initialMessages: const [],
+      );
+      return;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+
+    _initFromArgument();
+
+    // Auto-scroll to latest message when messages list updates
+    _messagesWorker = ever(controller.messages, (_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _messagesWorker?.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_participant == null) {
+      return Scaffold(
+        backgroundColor: AppColors.backGroundColor,
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
       body: Stack(
@@ -35,14 +124,20 @@ class ChatDetailsScreen extends StatelessWidget {
                       ),
                       SizedBox(width: 10),
                       CircleAvatar(
-                        backgroundImage: AssetImage(Imagepath.profileImage),
+                        backgroundImage:
+                            (_participant?.profilePhoto?.isNotEmpty ?? false)
+                            ? NetworkImage(_participant!.profilePhoto!)
+                            : null,
+                        child: (_participant?.profilePhoto?.isEmpty ?? true)
+                            ? Icon(Icons.person, color: Colors.grey)
+                            : null,
                       ),
                       SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'DJ NovaX',
+                            _participant?.fullName ?? '',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -74,7 +169,7 @@ class ChatDetailsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'You started a chat with DJ NovaX',
+                      'You started a chat with ${_participant?.fullName ?? ''}',
                       style: getTextStyle(
                         fontsize: 12,
                         fontweight: FontWeight.w400,
@@ -87,11 +182,17 @@ class ChatDetailsScreen extends StatelessWidget {
               Expanded(
                 child: Obx(
                   () => ListView.builder(
+                    controller: _scrollController,
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     itemCount: controller.messages.length,
                     itemBuilder: (context, index) {
+                      final msgItem = controller.messages[index];
+                      final isMine = controller.isMyMessage(msgItem);
+
                       return Align(
-                        alignment: Alignment.centerRight,
+                        alignment: isMine
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
                         child: Container(
                           margin: EdgeInsets.symmetric(vertical: 5),
                           padding: EdgeInsets.symmetric(
@@ -99,12 +200,25 @@ class ChatDetailsScreen extends StatelessWidget {
                             vertical: 12,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.redColor,
-                            borderRadius: BorderRadius.circular(20),
+                            color: isMine
+                                ? AppColors.redColor
+                                : Colors.grey[800],
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
+                              bottomLeft: isMine
+                                  ? Radius.circular(20)
+                                  : Radius.circular(0),
+                              bottomRight: isMine
+                                  ? Radius.circular(0)
+                                  : Radius.circular(20),
+                            ),
                           ),
                           child: Text(
-                            controller.messages[index],
-                            style: TextStyle(color: Colors.white),
+                            msgItem.content,
+                            style: TextStyle(
+                              color: isMine ? Colors.white : Colors.white70,
+                            ),
                           ),
                         ),
                       );
@@ -150,7 +264,13 @@ class ChatDetailsScreen extends StatelessWidget {
                     ),
                     IconButton(
                       icon: Image.asset(Iconpath.send, height: 20, width: 20),
-                      onPressed: controller.sendMessage,
+                      onPressed: () {
+                        controller.sendMessage(
+                          recipientId: _participant?.id ?? "",
+                          content: controller.messageController.text,
+                        );
+                        controller.messageController.clear();
+                      },
                     ),
                   ],
                 ),

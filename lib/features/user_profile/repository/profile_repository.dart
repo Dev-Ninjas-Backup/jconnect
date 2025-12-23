@@ -18,7 +18,7 @@ class ProfileRepository {
       }
 
       final response = await http.get(
-        Uri.parse(Endpoint.updateProfile),
+        Uri.parse(Endpoint.editProfile),
         headers: {'Content-Type': 'application/json', 'Authorization': token},
       );
 
@@ -64,7 +64,7 @@ class ProfileRepository {
       }
 
       final response = await http.post(
-        Uri.parse(Endpoint.updateProfile),
+        Uri.parse(Endpoint.editProfile),
         headers: {'Content-Type': 'application/json', 'Authorization': token},
         body: jsonEncode(body),
       );
@@ -111,7 +111,7 @@ class ProfileRepository {
       }
 
       final response = await http.put(
-        Uri.parse(Endpoint.updateProfile),
+        Uri.parse(Endpoint.editProfile),
         headers: {'Content-Type': 'application/json', 'Authorization': token},
         body: jsonEncode(body),
       );
