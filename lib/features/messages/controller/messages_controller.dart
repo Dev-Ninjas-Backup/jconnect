@@ -111,15 +111,15 @@ class MessagesController extends GetxController {
   void _handleIncomingMessage(dynamic data) {
     final ChatMessage message = ChatMessage.fromJson(data);
     // Persist message for the conversation
-    _appendMessageToStorage(message);
+   // _appendMessageToStorage(message);
 
     // Update conversation list (last message + move to top)
     _updateChatListWithMessage(message);
 
     // If this conversation is active, add to messages shown in details
-    // if (message.conversationId == _conversationId) {
-    //   messages.add(message);
-    // }
+    if (message.conversationId == _conversationId) {
+      messages.add(message);
+    }
 
     print("message received: $data");
     print("message recevvvived: ${message.content}");
@@ -155,7 +155,7 @@ class MessagesController extends GetxController {
         sender: SenderInfo(id: _myUserId, fullName: '', profilePhoto: null),
       );
 
-      messages.add(outgoing);
+    //  messages.add(outgoing);
       _appendMessageToStorage(outgoing);
       _updateChatListWithMessage(outgoing);
     }
