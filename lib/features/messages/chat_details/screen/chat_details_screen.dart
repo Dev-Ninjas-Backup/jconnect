@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
@@ -215,35 +217,151 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                               alignment: isMine
                                   ? Alignment.centerRight
                                   : Alignment.centerLeft,
-                              child: Container(
-                                margin: EdgeInsets.symmetric(vertical: 5),
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isMine
-                                      ? AppColors.redColor
-                                      : Colors.grey[800],
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(20),
-                                    topRight: Radius.circular(20),
-                                    bottomLeft: isMine
-                                        ? Radius.circular(20)
-                                        : Radius.circular(0),
-                                    bottomRight: isMine
-                                        ? Radius.circular(0)
-                                        : Radius.circular(20),
-                                  ),
-                                ),
-                                child: Text(
-                                  msgItem.content,
-                                  style: TextStyle(
-                                    color: isMine
-                                        ? Colors.white
-                                        : Colors.white70,
-                                  ),
-                                ),
+                              child: Column(
+                                crossAxisAlignment: isMine
+                                    ? CrossAxisAlignment.end
+                                    : CrossAxisAlignment.start,
+                                children: [
+                                  // Service info card (if message has service)
+                                  if (msgItem.serviceId != null &&
+                                      msgItem.service != null)
+                                    Container(
+                                      margin: EdgeInsets.only(
+                                        bottom: 8,
+                                        left: isMine ? 40 : 0,
+                                        right: isMine ? 0 : 40,
+                                      ),
+                                      padding: EdgeInsets.all(14),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[900],
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: Colors.grey[700]!,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          // Title with service name and price
+                                          Text(
+                                            '${msgItem.service!.serviceName} - \$${msgItem.service!.price}',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                          SizedBox(height: 12),
+                                          // Delivery date
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.calendar_today,
+                                                color: Colors.white70,
+                                                size: 14,
+                                              ),
+                                              SizedBox(width: 6),
+                                              Text(
+                                                'Delivery: Oct 26, 2025',
+                                                style: TextStyle(
+                                                  color: Colors.white70,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 8),
+                                          // Status
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.info_outline,
+                                                color: Colors.orange,
+                                                size: 14,
+                                              ),
+                                              SizedBox(width: 6),
+                                              Text(
+                                                'Status: Payment Pending',
+                                                style: TextStyle(
+                                                  color: Colors.orange,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 12),
+                                          // Pay Now button
+                                          SizedBox(
+                                            width: double.infinity,
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    AppColors.redColor,
+                                                padding: EdgeInsets.symmetric(
+                                                  vertical: 10,
+                                                ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(6),
+                                                ),
+                                              ),
+                                              onPressed: () {
+                                                Get.snackbar(
+                                                  'Payment',
+                                                  'Processing payment for ${msgItem.service!.serviceName}',
+                                                  backgroundColor:
+                                                      AppColors.redColor,
+                                                  colorText: Colors.white,
+                                                );
+                                              },
+                                              child: Text(
+                                                'Pay Now',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  // Regular message - only show if content is not empty
+                                  if (msgItem.content.trim().isNotEmpty)
+                                    Container(
+                                      margin: EdgeInsets.symmetric(vertical: 5),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 12,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: isMine
+                                            ? AppColors.redColor
+                                            : Colors.grey[800],
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(20),
+                                          topRight: Radius.circular(20),
+                                          bottomLeft: isMine
+                                              ? Radius.circular(20)
+                                              : Radius.circular(0),
+                                          bottomRight: isMine
+                                              ? Radius.circular(0)
+                                              : Radius.circular(20),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        msgItem.content,
+                                        style: TextStyle(
+                                          color: isMine
+                                              ? Colors.white
+                                              : Colors.white70,
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             );
                           },

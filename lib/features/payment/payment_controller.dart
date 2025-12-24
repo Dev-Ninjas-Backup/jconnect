@@ -1,5 +1,7 @@
 
 
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
@@ -150,7 +152,7 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
                           await _createPaymentMethod();
 
                           // ✅ Navigate when card is complete
-                           Get.toNamed(AppRoute.manageViaStripe);
+                          Get.toNamed(AppRoute.manageViaStripe);
                         }
                       : null,
                   child: const Text('Use Card'),
