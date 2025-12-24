@@ -141,7 +141,7 @@ class AppRoute {
     GetPage(name: earningsAndPayouts, page: () => EarningAndPayoutsScreen()),
     GetPage(name: reviewScreen, page: () => ReviewScreen()),
     GetPage(name: addStripe, page: () => AddStripe()),
-    GetPage(name: manageViaStripe, page: () => ManageViaStripe()),
+    GetPage(name: manageViaStripe, page: () => MyPaymentMethodScreen()),
     GetPage(name: helpAndSupportScreen, page: () => HelpAndSupportScreen()),
     GetPage(name: notificationScreen, page: () => NotificationScreen()),
     GetPage(
