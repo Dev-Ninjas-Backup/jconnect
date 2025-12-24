@@ -10,8 +10,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Get.put(NotificationController(), permanent: true);
   Get.put(MessagesController(), permanent: true);
-    Stripe.publishableKey = 'pk_test_51STA6VAXBWlDgH16B93sDb5ljUdMznqUvUctIchof13FERdETjlATINexABJmM7zmHq7oAfam4HSikD4zPBXgXrY00pmIwTyNE';
-  await Stripe.instance.applySettings();
+  Stripe.publishableKey =
+      'pk_test_51STA6VAXBWlDgH16B93sDb5ljUdMznqUvUctIchof13FERdETjlATINexABJmM7zmHq7oAfam4HSikD4zPBXgXrY00pmIwTyNE';
+  // await Stripe.instance.applySettings();
 
   configEasyLoading();
   runApp(const MyApp());

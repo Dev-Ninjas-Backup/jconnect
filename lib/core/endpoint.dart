@@ -1,5 +1,6 @@
 class Endpoint {
-  static const String baseUrl = 'https://neva-unlamentable-judson.ngrok-free.dev';
+  static const String baseUrl =
+      'https://neva-unlamentable-judson.ngrok-free.dev';
 
   // Auth endpoints
   static const String register = '$baseUrl/auth/register';
@@ -28,20 +29,20 @@ class Endpoint {
       '$baseUrl/notification-setting/user-specific-notification';
   static const String addService = '$baseUrl/services';
 
-  static String serviceRequest =
-      "$baseUrl/service-requests";
+  static String serviceRequest = "$baseUrl/service-requests";
 
   //chat
-  static const String chatSocketIO =
-      '$baseUrl/dj/chat';
+  static const String chatSocketIO = '$baseUrl/dj/chat';
   static const String userNotifications =
       "$baseUrl/notification-setting/user-specific-notification";
-  static const String allChats =
-      "$baseUrl/private-chat";
+  static const String allChats = "$baseUrl/private-chat";
+  static const String sendMessage = "$baseUrl/private-chat/send-message";
+  static const String getSingleChat = "$baseUrl/private-chat";
+  static const String markMessageRead =
+      "$baseUrl/private-chat/make-private-message-read";
   //dispute
   static const String dispute = '$baseUrl/disputes/my';
   static const String raiseDispute = '$baseUrl/disputes';
 
-
-  static const String viewArtists="$baseUrl/users";
+  static const String viewArtists = "$baseUrl/users";
 }

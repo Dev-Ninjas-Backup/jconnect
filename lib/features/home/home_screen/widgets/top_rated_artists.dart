@@ -94,7 +94,7 @@
 //                       ),
 //                     ],
 //                   ),
-     
+
 //                   SizedBox(height: 20.h),
 //                   Text(
 //                     "Services",
@@ -158,7 +158,6 @@
 //   }
 // }
 
-
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
@@ -170,6 +169,8 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/core/common/widgets/gradient_border_container.dart';
 import 'package:jconnect/features/home/home_screen/controller/home_controller.dart';
+import 'package:jconnect/features/messages/controller/messages_controller.dart';
+import 'package:jconnect/features/messages/model/message_model2.dart';
 
 import '../../../../core/common/widgets/custom_secondary_button.dart';
 import '../../../../routes/approute.dart';
@@ -376,10 +377,49 @@ class TopRatedArtists extends StatelessWidget {
                     // Buttons
                     CustomPrimaryButton(
                       buttonText: "Message",
-                      onTap: () => Get.toNamed(
-                        AppRoute.chatDetailsScreen,
-                        arguments: artist,
-                      ),
+                      onTap: () {
+                        // Get MessagesController to check for existing conversations
+                        final messagesController =
+                            Get.find<MessagesController>();
+
+                        // Check if there's an existing conversation with this artist
+                        final existingChat = messagesController.allChats
+                            .firstWhereOrNull(
+                              (chat) => chat.participant?.id == artist.id,
+                            );
+
+                        if (existingChat != null &&
+                            existingChat.chatId != null) {
+                          // Navigate to existing conversation
+                          Get.toNamed(
+                            AppRoute.chatDetailsScreen,
+                            arguments: {
+                              'chatItem': existingChat,
+                              'recipientId': artist.id,
+                              'isNewConversation': false,
+                            },
+                          );
+                        } else {
+                          // Create new conversation
+                          final chatItem = ChatItem(
+                            type: 'private',
+                            chatId: null, // No existing conversation
+                            participant: ChatParticipant(
+                              id: artist.id,
+                              fullName: artist.fullName,
+                              profilePhoto: artist.profilePhoto,
+                            ),
+                          );
+                          Get.toNamed(
+                            AppRoute.chatDetailsScreen,
+                            arguments: {
+                              'chatItem': chatItem,
+                              'recipientId': artist.id,
+                              'isNewConversation': true,
+                            },
+                          );
+                        }
+                      },
                     ),
                     SizedBox(height: 14.h),
                     CustomSecondaryButton(

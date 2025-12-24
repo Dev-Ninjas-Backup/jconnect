@@ -12,6 +12,8 @@ import 'package:jconnect/features/home/artists_details_screen/controller/artists
 import 'package:jconnect/features/home/artists_screen/controller/artists_controller.dart';
 import 'package:jconnect/features/home/home_screen/controller/home_controller.dart';
 import 'package:jconnect/features/home/home_screen/model/artists_model.dart';
+import 'package:jconnect/features/messages/controller/messages_controller.dart';
+import 'package:jconnect/features/messages/model/message_model2.dart';
 import 'package:jconnect/routes/approute.dart';
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/style/global_text_style.dart';
@@ -20,7 +22,7 @@ import '../../../../core/common/widgets/gradient_border_container.dart';
 // ignore: must_be_immutable
 class ArtistsItem extends StatelessWidget {
   final ArtistsController controller;
-   ArtistsItem({required this.controller, super.key});
+  ArtistsItem({required this.controller, super.key});
   final HomeController homeController = Get.find<HomeController>();
   var artistsDetailsController = Get.put(
     ArtistsDetailsController(
@@ -123,8 +125,10 @@ class ArtistsItem extends StatelessWidget {
                   // Profile Photo (Fixed: placeholder + error handling)
                   Center(
                     child: GestureDetector(
-                      onTap: () async{
-                        await artistsDetailsController.fetchArtistById(artist.id);
+                      onTap: () async {
+                        await artistsDetailsController.fetchArtistById(
+                          artist.id,
+                        );
                         Get.toNamed(
                           AppRoute.artistsDetailsPage,
                           // arguments: artist.id
@@ -264,10 +268,47 @@ class ArtistsItem extends StatelessWidget {
                   // Buttons
                   CustomPrimaryButton(
                     buttonText: "Message",
-                    onTap: () => Get.toNamed(
-                      AppRoute.chatDetailsScreen,
-                      //  arguments: artist,
-                    ),
+                    onTap: () {
+                      // Get MessagesController to check for existing conversations
+                      final messagesController = Get.find<MessagesController>();
+
+                      // Check if there's an existing conversation with this artist
+                      final existingChat = messagesController.allChats
+                          .firstWhereOrNull(
+                            (chat) => chat.participant?.id == artist.id,
+                          );
+
+                      if (existingChat != null && existingChat.chatId != null) {
+                        // Navigate to existing conversation
+                        Get.toNamed(
+                          AppRoute.chatDetailsScreen,
+                          arguments: {
+                            'chatItem': existingChat,
+                            'recipientId': artist.id,
+                            'isNewConversation': false,
+                          },
+                        );
+                      } else {
+                        // Create new conversation
+                        final chatItem = ChatItem(
+                          type: 'private',
+                          chatId: null, // No existing conversation
+                          participant: ChatParticipant(
+                            id: artist.id,
+                            fullName: artist.fullName,
+                            profilePhoto: artist.profilePhoto,
+                          ),
+                        );
+                        Get.toNamed(
+                          AppRoute.chatDetailsScreen,
+                          arguments: {
+                            'chatItem': chatItem,
+                            'recipientId': artist.id,
+                            'isNewConversation': true,
+                          },
+                        );
+                      }
+                    },
                   ),
                   SizedBox(height: 14.h),
                   CustomSecondaryButton(

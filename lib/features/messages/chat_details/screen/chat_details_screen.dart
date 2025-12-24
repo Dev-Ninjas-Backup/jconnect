@@ -19,21 +19,100 @@ class ChatDetailsScreen extends StatefulWidget {
 
 class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   final controller = Get.find<MessagesController>();
-  final dynamic msg = Get.arguments;
+  final dynamic arguments = Get.arguments;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
-    if (msg != null) {
-      controller.initConversation(
-        conversationId: msg.chatId ?? '',
-        initialMessages: [],
-      );
+    _scrollController = ScrollController();
+
+    // Initialize socket connection first, then load conversation
+    _initializeAndLoadConversation();
+
+    // Listen to messages changes and scroll to bottom
+    ever(controller.messages, (_) {
+      _scrollToBottom();
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToBottom() {
+    // Schedule scroll after frame is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  void _initializeAndLoadConversation() async {
+    // Initialize socket connection if not already connected
+    await _initializeSocketConnection();
+
+    // Small delay to ensure socket connection is established
+    await Future.delayed(Duration(milliseconds: 500));
+
+    if (arguments != null) {
+      if (arguments is Map) {
+        // New conversation format
+        final chatItem = arguments['chatItem'];
+        final recipientId = arguments['recipientId'];
+        final isNewConversation = arguments['isNewConversation'] ?? false;
+
+        if (isNewConversation && recipientId != null) {
+          // For new conversations, we'll start with empty messages
+          // and set the recipient ID for sending messages
+          controller.initNewConversation(recipientId: recipientId);
+        } else if (chatItem?.chatId != null) {
+          // Existing conversation - load from API
+          await controller.initConversationFromAPI(
+            conversationId: chatItem.chatId,
+          );
+        }
+      } else {
+        // Legacy format - existing conversation
+        print('🔄 Loading existing conversation: ${arguments.chatId}');
+        await controller.initConversationFromAPI(
+          conversationId: arguments.chatId ?? '',
+        );
+      }
+    }
+  }
+
+  Future<void> _initializeSocketConnection() async {
+    try {
+      // Use controller's method to initialize socket with proper auth
+      await controller.initializeSocketConnection();
+      print('✅ Socket connection initialized');
+    } catch (e) {
+      print('❌ Failed to initialize socket: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Get participant info from arguments
+    dynamic chatParticipant;
+    String recipientId = '';
+
+    if (arguments is Map) {
+      chatParticipant = arguments['chatItem']?.participant;
+      recipientId = arguments['recipientId'] ?? '';
+    } else {
+      chatParticipant = arguments?.participant;
+      recipientId = chatParticipant?.id ?? '';
+    }
+
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
       body: Stack(
@@ -52,7 +131,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                       SizedBox(width: 10),
                       CircleAvatar(
                         backgroundImage: NetworkImage(
-                          msg.participant?.profilePhoto ?? '',
+                          chatParticipant?.profilePhoto ?? '',
                         ),
                       ),
                       SizedBox(width: 10),
@@ -60,7 +139,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            msg.participant.fullName ?? '',
+                            chatParticipant?.fullName ?? '',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -92,7 +171,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'You started a chat with ${msg.participant.fullName ?? ''}',
+                      'You started a chat with ${chatParticipant?.fullName ?? ''}',
                       style: getTextStyle(
                         fontsize: 12,
                         fontweight: FontWeight.w400,
@@ -103,44 +182,73 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                 ),
               ),
               Expanded(
-                child: Obx(
-                  () => ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    itemCount: controller.messages.length,
-                    itemBuilder: (context, index) {
-                      final msgItem = controller.messages[index];
-                      final isMine = controller.isMyMessage(msgItem);
-
-                      return Align(
-                        alignment:
-                            isMine ? Alignment.centerRight : Alignment.centerLeft,
-                        child: Container(
-                          margin: EdgeInsets.symmetric(vertical: 5),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isMine ? AppColors.redColor : Colors.grey[800],
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              topRight: Radius.circular(20),
-                              bottomLeft:
-                                  isMine ? Radius.circular(20) : Radius.circular(0),
-                              bottomRight:
-                                  isMine ? Radius.circular(0) : Radius.circular(20),
+                child: Obx(() {
+                  print(
+                    '🔄 UI Rebuilding - Messages count: ${controller.messages.length}',
+                  );
+                  return controller.messages.isEmpty
+                      ? Center(
+                          child: Text(
+                            'No messages yet\nSend a message to start the conversation',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 16,
                             ),
                           ),
-                          child: Text(
-                            msgItem.content,
-                            style: TextStyle(
-                                color: isMine ? Colors.white : Colors.white70),
+                        )
+                      : ListView.builder(
+                          controller: _scrollController,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                          itemCount: controller.messages.length,
+                          itemBuilder: (context, index) {
+                            final msgItem = controller.messages[index];
+                            final isMine = controller.isMyMessage(msgItem);
+                            print(
+                              '💬 Displaying message $index: ${msgItem.content}, isMine: $isMine',
+                            );
+
+                            return Align(
+                              alignment: isMine
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
+                              child: Container(
+                                margin: EdgeInsets.symmetric(vertical: 5),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isMine
+                                      ? AppColors.redColor
+                                      : Colors.grey[800],
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(20),
+                                    topRight: Radius.circular(20),
+                                    bottomLeft: isMine
+                                        ? Radius.circular(20)
+                                        : Radius.circular(0),
+                                    bottomRight: isMine
+                                        ? Radius.circular(0)
+                                        : Radius.circular(20),
+                                  ),
+                                ),
+                                child: Text(
+                                  msgItem.content,
+                                  style: TextStyle(
+                                    color: isMine
+                                        ? Colors.white
+                                        : Colors.white70,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                }),
               ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -182,7 +290,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                       icon: Image.asset(Iconpath.send, height: 20, width: 20),
                       onPressed: () {
                         controller.sendMessage(
-                          recipientId: msg.participant.id ?? "",
+                          recipientId: recipientId,
                           content: controller.messageController.text,
                         );
                         controller.messageController.clear();

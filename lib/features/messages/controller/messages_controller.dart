@@ -9,9 +9,8 @@ import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/messages/model/chat_conversation_model.dart';
 import 'package:jconnect/features/messages/model/message_model2.dart';
 import 'package:jconnect/features/messages/socket_service/message_service_rest.dart';
@@ -25,6 +24,10 @@ class MessagesController extends GetxController {
       },
     ),
   );
+
+  // SharedPreferences helper for auth token management
+  final SharedPreferencesHelperController _prefHelper =
+      Get.find<SharedPreferencesHelperController>();
 
   var messageController = TextEditingController();
   var showSidebar = false.obs;
@@ -60,8 +63,19 @@ class MessagesController extends GetxController {
 
   @override
   void onInit() {
-    fetchallchatMethod();
     super.onInit();
+    // Initialize socket connection and load conversation list on startup
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await initializeSocketConnection();
+        await fetchallchatMethod(); // Load existing conversations
+        print('✅ MessagesController initialized successfully');
+      } catch (e) {
+        print('❌ Failed to initialize MessagesController: $e');
+        // Fallback to just loading conversations without socket
+        fetchallchatMethod();
+      }
+    });
   }
 
   final MessageSocketService _socket = MessageSocketService();
@@ -73,7 +87,7 @@ class MessagesController extends GetxController {
   String? _conversationId;
 
   /// Logged-in user id
-  late final String _myUserId;
+  String? _myUserId;
 
   /* -------------------- Socket Lifecycle -------------------- */
 
@@ -81,6 +95,40 @@ class MessagesController extends GetxController {
     _myUserId = userId;
 
     _socket.connect(token: token, onNewMessage: _handleIncomingMessage);
+  }
+
+  /// Initialize socket connection with proper authentication
+  Future<void> initializeSocketConnection() async {
+    try {
+      // Get auth token from SharedPreferencesHelper
+      final token = await _prefHelper
+          .getAccessRowToken(); // Raw token without Bearer prefix
+      final userId = await _prefHelper.getUserId();
+
+      if (token != null &&
+          token.isNotEmpty &&
+          userId != null &&
+          userId.isNotEmpty) {
+        // Initialize user ID for message handling
+        _myUserId = userId;
+
+        // Connect socket with authentication
+        connectSocket(token: token, userId: userId);
+        print('✅ Socket connected with authenticated user: $userId');
+      } else {
+        throw Exception('No authentication token or user ID available');
+      }
+    } catch (e) {
+      print('❌ Failed to initialize socket connection: $e');
+      // You might want to handle logout or redirect to login
+    }
+  }
+
+  /// Initialize user ID if not set
+  void initUserId(String userId) {
+    if (_myUserId == null || _myUserId!.isEmpty) {
+      _myUserId = userId;
+    }
   }
 
   @override
@@ -91,38 +139,156 @@ class MessagesController extends GetxController {
 
   /* -------------------- Conversation -------------------- */
 
-  Future<void> initConversation({
-    required String conversationId,
-    required List<ChatMessage> initialMessages,
-  }) async {
-    _conversationId = conversationId;
-    messages.clear();
+  /// Initialize existing conversation from API
+  Future<void> initConversationFromAPI({required String conversationId}) async {
+    try {
+      _conversationId = conversationId;
 
-    if (initialMessages.isNotEmpty) {
-      messages.addAll(initialMessages);
-    } else {
-      final persisted = await _loadMessagesFromStorage(conversationId);
-      messages.addAll(persisted);
+      // Preserve any optimistic messages (temp messages that haven't been confirmed)
+      final optimisticMessages = messages
+          .where((m) => m.id.startsWith('temp_'))
+          .toList();
+
+      print('🔄 Loading conversation from API: $conversationId');
+      print('💾 Preserving ${optimisticMessages.length} optimistic messages');
+
+      // Fetch conversation from API
+      final conversationResponse = await messageServiceRest
+          .getSingleConversation(conversationId);
+
+      // Clear and add API messages
+      messages.clear();
+      messages.addAll(conversationResponse.messages);
+
+      // Re-add optimistic messages at the end
+      for (final optMsg in optimisticMessages) {
+        // Check if this optimistic message was already returned by API
+        final exists = messages.any(
+          (m) =>
+              m.content == optMsg.content &&
+              m.senderId == optMsg.senderId &&
+              m.createdAt.difference(optMsg.createdAt).inSeconds.abs() < 10,
+        );
+        if (!exists) {
+          messages.add(optMsg);
+          print('🔄 Re-added optimistic message: ${optMsg.content}');
+        }
+      }
+
+      print(
+        '✅ Loaded ${conversationResponse.messages.length} messages from API + ${optimisticMessages.length} optimistic',
+      );
+
+      // Also emit socket event to ensure real-time connection for this conversation
+      _socket.loadConversation(conversationId: conversationId);
+    } catch (e) {
+      print('❌ Error loading conversation from API: $e');
+      // Fallback to socket-only loading
+      _socket.loadConversation(conversationId: conversationId);
     }
   }
+
+  /// Initialize new conversation with a recipient
+  void initNewConversation({required String recipientId}) {
+    _conversationId = null; // No existing conversation
+    _recipientId = recipientId;
+    messages.clear();
+  }
+
+  /// Current recipient ID for new conversations
+  String? _recipientId;
 
   /* -------------------- Messaging -------------------- */
 
   void _handleIncomingMessage(dynamic data) {
-    final ChatMessage message = ChatMessage.fromJson(data);
-    // Persist message for the conversation
-   // _appendMessageToStorage(message);
+    print('📩 Received incoming data: $data');
+    try {
+      // Check if this is a full conversation response
+      if (data is Map) {
+        // Handle full conversation data (from private:single_conversation)
+        if (data.containsKey('conversationId') &&
+            data.containsKey('messages')) {
+          final conversationId = data['conversationId'] as String?;
+          final messagesList = data['messages'] as List?;
 
-    // Update conversation list (last message + move to top)
-    _updateChatListWithMessage(message);
+          if (conversationId == _conversationId && messagesList != null) {
+            final conversationMessages = messagesList
+                .map(
+                  (msgData) =>
+                      ChatMessage.fromJson(msgData as Map<String, dynamic>),
+                )
+                .toList();
 
-    // If this conversation is active, add to messages shown in details
-    if (message.conversationId == _conversationId) {
-      messages.add(message);
+            // Clear and add all messages for this conversation
+            messages.clear();
+            messages.addAll(conversationMessages);
+
+            print(
+              '✅ Loaded ${conversationMessages.length} messages for conversation $conversationId',
+            );
+            return;
+          }
+        }
+
+        // Handle conversation list updates
+        if (data.containsKey('data') && data['data'] is List) {
+          // This might be a conversation list update
+          print('📄 Received conversation list update');
+          return;
+        }
+      }
+
+      // Handle single message
+      final ChatMessage message = ChatMessage.fromJson(data);
+      print(
+        '✅ Parsed single message: ${message.content} from ${message.senderId}',
+      );
+
+      // Update conversation list (last message + move to top)
+      _updateChatListWithMessage(message);
+
+      // If this conversation is active, add to messages shown in details
+      if (message.conversationId == _conversationId) {
+        // Check if message already exists (by ID or content+sender+time)
+        final existingIndex = messages.indexWhere(
+          (m) =>
+              m.id == message.id ||
+              (m.content == message.content &&
+                  m.senderId == message.senderId &&
+                  m.createdAt.difference(message.createdAt).inSeconds.abs() <
+                      5),
+        );
+
+        if (existingIndex == -1) {
+          // Remove any matching optimistic message first
+          messages.removeWhere(
+            (m) =>
+                m.id.startsWith('temp_') &&
+                m.content == message.content &&
+                m.senderId == message.senderId,
+          );
+
+          messages.add(message);
+          print(
+            '📝 Added new message to active conversation: ${message.content}',
+          );
+        } else {
+          print(
+            '🔄 Message already exists, skipping duplicate (index: $existingIndex)',
+          );
+        }
+      } else {
+        print(
+          '📭 Message for different conversation: ${message.conversationId} vs $_conversationId',
+        );
+      }
+
+      print('📊 Current messages count: ${messages.length}');
+    } catch (e) {
+      print('❌ Error parsing incoming data: $e');
+      print('📄 Raw data type: ${data.runtimeType}');
+      print('📄 Raw data: $data');
     }
-
-    print("message received: $data");
-    print("message recevvvived: ${message.content}");
   }
 
   void sendMessage({
@@ -130,34 +296,81 @@ class MessagesController extends GetxController {
     required String content,
     String? serviceId,
     List<String>? files,
-  }) {
+  }) async {
     if (content.trim().isEmpty && (files == null || files.isEmpty)) return;
 
-    _socket.sendMessage(
-      recipientId: recipientId,
+    // Ensure user ID is set
+    if (_myUserId == null || _myUserId!.isEmpty) {
+      print('❌ Cannot send message: User ID not available');
+      return;
+    }
+
+    // Use the provided recipientId for new conversations or stored recipientId
+    final targetRecipientId = recipientId.isNotEmpty
+        ? recipientId
+        : _recipientId;
+
+    if (targetRecipientId == null || targetRecipientId.isEmpty) {
+      print("❌ Error: No recipient ID available");
+      return;
+    }
+
+    // Create optimistic message with unique temp ID
+    final tempId = 'temp_${const Uuid().v4()}';
+    final localMessage = ChatMessage(
+      id: tempId,
       content: content.trim(),
+      files: files ?? [],
+      createdAt: DateTime.now(),
+      senderId: _myUserId!,
+      conversationId: _conversationId ?? '',
       serviceId: serviceId,
-      files: files,
+      service: null,
+      sender: SenderInfo(id: _myUserId!, fullName: 'You', profilePhoto: null),
     );
 
-    // Add outgoing message locally so UI updates immediately
-    if (_conversationId != null) {
-      final id = Uuid().v4();
-      final outgoing = ChatMessage(
-        id: id,
+    // Add to UI immediately
+    messages.add(localMessage);
+    _updateChatListWithMessage(localMessage);
+    print('📤 Added optimistic message: ${localMessage.content} (ID: $tempId)');
+
+    try {
+      // Send via API first
+      final sentMessage = await messageServiceRest.sendMessage(
+        recipientId: targetRecipientId,
         content: content.trim(),
-        files: files ?? [],
-        createdAt: DateTime.now(),
-        senderId: _myUserId,
-        conversationId: _conversationId!,
         serviceId: serviceId,
-        service: null,
-        sender: SenderInfo(id: _myUserId, fullName: '', profilePhoto: null),
+        files: files,
       );
 
-    //  messages.add(outgoing);
-      _appendMessageToStorage(outgoing);
-      _updateChatListWithMessage(outgoing);
+      // Replace optimistic message with real message from API
+      final index = messages.indexWhere((m) => m.id == tempId);
+      if (index != -1) {
+        messages[index] = sentMessage;
+        print('✅ Replaced optimistic message with API response');
+      }
+
+      // Also send via socket for real-time delivery to other clients
+      _socket.sendMessage(
+        recipientId: targetRecipientId,
+        content: content.trim(),
+        serviceId: serviceId,
+        files: files,
+      );
+
+      print('✅ Message sent successfully');
+    } catch (e) {
+      print('❌ Error sending message via API: $e');
+      // Keep optimistic message but mark it as failed/pending
+      // You could add a status field to ChatMessage to show retry option
+
+      // Try socket-only as fallback
+      _socket.sendMessage(
+        recipientId: targetRecipientId,
+        content: content.trim(),
+        serviceId: serviceId,
+        files: files,
+      );
     }
   }
 
@@ -174,7 +387,9 @@ class MessagesController extends GetxController {
         ),
       );
 
-      final idx = allChats.indexWhere((c) => c.chatId == message.conversationId);
+      final idx = allChats.indexWhere(
+        (c) => c.chatId == message.conversationId,
+      );
       if (idx != -1) {
         final existing = allChats[idx];
         final updated = ChatItem(
@@ -208,45 +423,18 @@ class MessagesController extends GetxController {
     }
   }
 
-  /* -------------------- Persistence -------------------- */
-
-  String _storageKeyFor(String conversationId) => 'conv_msgs_$conversationId';
-
-  Future<void> _appendMessageToStorage(ChatMessage msg) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final key = _storageKeyFor(msg.conversationId);
-      final existing = prefs.getString(key);
-      List<Map<String, dynamic>> list = [];
-      if (existing != null) {
-        final decoded = jsonDecode(existing) as List<dynamic>;
-        list = decoded.cast<Map<String, dynamic>>();
-      }
-      list.add(msg.toJson());
-      await prefs.setString(key, jsonEncode(list));
-    } catch (e) {
-      print('Failed to persist message: $e');
-    }
-  }
-
-  Future<List<ChatMessage>> _loadMessagesFromStorage(String conversationId) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final key = _storageKeyFor(conversationId);
-      final existing = prefs.getString(key);
-      if (existing == null) return [];
-      final decoded = jsonDecode(existing) as List<dynamic>;
-      return decoded.map((e) => ChatMessage.fromJson(e as Map<String, dynamic>)).toList();
-    } catch (e) {
-      print('Failed to load persisted messages: $e');
-      return [];
-    }
-  }
-
   /* -------------------- Helpers -------------------- */
 
   bool isMyMessage(ChatMessage message) {
-    return message.senderId == _myUserId;
+    if (_myUserId == null || _myUserId!.isEmpty) {
+      print('❌ User ID not available - ensure socket is properly initialized');
+      return false;
+    }
+    final result = message.senderId == _myUserId;
+    print(
+      '🔍 Checking message from ${message.senderId} vs myUserId: $_myUserId = $result',
+    );
+    return result;
   }
 
   /// 🔹 Delete confirmation dialog (bottom sheet style)
