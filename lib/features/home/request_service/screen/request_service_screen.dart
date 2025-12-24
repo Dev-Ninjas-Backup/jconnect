@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -7,6 +9,9 @@ import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/core/common/widgets/custom_secondary_button.dart';
 import 'package:jconnect/features/home/request_service/controller/request_service_controller.dart';
+import 'package:jconnect/features/messages/controller/messages_controller.dart';
+import 'package:jconnect/features/messages/model/message_model2.dart';
+import 'package:jconnect/routes/approute.dart';
 import '../../../../core/common/style/global_text_style.dart';
 import '../widgets/customize_your_order.dart';
 import '../widgets/request_service_card.dart';
@@ -19,10 +24,8 @@ class RequestServiceScreen extends StatelessWidget {
 
   final service = Get.arguments;
 
-
   bool get isSocialPost {
-
-    return service.serviceType!= null && service.serviceType == 'SOCIAL_POST';
+    return service.serviceType != null && service.serviceType == 'SOCIAL_POST';
   }
 
   @override
@@ -225,13 +228,135 @@ class RequestServiceScreen extends StatelessWidget {
               SizedBox(height: 40.h),
               CustomPrimaryButton(
                 buttonText: "Send Request",
-                onTap: () {
-                  //  Get.toNamed(AppRoute.getConfirmYourPromotion());
+                onTap: () async {
+                  try {
+                    // Submit the service request first
+                    await controller.submitServiceRequest(
+                      serviceId: service.id,
+                      price: service.price.toDouble(),
+                    );
 
-                  controller.submitServiceRequest(
-                    serviceId: service.id,
-                    price: service.price.toDouble(),
-                  );
+                    // Send message with service ID to the service provider
+                    final messagesController = Get.find<MessagesController>();
+
+                    print('🔥 [REQUEST SERVICE] Starting message send process');
+                    print('🔥 [REQUEST SERVICE] Service ID: ${service.id}');
+                    print(
+                      '🔥 [REQUEST SERVICE] Service Name: ${service.serviceName}',
+                    );
+                    print(
+                      '🔥 [REQUEST SERVICE] Service Creator ID: ${service.creatorId}',
+                    );
+
+                    // Check if we have a creator ID before proceeding
+                    if (service.creatorId == null ||
+                        service.creatorId!.isEmpty) {
+                      print(
+                        '❌ [REQUEST SERVICE] Service creator ID is missing',
+                      );
+                      return;
+                    }
+
+                    // Debug the creatorId type and value
+                    print(
+                      '🔥 [REQUEST SERVICE] Service Creator ID type: ${service.creatorId.runtimeType}',
+                    );
+                    print(
+                      '🔥 [REQUEST SERVICE] Service Creator ID value: "${service.creatorId}"',
+                    );
+                    print(
+                      '🔥 [REQUEST SERVICE] Service Creator ID length: ${service.creatorId?.length}',
+                    );
+
+                    // Ensure creatorId is a proper string
+                    final String recipientIdStr = service.creatorId
+                        .toString()
+                        .trim();
+                    print(
+                      '🔥 [REQUEST SERVICE] Converted recipientId: "$recipientIdStr"',
+                    );
+                    print(
+                      '🔥 [REQUEST SERVICE] Converted recipientId length: ${recipientIdStr.length}',
+                    );
+
+                    if (recipientIdStr.isEmpty) {
+                      print(
+                        '❌ [REQUEST SERVICE] Converted recipientId is empty',
+                      );
+                      return;
+                    }
+
+                    // Check if there's an existing conversation
+                    final existingChat = messagesController.allChats
+                        .firstWhereOrNull(
+                          (chat) => chat.participant?.id == recipientIdStr,
+                        );
+
+                    print(
+                      '🔥 [REQUEST SERVICE] Existing chat found: ${existingChat != null}',
+                    );
+                    if (existingChat != null) {
+                      print(
+                        '🔥 [REQUEST SERVICE] Existing chat ID: ${existingChat.chatId}',
+                      );
+                    }
+
+                    // Send message with service information (empty content, service data only)
+                    print(
+                      '🔥 [REQUEST SERVICE] Sending message with serviceId: ${service.id}',
+                    );
+                    messagesController.sendMessage(
+                      recipientId: recipientIdStr,
+                      content: '',
+                      serviceId: service.id,
+                    );
+                    print('🔥 [REQUEST SERVICE] Message send command executed');
+
+                    // Navigate to chat to continue conversation
+                    if (existingChat != null && existingChat.chatId != null) {
+                      // Navigate to existing conversation
+                      print(
+                        '🔥 [REQUEST SERVICE] Navigating to existing conversation: ${existingChat.chatId}',
+                      );
+                      Get.toNamed(
+                        AppRoute.chatDetailsScreen,
+                        arguments: {
+                          'chatItem': existingChat,
+                          'recipientId': recipientIdStr,
+                          'isNewConversation': false,
+                        },
+                      );
+                    } else {
+                      // Navigate to new conversation
+                      print(
+                        '🔥 [REQUEST SERVICE] Creating new conversation with user: $recipientIdStr',
+                      );
+                      final chatItem = ChatItem(
+                        type: 'private',
+                        chatId: null,
+                        participant: ChatParticipant(
+                          id: recipientIdStr,
+                          fullName:
+                              service.creator?.full_name ?? 'Service Provider',
+                          profilePhoto: service.creator?.profilePhoto,
+                        ),
+                      );
+                      Get.toNamed(
+                        AppRoute.chatDetailsScreen,
+                        arguments: {
+                          'chatItem': chatItem,
+                          'recipientId': recipientIdStr,
+                          'isNewConversation': true,
+                        },
+                      );
+                    }
+                    print('🔥 [REQUEST SERVICE] Navigation completed');
+                  } catch (e, stackTrace) {
+                    print('❌ [REQUEST SERVICE] Error occurred: $e');
+                    print('❌ [REQUEST SERVICE] Error type: ${e.runtimeType}');
+                    print('❌ [REQUEST SERVICE] Stack trace: $stackTrace');
+                    print('❌ [REQUEST SERVICE] Full error: ${e.toString()}');
+                  }
                 },
               ),
               SizedBox(height: 16.h),
@@ -248,7 +373,79 @@ class RequestServiceScreen extends StatelessWidget {
                   Expanded(
                     child: CustomSecondaryButton(
                       buttonText: "Message Seller",
-                      onTap: () {},
+                      onTap: () {
+                        print('🔥 [MESSAGE SELLER] Button pressed');
+                        print(
+                          '🔥 [MESSAGE SELLER] Service Provider ID: ${service.creatorId}',
+                        );
+
+                        // Ensure creatorId is a proper string
+                        final String sellerIdStr = service.creatorId
+                            .toString()
+                            .trim();
+                        print(
+                          '🔥 [MESSAGE SELLER] Converted sellerId: "$sellerIdStr"',
+                        );
+
+                        final messagesController =
+                            Get.find<MessagesController>();
+
+                        // Check if there's an existing conversation
+                        final existingChat = messagesController.allChats
+                            .firstWhereOrNull(
+                              (chat) => chat.participant?.id == sellerIdStr,
+                            );
+
+                        print(
+                          '🔥 [MESSAGE SELLER] Existing chat found: ${existingChat != null}',
+                        );
+                        if (existingChat != null) {
+                          print(
+                            '🔥 [MESSAGE SELLER] Existing chat ID: ${existingChat.chatId}',
+                          );
+                        }
+
+                        if (existingChat != null &&
+                            existingChat.chatId != null) {
+                          // Navigate to existing conversation
+                          print(
+                            '🔥 [MESSAGE SELLER] Navigating to existing chat: ${existingChat.chatId}',
+                          );
+                          Get.toNamed(
+                            AppRoute.chatDetailsScreen,
+                            arguments: {
+                              'chatItem': existingChat,
+                              'recipientId': sellerIdStr,
+                              'isNewConversation': false,
+                            },
+                          );
+                        } else {
+                          // Navigate to new conversation
+                          print(
+                            '🔥 [MESSAGE SELLER] Creating new conversation',
+                          );
+                          final chatItem = ChatItem(
+                            type: 'private',
+                            chatId: null,
+                            participant: ChatParticipant(
+                              id: sellerIdStr,
+                              fullName:
+                                  service.creator?.full_name ??
+                                  'Service Provider',
+                              profilePhoto: service.creator?.profilePhoto,
+                            ),
+                          );
+                          Get.toNamed(
+                            AppRoute.chatDetailsScreen,
+                            arguments: {
+                              'chatItem': chatItem,
+                              'recipientId': sellerIdStr,
+                              'isNewConversation': true,
+                            },
+                          );
+                        }
+                        print('🔥 [MESSAGE SELLER] Navigation completed');
+                      },
                     ),
                   ),
                 ],

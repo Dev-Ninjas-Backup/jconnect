@@ -297,23 +297,56 @@ class MessagesController extends GetxController {
     String? serviceId,
     List<String>? files,
   }) async {
-    if (content.trim().isEmpty && (files == null || files.isEmpty)) return;
+    print('🔥 [MESSAGES_CONTROLLER] sendMessage called');
+    print('🔥 [MESSAGES_CONTROLLER] recipientId: $recipientId');
+    print(
+      '🔥 [MESSAGES_CONTROLLER] recipientId type: ${recipientId.runtimeType}',
+    );
+    print('🔥 [MESSAGES_CONTROLLER] content: $content');
+    print('🔥 [MESSAGES_CONTROLLER] serviceId: $serviceId');
+
+    if (content.trim().isEmpty &&
+        (files == null || files.isEmpty) &&
+        serviceId == null) {
+      print(
+        '❌ [MESSAGES_CONTROLLER] Content, files, and serviceId are all empty, returning',
+      );
+      return;
+    }
 
     // Ensure user ID is set
     if (_myUserId == null || _myUserId!.isEmpty) {
       print('❌ Cannot send message: User ID not available');
+      print('🔥 [MESSAGES_CONTROLLER] _myUserId: $_myUserId');
       return;
     }
 
-    // Use the provided recipientId for new conversations or stored recipientId
-    final targetRecipientId = recipientId.isNotEmpty
-        ? recipientId
-        : _recipientId;
+    // Validate and sanitize recipientId
+    String targetRecipientId = recipientId.trim();
+    if (targetRecipientId.isEmpty) {
+      targetRecipientId = _recipientId ?? '';
+    }
 
-    if (targetRecipientId == null || targetRecipientId.isEmpty) {
-      print("❌ Error: No recipient ID available");
+    print(
+      '🔥 [MESSAGES_CONTROLLER] Sanitized targetRecipientId: "$targetRecipientId"',
+    );
+    print(
+      '🔥 [MESSAGES_CONTROLLER] Sanitized targetRecipientId length: ${targetRecipientId.length}',
+    );
+
+    if (targetRecipientId.isEmpty) {
+      print("❌ Error: No valid recipient ID available");
+      print(
+        '🔥 [MESSAGES_CONTROLLER] targetRecipientId after sanitization: "$targetRecipientId"',
+      );
       return;
     }
+
+    print(
+      '🔥 [MESSAGES_CONTROLLER] All checks passed, proceeding with message',
+    );
+    print('🔥 [MESSAGES_CONTROLLER] _myUserId: $_myUserId');
+    print('🔥 [MESSAGES_CONTROLLER] targetRecipientId: $targetRecipientId');
 
     // Create optimistic message with unique temp ID
     final tempId = 'temp_${const Uuid().v4()}';
@@ -336,11 +369,22 @@ class MessagesController extends GetxController {
 
     try {
       // Send via API first
+      print('🔥 [MESSAGES_CONTROLLER] Calling messageServiceRest.sendMessage');
+      print(
+        '🔥 [MESSAGES_CONTROLLER] API call params - recipientId: $targetRecipientId, serviceId: $serviceId',
+      );
       final sentMessage = await messageServiceRest.sendMessage(
         recipientId: targetRecipientId,
         content: content.trim(),
         serviceId: serviceId,
         files: files,
+      );
+      print('🔥 [MESSAGES_CONTROLLER] API call successful');
+      print(
+        '🔥 [MESSAGES_CONTROLLER] Sent message serviceId: ${sentMessage.serviceId}',
+      );
+      print(
+        '🔥 [MESSAGES_CONTROLLER] Sent message service: ${sentMessage.service}',
       );
 
       // Replace optimistic message with real message from API
@@ -359,12 +403,22 @@ class MessagesController extends GetxController {
       );
 
       print('✅ Message sent successfully');
-    } catch (e) {
+    } catch (e, stackTrace) {
       print('❌ Error sending message via API: $e');
+      print('❌ Error type: ${e.runtimeType}');
+      print('❌ Error stackTrace: $stackTrace');
+      print('❌ Full error: $e');
+
+      // Try to extract more details from the exception
+      if (e is Exception) {
+        print('❌ Exception message: ${e.toString()}');
+      }
+
       // Keep optimistic message but mark it as failed/pending
       // You could add a status field to ChatMessage to show retry option
 
       // Try socket-only as fallback
+      print('🔥 [MESSAGES_CONTROLLER] Attempting socket fallback...');
       _socket.sendMessage(
         recipientId: targetRecipientId,
         content: content.trim(),

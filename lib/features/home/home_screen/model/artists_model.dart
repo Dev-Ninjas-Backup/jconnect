@@ -107,6 +107,8 @@ class ServiceModel {
   final String currency;
   final bool isPost;
   final bool isCustom;
+  final String? creatorId;
+  final Creator? creator;
 
   ServiceModel({
     required this.id,
@@ -117,6 +119,8 @@ class ServiceModel {
     required this.currency,
     required this.isPost,
     required this.isCustom,
+    this.creatorId,
+    this.creator,
   });
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
@@ -129,6 +133,28 @@ class ServiceModel {
       currency: json['currency'] ?? 'USD',
       isPost: json['isPost'] ?? false,
       isCustom: json['isCustom'] ?? false,
+      creatorId: json['creatorId'],
+      creator: json['creator'] != null
+          ? Creator.fromJson(json['creator'])
+          : null,
+    );
+  }
+}
+
+class Creator {
+  final String? sellerIDStripe;
+  final String? email;
+  final String? full_name;
+  final String? profilePhoto;
+
+  Creator({this.sellerIDStripe, this.email, this.full_name, this.profilePhoto});
+
+  factory Creator.fromJson(Map<String, dynamic> json) {
+    return Creator(
+      sellerIDStripe: json['sellerIDStripe'],
+      email: json['email'],
+      full_name: json['full_name'],
+      profilePhoto: json['profilePhoto'],
     );
   }
 }
@@ -163,11 +189,7 @@ class SocialProfileModel {
   final String? platformName;
   final String? platformLink;
 
-  SocialProfileModel({
-    required this.id,
-    this.platformName,
-    this.platformLink,
-  });
+  SocialProfileModel({required this.id, this.platformName, this.platformLink});
 
   factory SocialProfileModel.fromJson(Map<String, dynamic> json) {
     return SocialProfileModel(
@@ -177,7 +199,6 @@ class SocialProfileModel {
     );
   }
 }
-
 
 class ReviewModel {
   final String? id;
