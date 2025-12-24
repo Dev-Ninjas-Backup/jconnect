@@ -1,42 +1,5 @@
-// import 'dart:convert';
-// import 'package:get/get.dart';
-// import 'package:http/http.dart' as http;
-// import 'package:jconnect/core/endpoint.dart';
-// import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
-
-// class PaymentService {
-//   SharedPreferencesHelperController sharedPreferencesHelper =
-//       Get.find<SharedPreferencesHelperController>();
-
-//   /// 3️⃣ Make Payment
-//   Future<void> makePayment(String serviceId) async {
-//     await http.post(
-//       Uri.parse('${Endpoint.baseUrl}/payments/make-payment'),
-//       headers: {
-//         'Content-Type': 'application/json',
-
-//         'authorization': await sharedPreferencesHelper.getAccessToken() ?? '',
-//       },
-//       body: jsonEncode({'serviceId': serviceId}),
-//     );
-//   }
-
-//   Future<void> paymentMethodAdd(String paymentMethodId) async {
-//     await http.post(
-//       Uri.parse(
-//         "${Endpoint.baseUrl}/payments/payment_method_attached?payment_method_id=$paymentMethodId",
-//       ),
-//       headers: {
-//         'Content-Type': 'application/json',
-
-//         'authorization': await sharedPreferencesHelper.getAccessToken() ?? '',
-//       },
-//       body: {},
-//     );
-//   }
-// }
-
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:jconnect/core/endpoint.dart';
@@ -77,7 +40,19 @@ class PaymentService {
       body: jsonEncode({'serviceId': serviceId}),
     );
 
-    if (response.statusCode != 200 || response.statusCode != 201) {
+    if (kDebugMode) {
+      if (kDebugMode) {
+        print("make payment response: ${response.body}");
+      }
+    }
+    if (kDebugMode) {
+      print(response.statusCode);
+    }
+
+  if(response.statusCode==200 || response.statusCode==201){
+    
+    return;
+  } else {
       throw Exception('Payment failed: ${response.body}');
     }
   }

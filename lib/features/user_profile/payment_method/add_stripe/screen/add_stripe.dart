@@ -50,7 +50,7 @@ class AddStripe extends StatelessWidget {
               CustomPrimaryButton(
                 buttonText: 'Connect With Stripe',
                 onTap: () {
-                  controller.addCardAndPay(context);
+                  controller.addCard(context);
                 },
               ),
               Spacer(),

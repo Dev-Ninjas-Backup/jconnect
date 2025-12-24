@@ -7,22 +7,94 @@ class PaymentPage extends StatelessWidget {
 
   final controller = Get.put(PaymentController());
 
-  //final serviceId = '19a82b3f-5b92-4c16-bc9c-71281b6daa5a';
+  // Demo service data
+  final String serviceId = 'd9293923-2e4b-43e3-ad2c-5eca3aaa75ca';
+  final String serviceTitle = 'Premium Subscription';
+  final String serviceDescription = 'Get unlimited access to all features.';
+  final double servicePrice = 49.99;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Stripe Payyyyyyment')),
-      body: Center(
-        child: Obx(
-          () => controller.isLoading.value
-              ? const CircularProgressIndicator()
-              : ElevatedButton(
-                  onPressed: () => controller.addCardAndPay(context),
-                  child: const Text('Add Card & Pay'),
-                ),
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        leading: const BackButton(color: Colors.white),
+        title: const Text('Payment', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Service details
+            Text(
+              serviceTitle,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              serviceDescription,
+              style: const TextStyle(fontSize: 16, color: Colors.white70),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Price: \$${servicePrice.toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 20, color: Colors.greenAccent),
+            ),
+            const Spacer(),
+
+            // Payment button
+            Center(
+              child: Obx(
+                () => controller.isLoading.value
+                    ? const CircularProgressIndicator()
+                    : ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 40,
+                            vertical: 16,
+                          ),
+                        ),
+                        onPressed: () => _showConfirmationDialog(context),
+                        child: const Text(
+                          'Pay Now',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+              ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  /// Show confirmation dialog before payment
+  void _showConfirmationDialog(BuildContext context) {
+    Get.defaultDialog(
+      title: 'Confirm Payment',
+      middleText:
+          'Do you want to pay \$${servicePrice.toStringAsFixed(2)} for $serviceTitle?',
+      backgroundColor: Colors.black,
+      titleStyle: const TextStyle(color: Colors.white),
+      middleTextStyle: const TextStyle(color: Colors.white70),
+      textCancel: 'No',
+      textConfirm: 'Yes',
+      cancelTextColor: Colors.white70,
+      confirmTextColor: Colors.white,
+      buttonColor: Colors.green,
+      onConfirm: () {
+        Get.back(); // close dialog
+        controller.makePayment(serviceId);
+      },
+      onCancel: () {
+        // Do nothing
+      },
     );
   }
 }
