@@ -50,9 +50,23 @@ class MessageSocketService {
     });
 
     socket!.on('private:new_conversation', (data) {
-      debugPrint('✅Update convesation list: $data');
+      debugPrint('✅Update conversation list: $data');
       onNewMessage(data);
       // Handle read receipt if needed
+    });
+
+    /// Listen for single conversation data (when loading a specific conversation)
+    socket!.on('private:single_conversation', (data) {
+      debugPrint('📖 Single conversation loaded: $data');
+      onNewMessage(data);
+    });
+
+    socket!.on('private:success', (data) {
+      debugPrint('✅ Socket connection successful: $data');
+    });
+
+    socket!.on('private:error', (data) {
+      debugPrint('❌ Socket error: $data');
     });
 
     // Manually connect after setting up listeners when auto-connect is disabled
