@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:get/get.dart';
+import 'package:jconnect/core/endpoint.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -40,7 +41,7 @@ class ArtistsDetailsController extends GetxController {
       isLoading(true);
 
       final response = await networkClient.getRequest(
-        url: 'https://jconnect-server.saikat.com.bd/users/$id',
+        url: '${Endpoint.viewArtists}/$id',
       );
 
       if (response.isSuccess &&

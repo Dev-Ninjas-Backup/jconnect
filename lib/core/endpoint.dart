@@ -1,5 +1,5 @@
 class Endpoint {
-  static const String baseUrl = 'https://jconnect-server.saikat.com.bd';
+  static const String baseUrl = 'https://neva-unlamentable-judson.ngrok-free.dev';
 
   // Auth endpoints
   static const String register = '$baseUrl/auth/register';
@@ -29,16 +29,19 @@ class Endpoint {
   static const String addService = '$baseUrl/services';
 
   static String serviceRequest =
-      "https://jconnect-server.saikat.com.bd/service-requests";
+      "$baseUrl/service-requests";
 
   //chat
   static const String chatSocketIO =
-      'https://jconnect-server.saikat.com.bd/dj/chat';
+      '$baseUrl/dj/chat';
   static const String userNotifications =
-      "https://jconnect-server.saikat.com.bd/notification-setting/user-specific-notification";
+      "$baseUrl/notification-setting/user-specific-notification";
   static const String allChats =
-      "https://jconnect-server.saikat.com.bd/private-chat";
+      "$baseUrl/private-chat";
   //dispute
   static const String dispute = '$baseUrl/disputes/my';
   static const String raiseDispute = '$baseUrl/disputes';
+
+
+  static const String viewArtists="$baseUrl/users";
 }
