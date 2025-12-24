@@ -14,6 +14,7 @@ import 'package:jconnect/features/home/home_screen/controller/home_controller.da
 import 'package:jconnect/features/home/home_screen/model/artists_model.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
 import 'package:jconnect/features/messages/model/message_model2.dart';
+import 'package:jconnect/features/payment/payment_screen.dart';
 import 'package:jconnect/routes/approute.dart';
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/style/global_text_style.dart';
@@ -314,7 +315,9 @@ class ArtistsItem extends StatelessWidget {
                   CustomSecondaryButton(
                     buttonText: "Custom Order",
                     onTap: () {
-                      Get.toNamed(AppRoute.customServices);
+                      Get.to(() => PaymentPage());
+
+                      // Get.toNamed(AppRoute.customServices);
                     },
                   ),
                 ],

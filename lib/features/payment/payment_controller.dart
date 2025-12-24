@@ -1,4 +1,4 @@
-
+// ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -10,10 +10,32 @@ class PaymentController extends GetxController {
   final isLoading = false.obs;
   final PaymentService _paymentService = PaymentService();
 
-
-
-
   final RxBool isDeleting = false.obs;
+
+  Future<void> makePayment(String serviceId) async {
+    try {
+      isLoading.value = true;
+
+      await _paymentService.makePayment(serviceId);
+
+      Get.snackbar(
+        'Success',
+        'Payment completed successfully',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      print("payment error: $e");
+      Get.snackbar(
+        'Error',
+        e.toString(),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
   Future<void> deleteMethod(String? id) async {
     if (id == null) {
@@ -37,15 +59,7 @@ class PaymentController extends GetxController {
     }
   }
 
-
-
-
-
-
-
-
-
-  Future<void> addCardAndPay(BuildContext context) async {
+  Future<void> addCard(BuildContext context) async {
     try {
       isLoading.value = true;
 
@@ -150,7 +164,7 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
                           await _createPaymentMethod();
 
                           // ✅ Navigate when card is complete
-                           Get.toNamed(AppRoute.manageViaStripe);
+                          Get.toNamed(AppRoute.manageViaStripe);
                         }
                       : null,
                   child: const Text('Use Card'),
