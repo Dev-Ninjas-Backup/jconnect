@@ -36,7 +36,6 @@
 //   }
 // }
 
-
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -66,9 +65,7 @@ class PaymentService {
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception(
-        'Payment method attach failed: ${response.body}',
-      );
+      throw Exception('Payment method attach failed: ${response.body}');
     }
   }
 
@@ -80,33 +77,40 @@ class PaymentService {
       body: jsonEncode({'serviceId': serviceId}),
     );
 
-    if (response.statusCode != 200||response.statusCode!=201) {
-      throw Exception(
-        'Payment failed: ${response.body}',
-      );
+    if (response.statusCode != 200 || response.statusCode != 201) {
+      throw Exception('Payment failed: ${response.body}');
     }
   }
 
+  Future<PaymentMethodModel> fetchPaymentMethod() async {
+    final response = await http.get(
+      Uri.parse('${Endpoint.baseUrl}/payments/my-paymentsss-methods'),
+      headers: await _headers(),
+    );
 
-
-
-
-
-Future<PaymentMethodModel> fetchPaymentMethod() async {
-  final response = await http.get(
-    Uri.parse(
-      '${Endpoint.baseUrl}/payments/my-paymentsss-methods',
-    ),
-    headers: await _headers(),
-  );
-
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    return PaymentMethodModel.fromJson(data);
-  } else {
-    throw Exception('Failed to load payment method');
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return PaymentMethodModel.fromJson(data);
+    } else {
+      throw Exception('Failed to load payment method');
+    }
   }
-}
 
-  
+  Future<bool> deletePaymentMethod(String? paymentMethodId) async {
+    if (paymentMethodId == null || paymentMethodId.isEmpty) {
+      return false;
+    }
+
+    final response = await http.delete(
+      Uri.parse('${Endpoint.baseUrl}/payments/delete-payment-method'),
+      headers: await _headers(),
+      body: jsonEncode({'paymentMethodId': paymentMethodId}),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return true;
+    } else {
+      throw Exception('Failed to delete payment method');
+    }
+  }
 }
