@@ -45,11 +45,19 @@ class MyOrdersController extends GetxController {
   List<OrderModel> get filteredOrders {
     final apiStatus = _mapTabToApiStatus(selectedTab.value);
 
-    // Combine both service orders and paid orders for filtering
-    List<OrderModel> allOrders = [];
+    // Handle Paid Orders specially - show all paid orders regardless of status
     if (selectedTab.value == 'Paid Orders') {
-      allOrders = [...paidOrders];
-    } else if (selectedTab.value == 'All Orders') {
+      return paidOrders.where((order) {
+        final typeMatch =
+            selectedOrderType.value == 'All Orders' ||
+            order.type == selectedOrderType.value;
+        return typeMatch;
+      }).toList();
+    }
+
+    // Combine both service orders and paid orders for other tabs
+    List<OrderModel> allOrders = [];
+    if (selectedTab.value == 'All Orders') {
       allOrders = [...orders, ...paidOrders];
     } else {
       allOrders = [...orders];
