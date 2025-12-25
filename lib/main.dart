@@ -12,7 +12,7 @@ void main() async {
   Get.put(MessagesController(), permanent: true);
   Stripe.publishableKey =
       'pk_test_51STA6VAXBWlDgH16B93sDb5ljUdMznqUvUctIchof13FERdETjlATINexABJmM7zmHq7oAfam4HSikD4zPBXgXrY00pmIwTyNE';
-  // await Stripe.instance.applySettings();
+  await Stripe.instance.applySettings();
 
   configEasyLoading();
   runApp(const MyApp());

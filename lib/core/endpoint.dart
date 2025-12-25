@@ -1,6 +1,5 @@
 class Endpoint {
-  static const String baseUrl =
-      'https://neva-unlamentable-judson.ngrok-free.dev';
+  static const String baseUrl = 'http://16.170.173.35:5050';
 
   // Auth endpoints
   static const String register = '$baseUrl/auth/register';
