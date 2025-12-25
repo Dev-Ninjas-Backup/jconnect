@@ -596,7 +596,7 @@ class MessagesController extends GetxController {
                     } catch (_) {
                       // fallback: if msg has an id, remove by matching id
                       if (msg != null) {
-                        final id = msg is Map ? msg['id'] : (msg.id ?? null);
+                        final id = msg is Map ? msg['id'] : (msg.id);
                         if (id != null) {
                           allChats.removeWhere(
                             (c) =>

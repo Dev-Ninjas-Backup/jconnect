@@ -5,11 +5,6 @@ import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
-import 'package:jconnect/features/messages/chat_details/widgets/cancel_deal_widget.dart';
-import 'package:jconnect/features/messages/chat_details/widgets/payment_dailog_widget.dart';
-import 'package:jconnect/features/messages/chat_details/widgets/send_file_dailog_widget.dart';
-import 'package:jconnect/features/messages/chat_details/widgets/set_date_widget.dart';
-import 'package:jconnect/features/messages/chat_details/widgets/view_oder_details_widget.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jconnect/features/payment/payment_screen.dart';
@@ -328,7 +323,10 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                                                 ),
                                               ),
                                               onPressed: () {
-                                                Get.to(() => PaymentPage(),arguments: msgItem);
+                                                Get.to(
+                                                  () => PaymentPage(),
+                                                  arguments: msgItem,
+                                                );
 
                                                 // Get.snackbar(
                                                 //   'Payment',
