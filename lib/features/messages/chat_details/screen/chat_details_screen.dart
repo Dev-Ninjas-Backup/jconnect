@@ -11,6 +11,7 @@ import 'package:jconnect/features/messages/chat_details/widgets/send_file_dailog
 import 'package:jconnect/features/messages/chat_details/widgets/set_date_widget.dart';
 import 'package:jconnect/features/messages/chat_details/widgets/view_oder_details_widget.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ChatDetailsScreen extends StatefulWidget {
   const ChatDetailsScreen({super.key});
@@ -23,6 +24,8 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   final controller = Get.find<MessagesController>();
   final dynamic arguments = Get.arguments;
   late ScrollController _scrollController;
+  final ImagePicker _imagePicker = ImagePicker();
+  final selectedFiles = <String>[].obs;
 
   @override
   void initState() {
@@ -41,7 +44,23 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    selectedFiles.clear();
     super.dispose();
+  }
+
+  Future<void> _pickFile() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
+      if (image != null) {
+        selectedFiles.add(image.path);
+        print('📎 File selected: ${image.path}');
+      }
+    } catch (e) {
+      print('❌ Error picking file: $e');
+      Get.snackbar('Error', 'Failed to pick file');
+    }
   }
 
   void _scrollToBottom() {
@@ -154,10 +173,10 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                         ],
                       ),
                       Spacer(),
-                      GestureDetector(
-                        onTap: controller.toggleSidebar,
-                        child: Icon(Icons.more_vert, color: Colors.white),
-                      ),
+                      // GestureDetector(
+                      //   onTap: controller.toggleSidebar,
+                      //   child: Icon(Icons.more_vert, color: Colors.white),
+                      // ),
                     ],
                   ),
                 ),
@@ -361,6 +380,76 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                                         ),
                                       ),
                                     ),
+                                  // Files display
+                                  if (msgItem.files.isNotEmpty)
+                                    Container(
+                                      margin: EdgeInsets.symmetric(vertical: 8),
+                                      padding: EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[800],
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Attachments (${msgItem.files.length})',
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          SizedBox(height: 8),
+                                          Wrap(
+                                            spacing: 8,
+                                            runSpacing: 8,
+                                            children: msgItem.files.map((file) {
+                                              final fileName = file
+                                                  .split('/')
+                                                  .last;
+                                              return Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 8,
+                                                  vertical: 6,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey[700],
+                                                  borderRadius:
+                                                      BorderRadius.circular(6),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.image,
+                                                      color: Colors.white70,
+                                                      size: 14,
+                                                    ),
+                                                    SizedBox(width: 6),
+                                                    Flexible(
+                                                      child: Text(
+                                                        fileName.length > 20
+                                                            ? '${fileName.substring(0, 17)}...'
+                                                            : fileName,
+                                                        style: TextStyle(
+                                                          color: Colors.white70,
+                                                          fontSize: 11,
+                                                        ),
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                 ],
                               ),
                             );
@@ -370,49 +459,151 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
               ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                child: Row(
+                child: Column(
                   children: [
-                    Image.asset(Iconpath.cekol, height: 20, width: 20),
-                    SizedBox(width: 12),
-                    Image.asset(Iconpath.dollar, height: 20, width: 20),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: TextField(
-                        controller: controller.messageController,
-                        style: TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: 'Type your message...',
-                          hintStyle: TextStyle(color: Colors.white38),
-                          filled: true,
-                          fillColor: Colors.grey[900],
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 8,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(color: Colors.white38),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.white38),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.white),
+                    // Selected files preview
+                    Obx(() {
+                      if (selectedFiles.isEmpty) {
+                        return SizedBox.shrink();
+                      }
+                      return Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
+                        child: SizedBox(
+                          height: 80,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: selectedFiles.length,
+                            itemBuilder: (context, index) {
+                              final fileName = selectedFiles[index]
+                                  .split('/')
+                                  .last;
+                              return Container(
+                                margin: EdgeInsets.only(right: 8),
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[800],
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: AppColors.redColor,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Stack(
+                                  children: [
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.image,
+                                          color: Colors.white70,
+                                          size: 24,
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          fileName.length > 15
+                                              ? '${fileName.substring(0, 12)}...'
+                                              : fileName,
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 10,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          selectedFiles.removeAt(index);
+                                          print('🗑️ File removed: $fileName');
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: AppColors.redColor,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          padding: EdgeInsets.all(2),
+                                          child: Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                            size: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
                         ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: Image.asset(Iconpath.send, height: 20, width: 20),
-                      onPressed: () {
-                        controller.sendMessage(
-                          recipientId: recipientId,
-                          content: controller.messageController.text,
-                        );
-                        controller.messageController.clear();
-                      },
+                      );
+                    }),
+                    // Message input row
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: _pickFile,
+                          child: Image.asset(
+                            Iconpath.cekol,
+                            height: 20,
+                            width: 20,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            controller: controller.messageController,
+                            style: TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              hintText: 'Type your message...',
+                              hintStyle: TextStyle(color: Colors.white38),
+                              filled: true,
+                              fillColor: Colors.grey[900],
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(color: Colors.white38),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.white38),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Image.asset(
+                            Iconpath.send,
+                            height: 20,
+                            width: 20,
+                          ),
+                          onPressed: () {
+                            controller.sendMessage(
+                              recipientId: recipientId,
+                              content: controller.messageController.text,
+                              files: selectedFiles.isNotEmpty
+                                  ? selectedFiles.toList()
+                                  : null,
+                            );
+                            controller.messageController.clear();
+                            selectedFiles.clear();
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -420,96 +611,96 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
               SizedBox(height: 40),
             ],
           ),
-          Obx(
-            () => controller.showSidebar.value
-                ? Positioned(
-                    top: 100,
-                    right: 0,
-                    width: 220,
-                    height: 300,
-                    child: Material(
-                      elevation: 5,
-                      color: Colors.transparent,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[850],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          children: [
-                            ListTile(
-                              title: Text(
-                                '📎 Send File',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (_) => const SendFileDialogWidget(),
-                                );
-                              },
-                            ),
-
-                            Divider(color: Colors.white24, height: 2),
-                            ListTile(
-                              title: Text(
-                                '💵 Make Payment',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => PaymentDialogWidget(),
-                                );
-                              },
-                            ),
-                            Divider(color: Colors.white24, height: 2),
-                            ListTile(
-                              title: Text(
-                                '📅 Set Date',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => SetDateWidget(),
-                                );
-                              },
-                            ),
-                            Divider(color: Colors.white24, height: 2),
-                            ListTile(
-                              title: Text(
-                                '🛒 View Order Details',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) =>
-                                      ViewOrderDetailsWidget(),
-                                );
-                              },
-                            ),
-                            Divider(color: Colors.white24, height: 2),
-                            ListTile(
-                              title: Text(
-                                '❌ Cancel Deal',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => CancelDealWidget(),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  )
-                : SizedBox.shrink(),
-          ),
+          // Obx(
+          //   () => controller.showSidebar.value
+          //       ? Positioned(
+          //           top: 100,
+          //           right: 0,
+          //           width: 220,
+          //           height: 300,
+          //           child: Material(
+          //             elevation: 5,
+          //             color: Colors.transparent,
+          //             child: Container(
+          //               decoration: BoxDecoration(
+          //                 color: Colors.grey[850],
+          //                 borderRadius: BorderRadius.circular(12),
+          //               ),
+          //               child: Column(
+          //                 children: [
+          //                   ListTile(
+          //                     title: Text(
+          //                       '📎 Send File',
+          //                       style: TextStyle(color: Colors.white),
+          //                     ),
+          //                     onTap: () {
+          //                       showDialog(
+          //                         context: context,
+          //                         builder: (_) => const SendFileDialogWidget(),
+          //                       );
+          //                     },
+          //                   ),
+          //
+          //                   Divider(color: Colors.white24, height: 2),
+          //                   ListTile(
+          //                     title: Text(
+          //                       '💵 Make Payment',
+          //                       style: TextStyle(color: Colors.white),
+          //                     ),
+          //                     onTap: () {
+          //                       showDialog(
+          //                         context: context,
+          //                         builder: (context) => PaymentDialogWidget(),
+          //                       );
+          //                     },
+          //                   ),
+          //                   Divider(color: Colors.white24, height: 2),
+          //                   ListTile(
+          //                     title: Text(
+          //                       '📅 Set Date',
+          //                       style: TextStyle(color: Colors.white),
+          //                     ),
+          //                     onTap: () {
+          //                       showDialog(
+          //                         context: context,
+          //                         builder: (context) => SetDateWidget(),
+          //                       );
+          //                     },
+          //                   ),
+          //                   Divider(color: Colors.white24, height: 2),
+          //                   ListTile(
+          //                     title: Text(
+          //                       '🛒 View Order Details',
+          //                       style: TextStyle(color: Colors.white),
+          //                     ),
+          //                     onTap: () {
+          //                       showDialog(
+          //                         context: context,
+          //                         builder: (context) =>
+          //                             ViewOrderDetailsWidget(),
+          //                       );
+          //                     },
+          //                   ),
+          //                   Divider(color: Colors.white24, height: 2),
+          //                   ListTile(
+          //                     title: Text(
+          //                       '❌ Cancel Deal',
+          //                       style: TextStyle(color: Colors.white),
+          //                     ),
+          //                     onTap: () {
+          //                       showDialog(
+          //                         context: context,
+          //                         builder: (context) => CancelDealWidget(),
+          //                       );
+          //                     },
+          //                   ),
+          //                 ],
+          //               ),
+          //             ),
+          //           ),
+          //         )
+          //       : SizedBox.shrink(),
+          // ),
         ],
       ),
     );
