@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jconnect/core/endpoint.dart';
+// ignore: library_prefixes
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class MessageSocketService {

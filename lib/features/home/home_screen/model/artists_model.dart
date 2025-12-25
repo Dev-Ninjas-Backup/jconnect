@@ -144,9 +144,11 @@ class ServiceModel {
 class Creator {
   final String? sellerIDStripe;
   final String? email;
+  // ignore: non_constant_identifier_names
   final String? full_name;
   final String? profilePhoto;
 
+  // ignore: non_constant_identifier_names
   Creator({this.sellerIDStripe, this.email, this.full_name, this.profilePhoto});
 
   factory Creator.fromJson(Map<String, dynamic> json) {
