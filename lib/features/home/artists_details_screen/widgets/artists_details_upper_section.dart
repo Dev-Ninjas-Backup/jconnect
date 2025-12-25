@@ -192,15 +192,19 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
             child: Column(
               children: [
                 ClipRRect(
-                borderRadius: BorderRadiusGeometry.circular(100),
+                  borderRadius: BorderRadiusGeometry.circular(100),
                   child: Image.network(
                     artist.profilePhoto ?? '',
                     height: 130.w,
                     width: 130.w,
-                    errorBuilder: (_, __, ___) =>
-                        ClipRRect(
-                        borderRadius: BorderRadiusGeometry.circular(50),
-                        child: const Icon(Icons.broken_image, size: 130,color: Colors.white,)),
+                    errorBuilder: (_, __, ___) => ClipRRect(
+                      borderRadius: BorderRadiusGeometry.circular(50),
+                      child: const Icon(
+                        Icons.broken_image,
+                        size: 130,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(height: 12.h),
@@ -224,29 +228,28 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: 30.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            spacing: 24.w,
-            children: [
-              Expanded(
-                child: CustomSecondaryButton(
-                  buttonText: "Message",
-                  onTap: () {},
-                ),
-              ),
-              Expanded(
-                child: CustomPrimaryButton(
-                  buttonText: "Request Service",
-                  onTap: () {
-               //     Get.toNamed(AppRoute.getRequestServiceScreen());
-                  },
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-
+          // SizedBox(height: 30.h),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   spacing: 24.w,
+          //   children: [
+          //     Expanded(
+          //       child: CustomSecondaryButton(
+          //         buttonText: "Message",
+          //         onTap: () {},
+          //       ),
+          //     ),
+          //     Expanded(
+          //       child: CustomPrimaryButton(
+          //         buttonText: "Request Service",
+          //         onTap: () {
+          //      //     Get.toNamed(AppRoute.getRequestServiceScreen());
+          //         },
+          //         fontSize: 14,
+          //       ),
+          //     ),
+          //   ],
+          // ),
           SizedBox(height: 40.h),
           Text(
             "Social Links:",
@@ -268,15 +271,14 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                 return Padding(
                   padding: EdgeInsets.only(right: 34.w),
                   child: GestureDetector(
-                  onTap: () {
-
-                    final url = socialProfiles[index].platformLink;
-                    if (url != null && url.isNotEmpty) {
-                      controller.launchURL(url);
-                    }
-                    
-                  },
-                  child: Image.asset(iconPath, height: 24.w, width: 24.w)),
+                    onTap: () {
+                      final url = socialProfiles[index].platformLink;
+                      if (url != null && url.isNotEmpty) {
+                        controller.launchURL(url);
+                      }
+                    },
+                    child: Image.asset(iconPath, height: 24.w, width: 24.w),
+                  ),
                 );
               }),
             )
