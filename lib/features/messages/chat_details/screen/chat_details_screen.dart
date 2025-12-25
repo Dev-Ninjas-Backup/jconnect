@@ -330,13 +330,13 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                                               onPressed: () {
                                                 Get.to(() => PaymentPage(),arguments: msgItem);
 
-                                                Get.snackbar(
-                                                  'Payment',
-                                                  'Processing payment for ${msgItem.service!.serviceName}',
-                                                  backgroundColor:
-                                                      AppColors.redColor,
-                                                  colorText: Colors.white,
-                                                );
+                                                // Get.snackbar(
+                                                //   'Payment',
+                                                //   'Processing payment for ${msgItem.service!.serviceName}',
+                                                //   backgroundColor:
+                                                //       AppColors.redColor,
+                                                //   colorText: Colors.white,
+                                                // );
                                               },
                                               child: Text(
                                                 'Pay Now',
