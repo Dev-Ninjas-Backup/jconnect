@@ -6,12 +6,13 @@ class PaymentPage extends StatelessWidget {
   PaymentPage({super.key});
 
   final controller = Get.put(PaymentController());
+  final dynamic arg = Get.arguments;
 
   // Demo service data
-  final String serviceId = 'd9293923-2e4b-43e3-ad2c-5eca3aaa75ca';
-  final String serviceTitle = 'Premium Subscription';
+  String get serviceId => arg.service!.id ?? '';
+   String get serviceTitle => arg.service!.serviceName?? '';
   final String serviceDescription = 'Get unlimited access to all features.';
-  final double servicePrice = 49.99;
+  int get servicePrice => arg.service!.price ?? 0.0;
 
   @override
   Widget build(BuildContext context) {

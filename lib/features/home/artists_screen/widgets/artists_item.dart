@@ -315,7 +315,6 @@ class ArtistsItem extends StatelessWidget {
                   CustomSecondaryButton(
                     buttonText: "Custom Order",
                     onTap: () {
-                      Get.to(() => PaymentPage());
 
                       // Get.toNamed(AppRoute.customServices);
                     },

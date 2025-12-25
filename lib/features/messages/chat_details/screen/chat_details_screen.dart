@@ -12,6 +12,7 @@ import 'package:jconnect/features/messages/chat_details/widgets/set_date_widget.
 import 'package:jconnect/features/messages/chat_details/widgets/view_oder_details_widget.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:jconnect/features/payment/payment_screen.dart';
 
 class ChatDetailsScreen extends StatefulWidget {
   const ChatDetailsScreen({super.key});
@@ -327,6 +328,8 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                                                 ),
                                               ),
                                               onPressed: () {
+                                                Get.to(() => PaymentPage(),arguments: msgItem);
+
                                                 Get.snackbar(
                                                   'Payment',
                                                   'Processing payment for ${msgItem.service!.serviceName}',
