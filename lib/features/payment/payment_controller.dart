@@ -1,7 +1,5 @@
 // ignore_for_file: avoid_print
 
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
@@ -185,11 +183,13 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
         ),
       );
 
+      // ignore: unnecessary_null_comparison
       if (pm.id != null) {
-        widget.onCreated(pm.id!);
+        widget.onCreated(pm.id);
       }
     } catch (e) {
       ScaffoldMessenger.of(
+        // ignore: use_build_context_synchronously
         context,
       ).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
