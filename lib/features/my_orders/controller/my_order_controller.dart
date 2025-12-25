@@ -24,8 +24,8 @@ class MyOrdersController extends GetxController {
     switch (tab) {
       case 'Active':
         return 'ACTIVE';
-      case 'Payment Confirmation':
-        return 'PAYMENTCONFIRM';
+      case 'My orders':
+        return 'PENDING';
       case 'Pending':
         return 'PENDING';
       case 'Completed':
@@ -55,30 +55,57 @@ class MyOrdersController extends GetxController {
     try {
       isLoading.value = true;
 
-      final prefsHelper = SharedPreferencesHelperController();
+      final prefsHelper = Get.find<SharedPreferencesHelperController>();
       final token = await prefsHelper.getAccessToken();
 
+      print('🔥 [MY ORDERS] Retrieved token: ${token?.substring(0, 20)}...');
+
       if (token == null || token.isEmpty) {
+        print('❌ [MY ORDERS] No token found - redirecting to login');
         Get.offAllNamed('/login');
         return;
       }
 
-      final response = await http.get(
-        Uri.parse(Endpoint.orders),
-        headers: {'Authorization': token, 'Content-Type': 'application/json'},
+      // Ensure Bearer prefix is included
+      String authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+
+      print(
+        '🔥 [MY ORDERS] Making API call to: ${Endpoint.baseUrl}/orders/my_service_orders',
       );
+      print('🔥 [MY ORDERS] Auth header: ${authHeader.substring(0, 20)}...');
+
+      // Use the new endpoint for my service orders
+      final response = await http.get(
+        Uri.parse('${Endpoint.baseUrl}/orders/my_service_orders'),
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('🔥 [MY ORDERS] API Response status: ${response.statusCode}');
+      print('🔥 [MY ORDERS] API Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List;
+        print('🔥 [MY ORDERS] Fetched ${data.length} orders');
         final List<OrderModel> fetchedOrders = data
             .map((json) => OrderModel.fromJson(json))
             .toList();
         orders.assignAll(fetchedOrders);
+        print('✅ [MY ORDERS] Orders loaded successfully');
       } else if (response.statusCode == 401) {
+        print('❌ [MY ORDERS] Unauthorized - redirecting to login');
+        // Clear stored token since it's invalid
+        await prefsHelper.clearAllData();
         Get.offAllNamed('/login');
+      } else {
+        print('❌ [MY ORDERS] Failed to load orders: ${response.statusCode}');
+        print('❌ [MY ORDERS] Response: ${response.body}');
       }
-    } catch (e) {
-      print('Error loading orders: $e');
+    } catch (e, stackTrace) {
+      print('❌ [MY ORDERS] Error loading orders: $e');
+      print('❌ [MY ORDERS] Stack trace: $stackTrace');
     } finally {
       isLoading.value = false;
     }
@@ -93,24 +120,33 @@ class MyOrdersController extends GetxController {
 
   Future<void> _deleteOrderFromServer(OrderModel order) async {
     try {
-      final prefsHelper = SharedPreferencesHelperController();
+      final prefsHelper = Get.find<SharedPreferencesHelperController>();
       final token = await prefsHelper.getAccessToken();
+
+      if (token == null || token.isEmpty) {
+        print('❌ [DELETE ORDER] No token available');
+        return;
+      }
+
+      String authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
 
       final response = await http.delete(
         Uri.parse('${Endpoint.orders}/${order.orderId}'), // DATABASE ID
         headers: {
-          'Authorization': 'Bearer $token',
+          'Authorization': authHeader,
           'Content-Type': 'application/json',
         },
       );
 
       if (response.statusCode == 200) {
-        print('Order deleted successfully');
+        print('✅ [DELETE ORDER] Order deleted successfully');
       } else {
-        print('Failed to delete order');
+        print(
+          '❌ [DELETE ORDER] Failed to delete order: ${response.statusCode}',
+        );
       }
     } catch (e) {
-      print('Delete order error: $e');
+      print('❌ [DELETE ORDER] Error: $e');
     }
   }
 }

@@ -9,7 +9,14 @@ class OrderTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tabs = ['All Orders', 'Active', 'Pending', 'Payment Confirmation', 'Completed', 'Cancelled'];
+    final tabs = [
+      'All Orders',
+      'Active',
+      'Pending',
+      'My orders',
+      'Completed',
+      'Cancelled',
+    ];
 
     return Obx(() {
       return SingleChildScrollView(
@@ -22,7 +29,10 @@ class OrderTabBar extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => controller.selectedTab.value = tab,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: isSelected ? AppColors.redColor : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
