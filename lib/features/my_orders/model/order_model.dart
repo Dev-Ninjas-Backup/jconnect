@@ -6,8 +6,8 @@ class OrderModel {
   final String status;
   final double price;
   final String? description;
-  final String orderId;      // database ID for API calls
-  final String orderCode;    // displayed to user
+  final String orderId; // database ID for API calls
+  final String orderCode; // displayed to user
   final Map<String, dynamic>? raw;
   final String sellerName;
   final String sellerEmail;
@@ -36,11 +36,11 @@ class OrderModel {
       status: json['status'] ?? '',
       price: (json['amount'] ?? 0).toDouble(),
       description: json['service']?['description'] ?? '',
-      orderId: json['id'] ?? '',           // DATABASE ID for API
-      orderCode: json['orderCode'] ?? '',  // display to user
+      orderId: json['id'] ?? '', // DATABASE ID for API
+      orderCode: json['orderCode'] ?? '', // display to user
       raw: json,
-      sellerName: json['seller']?['full_name'] ?? '',
-      sellerEmail: json['seller']?['email'] ?? '',
+      sellerName: json['buyer']?['full_name'] ?? '',
+      sellerEmail: json['buyer']?['email'] ?? '',
     );
   }
 }

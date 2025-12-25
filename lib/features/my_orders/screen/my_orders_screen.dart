@@ -14,7 +14,12 @@ class MyOrdersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(MyOrdersController());
-    controller.loadOrders();
+
+    // Load orders when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.loadOrders();
+    });
+
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
       body: SafeArea(
@@ -32,16 +37,30 @@ class MyOrdersScreen extends StatelessWidget {
               SizedBox(height: 20),
               Expanded(
                 child: Obx(() {
-                  if (controller.orders.isEmpty) {
-                    return OrderEmptyState();
-                  } else {
-                    final list = controller.filteredOrders;
-                    return ListView.builder(
-                      itemCount: list.length,
-                      itemBuilder: (context, index) =>
-                          OrderCardWrapper(order: list[index]),
+                  if (controller.isLoading.value) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColors.redColor,
+                        ),
+                      ),
                     );
                   }
+
+                  if (controller.orders.isEmpty) {
+                    return OrderEmptyState();
+                  }
+
+                  final list = controller.filteredOrders;
+                  if (list.isEmpty) {
+                    return OrderEmptyState();
+                  }
+
+                  return ListView.builder(
+                    itemCount: list.length,
+                    itemBuilder: (context, index) =>
+                        OrderCardWrapper(order: list[index]),
+                  );
                 }),
               ),
             ],
