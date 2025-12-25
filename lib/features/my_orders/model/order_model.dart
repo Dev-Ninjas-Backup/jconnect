@@ -43,4 +43,23 @@ class OrderModel {
       sellerEmail: json['buyer']?['email'] ?? '',
     );
   }
+
+  factory OrderModel.fromPaidOrderJson(Map<String, dynamic> json) {
+    return OrderModel(
+      title: json['service']?['serviceName'] ?? '',
+      platform: json['service']?['serviceType'] ?? '',
+      icon: '', // replace if you have service icon
+      type: 'Purchased',
+      status: json['status'] ?? '',
+      price:
+          (json['amount'] ?? 0).toDouble() /
+          100, // Convert from cents to dollars
+      description: json['service']?['description'] ?? '',
+      orderId: json['id'] ?? '', // DATABASE ID for API
+      orderCode: json['orderCode'] ?? '', // display to user
+      raw: json,
+      sellerName: json['seller']?['full_name'] ?? '',
+      sellerEmail: json['seller']?['email'] ?? '',
+    );
+  }
 }

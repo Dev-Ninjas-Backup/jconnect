@@ -9,6 +9,7 @@ import 'package:jconnect/features/my_orders/model/order_model.dart';
 
 class MyOrdersController extends GetxController {
   RxList<OrderModel> orders = <OrderModel>[].obs;
+  RxList<OrderModel> paidOrders = <OrderModel>[].obs;
   RxString selectedTab = 'All Orders'.obs;
   RxString selectedOrderType = 'All Orders'.obs;
   RxBool isLoading = false.obs;
@@ -28,6 +29,8 @@ class MyOrdersController extends GetxController {
         return 'PENDING';
       case 'Pending':
         return 'PENDING';
+      case 'Paid Orders':
+        return 'PAID';
       case 'Completed':
         return 'COMPLETE';
       case 'Cancelled':
@@ -42,7 +45,17 @@ class MyOrdersController extends GetxController {
   List<OrderModel> get filteredOrders {
     final apiStatus = _mapTabToApiStatus(selectedTab.value);
 
-    return orders.where((order) {
+    // Combine both service orders and paid orders for filtering
+    List<OrderModel> allOrders = [];
+    if (selectedTab.value == 'Paid Orders') {
+      allOrders = [...paidOrders];
+    } else if (selectedTab.value == 'All Orders') {
+      allOrders = [...orders, ...paidOrders];
+    } else {
+      allOrders = [...orders];
+    }
+
+    return allOrders.where((order) {
       final statusMatch = apiStatus == null || order.status == apiStatus;
       final typeMatch =
           selectedOrderType.value == 'All Orders' ||
@@ -55,6 +68,18 @@ class MyOrdersController extends GetxController {
     try {
       isLoading.value = true;
 
+      // Load both service orders and paid orders
+      await Future.wait([_loadServiceOrders(), _loadPaidOrders()]);
+    } catch (e, stackTrace) {
+      print('❌ [MY ORDERS] Error loading orders: $e');
+      print('❌ [MY ORDERS] Stack trace: $stackTrace');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> _loadServiceOrders() async {
+    try {
       final prefsHelper = Get.find<SharedPreferencesHelperController>();
       final token = await prefsHelper.getAccessToken();
 
@@ -74,7 +99,7 @@ class MyOrdersController extends GetxController {
       );
       print('🔥 [MY ORDERS] Auth header: ${authHeader.substring(0, 20)}...');
 
-      // Use the new endpoint for my service orders
+      // Use the existing endpoint for my service orders
       final response = await http.get(
         Uri.parse('${Endpoint.baseUrl}/orders/my_service_orders'),
         headers: {
@@ -88,30 +113,80 @@ class MyOrdersController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as List;
-        print('🔥 [MY ORDERS] Fetched ${data.length} orders');
+        print('🔥 [MY ORDERS] Fetched ${data.length} service orders');
         final List<OrderModel> fetchedOrders = data
             .map((json) => OrderModel.fromJson(json))
             .toList();
         orders.assignAll(fetchedOrders);
-        print('✅ [MY ORDERS] Orders loaded successfully');
+        print('✅ [MY ORDERS] Service orders loaded successfully');
       } else if (response.statusCode == 401) {
         print('❌ [MY ORDERS] Unauthorized - redirecting to login');
         // Clear stored token since it's invalid
         await prefsHelper.clearAllData();
         Get.offAllNamed('/login');
       } else {
-        print('❌ [MY ORDERS] Failed to load orders: ${response.statusCode}');
+        print(
+          '❌ [MY ORDERS] Failed to load service orders: ${response.statusCode}',
+        );
         print('❌ [MY ORDERS] Response: ${response.body}');
       }
-    } catch (e, stackTrace) {
-      print('❌ [MY ORDERS] Error loading orders: $e');
-      print('❌ [MY ORDERS] Stack trace: $stackTrace');
-    } finally {
-      isLoading.value = false;
+    } catch (e) {
+      print('❌ [MY ORDERS] Error loading service orders: $e');
     }
   }
 
-  void clearOrders() => orders.clear();
+  Future<void> _loadPaidOrders() async {
+    try {
+      final prefsHelper = Get.find<SharedPreferencesHelperController>();
+      final token = await prefsHelper.getAccessToken();
+
+      if (token == null || token.isEmpty) {
+        print('❌ [PAID ORDERS] No token found');
+        return;
+      }
+
+      // Ensure Bearer prefix is included
+      String authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+
+      print(
+        '🔥 [PAID ORDERS] Making API call to: ${Endpoint.baseUrl}/orders/my-orders',
+      );
+
+      // Use the new endpoint for paid orders
+      final response = await http.get(
+        Uri.parse('${Endpoint.baseUrl}/orders/my-orders'),
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('🔥 [PAID ORDERS] API Response status: ${response.statusCode}');
+      print('🔥 [PAID ORDERS] API Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as List;
+        print('🔥 [PAID ORDERS] Fetched ${data.length} paid orders');
+        final List<OrderModel> fetchedPaidOrders = data
+            .map((json) => OrderModel.fromPaidOrderJson(json))
+            .toList();
+        paidOrders.assignAll(fetchedPaidOrders);
+        print('✅ [PAID ORDERS] Paid orders loaded successfully');
+      } else {
+        print(
+          '❌ [PAID ORDERS] Failed to load paid orders: ${response.statusCode}',
+        );
+        print('❌ [PAID ORDERS] Response: ${response.body}');
+      }
+    } catch (e) {
+      print('❌ [PAID ORDERS] Error loading paid orders: $e');
+    }
+  }
+
+  void clearOrders() {
+    orders.clear();
+    paidOrders.clear();
+  }
 
   void deleteOrder(OrderModel order) {
     orders.remove(order);
