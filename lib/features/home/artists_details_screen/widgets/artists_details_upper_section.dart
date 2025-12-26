@@ -7,8 +7,6 @@ import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/constants/iconpath.dart';
 import '../../../../core/common/style/global_text_style.dart';
 import '../../../../core/common/widgets/custom_app_bar2.dart';
-import '../../../../core/common/widgets/custom_primary_button.dart';
-import '../../../../core/common/widgets/custom_secondary_button.dart';
 
 // class ArtistsDetailsUpperSection extends StatelessWidget {
 //   final ArtistsDetailsController controller;

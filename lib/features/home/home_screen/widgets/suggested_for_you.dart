@@ -15,7 +15,6 @@ import 'package:jconnect/features/messages/model/message_model2.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:flutter/foundation.dart';
 
-import '../../../../core/common/widgets/custom_secondary_button.dart';
 import '../../../../routes/approute.dart';
 
 class SuggestedForYou extends StatelessWidget {
@@ -119,8 +118,9 @@ class SuggestedForYou extends StatelessWidget {
                                   fit: BoxFit.cover,
                                   loadingBuilder:
                                       (context, child, loadingProgress) {
-                                        if (loadingProgress == null)
+                                        if (loadingProgress == null) {
                                           return child;
+                                        }
                                         return Container(
                                           height: 80.h,
                                           width: 80.w,
