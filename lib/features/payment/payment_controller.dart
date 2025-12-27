@@ -3,14 +3,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/features/payment/model/payment_model.dart';
 import 'package:jconnect/features/payment/payment_service.dart';
 import 'package:jconnect/routes/approute.dart';
 
 class PaymentController extends GetxController {
   final isLoading = false.obs;
   final PaymentService _paymentService = PaymentService();
+    final Rxn<PaymentMethodModel> paymentMethod = Rxn();
+
 
   final RxBool isDeleting = false.obs;
+    @override
+  void onInit() {
+    super.onInit();
+    loadPaymentMethod();
+  }
+
+    Future<void> loadPaymentMethod() async {
+    try {
+      isLoading.value = true;
+      paymentMethod.value = await _paymentService.fetchPaymentMethod();
+    } catch (e) {
+      paymentMethod.value = null;
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
   Future<void> makePayment(String serviceId) async {
     try {
@@ -45,12 +64,11 @@ class PaymentController extends GetxController {
 
     try {
       isDeleting.value = true;
-
       final success = await _paymentService.deletePaymentMethod(id);
 
       if (success) {
+        paymentMethod.value = null; // 🔥 instant UI update
         Get.snackbar('Success', 'Payment method deleted');
-        Get.back(); // or refresh list
       }
     } catch (e) {
       Get.snackbar('Error', e.toString());
@@ -63,14 +81,15 @@ class PaymentController extends GetxController {
     try {
       isLoading.value = true;
 
-      final paymentMethodId = await _collectCardAndCreatePaymentMethod(context);
-      print("paymentMethodId: $paymentMethodId");
+      final paymentMethodId =
+          await _collectCardAndCreatePaymentMethod(context);
 
-      if (paymentMethodId == null) {
-        throw Exception('Card entry cancelled');
-      }
+      if (paymentMethodId == null) return;
 
       await _paymentService.paymentMethodAdd(paymentMethodId);
+
+      /// 🔥 RELOAD CARD AFTER ADD
+      await loadPaymentMethod();
 
       Get.snackbar(
         'Success',
@@ -89,6 +108,7 @@ class PaymentController extends GetxController {
       isLoading.value = false;
     }
   }
+}
 
   Future<String?> _collectCardAndCreatePaymentMethod(
     BuildContext context,
@@ -118,7 +138,7 @@ class PaymentController extends GetxController {
 
     return paymentMethodId;
   }
-}
+
 
 class _CardEntrySheet extends StatefulWidget {
   final void Function(String paymentMethodId) onCreated;

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:jconnect/features/home/home_screen/model/artists_model.dart';
 import 'package:jconnect/routes/approute.dart';
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/style/global_text_style.dart';
