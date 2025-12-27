@@ -100,7 +100,7 @@ class EditProfileScreen extends StatelessWidget {
                                           Expanded(
                                             flex: 2,
                                             child: CustomTextfield(
-                                              hintText: 'Username',
+                                              hintText: 'Profile Link',
                                               controller: link['username'],
                                             ),
                                           ),
