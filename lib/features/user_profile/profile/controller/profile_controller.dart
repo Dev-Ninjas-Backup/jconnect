@@ -12,7 +12,8 @@ class ProfileController extends GetxController {
   final Rx<ProfileModel> user = ProfileModel(
     name: '',
     imageUrl: Imagepath.profileImage,
-    shortbio: '',
+    shortbio: 'No Bio',
+    email: " ",
     totaldeals: 0,
     earnings: 0.0,
     rating: 0.0,
@@ -45,6 +46,7 @@ class ProfileController extends GetxController {
   void updateFromApi(Map<String, dynamic> json) {
     final existing = user.value;
     final name = json['full_name']?.toString() ?? existing.name;
+    final email=json['email']?.toString()?? existing.email;
     //final fullName = json['full_name']?.toString() ?? existing.fullName;
     final phone = json['phone']?.toString() ?? existing.phone;
     // If API returns null for profile_image_url use the app default profile image
@@ -84,6 +86,7 @@ class ProfileController extends GetxController {
       //fullName: fullName,
       phone: phone,
       socialProfiles: socialProfiles,
+      email: email
     );
   }
 

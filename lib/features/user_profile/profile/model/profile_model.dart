@@ -7,6 +7,7 @@ class ProfileModel {
   final double rating;
   final String? fullName;
   final String? phone;
+  final String?email;
   final List<SocialProfileModel>? socialProfiles;
 
   ProfileModel({
@@ -18,6 +19,7 @@ class ProfileModel {
     required this.rating,
     this.fullName,
     this.phone,
+    this.email,
     this.socialProfiles,
   });
 }

@@ -142,6 +142,19 @@ Future<void> fetchSuggestedArtistsMethod() async {
 
 
 
+Future<void> refreshHomeData() async {
+  try {
+    isLoading(true);
+
+    await Future.wait([
+      fetchRecentArtists(),
+      fetchTopRatedArtistsMethod(),
+      fetchSuggestedArtistsMethod(),
+    ]);
+  } finally {
+    isLoading(false);
+  }
+}
 
 
 
