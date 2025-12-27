@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/routes/approute.dart';
 
 import '../../../../core/common/constants/app_colors.dart';
@@ -10,9 +11,11 @@ import '../../../../core/common/widgets/gradient_border_container.dart';
 import '../controller/artists_details_controller.dart';
 
 class SocialPost extends StatelessWidget {
-  const SocialPost({super.key, required this.controller});
+  SocialPost({super.key, required this.controller});
 
   final ArtistsDetailsController controller;
+  final SharedPreferencesHelperController pref =
+      Get.find<SharedPreferencesHelperController>();
 
   @override
   Widget build(BuildContext context) {
@@ -72,19 +75,45 @@ class SocialPost extends StatelessWidget {
                         ),
                       ),
                     ),
-                    CustomPrimaryButton(
-                      buttonHeight: 10.h,
-                      buttonWidth: 75.w,
 
-                      buttonText: "Buy Post",
-                      onTap: () {
-                        // Get.toNamed(AppRoute.getBuySocialcPost());\
-                        Get.toNamed(
-                          AppRoute.getRequestServiceScreen(),
-                          arguments: item,
-                        );
-                      },
-                    ),
+                    Obx(() {
+                      final artistId = controller.artistsDetails.value?.id;
+                      final userId = controller.userId.value;
+
+                      if (artistId == null || userId == null) {
+                        return const SizedBox();
+                      }
+
+                      return artistId == userId
+                          ? const SizedBox()
+                          : CustomPrimaryButton(
+                              buttonHeight: 10.h,
+                              buttonWidth: 75.w,
+                              buttonText: "Buy Post",
+                              onTap: () {
+                                Get.toNamed(
+                                  AppRoute.getRequestServiceScreen(),
+                                  arguments: item,
+                                );
+                              },
+                            );
+                    }),
+
+                    // controller.artistsDetails.value!.id ==  pref.getUserId()
+                    //     ? SizedBox()
+                    //     : CustomPrimaryButton(
+                    //         buttonHeight: 10.h,
+                    //         buttonWidth: 75.w,
+
+                    //         buttonText: "Buy Post",
+                    //         onTap: () {
+                    //           // Get.toNamed(AppRoute.getBuySocialcPost());\
+                    //           Get.toNamed(
+                    //             AppRoute.getRequestServiceScreen(),
+                    //             arguments: item,
+                    //           );
+                    //         },
+                    //       ),
                   ],
                 ),
               ],

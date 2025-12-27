@@ -68,32 +68,59 @@ class Services extends StatelessWidget {
                         ),
                       ),
                     ),
-                    CustomPrimaryButton(
-                      buttonHeight: 10.h,
-                      buttonWidth: 109.w,
 
-                      buttonText: "Request Service",
-                      fontSize: sp(10),
-                      onTap: () {
-                        // Create a service with artist ID
-                        final serviceWithArtist = ServiceModel(
-                          id: item.id,
-                          serviceName: item.serviceName,
-                          serviceType: item.serviceType,
-                          description: item.description,
-                          price: item.price,
-                          currency: item.currency,
-                          isPost: item.isPost,
-                          isCustom: item.isCustom,
-                          creatorId: controller.artistsDetails.value?.id,
-                          creator: null,
-                        );
-                        Get.toNamed(
-                          AppRoute.getRequestServiceScreen(),
-                          arguments: serviceWithArtist,
-                        );
-                      },
-                    ),
+
+                    Obx(() {
+                      final artistId = controller.artistsDetails.value?.id;
+                      final userId = controller.userId.value;
+
+                      if (artistId == null || userId == null) {
+                        return const SizedBox();
+                      }
+
+                      return artistId == userId
+                          ? const SizedBox()
+                          : CustomPrimaryButton(
+                              buttonHeight: 10.h,
+                              buttonWidth: 75.w,
+                              buttonText: "Request Service",
+                              onTap: () {
+                                Get.toNamed(
+                                  AppRoute.getRequestServiceScreen(),
+                                  arguments: item,
+                                );
+                              },
+                            );
+                    }),
+
+
+
+                    // CustomPrimaryButton(
+                    //   buttonHeight: 10.h,
+                    //   buttonWidth: 109.w,
+
+                    //   buttonText: "Request Service",
+                    //   fontSize: sp(10),
+                    //   onTap: () {
+                    //     // Create a service with artist ID
+                    //     final serviceWithArtist = ServiceModel(
+                    //       id: item.id,
+                    //       serviceName: item.serviceName,
+                    //       serviceType: item.serviceType,
+                    //       description: item.description,
+                    //       price: item.price,
+                    //       currency: item.currency,
+                    //       isPost: item.isPost,
+                    //       isCustom: item.isCustom,
+                    //       creatorId: controller.artistsDetails.value?.id,
+                    //       creator: null,
+                    //     );
+                    //     Get.toNamed(
+                    //       AppRoute.getRequestServiceScreen(),
+                    //       arguments: serviceWithArtist,
+                    //     );
+                    //   },
+                    // ),
                   ],
                 ),
               ],

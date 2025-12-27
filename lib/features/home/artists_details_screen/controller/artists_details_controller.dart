@@ -2,6 +2,7 @@
 
 import 'package:get/get.dart';
 import 'package:jconnect/core/endpoint.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -11,6 +12,11 @@ class ArtistsDetailsController extends GetxController {
   final NetworkClient networkClient;
 
   ArtistsDetailsController({required this.networkClient});
+
+  RxnString userId = RxnString();
+
+  final SharedPreferencesHelperController pref =
+      Get.find<SharedPreferencesHelperController>();
 
   // Observables
   var isLoading = false.obs;
@@ -76,4 +82,14 @@ class ArtistsDetailsController extends GetxController {
         .where((s) => s.serviceType == "SERVICE")
         .toList();
   }
-}
+  @override
+  void onInit() {
+    loadUserId();
+    super.onInit();
+  }
+   Future<void> loadUserId() async {
+    userId.value = await pref.getUserId();
+  }
+  
+
+  }
