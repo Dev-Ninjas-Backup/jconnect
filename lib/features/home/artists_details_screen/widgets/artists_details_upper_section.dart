@@ -190,13 +190,15 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
             child: Column(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadiusGeometry.circular(100),
+                  borderRadius: BorderRadiusGeometry.circular(100.r),
                   child: Image.network(
                     artist.profilePhoto ?? '',
-                    height: 130.w,
+                    height: 130.h,
                     width: 130.w,
+                    fit: BoxFit.cover,
+
                     errorBuilder: (_, __, ___) => ClipRRect(
-                      borderRadius: BorderRadiusGeometry.circular(50),
+                      borderRadius: BorderRadiusGeometry.circular(100.r),
                       child: const Icon(
                         Icons.broken_image,
                         size: 130,
@@ -205,6 +207,7 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                     ),
                   ),
                 ),
+
                 SizedBox(height: 12.h),
                 Text(
                   artist.fullName,
@@ -217,7 +220,7 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                 Text(
                   artist.email,
                   style: getTextStyle(
-                    fontsize: sp(10),
+                    fontsize: sp(18),
                     fontweight: FontWeight.w400,
                     color: AppColors.primaryTextColor.withValues(alpha: .7),
                   ),

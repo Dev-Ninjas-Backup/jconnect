@@ -17,6 +17,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     HomeController controller = Get.put(HomeController());
+    controller.refreshHomeData();
    // final notificationController = Get.find<NotificationController>();
 
     return Scaffold(
