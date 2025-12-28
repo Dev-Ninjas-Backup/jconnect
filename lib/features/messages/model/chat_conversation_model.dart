@@ -51,16 +51,13 @@ class ChatMessage {
     };
   }
 }
+
 class SenderInfo {
   final String id;
   final String fullName;
   final String? profilePhoto;
 
-  SenderInfo({
-    required this.id,
-    required this.fullName,
-    this.profilePhoto,
-  });
+  SenderInfo({required this.id, required this.fullName, this.profilePhoto});
 
   factory SenderInfo.fromJson(Map<String, dynamic> json) {
     return SenderInfo(
@@ -71,13 +68,10 @@ class SenderInfo {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'full_name': fullName,
-      'profilePhoto': profilePhoto,
-    };
+    return {'id': id, 'full_name': fullName, 'profilePhoto': profilePhoto};
   }
 }
+
 class ServiceInfo {
   final String id;
   final String serviceName;
@@ -88,6 +82,7 @@ class ServiceInfo {
   final String creatorId;
   final bool isPost;
   final bool isCustom;
+  final String? deliveryDate;
 
   ServiceInfo({
     required this.id,
@@ -99,19 +94,40 @@ class ServiceInfo {
     required this.creatorId,
     required this.isPost,
     required this.isCustom,
+    this.deliveryDate,
   });
 
   factory ServiceInfo.fromJson(Map<String, dynamic> json) {
+    String? pickNullableString(List<String> keys) {
+      for (final k in keys) {
+        final value = json[k];
+        if (value == null) continue;
+        final s = value.toString().trim();
+        if (s.isNotEmpty) return s;
+      }
+      return null;
+    }
+
     return ServiceInfo(
-      id: json['id'],
-      serviceName: json['serviceName'],
-      serviceType: json['serviceType'],
+      id: (json['id'] ?? '').toString(),
+      serviceName: (json['serviceName'] ?? json['service_name'] ?? '')
+          .toString(),
+      serviceType: (json['serviceType'] ?? json['service_type'] ?? '')
+          .toString(),
       description: json['description'],
-      price: json['price'],
+      price: (json['price'] is num)
+          ? (json['price'] as num)
+          : num.tryParse((json['price'] ?? 0).toString()) ?? 0,
       currency: json['currency'],
-      creatorId: json['creatorId'],
+      creatorId: (json['creatorId'] ?? json['creator_id'] ?? '').toString(),
       isPost: json['isPost'] ?? false,
       isCustom: json['isCustom'] ?? false,
+      deliveryDate: pickNullableString([
+        'deliveryDate',
+        'delivery_date',
+        'deliveryDateTime',
+        'delivery_date_time',
+      ]),
     );
   }
 
@@ -126,7 +142,7 @@ class ServiceInfo {
       'creatorId': creatorId,
       'isPost': isPost,
       'isCustom': isCustom,
+      'deliveryDate': deliveryDate,
     };
   }
 }
-

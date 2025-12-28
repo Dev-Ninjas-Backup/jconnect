@@ -203,12 +203,16 @@ class MessagesController extends GetxController {
   /* -------------------- Conversation -------------------- */
 
   /// Initialize existing conversation from API
-  Future<void> initConversationFromAPI({required String conversationId}) async {
+  Future<void> initConversationFromAPI({
+    required String conversationId,
+    bool force = false,
+  }) async {
     try {
       // Prevent duplicate loading only if:
       // 1. Same conversation was already loaded
       // 2. AND we still have the messages in memory (not empty)
-      if (_lastLoadedConversationId == conversationId &&
+      if (!force &&
+          _lastLoadedConversationId == conversationId &&
           _loadedMessageIds.isNotEmpty &&
           messages.isNotEmpty) {
         print('⏭️ Conversation $conversationId already loaded, skipping');
@@ -523,6 +527,20 @@ class MessagesController extends GetxController {
       }
       _updateChatListWithMessage(sentMessage);
 
+      // If this message is a service request, the send-message API sometimes
+      // returns `serviceId` but not the full `service` object. The UI service
+      // card requires `service != null`, so force-refresh the conversation once.
+      if (serviceId != null &&
+          serviceId.trim().isNotEmpty &&
+          sentMessage.serviceId != null &&
+          sentMessage.service == null &&
+          sentMessage.conversationId.isNotEmpty) {
+        await initConversationFromAPI(
+          conversationId: sentMessage.conversationId,
+          force: true,
+        );
+      }
+
       // IMPORTANT:
       // Do NOT also send via socket here. In many backends the socket event also
       // persists the message, so sending via REST + socket creates duplicates
@@ -578,7 +596,9 @@ class MessagesController extends GetxController {
       }
       // If we previously created a local stub chat with empty chatId, try to
       // find it by participant id and update it with the real conversationId.
-      if (idx == -1 && message.conversationId.isNotEmpty && otherUserId != null) {
+      if (idx == -1 &&
+          message.conversationId.isNotEmpty &&
+          otherUserId != null) {
         idx = allChats.indexWhere(
           (c) =>
               (c.chatId == null || c.chatId!.isEmpty) &&
@@ -603,7 +623,8 @@ class MessagesController extends GetxController {
         // In the chat list, participant should be the OTHER person.
         final ChatParticipant participant;
         if (message.senderId == _myUserId) {
-          participant = _recipientParticipant ??
+          participant =
+              _recipientParticipant ??
               ChatParticipant(
                 id: _recipientId,
                 profilePhoto: null,
