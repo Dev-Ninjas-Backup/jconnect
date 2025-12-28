@@ -12,10 +12,22 @@ class MessageSocketService {
 
   IO.Socket? socket;
 
+  bool get isConnected => socket?.connected == true;
+
   void connect({
     required String token,
     required Function(dynamic data) onNewMessage,
   }) {
+    // Avoid attaching duplicate listeners / multiple sockets (common during hot-reload
+    // or when screens call initialize multiple times).
+    if (socket != null) {
+      if (socket!.connected) {
+        debugPrint('ℹ️ Message socket already connected');
+        return;
+      }
+      disconnect();
+    }
+
     socket = IO.io(
       Endpoint.chatSocketIO,
       IO.OptionBuilder()

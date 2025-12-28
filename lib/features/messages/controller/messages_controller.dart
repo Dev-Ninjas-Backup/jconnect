@@ -64,6 +64,10 @@ class MessagesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // Reset conversation tracking on controller initialization
+    _lastLoadedConversationId = null;
+    _loadedMessageIds.clear();
+
     // Initialize socket connection and load conversation list on startup
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
@@ -80,6 +84,8 @@ class MessagesController extends GetxController {
 
   final MessageSocketService _socket = MessageSocketService();
 
+  bool _socketInitialized = false;
+
   /// Reactive message list for current conversation
   final RxList<ChatMessage> messages = <ChatMessage>[].obs;
 
@@ -88,6 +94,57 @@ class MessagesController extends GetxController {
 
   /// Logged-in user id
   String? _myUserId;
+
+  /// Flag to prevent duplicate conversation loads
+  /// Flag to track if conversation ID has changed
+  String? _lastLoadedConversationId;
+
+  /// Set of loaded message IDs to prevent socket duplicates
+  Set<String> _loadedMessageIds = {};
+
+  static const Duration _duplicateWindow = Duration(seconds: 3);
+
+  String _msgSignature(ChatMessage m) {
+    final normalizedContent = m.content.trim();
+    final files = [...m.files];
+    files.sort();
+    return '${m.senderId}|${m.serviceId ?? ''}|$normalizedContent|${files.join(',')}';
+  }
+
+  bool _isNearDuplicate(ChatMessage a, ChatMessage b) {
+    if (_msgSignature(a) != _msgSignature(b)) return false;
+    return a.createdAt.difference(b.createdAt).abs() <= _duplicateWindow;
+  }
+
+  List<ChatMessage> _dedupeConversationMessages(List<ChatMessage> input) {
+    if (input.isEmpty) return const [];
+
+    final sorted = [...input]
+      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    final seenIds = <String>{};
+    final out = <ChatMessage>[];
+
+    for (final msg in sorted) {
+      if (seenIds.contains(msg.id)) {
+        continue;
+      }
+      seenIds.add(msg.id);
+
+      // Check recent tail for near-duplicates (covers double-save cases).
+      bool dup = false;
+      for (int i = out.length - 1; i >= 0 && i >= out.length - 5; i--) {
+        if (_isNearDuplicate(out[i], msg)) {
+          dup = true;
+          break;
+        }
+      }
+      if (!dup) {
+        out.add(msg);
+      }
+    }
+
+    return out;
+  }
 
   /* -------------------- Socket Lifecycle -------------------- */
 
@@ -100,6 +157,10 @@ class MessagesController extends GetxController {
   /// Initialize socket connection with proper authentication
   Future<void> initializeSocketConnection() async {
     try {
+      if (_socketInitialized && _socket.isConnected) {
+        return;
+      }
+
       // Get auth token from SharedPreferencesHelper
       final token = await _prefHelper
           .getAccessRowToken(); // Raw token without Bearer prefix
@@ -114,6 +175,7 @@ class MessagesController extends GetxController {
 
         // Connect socket with authentication
         connectSocket(token: token, userId: userId);
+        _socketInitialized = true;
         print('✅ Socket connected with authenticated user: $userId');
       } else {
         throw Exception('No authentication token or user ID available');
@@ -134,6 +196,7 @@ class MessagesController extends GetxController {
   @override
   void onClose() {
     _socket.disconnect();
+    _socketInitialized = false;
     super.onClose();
   }
 
@@ -142,7 +205,18 @@ class MessagesController extends GetxController {
   /// Initialize existing conversation from API
   Future<void> initConversationFromAPI({required String conversationId}) async {
     try {
+      // Prevent duplicate loading only if:
+      // 1. Same conversation was already loaded
+      // 2. AND we still have the messages in memory (not empty)
+      if (_lastLoadedConversationId == conversationId &&
+          _loadedMessageIds.isNotEmpty &&
+          messages.isNotEmpty) {
+        print('⏭️ Conversation $conversationId already loaded, skipping');
+        return;
+      }
+
       _conversationId = conversationId;
+      _lastLoadedConversationId = conversationId;
 
       // Preserve any optimistic messages (temp messages that haven't been confirmed)
       final optimisticMessages = messages
@@ -156,9 +230,19 @@ class MessagesController extends GetxController {
       final conversationResponse = await messageServiceRest
           .getSingleConversation(conversationId);
 
-      // Clear and add API messages
+      // Clear and add API messages only once
       messages.clear();
-      messages.addAll(conversationResponse.messages);
+      final apiMessages = _dedupeConversationMessages(
+        conversationResponse.messages,
+      );
+      messages.addAll(apiMessages);
+
+      // Store loaded message IDs to prevent duplicates from socket
+      final loadedMessageIds = <String>{};
+      for (final msg in apiMessages) {
+        loadedMessageIds.add(msg.id);
+      }
+      _loadedMessageIds = loadedMessageIds;
 
       // Re-add optimistic messages at the end
       for (final optMsg in optimisticMessages) {
@@ -176,11 +260,15 @@ class MessagesController extends GetxController {
       }
 
       print(
-        '✅ Loaded ${conversationResponse.messages.length} messages from API + ${optimisticMessages.length} optimistic',
+        '✅ Loaded ${apiMessages.length} messages from API (deduped) + ${optimisticMessages.length} optimistic',
       );
 
-      // Also emit socket event to ensure real-time connection for this conversation
-      _socket.loadConversation(conversationId: conversationId);
+      // Reset flag after API load is complete
+      // API load complete
+
+      // IMPORTANT: Do NOT call _socket.loadConversation() because:
+      // The server would send back ALL messages including those already loaded from API
+      // This causes duplicates. Instead, we only listen for NEW messages via socket.
     } catch (e) {
       print('❌ Error loading conversation from API: $e');
       // Fallback to socket-only loading
@@ -193,6 +281,8 @@ class MessagesController extends GetxController {
     _conversationId = null; // No existing conversation
     _recipientId = recipientId;
     messages.clear();
+    _loadedMessageIds.clear();
+    _lastLoadedConversationId = null;
   }
 
   /// Current recipient ID for new conversations
@@ -211,7 +301,24 @@ class MessagesController extends GetxController {
           final conversationId = data['conversationId'] as String?;
           final messagesList = data['messages'] as List?;
 
-          if (conversationId == _conversationId && messagesList != null) {
+          // Only process if this is the currently active conversation
+          if (conversationId != _conversationId) {
+            print(
+              '📭 Socket conversation data for different conversation: $conversationId vs $_conversationId, ignoring',
+            );
+            return;
+          }
+
+          // Skip if we have loaded messages from API (they should be in _loadedMessageIds)
+          // This prevents duplicate full conversation syncs from socket
+          if (_loadedMessageIds.isNotEmpty) {
+            print(
+              '⏭️ Ignoring full conversation sync from socket - already loaded from API',
+            );
+            return;
+          }
+
+          if (messagesList != null) {
             final conversationMessages = messagesList
                 .map(
                   (msgData) =>
@@ -219,12 +326,18 @@ class MessagesController extends GetxController {
                 )
                 .toList();
 
-            // Clear and add all messages for this conversation
-            messages.clear();
-            messages.addAll(conversationMessages);
+            // Only add new messages that don't already exist
+            int addedCount = 0;
+            for (final newMsg in conversationMessages) {
+              final exists = messages.any((m) => m.id == newMsg.id);
+              if (!exists) {
+                messages.add(newMsg);
+                addedCount++;
+              }
+            }
 
             print(
-              '✅ Loaded ${conversationMessages.length} messages for conversation $conversationId',
+              '✅ Synced ${conversationMessages.length} messages (added $addedCount new) for conversation $conversationId',
             );
             return;
           }
@@ -249,14 +362,15 @@ class MessagesController extends GetxController {
 
       // If this conversation is active, add to messages shown in details
       if (message.conversationId == _conversationId) {
-        // Check if message already exists (by ID or content+sender+time)
+        // Check if already loaded from API
+        if (_loadedMessageIds.contains(message.id)) {
+          print('🔄 Message already loaded from API, skipping: ${message.id}');
+          return;
+        }
+
+        // Check if message already exists (by ID or near-duplicate signature)
         final existingIndex = messages.indexWhere(
-          (m) =>
-              m.id == message.id ||
-              (m.content == message.content &&
-                  m.senderId == message.senderId &&
-                  m.createdAt.difference(message.createdAt).inSeconds.abs() <
-                      5),
+          (m) => m.id == message.id || _isNearDuplicate(m, message),
         );
 
         if (existingIndex == -1) {
@@ -394,13 +508,11 @@ class MessagesController extends GetxController {
         print('✅ Replaced optimistic message with API response');
       }
 
-      // Also send via socket for real-time delivery to other clients
-      _socket.sendMessage(
-        recipientId: targetRecipientId,
-        content: content.trim(),
-        serviceId: serviceId,
-        files: files,
-      );
+      // IMPORTANT:
+      // Do NOT also send via socket here. In many backends the socket event also
+      // persists the message, so sending via REST + socket creates duplicates
+      // that appear after app reopen/hot-reload.
+      // We rely on the backend to broadcast the new message to other clients.
 
       print('✅ Message sent successfully');
     } catch (e, stackTrace) {

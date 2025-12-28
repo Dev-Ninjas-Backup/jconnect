@@ -319,7 +319,9 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                                                 ),
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius:
-                                                      BorderRadius.circular(6),
+                                                      BorderRadius.circular(
+                                                          6,
+                                                        ),
                                                 ),
                                               ),
                                               onPressed: () {
