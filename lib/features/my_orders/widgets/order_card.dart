@@ -97,7 +97,7 @@ class OrderCard extends StatelessWidget {
             ),
           ),
           Text(
-            '\$${order.price.toStringAsFixed(0)}',
+            '\$${(order.price/100).toStringAsFixed(2)}',
             style: getTextStyle(
               color: AppColors.primaryTextColor,
               fontweight: FontWeight.w600,
