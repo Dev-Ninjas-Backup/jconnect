@@ -22,6 +22,25 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   late ScrollController _scrollController;
   final ImagePicker _imagePicker = ImagePicker();
   final selectedFiles = <String>[].obs;
+  bool _initialServiceRequestSent = false;
+
+  String _formatDateFromDateTime(DateTime dt) {
+    const months = <String>[
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
+  }
 
   @override
   void initState() {
@@ -93,11 +112,17 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             recipientId: recipientId,
             recipientParticipant: chatItem?.participant,
           );
+
+          _maybeSendInitialServiceRequest(recipientId.toString());
         } else if (chatItem?.chatId != null) {
           // Existing conversation - load from API
           await controller.initConversationFromAPI(
             conversationId: chatItem.chatId,
           );
+
+          if (recipientId != null) {
+            _maybeSendInitialServiceRequest(recipientId.toString());
+          }
         }
       } else {
         // Legacy format - existing conversation
@@ -105,8 +130,32 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
         await controller.initConversationFromAPI(
           conversationId: arguments.chatId ?? '',
         );
+
+        final legacyRecipientId = arguments?.participant?.id;
+        if (legacyRecipientId != null) {
+          _maybeSendInitialServiceRequest(legacyRecipientId.toString());
+        }
       }
     }
+  }
+
+  void _maybeSendInitialServiceRequest(String recipientId) {
+    if (_initialServiceRequestSent) return;
+    if (arguments is! Map) return;
+
+    final shouldSend = arguments['sendInitialServiceRequest'] == true;
+    final serviceId = arguments['initialServiceId'];
+
+    if (!shouldSend || serviceId == null) return;
+    final sid = serviceId.toString().trim();
+    if (sid.isEmpty) return;
+
+    _initialServiceRequestSent = true;
+    controller.sendMessage(
+      recipientId: recipientId,
+      content: '',
+      serviceId: sid,
+    );
   }
 
   Future<void> _initializeSocketConnection() async {
@@ -282,28 +331,9 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                                               ),
                                               SizedBox(width: 6),
                                               Text(
-                                                'Delivery: Oct 26, 2025',
+                                                'Date: ${_formatDateFromDateTime(msgItem.createdAt)}',
                                                 style: TextStyle(
                                                   color: Colors.white70,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 8),
-                                          // Status
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.info_outline,
-                                                color: Colors.orange,
-                                                size: 14,
-                                              ),
-                                              SizedBox(width: 6),
-                                              Text(
-                                                'Status: Payment Pending',
-                                                style: TextStyle(
-                                                  color: Colors.orange,
                                                   fontSize: 12,
                                                 ),
                                               ),
@@ -324,8 +354,8 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            6,
-                                                          ),
+                                                          6,
+                                                        ),
                                                   ),
                                                 ),
                                                 onPressed: () {

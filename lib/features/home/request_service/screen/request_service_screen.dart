@@ -305,12 +305,10 @@ class RequestServiceScreen extends StatelessWidget {
                     print(
                       '🔥 [REQUEST SERVICE] Sending message with serviceId: ${service.id}',
                     );
-                    messagesController.sendMessage(
-                      recipientId: recipientIdStr,
-                      content: '',
-                      serviceId: service.id,
-                    );
-                    print('🔥 [REQUEST SERVICE] Message send command executed');
+                    // NOTE: Don't send here. For brand-new chats, ChatDetailsScreen
+                    // calls initNewConversation() which clears messages and can
+                    // wipe the optimistic service-request message.
+                    // We send once after ChatDetailsScreen initializes.
 
                     // Navigate to chat to continue conversation
                     if (existingChat != null && existingChat.chatId != null) {
@@ -324,6 +322,8 @@ class RequestServiceScreen extends StatelessWidget {
                           'chatItem': existingChat,
                           'recipientId': recipientIdStr,
                           'isNewConversation': false,
+                          'sendInitialServiceRequest': true,
+                          'initialServiceId': service.id,
                         },
                       );
                     } else {
@@ -347,6 +347,8 @@ class RequestServiceScreen extends StatelessWidget {
                           'chatItem': chatItem,
                           'recipientId': recipientIdStr,
                           'isNewConversation': true,
+                          'sendInitialServiceRequest': true,
+                          'initialServiceId': service.id,
                         },
                       );
                     }
