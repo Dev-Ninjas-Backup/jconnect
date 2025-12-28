@@ -89,7 +89,10 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
         if (isNewConversation && recipientId != null) {
           // For new conversations, we'll start with empty messages
           // and set the recipient ID for sending messages
-          controller.initNewConversation(recipientId: recipientId);
+          controller.initNewConversation(
+            recipientId: recipientId,
+            recipientParticipant: chatItem?.participant,
+          );
         } else if (chatItem?.chatId != null) {
           // Existing conversation - load from API
           await controller.initConversationFromAPI(
@@ -307,47 +310,40 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                                             ],
                                           ),
                                           SizedBox(height: 12),
-                                          // Pay Now button
-                                          SizedBox(
-                                            width: double.infinity,
-                                            child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    AppColors.redColor,
-                                                padding: EdgeInsets.symmetric(
-                                                  vertical: 10,
+                                          // Pay Now button (only visible to the sender)
+                                          if (isMine)
+                                            SizedBox(
+                                              width: double.infinity,
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      AppColors.redColor,
+                                                  padding: EdgeInsets.symmetric(
+                                                    vertical: 10,
+                                                  ),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            6,
+                                                          ),
+                                                  ),
                                                 ),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          6,
-                                                        ),
-                                                ),
-                                              ),
-                                              onPressed: () {
-                                                Get.to(
-                                                  () => PaymentPage(),
-                                                  arguments: msgItem,
-                                                );
-
-                                                // Get.snackbar(
-                                                //   'Payment',
-                                                //   'Processing payment for ${msgItem.service!.serviceName}',
-                                                //   backgroundColor:
-                                                //       AppColors.redColor,
-                                                //   colorText: Colors.white,
-                                                // );
-                                              },
-                                              child: Text(
-                                                'Pay Now',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 13,
+                                                onPressed: () {
+                                                  Get.to(
+                                                    () => PaymentPage(),
+                                                    arguments: msgItem,
+                                                  );
+                                                },
+                                                child: Text(
+                                                  'Pay Now',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 13,
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          ),
                                         ],
                                       ),
                                     ),

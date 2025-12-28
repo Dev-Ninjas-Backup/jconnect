@@ -277,9 +277,13 @@ class MessagesController extends GetxController {
   }
 
   /// Initialize new conversation with a recipient
-  void initNewConversation({required String recipientId}) {
+  void initNewConversation({
+    required String recipientId,
+    ChatParticipant? recipientParticipant,
+  }) {
     _conversationId = null; // No existing conversation
     _recipientId = recipientId;
+    _recipientParticipant = recipientParticipant;
     messages.clear();
     _loadedMessageIds.clear();
     _lastLoadedConversationId = null;
@@ -287,6 +291,9 @@ class MessagesController extends GetxController {
 
   /// Current recipient ID for new conversations
   String? _recipientId;
+
+  /// Recipient info for new conversations (used for local chat list preview)
+  ChatParticipant? _recipientParticipant;
 
   /* -------------------- Messaging -------------------- */
 
@@ -508,6 +515,14 @@ class MessagesController extends GetxController {
         print('✅ Replaced optimistic message with API response');
       }
 
+      // If this was a brand-new conversation, update our conversationId and
+      // reconcile the chat list stub (which used an empty chatId).
+      if ((_conversationId == null || _conversationId!.isEmpty) &&
+          sentMessage.conversationId.isNotEmpty) {
+        _conversationId = sentMessage.conversationId;
+      }
+      _updateChatListWithMessage(sentMessage);
+
       // IMPORTANT:
       // Do NOT also send via socket here. In many backends the socket event also
       // persists the message, so sending via REST + socket creates duplicates
@@ -553,14 +568,30 @@ class MessagesController extends GetxController {
         ),
       );
 
-      final idx = allChats.indexWhere(
-        (c) => c.chatId == message.conversationId,
-      );
+      final otherUserId = message.senderId == _myUserId
+          ? (_recipientParticipant?.id ?? _recipientId)
+          : message.senderId;
+
+      int idx = -1;
+      if (message.conversationId.isNotEmpty) {
+        idx = allChats.indexWhere((c) => c.chatId == message.conversationId);
+      }
+      // If we previously created a local stub chat with empty chatId, try to
+      // find it by participant id and update it with the real conversationId.
+      if (idx == -1 && message.conversationId.isNotEmpty && otherUserId != null) {
+        idx = allChats.indexWhere(
+          (c) =>
+              (c.chatId == null || c.chatId!.isEmpty) &&
+              c.participant?.id == otherUserId,
+        );
+      }
       if (idx != -1) {
         final existing = allChats[idx];
         final updated = ChatItem(
           type: existing.type,
-          chatId: existing.chatId,
+          chatId: message.conversationId.isNotEmpty
+              ? message.conversationId
+              : existing.chatId,
           participant: existing.participant,
           lastMessage: lastMsg,
           updatedAt: lastMsg.createdAt,
@@ -569,11 +600,22 @@ class MessagesController extends GetxController {
         allChats.removeAt(idx);
         allChats.insert(0, updated);
       } else {
-        final participant = ChatParticipant(
-          id: message.senderId,
-          profilePhoto: message.sender.profilePhoto,
-          fullName: message.sender.fullName,
-        );
+        // In the chat list, participant should be the OTHER person.
+        final ChatParticipant participant;
+        if (message.senderId == _myUserId) {
+          participant = _recipientParticipant ??
+              ChatParticipant(
+                id: _recipientId,
+                profilePhoto: null,
+                fullName: null,
+              );
+        } else {
+          participant = ChatParticipant(
+            id: message.senderId,
+            profilePhoto: message.sender.profilePhoto,
+            fullName: message.sender.fullName,
+          );
+        }
         final newChat = ChatItem(
           type: 'private',
           chatId: message.conversationId,
