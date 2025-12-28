@@ -329,8 +329,8 @@ class ArtistsYouKnow extends StatelessWidget {
                             ),
                             child: Text(
                               servicePrice > 0
-                                  ? "From \$${servicePrice.toStringAsFixed(0)}"
-                                  : "From \$0",
+                                  ? "From \$${servicePrice.toStringAsFixed(2)}"
+                                  : "From \$0.00",
                               style: getTextStyle(
                                 fontsize: sp(8),
                                 color: AppColors.secondaryTextColor,

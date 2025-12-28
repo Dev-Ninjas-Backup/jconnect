@@ -65,7 +65,7 @@ class SocialPost extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        "\$ ${item.price}/promotion",
+                        "\$ ${item.price.toStringAsFixed(2)}/promotion",
                         style: getTextStyle(
                           fontsize: sp(12),
                           fontweight: FontWeight.w400,
