@@ -157,11 +157,7 @@ class MessagesController extends GetxController {
   /// Initialize socket connection with proper authentication
   Future<void> initializeSocketConnection() async {
     try {
-      if (_socketInitialized && _socket.isConnected) {
-        return;
-      }
-
-      // Get auth token from SharedPreferencesHelper
+      // Get auth token and userId first to ensure _myUserId is always set
       final token = await _prefHelper
           .getAccessRowToken(); // Raw token without Bearer prefix
       final userId = await _prefHelper.getUserId();
@@ -170,8 +166,14 @@ class MessagesController extends GetxController {
           token.isNotEmpty &&
           userId != null &&
           userId.isNotEmpty) {
-        // Initialize user ID for message handling
+        // Always initialize user ID, even if socket is already connected
         _myUserId = userId;
+
+        // Only connect socket if not already initialized
+        if (_socketInitialized && _socket.isConnected) {
+          print('✅ Socket already connected, user ID refreshed: $userId');
+          return;
+        }
 
         // Connect socket with authentication
         connectSocket(token: token, userId: userId);

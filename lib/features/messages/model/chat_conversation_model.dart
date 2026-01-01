@@ -23,13 +23,15 @@ class ChatMessage {
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
     return ChatMessage(
-      id: json['id'],
+      id: json['id']?.toString() ?? '',
       content: json['content'] ?? '',
       files: List<String>.from(json['files'] ?? []),
-      createdAt: DateTime.parse(json['createdAt']),
-      senderId: json['senderId'],
-      conversationId: json['conversationId'],
-      serviceId: json['serviceId'],
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : DateTime.now(),
+      senderId: json['senderId']?.toString() ?? '',
+      conversationId: json['conversationId']?.toString() ?? '',
+      serviceId: json['serviceId']?.toString(),
       service: json['service'] != null
           ? ServiceInfo.fromJson(json['service'])
           : null,
