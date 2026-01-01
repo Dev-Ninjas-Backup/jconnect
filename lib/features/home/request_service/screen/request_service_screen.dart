@@ -236,19 +236,19 @@ class RequestServiceScreen extends StatelessWidget {
                       price: service.price.toDouble(),
                     );
 
-                    // Show success dialog
-                    Get.dialog(
-                      AlertDialog(
-                        title: const Text('Success'),
-                        content: const Text('Service request sent successfully!'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Get.back(),
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      ),
-                    );
+                    // // Show success dialog
+                    // Get.dialog(
+                    //   AlertDialog(
+                    //     title: const Text('Success'),
+                    //     content: const Text('Service request sent successfully!'),
+                    //     actions: [
+                    //       TextButton(
+                    //         onPressed: () => Get.back(),
+                    //         child: const Text('OK'),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // );
 
                     // Send message with service ID to the service provider
                     final messagesController = Get.find<MessagesController>();
@@ -319,54 +319,65 @@ class RequestServiceScreen extends StatelessWidget {
                     print(
                       '🔥 [REQUEST SERVICE] Sending message with serviceId: ${service.id}',
                     );
-                    // NOTE: Don't send here. For brand-new chats, ChatDetailsScreen
-                    // calls initNewConversation() which clears messages and can
-                    // wipe the optimistic service-request message.
-                    // We send once after ChatDetailsScreen initializes.
 
                     // Navigate to chat to continue conversation
-                    // if (existingChat != null && existingChat.chatId != null) {
-                    //   // Navigate to existing conversation
-                    //   print(
-                    //     '🔥 [REQUEST SERVICE] Navigating to existing conversation: ${existingChat.chatId}',
-                    //   );
-                    //   Get.toNamed(
-                    //     AppRoute.chatDetailsScreen,
-                    //     arguments: {
-                    //       'chatItem': existingChat,
-                    //       'recipientId': recipientIdStr,
-                    //       'isNewConversation': false,
-                    //       'sendInitialServiceRequest': true,
-                    //       'initialServiceId': service.id,
-                    //     },
-                    //   );
-                    // } else {
-                    //   // Navigate to new conversation
-                    //   print(
-                    //     '🔥 [REQUEST SERVICE] Creating new conversation with user: $recipientIdStr',
-                    //   );
-                    //   final chatItem = ChatItem(
-                    //     type: 'private',
-                    //     chatId: null,
-                    //     participant: ChatParticipant(
-                    //       id: recipientIdStr,
-                    //       fullName:
-                    //           service.creator?.full_name ?? 'Service Provider',
-                    //       profilePhoto: service.creator?.profilePhoto,
-                    //     ),
-                    //   );
-                    //   Get.toNamed(
-                    //     AppRoute.chatDetailsScreen,
-                    //     arguments: {
-                    //       'chatItem': chatItem,
-                    //       'recipientId': recipientIdStr,
-                    //       'isNewConversation': true,
-                    //       'sendInitialServiceRequest': true,
-                    //       'initialServiceId': service.id,
-                    //     },
-                    //   );
-                    // }
-                    // print('🔥 [REQUEST SERVICE] Navigation completed');
+                    if (existingChat != null && existingChat.chatId != null) {
+                      // Navigate to existing conversation
+                      print(
+                        '🔥 [REQUEST SERVICE] Navigating to existing conversation: ${existingChat.chatId}',
+                      );
+                      Get.toNamed(
+                        AppRoute.chatDetailsScreen,
+                        arguments: {
+                          'chatItem': existingChat,
+                          'recipientId': recipientIdStr,
+                          'isNewConversation': false,
+                          'sendInitialServiceRequest': true,
+                          'initialServiceId': service.id,
+                        },
+                      );
+                    } else {
+                      // Navigate to new conversation
+                      print(
+                        '🔥 [REQUEST SERVICE] Creating new conversation with user: $recipientIdStr',
+                      );
+                      print(
+                        '🔥 [REQUEST SERVICE] Service creator name: ${service.creator?.full_name}',
+                      );
+                      print(
+                        '🔥 [REQUEST SERVICE] Service creator object: ${service.creator}',
+                      );
+                      
+                      // Get creator name with better fallback
+                      final creatorName = service.creator?.full_name?.isNotEmpty == true
+                          ? service.creator!.full_name!
+                          : (service.creator?.email?.isNotEmpty == true 
+                              ? service.creator!.email!
+                              : 'User');
+                      
+                      print('🔥 [REQUEST SERVICE] Using creator name: $creatorName');
+                      
+                      final chatItem = ChatItem(
+                        type: 'private',
+                        chatId: null,
+                        participant: ChatParticipant(
+                          id: recipientIdStr,
+                          fullName: creatorName,
+                          profilePhoto: service.creator?.profilePhoto,
+                        ),
+                      );
+                      Get.toNamed(
+                        AppRoute.chatDetailsScreen,
+                        arguments: {
+                          'chatItem': chatItem,
+                          'recipientId': recipientIdStr,
+                          'isNewConversation': true,
+                          'sendInitialServiceRequest': true,
+                          'initialServiceId': service.id,
+                        },
+                      );
+                    }
+                    print('🔥 [REQUEST SERVICE] Navigation completed');
                   } catch (e, stackTrace) {
                     print('❌ [REQUEST SERVICE] Error occurred: $e');
                     print('❌ [REQUEST SERVICE] Error type: ${e.runtimeType}');
@@ -440,14 +451,20 @@ class RequestServiceScreen extends StatelessWidget {
                           print(
                             '🔥 [MESSAGE SELLER] Creating new conversation',
                           );
+                          
+                          // Get creator name with better fallback
+                          final creatorName = service.creator?.full_name?.isNotEmpty == true
+                              ? service.creator!.full_name!
+                              : (service.creator?.email?.isNotEmpty == true 
+                                  ? service.creator!.email!
+                                  : 'Service Provider');
+                          
                           final chatItem = ChatItem(
                             type: 'private',
                             chatId: null,
                             participant: ChatParticipant(
                               id: sellerIdStr,
-                              fullName:
-                                  service.creator?.full_name ??
-                                  'Service Provider',
+                              fullName: creatorName,
                               profilePhoto: service.creator?.profilePhoto,
                             ),
                           );

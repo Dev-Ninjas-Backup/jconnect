@@ -98,7 +98,10 @@ class MessageServiceRest {
 
     if (response.isSuccess &&
         (response.statusCode == 200 || response.statusCode == 201)) {
-      final chatMessage = ChatMessage.fromJson(response.responseData!);
+      // API response structure: {success: true, message: {...}}
+      // Extract the message data from the wrapper
+      final messageData = response.responseData!['message'] ?? response.responseData!;
+      final chatMessage = ChatMessage.fromJson(messageData);
       print(
         '🔥 [MESSAGE_SERVICE_REST] Created ChatMessage with serviceId: ${chatMessage.serviceId}',
       );

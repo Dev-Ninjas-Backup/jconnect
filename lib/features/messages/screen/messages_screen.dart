@@ -7,10 +7,24 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/messages/chat_details/screen/chat_details_screen.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
 
-class MessagesScreen extends StatelessWidget {
+class MessagesScreen extends StatefulWidget {
+  const MessagesScreen({super.key});
+
+  @override
+  State<MessagesScreen> createState() => _MessagesScreenState();
+}
+
+class _MessagesScreenState extends State<MessagesScreen> {
   final controller = Get.find<MessagesController>();
 
-  MessagesScreen({super.key});
+  @override
+  void initState() {
+    super.initState();
+    // Refresh conversations when entering the screen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchallchatMethod();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +56,7 @@ class MessagesScreen extends StatelessWidget {
     );
   }
 
-  Widget buildSwipeItem(BuildContext context, dynamic msg, int idx) {
+  Widget buildSwipeItem(BuildContext widgetContext, dynamic msg, int idx) {
     double dragOffset = 0.0;
     final maxOffset = -80.0;
 
@@ -75,7 +89,8 @@ class MessagesScreen extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.only(right: 12.w),
                       child: GestureDetector(
-                        onTap: () => controller.showDeleteDialog(context, msg),
+                        onTap: () =>
+                            controller.showDeleteDialog(widgetContext, msg),
                         child: Container(
                           height: 50.h,
                           width: 40.w,

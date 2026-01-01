@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jconnect/features/payment/payment_screen.dart';
@@ -113,7 +114,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             recipientParticipant: chatItem?.participant,
           );
 
-          _maybeSendInitialServiceRequest(recipientId.toString());
+          await _maybeSendInitialServiceRequest(recipientId.toString());
         } else if (chatItem?.chatId != null) {
           // Existing conversation - load from API
           await controller.initConversationFromAPI(
@@ -121,7 +122,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
           );
 
           if (recipientId != null) {
-            _maybeSendInitialServiceRequest(recipientId.toString());
+            await _maybeSendInitialServiceRequest(recipientId.toString());
           }
         }
       } else {
@@ -133,13 +134,13 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
 
         final legacyRecipientId = arguments?.participant?.id;
         if (legacyRecipientId != null) {
-          _maybeSendInitialServiceRequest(legacyRecipientId.toString());
+          await _maybeSendInitialServiceRequest(legacyRecipientId.toString());
         }
       }
     }
   }
 
-  void _maybeSendInitialServiceRequest(String recipientId) {
+  Future<void> _maybeSendInitialServiceRequest(String recipientId) async {
     if (_initialServiceRequestSent) return;
     if (arguments is! Map) return;
 
@@ -151,11 +152,49 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
     if (sid.isEmpty) return;
 
     _initialServiceRequestSent = true;
+    
+    // Ensure user ID is initialized before sending message
+    final prefHelper = Get.find<SharedPreferencesHelperController>();
+    final userId = await prefHelper.getUserId();
+    if (userId != null && userId.isNotEmpty) {
+      controller.initUserId(userId);
+      print('🔥 [CHAT_DETAILS] User ID initialized: $userId');
+    }
+    
+    // Add small delay to ensure socket is ready
+    await Future.delayed(Duration(milliseconds: 300));
+    
+    print('🔥 [CHAT_DETAILS] Sending initial service request with serviceId: $sid');
     controller.sendMessage(
       recipientId: recipientId,
       content: '',
       serviceId: sid,
     );
+    
+    // Wait for the message to be sent and processed
+    await Future.delayed(Duration(milliseconds: 2000));
+    print('🔥 [CHAT_DETAILS] Initial service request sent, messages count: ${controller.messages.length}');
+    
+    // Update conversation ID from the sent message if we have one
+    if (controller.messages.isNotEmpty) {
+      final lastMsg = controller.messages.last;
+      if (lastMsg.conversationId.isNotEmpty) {
+        print('🔥 [CHAT_DETAILS] Updating conversation ID to: ${lastMsg.conversationId}');
+        // Force refresh to get full conversation with service details
+        if (lastMsg.serviceId != null) {
+          print('🔥 [CHAT_DETAILS] Force refreshing conversation to get service details...');
+          await controller.initConversationFromAPI(
+            conversationId: lastMsg.conversationId,
+            force: true,
+          );
+          print('🔥 [CHAT_DETAILS] Conversation refreshed, messages count: ${controller.messages.length}');
+        }
+        // Refresh conversation list to ensure it appears in messages screen
+        print('🔥 [CHAT_DETAILS] Refreshing conversation list...');
+        await controller.fetchallchatMethod();
+        print('🔥 [CHAT_DETAILS] Conversation list refreshed');
+      }
+    }
   }
 
   Future<void> _initializeSocketConnection() async {
@@ -279,6 +318,14 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                             print(
                               '💬 Displaying message $index: ${msgItem.content}, isMine: $isMine',
                             );
+                            print(
+                              '💬 Message serviceId: ${msgItem.serviceId}, service: ${msgItem.service != null ? "EXISTS" : "NULL"}',
+                            );
+                            if (msgItem.service != null) {
+                              print(
+                                '💬 Service details: ${msgItem.service!.serviceName} - \$${msgItem.service!.price}',
+                              );
+                            }
 
                             return Align(
                               alignment: isMine
@@ -292,89 +339,96 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                                   // Service info card (if message has service)
                                   if (msgItem.serviceId != null &&
                                       msgItem.service != null)
-                                    Container(
-                                      margin: EdgeInsets.only(
-                                        bottom: 8,
-                                        left: isMine ? 40 : 0,
-                                        right: isMine ? 0 : 40,
+                                    ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width *
+                                            0.75,
                                       ),
-                                      padding: EdgeInsets.all(14),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[900],
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: Colors.grey[700]!,
-                                          width: 1,
+                                      child: Container(
+                                        margin: EdgeInsets.only(bottom: 8),
+                                        padding: EdgeInsets.all(14),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[900],
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.grey[700]!,
+                                            width: 1,
+                                          ),
                                         ),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          // Title with service name and price
-                                          Text(
-                                            '${msgItem.service!.serviceName} - \$${msgItem.service!.price}',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                          SizedBox(height: 12),
-                                          // Delivery date
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.calendar_today,
-                                                color: Colors.white70,
-                                                size: 14,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            // Title with service name and price
+                                            Text(
+                                              '${msgItem.service!.serviceName} - \$${msgItem.service!.price}',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 13,
                                               ),
-                                              SizedBox(width: 6),
-                                              Text(
-                                                'Date: ${_formatDateFromDateTime(msgItem.createdAt)}',
-                                                style: TextStyle(
+                                            ),
+                                            SizedBox(height: 12),
+                                            // Delivery date
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.calendar_today,
                                                   color: Colors.white70,
-                                                  fontSize: 12,
+                                                  size: 14,
                                                 ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 12),
-                                          // Pay Now button (only visible to the sender)
-                                          if (isMine)
-                                            SizedBox(
-                                              width: double.infinity,
-                                              child: ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      AppColors.redColor,
-                                                  padding: EdgeInsets.symmetric(
-                                                    vertical: 10,
-                                                  ),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          6,
-                                                        ),
-                                                  ),
-                                                ),
-                                                onPressed: () {
-                                                  Get.to(
-                                                    () => PaymentPage(),
-                                                    arguments: msgItem,
-                                                  );
-                                                },
-                                                child: Text(
-                                                  'Pay Now',
+                                                SizedBox(width: 6),
+                                                Text(
+                                                  'Date: ${_formatDateFromDateTime(msgItem.createdAt)}',
                                                   style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 13,
+                                                    color: Colors.white70,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 12),
+                                            // Pay Now button (only visible to the sender)
+                                            if (isMine)
+                                              SizedBox(
+                                                width: double.infinity,
+                                                child: ElevatedButton(
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        AppColors.redColor,
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                          vertical: 10,
+                                                        ),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            6,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                  onPressed: () {
+                                                    Get.to(
+                                                      () => PaymentPage(),
+                                                      arguments: msgItem,
+                                                    );
+                                                  },
+                                                  child: Text(
+                                                    'Pay Now',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      fontSize: 13,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   // Regular message - only show if content is not empty
