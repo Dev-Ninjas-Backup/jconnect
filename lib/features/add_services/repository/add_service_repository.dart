@@ -76,4 +76,37 @@ class AddServiceRepository {
       throw Exception('Delete failed');
     }
   }
+
+  // UPDATE SERVICE
+  Future<Map<String, dynamic>> updateService({
+    required String id,
+    required String serviceName,
+    required String serviceType,
+    required String description,
+    required String price,
+  }) async {
+    final uri = Uri.parse('${Endpoint.addService}/$id');
+    final token = await pref.getAccessToken();
+
+    final request = http.MultipartRequest('PATCH', uri);
+
+    if (token != null) request.headers['Authorization'] = token;
+    request.headers['Accept'] = 'application/json';
+
+    request.fields.addAll({
+      'serviceName': serviceName,
+      'serviceType': serviceType,
+      'description': description,
+      'price': price,
+    });
+
+    final streamedResp = await request.send();
+    final respStr = await streamedResp.stream.bytesToString();
+
+    if (streamedResp.statusCode == 200 || streamedResp.statusCode == 201) {
+      return jsonDecode(respStr);
+    }
+
+    throw Exception(respStr);
+  }
 }
