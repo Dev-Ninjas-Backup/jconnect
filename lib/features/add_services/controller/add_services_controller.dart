@@ -10,9 +10,9 @@ class AddServiceController extends GetxController {
   final RxnString selectedServiceType = RxnString();
 
   var services = <Map<String, dynamic>>[].obs;
-  var isSaveEnabled = false.obs;
+ // var isSaveEnabled = true.obs;
 
-  RxnInt editingIndex = RxnInt(); // ✅00 ADDED: tracks editing
+  RxnInt editingIndex = RxnInt(); 
 
   final AddServiceRepository repository = AddServiceRepository();
 
@@ -22,9 +22,9 @@ class AddServiceController extends GetxController {
     fetchServicesFromProfile();
 
     // ✅ CHANGED: Enable save button when any field changes
-    serviceNameController.addListener(checkIfSaveEnabled);
-    descriptionController.addListener(checkIfSaveEnabled);
-    priceController.addListener(checkIfSaveEnabled);
+    // serviceNameController.addListener(checkIfSaveEnabled);
+    // descriptionController.addListener(checkIfSaveEnabled);
+    // priceController.addListener(checkIfSaveEnabled);
   }
 
   @override
@@ -50,7 +50,7 @@ class AddServiceController extends GetxController {
               'name': svc['serviceName'],
               'desc': svc['description'],
               'price': svc['price'],
-              'serviceType': svc['serviceType'], // ✅ CHANGED: keep type
+              'serviceType': svc['serviceType'], //  CHANGED: keep type
             };
           }).toList(),
         );
@@ -68,7 +68,7 @@ class AddServiceController extends GetxController {
   /// ADD OR UPDATE SERVICE
   Future<void> saveService() async {
     // ✅ CHANGED: combines add & update
-    if (!isSaveEnabled.value) return;
+   // if (!isSaveEnabled.value) return;
 
     final priceValue = double.tryParse(priceController.text) ?? 0.0;
 
@@ -166,7 +166,7 @@ class AddServiceController extends GetxController {
     priceController.text = svc['price'].toString();
     selectedServiceType.value = svc['serviceType'];
     editingIndex.value = index;
-    isSaveEnabled.value = true;
+ //   isSaveEnabled.value = true;
   }
 
   /// CLEAR FORM
@@ -176,18 +176,18 @@ class AddServiceController extends GetxController {
     descriptionController.clear();
     priceController.clear();
     selectedServiceType.value = null;
-    isSaveEnabled.value = false;
+   // isSaveEnabled.value = false;
     editingIndex.value = null;
   }
 
   /// ENABLE SAVE BUTTON
-  void checkIfSaveEnabled() {
-    // ✅ CHANGED: reactive form validation
-    isSaveEnabled.value =
-        serviceNameController.text.isNotEmpty &&
-        descriptionController.text.isNotEmpty &&
-        priceController.text.isNotEmpty &&
-        selectedServiceType.value != null &&
-        selectedServiceType.value!.isNotEmpty;
-  }
+  // void checkIfSaveEnabled() {
+  //   // ✅ CHANGED: reactive form validation
+  //   isSaveEnabled.value =
+  //       serviceNameController.text.isNotEmpty &&
+  //       descriptionController.text.isNotEmpty &&
+  //       priceController.text.isNotEmpty &&
+  //       selectedServiceType.value != null &&
+  //       selectedServiceType.value!.isNotEmpty;
+  // }
 }

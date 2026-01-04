@@ -80,9 +80,6 @@ class ServiceCardWidget extends StatelessWidget {
     Get.bottomSheet(
       StatefulBuilder(
         builder: (context, setState) {
-          void checkFields() {
-            controller.checkIfSaveEnabled();
-          }
 
           return Container(
             padding: const EdgeInsets.all(20),
@@ -96,14 +93,16 @@ class ServiceCardWidget extends StatelessWidget {
                 // You can reuse your ServiceFormWidget here
                 ServiceFormWidget(
                   controller,
-                  onChanged: (_) => checkFields(),
+                //  onChanged: (_) => checkFields(),
                 ), // ✅ CHANGED
                 const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () => Get.back(),
+                        onPressed: () {
+                        controller.clearForm();
+                        Get.back();},
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Colors.white24),
                           shape: RoundedRectangleBorder(
@@ -119,22 +118,24 @@ class ServiceCardWidget extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: controller.isSaveEnabled.value
-                            ? () async {
+                        onPressed: 
+                      // controller.isSaveEnabled.value
+                           () async {
                                 await controller.saveService();
                                 Get.back();
                               }
-                            : null,
+                            ,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: controller.isSaveEnabled.value
-                              ? Colors.white70
-                              : Colors.black,
+                          backgroundColor: 
+                          //controller.isSaveEnabled.value
+                             // ? Colors.white70
+                               Colors.white70,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text("Save"),
+                        child: const Text("Save",style: TextStyle(color: Colors.black),),
                       ),
                     ),
                   ],
