@@ -10,17 +10,16 @@ import 'package:jconnect/routes/approute.dart';
 class PaymentController extends GetxController {
   final isLoading = false.obs;
   final PaymentService _paymentService = PaymentService();
-    final Rxn<PaymentMethodModel> paymentMethod = Rxn();
-
+  final Rxn<PaymentMethodModel> paymentMethod = Rxn();
 
   final RxBool isDeleting = false.obs;
-    @override
+  @override
   void onInit() {
     super.onInit();
     loadPaymentMethod();
   }
 
-    Future<void> loadPaymentMethod() async {
+  Future<void> loadPaymentMethod() async {
     try {
       isLoading.value = true;
       paymentMethod.value = await _paymentService.fetchPaymentMethod();
@@ -46,8 +45,9 @@ class PaymentController extends GetxController {
     } catch (e) {
       print("payment error: $e");
       Get.snackbar(
-        'Error',
-        e.toString(),
+        " ",
+        'Add your payment method in profile ✨',
+
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
@@ -81,8 +81,7 @@ class PaymentController extends GetxController {
     try {
       isLoading.value = true;
 
-      final paymentMethodId =
-          await _collectCardAndCreatePaymentMethod(context);
+      final paymentMethodId = await _collectCardAndCreatePaymentMethod(context);
 
       if (paymentMethodId == null) return;
 
@@ -110,35 +109,32 @@ class PaymentController extends GetxController {
   }
 }
 
-  Future<String?> _collectCardAndCreatePaymentMethod(
-    BuildContext context,
-  ) async {
-    String? paymentMethodId;
+Future<String?> _collectCardAndCreatePaymentMethod(BuildContext context) async {
+  String? paymentMethodId;
 
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 16,
-            right: 16,
-            top: 16,
-          ),
-          child: _CardEntrySheet(
-            onCreated: (id) {
-              paymentMethodId = id;
-              Get.back();
-            },
-          ),
-        );
-      },
-    );
+  await showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (_) {
+      return Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 16,
+          right: 16,
+          top: 16,
+        ),
+        child: _CardEntrySheet(
+          onCreated: (id) {
+            paymentMethodId = id;
+            Get.back();
+          },
+        ),
+      );
+    },
+  );
 
-    return paymentMethodId;
-  }
-
+  return paymentMethodId;
+}
 
 class _CardEntrySheet extends StatefulWidget {
   final void Function(String paymentMethodId) onCreated;

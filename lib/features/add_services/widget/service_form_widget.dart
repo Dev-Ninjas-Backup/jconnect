@@ -6,9 +6,9 @@ import 'package:jconnect/features/add_services/controller/add_services_controlle
 
 class ServiceFormWidget extends StatelessWidget {
   final AddServiceController controller;
-  final Function(String)? onChanged;
+  //final Function(String)? onChanged;
 
-  const ServiceFormWidget(this.controller, {this.onChanged, super.key});
+  const ServiceFormWidget(this.controller, { super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +76,7 @@ class ServiceFormWidget extends StatelessWidget {
           .toList(),
       onChanged: (val) {
         controller.selectedServiceType.value = val;
-        if (onChanged != null && val != null) onChanged!(val);
+       // if (onChanged != null && val != null) onChanged!(val);
       },
     );
   }
@@ -95,7 +95,7 @@ class ServiceFormWidget extends StatelessWidget {
       style: getTextStyle(color: AppColors.primaryTextColor),
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
-      onChanged: onChanged,
+      //onChanged: onChanged,
       decoration: InputDecoration(
         labelText: title,
         labelStyle: getTextStyle(color: AppColors.secondaryTextColor),
