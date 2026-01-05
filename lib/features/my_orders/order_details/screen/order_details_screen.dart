@@ -64,11 +64,11 @@ class OrderDetailsScreen extends StatelessWidget {
                           _buildDetailRow('Delivery Date', order.deliveryDate),
                           _buildDetailRow(
                             'Service Price',
-                            '\$${order.servicePrice.toStringAsFixed(2)}',
+                            '\$${(order.servicePrice / 100).toStringAsFixed(2)}',
                           ),
                           _buildDetailRow(
                             'Platform Fee (${order.platformRate}%)',
-                            '\$${order.platformFee.toStringAsFixed(0)}',
+                            '\$${order.platformFee.toStringAsFixed(2)}',
                           ),
                           Divider(
                             color: AppColors.secondaryTextColor.withValues(
@@ -78,7 +78,8 @@ class OrderDetailsScreen extends StatelessWidget {
                           ),
                           _buildDetailRow(
                             'Total',
-                            '\$${order.total.toStringAsFixed(0)}',
+                            '\$${(order.total / 100).toStringAsFixed(2)}'
+,
                             isBold: true,
                           ),
                           SizedBox(height: 12),

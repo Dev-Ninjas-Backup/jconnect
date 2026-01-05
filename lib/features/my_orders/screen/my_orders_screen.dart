@@ -35,34 +35,32 @@ class MyOrdersScreen extends StatelessWidget {
               SizedBox(height: 20),
               OrderTabBar(controller: controller),
               SizedBox(height: 20),
-              Expanded(
-                child: Obx(() {
-                  if (controller.isLoading.value) {
-                    return Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.redColor,
-                        ),
-                      ),
-                    );
-                  }
+  Expanded(
+  child: Obx(() {
+    if (controller.isLoading.value) {
+      return Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(
+            AppColors.redColor,
+          ),
+        ),
+      );
+    }
 
-                  if (controller.orders.isEmpty) {
-                    return OrderEmptyState();
-                  }
+    final list = controller.filteredOrders;
 
-                  final list = controller.filteredOrders;
-                  if (list.isEmpty) {
-                    return OrderEmptyState();
-                  }
+    if (list.isEmpty) {
+      return OrderEmptyState();
+    }
 
-                  return ListView.builder(
-                    itemCount: list.length,
-                    itemBuilder: (context, index) =>
-                        OrderCardWrapper(order: list[index]),
-                  );
-                }),
-              ),
+    return ListView.builder(
+      itemCount: list.length,
+      itemBuilder: (context, index) =>
+          OrderCardWrapper(order: list[index]),
+    );
+  }),
+),
+
             ],
           ),
         ),

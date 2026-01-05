@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/get_navigation.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
+import 'package:jconnect/features/home/artists_screen/screen/artists_screen.dart';
 
 class OrderEmptyState extends StatelessWidget {
   const OrderEmptyState({super.key});
@@ -26,9 +29,12 @@ class OrderEmptyState extends StatelessWidget {
             style: getTextStyle(color: Colors.white60),
           ),
           SizedBox(height: 20),
-          CustomPrimaryButton(buttonText: 'Browse Artists', onTap: () {
-            
-          }),
+          CustomPrimaryButton(
+            buttonText: 'Browse Artists',
+            onTap: () {
+              Get.to(ArtistsScreen());
+            },
+          ),
         ],
       ),
     );
