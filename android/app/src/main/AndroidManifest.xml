@@ -11,7 +11,7 @@
         android:label="jconnect"
         android:name="${applicationName}"
         android:requestLegacyExternalStorage="true"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
         android:theme="@style/NormalTheme">
         <!-- <application
     android:name="io.flutter.app.FlutterApplication"
