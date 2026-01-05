@@ -24,33 +24,35 @@ class ReviewerDetails extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    order!.serviceTitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: getTextStyle(
-                      color: AppColors.secondaryTextColor,
-                      fontsize: 13,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      order!.serviceTitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: getTextStyle(
+                        color: AppColors.secondaryTextColor,
+                        fontsize: 13,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    order!.subServiceTitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: getTextStyle(
-                      color: Colors.white54,
-                      fontsize: 13,
-                      fontweight: FontWeight.w400,
+                    SizedBox(height: 4),
+                    Text(
+                      order!.subServiceTitle,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: getTextStyle(
+                        color: Colors.white54,
+                        fontsize: 13,
+                        fontweight: FontWeight.w400,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ),SizedBox(width: 8),
               Text(
-                '\$${order!.servicePrice.toStringAsFixed(0)}',
+                '\$${(order!.servicePrice/100).toStringAsFixed(2)}',
                 style: getTextStyle(
                   color: AppColors.primaryTextColor,
                   fontweight: FontWeight.w600,
