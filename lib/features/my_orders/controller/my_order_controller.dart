@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:jconnect/core/endpoint.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/my_orders/model/order_model.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+
 
 class MyOrdersController extends GetxController {
   RxList<OrderModel> orders = <OrderModel>[].obs;
@@ -201,37 +203,84 @@ class MyOrdersController extends GetxController {
     _deleteOrderFromServer(order);
   }
 
-  Future<void> _deleteOrderFromServer(OrderModel order) async {
-    try {
-      final prefsHelper = Get.find<SharedPreferencesHelperController>();
-      final token = await prefsHelper.getAccessToken();
+Future<void> _deleteOrderFromServer(OrderModel order) async {
+  try {
+    final prefsHelper = Get.find<SharedPreferencesHelperController>();
+    final token = await prefsHelper.getAccessToken();
 
-      if (token == null || token.isEmpty) {
-        print('❌ [DELETE ORDER] No token available');
-        return;
-      }
-
-      String authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
-
-      final response = await http.delete(
-        Uri.parse('${Endpoint.orders}/${order.orderId}'), // DATABASE ID
-        headers: {
-          'Authorization': authHeader,
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        print('✅ [DELETE ORDER] Order deleted successfully');
-      } else {
-        print(
-          '❌ [DELETE ORDER] Failed to delete order: ${response.statusCode}',
-        );
-      }
-    } catch (e) {
-      print('❌ [DELETE ORDER] Error: $e');
+    if (token == null || token.isEmpty) {
+      EasyLoading.showError('No token available. Please login again.');
+      return;
     }
+
+    String authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+
+    final url = '${Endpoint.baseUrl}/orders/delete/${order.orderId}';
+    print('🔥 [DELETE ORDER] DELETE → $url');
+
+    final response = await http.delete(
+      Uri.parse(url),
+      headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json',
+      },
+    );
+
+    final body = json.decode(response.body);
+
+    if (response.statusCode == 200 && body['success'] == true) {
+      print('✅ [DELETE ORDER] Order deleted successfully');
+      orders.remove(order);
+      paidOrders.remove(order);
+      EasyLoading.showSuccess('Order deleted successfully');
+    } else {
+      print(
+        '❌ [DELETE ORDER] Failed: ${response.statusCode}',
+      );
+      print('❌ [DELETE ORDER] Body: ${response.body}');
+      
+      // Show API message in EasyLoading
+      String errorMessage = body['message'] ?? 'Failed to delete order';
+      EasyLoading.showError(errorMessage);
+    }
+  } catch (e) {
+    print('❌ [DELETE ORDER] Error: $e');
+    EasyLoading.showError('Something went wrong. Please try again.');
   }
+}
+
+
+  // Future<void> _deleteOrderFromServer(OrderModel order) async {
+  //   try {
+  //     final prefsHelper = Get.find<SharedPreferencesHelperController>();
+  //     final token = await prefsHelper.getAccessToken();
+
+  //     if (token == null || token.isEmpty) {
+  //       print('❌ [DELETE ORDER] No token available');
+  //       return;
+  //     }
+
+  //     String authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+
+  //     final response = await http.delete(
+  //       Uri.parse('${Endpoint.orders}/${order.orderId}'), // DATABASE ID
+  //       headers: {
+  //         'Authorization': authHeader,
+  //         'Content-Type': 'application/json',
+  //       },
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       print('✅ [DELETE ORDER] Order deleted successfully');
+  //     } else {
+  //       print(
+  //         '❌ [DELETE ORDER] Failed to delete order: ${response.statusCode}',
+  //       );
+  //     }
+  //   } catch (e) {
+  //     print('❌ [DELETE ORDER] Error: $e');
+  //   }
+  // }
 
   Future<void> updateOrderStatus({
   required String orderId,

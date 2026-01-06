@@ -20,11 +20,11 @@ class OrderCardWrapper extends StatelessWidget {
       direction: DismissDirection.endToStart,
       onDismissed: (_) {
         controller.deleteOrder(order);
-        EasyLoading.showToast(
-          'Order "${order.title}" deleted',
-          toastPosition: EasyLoadingToastPosition.bottom,
-          duration: Duration(seconds: 2),
-        );
+        // EasyLoading.showToast(
+        //   'Order "${order.title}" deleted',
+        //   toastPosition: EasyLoadingToastPosition.bottom,
+        //   duration: Duration(seconds: 2),
+        // );
       },
       background: Container(
         color: AppColors.redColor,
