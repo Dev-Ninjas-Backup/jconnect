@@ -232,4 +232,64 @@ class MyOrdersController extends GetxController {
       print('❌ [DELETE ORDER] Error: $e');
     }
   }
+
+  Future<void> updateOrderStatus({
+  required String orderId,
+  required OrderStatus status,
+}) async {
+  try {
+    final prefsHelper = Get.find<SharedPreferencesHelperController>();
+    final token = await prefsHelper.getAccessToken();
+
+    if (token == null || token.isEmpty) {
+      print('❌ [ORDER STATUS] No token found');
+      return;
+    }
+
+    final authHeader =
+        token.startsWith('Bearer ') ? token : 'Bearer $token';
+
+    final url =
+        '${Endpoint.baseUrl}/orders/$orderId/status?status=${status.name}';
+
+    print('🔥 [ORDER STATUS] PUT → $url');
+
+    final response = await http.patch(
+      Uri.parse(url),
+      headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('🔥 [ORDER STATUS] Status: ${response.statusCode}');
+    print('🔥 [ORDER STATUS] Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      // Update locally
+      _updateLocalOrderStatus(orderId, status.name);
+      print('✅ [ORDER STATUS] Updated successfully');
+    } else {
+      print(
+        '❌ [ORDER STATUS] Failed: ${response.statusCode}',
+      );
+    }
+  } catch (e) {
+    print('❌ [ORDER STATUS] Error: $e');
+  }
 }
+void _updateLocalOrderStatus(String orderId, String status) {
+  for (final list in [orders, paidOrders]) {
+    final index =
+        list.indexWhere((order) => order.orderId == orderId);
+    if (index != -1) {
+      list[index] = list[index].copyWith(status: status);
+    }
+  }
+}
+
+
+}
+
+// ignore: constant_identifier_names
+enum OrderStatus { CANCELLED, PENDING, IN_PROGRESS, PROOF_SUBMITTED }
