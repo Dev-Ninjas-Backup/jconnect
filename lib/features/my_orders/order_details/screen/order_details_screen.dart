@@ -5,6 +5,7 @@ import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
+import 'package:jconnect/features/my_orders/controller/my_order_controller.dart';
 import 'package:jconnect/features/my_orders/order_details/controller/order_details_controller.dart';
 import 'package:jconnect/features/my_orders/order_details/widgets/order_timeline_widget.dart';
 import 'package:jconnect/features/my_orders/order_details/widgets/reviewer_details_widget.dart';
@@ -14,6 +15,8 @@ class OrderDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(OrderDetailsController());
+    final orderController = Get.find<MyOrdersController>();
+    final order1 = controller.order.value;
 
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
@@ -32,7 +35,7 @@ class OrderDetailsScreen extends StatelessWidget {
               ),
               SizedBox(height: 32),
               Obx(() {
-                final order = controller.order.value;
+                  final order = controller.order.value;
                 if (order == null) return const SizedBox.shrink();
 
                 return Column(
@@ -78,8 +81,7 @@ class OrderDetailsScreen extends StatelessWidget {
                           ),
                           _buildDetailRow(
                             'Total',
-                            '\$${(order.total / 100).toStringAsFixed(2)}'
-,
+                            '\$${(order.total / 100).toStringAsFixed(2)}',
                             isBold: true,
                           ),
                           SizedBox(height: 12),
@@ -144,7 +146,15 @@ class OrderDetailsScreen extends StatelessWidget {
                 );
               }),
               SizedBox(height: 18),
-              CustomPrimaryButton(buttonText: 'Cancel Order', onTap: () {}),
+              CustomPrimaryButton(
+                buttonText: 'Cancel Order',
+                onTap: () async {
+                  await orderController.updateOrderStatus(
+                    orderId: order1?.id.toString() ?? "",
+                    status: OrderStatus.CANCELLED,
+                  );
+                },
+              ),
             ],
           ),
         ),
