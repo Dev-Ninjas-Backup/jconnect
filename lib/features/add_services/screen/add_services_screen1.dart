@@ -63,37 +63,36 @@ class AddServiceScreen extends StatelessWidget {
                           else
                             ServiceFormWidget(
                               controller,
-                           //   onChanged: (_) => controller.checkIfSaveEnabled(),
+                              //   onChanged: (_) => controller.checkIfSaveEnabled(),
                             ),
                           const SizedBox(height: 16),
+
                           Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                            Expanded(child: SizedBox()),
-                              // Expanded(
-                              //   child:  ElevatedButton(
-                              //       onPressed: 
-                              //      //controller.isSaveEnabled.value
-                              //            () async {
-                              //               await controller
-                              //                   .saveService(); 
-                              //             }
-                              //           ,
-                              //       style: ElevatedButton.styleFrom(
-                              //         backgroundColor:
-                              //          //   controller.isSaveEnabled.value
-                              //            // ? AppColors.redAccent
-                              //              Colors.white70,
-                              //         padding: const EdgeInsets.symmetric(
-                              //           vertical: 14,
-                              //         ),
-                              //         shape: RoundedRectangleBorder(
-                              //           borderRadius: BorderRadius.circular(10),
-                              //         ),
-                              //       ),
-                              //       child: const Text("Save"),
-                              //     ),
-                              // ),
+                              Expanded(child: SizedBox()),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed:
+                                      //controller.isSaveEnabled.value
+                                      () async {
+                                        await controller.saveService();
+                                      },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        //   controller.isSaveEnabled.value
+                                        // ? AppColors.redAccent
+                                        Colors.white70,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Text("Save"),
+                                ),
+                              ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: OutlinedButton(
@@ -158,7 +157,6 @@ class AddServiceScreen extends StatelessWidget {
     Get.bottomSheet(
       StatefulBuilder(
         builder: (context, setState) {
-
           return Container(
             padding: const EdgeInsets.all(20),
             decoration: const BoxDecoration(
@@ -168,9 +166,10 @@ class AddServiceScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ServiceFormWidget(controller,
-                // onChanged: (_) => checkFields()
-                 ),
+                ServiceFormWidget(
+                  controller,
+                  // onChanged: (_) => checkFields()
+                ),
                 const SizedBox(height: 16),
                 Row(
                   children: [
@@ -192,17 +191,14 @@ class AddServiceScreen extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: 
-                      //  controller.isSaveEnabled.value
-                             () async {
-                                await controller.saveService(); 
-                                Get.back();
-                              }
-                            ,
+                        onPressed:
+                            //  controller.isSaveEnabled.value
+                            () async {
+                              await controller.saveService();
+                              Get.back();
+                            },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: 
-                             
-                             Colors.grey,
+                          backgroundColor: Colors.grey,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
