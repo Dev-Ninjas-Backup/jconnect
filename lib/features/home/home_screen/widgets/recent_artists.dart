@@ -234,15 +234,15 @@ class ArtistsYouKnow extends StatelessWidget {
                         ),
                       );
                       await artistsDetailsController.fetchArtistById(artist.id);
-                      Get.to(()=>ArtistsServiceList());
+                      Get.to(() => ArtistsServiceList());
                     },
-                    fontSize: 12,
+                    fontSize: sp(10),
                   ),
                   SizedBox(height: 12.h),
                   CustomPrimaryButton(
                     buttonText: "Buy A Social Post",
 
-                   onTap: () async {
+                    onTap: () async {
                       final artistsDetailsController = Get.put(
                         ArtistsDetailsController(
                           networkClient: NetworkClient(
@@ -255,19 +255,19 @@ class ArtistsYouKnow extends StatelessWidget {
                         ),
                       );
                       await artistsDetailsController.fetchArtistById(artist.id);
-                     Get.to(() => ArtistsSocialPostList());
+                      Get.to(() => ArtistsSocialPostList());
                     },
 
                     // onTap: () {
                     //   Get.to(() => ArtistsSocialPostList());
                     // },
-                    fontSize: 12,
+                    fontSize: sp(10),
                   ),
                   SizedBox(height: 12.h),
 
                   /// Message button
                   CustomPrimaryButton(
-                    fontSize: 12,
+                    fontSize: sp(10),
                     buttonText: "Message",
                     onTap: () {
                       final messagesController = Get.find<MessagesController>();
