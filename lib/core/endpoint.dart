@@ -1,5 +1,5 @@
 class Endpoint {
-  static const String baseUrl = 'http://16.170.173.35:5050';
+  static const String baseUrl = 'https://api.theconnectapp.net';
 
   // Auth endpoints
   static const String register = '$baseUrl/auth/register';

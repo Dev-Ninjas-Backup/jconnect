@@ -69,6 +69,7 @@ class PaymentPage extends StatelessWidget {
                       ),
               ),
             ),
+            SizedBox(height: 35,)
           ],
         ),
       ),
