@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
-import 'package:jconnect/core/common/constants/iconpath.dart';
-import 'package:jconnect/core/common/constants/order_appbar.dart';
+import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/features/my_orders/controller/my_order_controller.dart';
 import 'package:jconnect/features/my_orders/widgets/order_card_wrapper.dart';
 import 'package:jconnect/features/my_orders/widgets/order_empty_state.dart';
@@ -28,10 +27,7 @@ class MyOrdersScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              OrderAppbar(
-                title: 'My Orders',
-                actionIconUrl: Iconpath.filterIcon,
-              ),
+              CustomAppBar2(title: "MY ORDERS"),
               SizedBox(height: 20),
               OrderTabBar(controller: controller),
               SizedBox(height: 20),
