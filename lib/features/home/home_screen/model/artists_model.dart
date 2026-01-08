@@ -109,6 +109,7 @@ class ServiceModel {
   final bool isCustom;
   final String? creatorId;
   final Creator? creator;
+  final String? socialLogoForSocialService;
 
   ServiceModel({
     required this.id,
@@ -119,6 +120,7 @@ class ServiceModel {
     required this.currency,
     required this.isPost,
     required this.isCustom,
+    this.socialLogoForSocialService,
     this.creatorId,
     this.creator,
   });
@@ -133,6 +135,7 @@ class ServiceModel {
       currency: json['currency'] ?? 'USD',
       isPost: json['isPost'] ?? false,
       isCustom: json['isCustom'] ?? false,
+      socialLogoForSocialService: json['socialLogoForSocialService'] ?? "",
       creatorId: json['creatorId'],
       creator: json['creator'] != null
           ? Creator.fromJson(json['creator'])

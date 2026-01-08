@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
@@ -36,8 +36,8 @@ class SocialPost extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Image.asset(item.iconUrl, height: 22, width: 22),
                     // SizedBox(width: 12.w),
                     Text(
                       item.serviceName,
@@ -45,6 +45,10 @@ class SocialPost extends StatelessWidget {
                         fontsize: sp(16),
                         fontweight: FontWeight.w500,
                       ),
+                    ),
+                    Image.network(item.socialLogoForSocialService.toString(), height: 30.h, width: 30.w,
+                    
+                    errorBuilder: (context, error, stackTrace) => Icon(Icons.broken_image,size: 30.sp,color: Colors.white,),
                     ),
                   ],
                 ),
