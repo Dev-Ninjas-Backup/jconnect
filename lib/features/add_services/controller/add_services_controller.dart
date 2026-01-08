@@ -1,6 +1,9 @@
+// ignore_for_file: avoid_print, constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/features/add_services/repository/add_service_repository.dart';
 
 class AddServiceController extends GetxController {
@@ -8,11 +11,11 @@ class AddServiceController extends GetxController {
   final descriptionController = TextEditingController();
   final priceController = TextEditingController();
   final RxnString selectedServiceType = RxnString();
+  final RxnString selectedSocialPlatform = RxnString();
 
   var services = <Map<String, dynamic>>[].obs;
- // var isSaveEnabled = true.obs;
 
-  RxnInt editingIndex = RxnInt(); 
+  RxnInt editingIndex = RxnInt();
 
   final AddServiceRepository repository = AddServiceRepository();
 
@@ -20,11 +23,6 @@ class AddServiceController extends GetxController {
   void onInit() {
     super.onInit();
     fetchServicesFromProfile();
-
-    // ✅ CHANGED: Enable save button when any field changes
-    // serviceNameController.addListener(checkIfSaveEnabled);
-    // descriptionController.addListener(checkIfSaveEnabled);
-    // priceController.addListener(checkIfSaveEnabled);
   }
 
   @override
@@ -50,7 +48,7 @@ class AddServiceController extends GetxController {
               'name': svc['serviceName'],
               'desc': svc['description'],
               'price': svc['price'],
-              'serviceType': svc['serviceType'], //  CHANGED: keep type
+              'serviceType': svc['serviceType'], 
             };
           }).toList(),
         );
@@ -67,9 +65,6 @@ class AddServiceController extends GetxController {
 
   /// ADD OR UPDATE SERVICE
   Future<void> saveService() async {
-    // ✅ CHANGED: combines add & update
-   // if (!isSaveEnabled.value) return;
-
     final priceValue = double.tryParse(priceController.text) ?? 0.00;
 
     try {
@@ -80,6 +75,20 @@ class AddServiceController extends GetxController {
       );
 
       Map<String, dynamic> response;
+
+      final isSocial = selectedServiceType.value == 'SOCIAL_POST';
+
+      if (selectedServiceType.value == null) {
+        EasyLoading.dismiss();
+        Get.snackbar('Error', 'Please select a service type.');
+        return;
+      }
+
+      if (isSocial && selectedSocialPlatform.value == null) {
+        EasyLoading.dismiss();
+        Get.snackbar('Error', 'Please select a social platform.');
+        return;
+      }
 
       if (editingIndex.value != null) {
         // UPDATE SERVICE
@@ -92,7 +101,11 @@ class AddServiceController extends GetxController {
           serviceType: selectedServiceType.value!,
           description: descriptionController.text.trim(),
           price: priceValue.toString(),
+          logoAssetPath: isSocial ? selectedLogoPath.value : null,
+          socialPlatform: isSocial ? selectedSocialPlatform.value : null,
         );
+
+        print("update service response: $response");
 
         final updatedSvc = response['service'];
         services[index] = {
@@ -100,7 +113,7 @@ class AddServiceController extends GetxController {
           'name': updatedSvc['serviceName'],
           'desc': updatedSvc['description'],
           'price': updatedSvc['price'],
-          'serviceType': updatedSvc['serviceType'], // ✅ CHANGED
+          'serviceType': updatedSvc['serviceType'],
         };
       } else {
         // ADD NEW SERVICE
@@ -109,7 +122,10 @@ class AddServiceController extends GetxController {
           serviceType: selectedServiceType.value!,
           description: descriptionController.text.trim(),
           price: priceValue.toString(),
+          logoAssetPath: isSocial ? selectedLogoPath.value : null,
+          socialPlatform: isSocial ? selectedSocialPlatform.value : null,
         );
+        print("serddddddvice response: $response");
 
         final svc = response['service'];
         services.add({
@@ -117,14 +133,16 @@ class AddServiceController extends GetxController {
           'name': svc['serviceName'],
           'desc': svc['description'],
           'price': svc['price'],
-          'serviceType': svc['serviceType'], // ✅ CHANGED
+          'serviceType': svc['serviceType'],
         });
+        print("service response: $svc");
       }
 
       EasyLoading.dismiss();
       clearForm();
     } catch (e) {
       EasyLoading.dismiss();
+      print('Error saving service: $e');
       Get.snackbar(
         'Error',
         editingIndex.value != null
@@ -164,9 +182,22 @@ class AddServiceController extends GetxController {
     serviceNameController.text = svc['name'];
     descriptionController.text = svc['desc'];
     priceController.text = svc['price'].toString();
-    selectedServiceType.value = svc['serviceType'];
+
+    final serviceType = svc['serviceType'];
+    final socialPlatforms =
+        SocialServiceType.values.map((e) => e.name).toList();
+
+    if (socialPlatforms.contains(serviceType)) {
+      isSocialService.value = true;
+      selectedServiceType.value = 'SOCIAL_POST';
+      onSocialPlatformChanged(serviceType);
+    } else {
+      isSocialService.value = false;
+      selectedServiceType.value = serviceType;
+      selectedSocialPlatform.value = null;
+    }
+
     editingIndex.value = index;
- //   isSaveEnabled.value = true;
   }
 
   /// CLEAR FORM
@@ -176,18 +207,66 @@ class AddServiceController extends GetxController {
     descriptionController.clear();
     priceController.clear();
     selectedServiceType.value = null;
-   // isSaveEnabled.value = false;
+    selectedSocialPlatform.value = null;
+    isSocialService.value = false;
+    selectedLogoPath.value = '';
     editingIndex.value = null;
   }
 
-  /// ENABLE SAVE BUTTON
-  // void checkIfSaveEnabled() {
-  //   // ✅ CHANGED: reactive form validation
-  //   isSaveEnabled.value =
-  //       serviceNameController.text.isNotEmpty &&
-  //       descriptionController.text.isNotEmpty &&
-  //       priceController.text.isNotEmpty &&
-  //       selectedServiceType.value != null &&
-  //       selectedServiceType.value!.isNotEmpty;
-  // }
+  RxBool isSocialService = false.obs;
+  RxString selectedLogoPath = ''.obs;
+
+  void onServiceTypeChanged(String? value) {
+    selectedServiceType.value = value;
+    if (value == 'SOCIAL_POST') {
+      isSocialService.value = true;
+    } else {
+      isSocialService.value = false;
+      selectedSocialPlatform.value = null;
+      selectedLogoPath.value = '';
+    }
+  }
+
+  void onSocialPlatformChanged(String? value) {
+    selectedSocialPlatform.value = value;
+    if (value != null) {
+      selectedLogoPath.value =
+          SocialServiceType.values.firstWhere((e) => e.name == value).assetPath;
+    } else {
+      selectedLogoPath.value = '';
+    }
+  }
+}
+
+enum SocialServiceType {
+  FACEBOOK,
+  INSTAGRAM,
+  TWITTER,
+  LINKEDIN,
+  YOUTUBE,
+  SNAPCHAT,
+  TWITCH,
+}
+
+extension SocialServiceTypeX on SocialServiceType {
+  String get name => toString().split('.').last;
+
+  String get assetPath {
+    switch (this) {
+      case SocialServiceType.FACEBOOK:
+        return Iconpath.facebook;
+      case SocialServiceType.INSTAGRAM:
+        return Iconpath.instagram;
+      case SocialServiceType.TWITTER:
+        return Iconpath.twitter;
+      case SocialServiceType.LINKEDIN:
+        return Iconpath.linkedIn;
+      case SocialServiceType.YOUTUBE:
+        return Iconpath.youtube;
+      case SocialServiceType.SNAPCHAT:
+        return Iconpath.snapChat;
+      case SocialServiceType.TWITCH:
+        return Iconpath.twitch;
+    }
+  }
 }
