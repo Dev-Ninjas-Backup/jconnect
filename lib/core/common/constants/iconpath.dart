@@ -17,6 +17,11 @@ class Iconpath {
   static String uploadIcon = 'assets/icons/uploadIcon.png';
   static String stripeIcon = 'assets/icons/stripeIcon.png';
   static String defaultSocial = 'assets/icons/social-media.png';
+  static String linkedIn="assets/icons/linkedin.png";
+  static String twitter="assets/icons/twitter.png";
+  static String snapChat="assets/icons/snapchat.png";
+  static String twitch="assets/icons/twitch.jpg";
+
 
   static String delete = 'assets/icons/delete.png';
   static String reddelete = 'assets/icons/reddelete.png';

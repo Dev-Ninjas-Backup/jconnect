@@ -118,8 +118,10 @@ class AddServiceScreen extends StatelessWidget {
                           const SizedBox(height: 16),
                         //  if (hasServices)
                             GestureDetector(
-                              onTap: () =>
-                                  _showAddServiceSheet(context, controller),
+                              onTap: () {
+                                controller.clearForm();
+                                _showAddServiceSheet(context, controller);
+                              },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
