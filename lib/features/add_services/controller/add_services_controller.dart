@@ -70,7 +70,7 @@ class AddServiceController extends GetxController {
     // ✅ CHANGED: combines add & update
    // if (!isSaveEnabled.value) return;
 
-    final priceValue = double.tryParse(priceController.text) ?? 0.0;
+    final priceValue = double.tryParse(priceController.text) ?? 0.00;
 
     try {
       EasyLoading.show(

@@ -70,7 +70,7 @@ class AddServiceScreen extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Expanded(child: SizedBox()),
+                              // Expanded(child: SizedBox()),
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed:
@@ -116,7 +116,7 @@ class AddServiceScreen extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          if (hasServices)
+                        //  if (hasServices)
                             GestureDetector(
                               onTap: () =>
                                   _showAddServiceSheet(context, controller),
