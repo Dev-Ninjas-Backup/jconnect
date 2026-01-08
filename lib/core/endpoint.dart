@@ -46,4 +46,6 @@ class Endpoint {
   static const String viewArtists = "$baseUrl/users";
   static String updateOrderStatus(String id) =>
       "$baseUrl/orders/$id/status";
+  static String proofUpload = "$baseUrl/orders/ProofUpload";
+  static String releasePayment = "$baseUrl/payments/approve-payment";
 }

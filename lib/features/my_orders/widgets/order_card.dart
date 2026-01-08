@@ -48,14 +48,7 @@ class OrderCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Image.network(
-            order.icon,
-            width: 28,
-            height: 28,
-            errorBuilder: (context, error, stackTrace) {
-              return Image.asset(Iconpath.orderIcon, width: 28, height: 28);
-            },
-          ),
+          Image.asset(Iconpath.orderIcon, width: 28, height: 28),
 
           const SizedBox(width: 10),
           Expanded(
@@ -97,7 +90,7 @@ class OrderCard extends StatelessWidget {
             ),
           ),
           Text(
-            '\$${(order.price/100).toStringAsFixed(2)}',
+            '\$${(order.price).toStringAsFixed(2)}',
             style: getTextStyle(
               color: AppColors.primaryTextColor,
               fontweight: FontWeight.w600,
