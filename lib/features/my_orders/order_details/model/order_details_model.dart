@@ -15,6 +15,7 @@ class OrderDetailsModel {
   final double servicePrice;
   final String platformRate;
   final double platformFee;
+  final String buyerId;
   final List<OrderTimelineStep> timeline;
 
   double get total => servicePrice + platformFee;
@@ -34,6 +35,7 @@ class OrderDetailsModel {
     required this.servicePrice,
     required this.platformRate,
     required this.platformFee,
+    required this.buyerId,
     required this.timeline,
   });
 
@@ -99,6 +101,7 @@ class OrderDetailsModel {
       // Ensure platformRate is never null by passing an explicit empty-string fallback
       platformRate: pickString(['platformFee_percents'], ''),
       platformFee: platformFee,
+      buyerId: pickString(['buyerId', 'buyer_id'], ''),
       timeline: (() {
         final parsed = (json['timeline'] as List<dynamic>?)
             ?.map(
@@ -131,8 +134,9 @@ class OrderDetailsModel {
           case 'PENDING':
             completedIndex = -1; // none completed for PENDING
             break;
-          case 'ACTIVE':
-            completedIndex = 0; // first step completed when ACTIVE
+          case 'IN_PROGRESS':
+            completedIndex =
+                0; // first step completed when ACTIVE or IN_PROGRESS
             break;
           case 'PAYMENTCONFIRM':
           case 'PAYMENT_CONFIRM':
@@ -149,8 +153,8 @@ class OrderDetailsModel {
         if (statusStr == 'PENDING') {
           // For PENDING do not show any timestamp for the first step
           firstStepDate = '';
-        } else if (statusStr == 'ACTIVE') {
-          // For ACTIVE show updatedAt only (if present)
+        } else if (statusStr == 'ACTIVE' || statusStr == 'IN_PROGRESS') {
+          // For ACTIVE or IN_PROGRESS show updatedAt (if present)
           firstStepDate = updated.isNotEmpty ? updated : '';
         } else {
           // For other statuses fall back to created timestamp

@@ -5,6 +5,7 @@ import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/my_orders/controller/my_order_controller.dart';
 import 'package:jconnect/features/my_orders/order_details/controller/order_details_controller.dart';
 import 'package:jconnect/features/my_orders/order_details/widgets/order_timeline_widget.dart';
@@ -16,7 +17,6 @@ class OrderDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(OrderDetailsController());
     final orderController = Get.find<MyOrdersController>();
-    final order1 = controller.order.value;
 
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
@@ -35,7 +35,7 @@ class OrderDetailsScreen extends StatelessWidget {
               ),
               SizedBox(height: 32),
               Obx(() {
-                  final order = controller.order.value;
+                final order = controller.order.value;
                 if (order == null) return const SizedBox.shrink();
 
                 return Column(
@@ -146,15 +146,88 @@ class OrderDetailsScreen extends StatelessWidget {
                 );
               }),
               SizedBox(height: 18),
-              CustomPrimaryButton(
-                buttonText: 'Cancel Order',
-                onTap: () async {
-                  await orderController.updateOrderStatus(
-                    orderId: order1?.id.toString() ?? "",
-                    status: OrderStatus.CANCELLED,
+              Obx(() {
+                final order = controller.order.value;
+                if (order == null) return const SizedBox.shrink();
+
+                // If order is PENDING we may show both Receive and Cancel buttons
+                if (order.status == 'PENDING') {
+                  return FutureBuilder<String?>(
+                    future: (() {
+                      try {
+                        return Get.find<SharedPreferencesHelperController>()
+                            .getUserId();
+                      } catch (_) {
+                        // Ensure the SharedPreferences controller exists
+                        return Get.put(
+                          SharedPreferencesHelperController(),
+                        ).getUserId();
+                      }
+                    })(),
+                    builder: (context, snapshot) {
+                      final loggedInUserId = snapshot.data;
+                      final isBuyer =
+                          loggedInUserId != null &&
+                          loggedInUserId == order.buyerId;
+
+                      final showReceive = !isBuyer;
+
+                      if (showReceive) {
+                        // Show both Receive and Cancel side-by-side
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: CustomPrimaryButton(
+                                buttonText: 'Receive Order',
+                                onTap: () async {
+                                  await orderController.updateOrderStatus(
+                                    orderId: order.id.toString(),
+                                    status: OrderStatus.IN_PROGRESS,
+                                  );
+                                },
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: CustomPrimaryButton(
+                                buttonText: 'Cancel Order',
+                                onTap: () async {
+                                  await orderController.updateOrderStatus(
+                                    orderId: order.id.toString(),
+                                    status: OrderStatus.CANCELLED,
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      // If buyer, only show Cancel button (they requested cancel kept)
+                      return CustomPrimaryButton(
+                        buttonText: 'Cancel Order',
+                        onTap: () async {
+                          await orderController.updateOrderStatus(
+                            orderId: order.id.toString(),
+                            status: OrderStatus.CANCELLED,
+                          );
+                        },
+                      );
+                    },
                   );
-                },
-              ),
+                }
+
+                // For non-PENDING statuses show the Cancel button as before
+                return CustomPrimaryButton(
+                  buttonText: 'Cancel Order',
+                  onTap: () async {
+                    await orderController.updateOrderStatus(
+                      orderId: order.id.toString(),
+                      status: OrderStatus.CANCELLED,
+                    );
+                  },
+                );
+              }),
             ],
           ),
         ),

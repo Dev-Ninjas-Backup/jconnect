@@ -11,7 +11,6 @@ class OrderTabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final tabs = [
       'All Orders',
-      'Active',
       'Pending',
       'My orders',
       'Paid Orders',

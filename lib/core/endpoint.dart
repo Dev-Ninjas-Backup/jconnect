@@ -44,4 +44,6 @@ class Endpoint {
   static const String raiseDispute = '$baseUrl/disputes';
 
   static const String viewArtists = "$baseUrl/users";
+  static String updateOrderStatus(String id) =>
+      "$baseUrl/orders/$id/status";
 }

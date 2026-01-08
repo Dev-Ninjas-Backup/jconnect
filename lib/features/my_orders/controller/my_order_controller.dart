@@ -8,7 +8,6 @@ import 'package:jconnect/core/service/local_service/shared_preferences_helper.da
 import 'package:jconnect/features/my_orders/model/order_model.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
-
 class MyOrdersController extends GetxController {
   RxList<OrderModel> orders = <OrderModel>[].obs;
   RxList<OrderModel> paidOrders = <OrderModel>[].obs;
@@ -25,8 +24,8 @@ class MyOrdersController extends GetxController {
   // Map tab label to API status
   String? _mapTabToApiStatus(String tab) {
     switch (tab) {
-      case 'Active':
-        return 'ACTIVE';
+      // case 'Active':
+      //   return 'ACTIVE';
       case 'My orders':
         return 'PENDING';
       case 'Pending':
@@ -203,52 +202,49 @@ class MyOrdersController extends GetxController {
     _deleteOrderFromServer(order);
   }
 
-Future<void> _deleteOrderFromServer(OrderModel order) async {
-  try {
-    final prefsHelper = Get.find<SharedPreferencesHelperController>();
-    final token = await prefsHelper.getAccessToken();
+  Future<void> _deleteOrderFromServer(OrderModel order) async {
+    try {
+      final prefsHelper = Get.find<SharedPreferencesHelperController>();
+      final token = await prefsHelper.getAccessToken();
 
-    if (token == null || token.isEmpty) {
-      EasyLoading.showError('No token available. Please login again.');
-      return;
-    }
+      if (token == null || token.isEmpty) {
+        EasyLoading.showError('No token available. Please login again.');
+        return;
+      }
 
-    String authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+      String authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
 
-    final url = '${Endpoint.baseUrl}/orders/delete/${order.orderId}';
-    print('🔥 [DELETE ORDER] DELETE → $url');
+      final url = '${Endpoint.baseUrl}/orders/delete/${order.orderId}';
+      print('🔥 [DELETE ORDER] DELETE → $url');
 
-    final response = await http.delete(
-      Uri.parse(url),
-      headers: {
-        'Authorization': authHeader,
-        'Content-Type': 'application/json',
-      },
-    );
-
-    final body = json.decode(response.body);
-
-    if (response.statusCode == 200 && body['success'] == true) {
-      print('✅ [DELETE ORDER] Order deleted successfully');
-      orders.remove(order);
-      paidOrders.remove(order);
-      EasyLoading.showSuccess('Order deleted successfully');
-    } else {
-      print(
-        '❌ [DELETE ORDER] Failed: ${response.statusCode}',
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/json',
+        },
       );
-      print('❌ [DELETE ORDER] Body: ${response.body}');
-      
-      // Show API message in EasyLoading
-      String errorMessage = body['message'] ?? 'Failed to delete order';
-      EasyLoading.showError(errorMessage);
-    }
-  } catch (e) {
-    print('❌ [DELETE ORDER] Error: $e');
-    EasyLoading.showError('Something went wrong. Please try again.');
-  }
-}
 
+      final body = json.decode(response.body);
+
+      if (response.statusCode == 200 && body['success'] == true) {
+        print('✅ [DELETE ORDER] Order deleted successfully');
+        orders.remove(order);
+        paidOrders.remove(order);
+        EasyLoading.showSuccess('Order deleted successfully');
+      } else {
+        print('❌ [DELETE ORDER] Failed: ${response.statusCode}');
+        print('❌ [DELETE ORDER] Body: ${response.body}');
+
+        // Show API message in EasyLoading
+        String errorMessage = body['message'] ?? 'Failed to delete order';
+        EasyLoading.showError(errorMessage);
+      }
+    } catch (e) {
+      print('❌ [DELETE ORDER] Error: $e');
+      EasyLoading.showError('Something went wrong. Please try again.');
+    }
+  }
 
   // Future<void> _deleteOrderFromServer(OrderModel order) async {
   //   try {
@@ -283,61 +279,69 @@ Future<void> _deleteOrderFromServer(OrderModel order) async {
   // }
 
   Future<void> updateOrderStatus({
-  required String orderId,
-  required OrderStatus status,
-}) async {
-  try {
-    final prefsHelper = Get.find<SharedPreferencesHelperController>();
-    final token = await prefsHelper.getAccessToken();
+    required String orderId,
+    required OrderStatus status,
+  }) async {
+    try {
+      final prefsHelper = Get.find<SharedPreferencesHelperController>();
+      final token = await prefsHelper.getAccessToken();
 
-    if (token == null || token.isEmpty) {
-      print('❌ [ORDER STATUS] No token found');
-      return;
-    }
+      if (token == null || token.isEmpty) {
+        print('❌ [ORDER STATUS] No token found');
+        return;
+      }
 
-    final authHeader =
-        token.startsWith('Bearer ') ? token : 'Bearer $token';
+      final authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
 
-    final url =
-        '${Endpoint.baseUrl}/orders/$orderId/status?status=${status.name}';
+      final statusValue = status.name;
+      final url = '${Endpoint.updateOrderStatus(orderId)}?status=$statusValue';
 
-    print('🔥 [ORDER STATUS] PUT → $url');
+      print('🔥 [ORDER STATUS] PATCH → $url');
 
-    final response = await http.patch(
-      Uri.parse(url),
-      headers: {
-        'Authorization': authHeader,
-        'Content-Type': 'application/json',
-      },
-    );
-
-    print('🔥 [ORDER STATUS] Status: ${response.statusCode}');
-    print('🔥 [ORDER STATUS] Body: ${response.body}');
-
-    if (response.statusCode == 200) {
-      // Update locally
-      _updateLocalOrderStatus(orderId, status.name);
-      print('✅ [ORDER STATUS] Updated successfully');
-    } else {
-      print(
-        '❌ [ORDER STATUS] Failed: ${response.statusCode}',
+      final response = await http.patch(
+        Uri.parse(url),
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/json',
+        },
       );
-    }
-  } catch (e) {
-    print('❌ [ORDER STATUS] Error: $e');
-  }
-}
-void _updateLocalOrderStatus(String orderId, String status) {
-  for (final list in [orders, paidOrders]) {
-    final index =
-        list.indexWhere((order) => order.orderId == orderId);
-    if (index != -1) {
-      list[index] = list[index].copyWith(status: status);
-    }
-  }
-}
 
+      print('🔥 [ORDER STATUS] URL: $url');
+      print('🔥 [ORDER STATUS] Status: ${response.statusCode}');
+      print('🔥 [ORDER STATUS] Body: ${response.body}');
 
+      if (response.statusCode == 200) {
+        // Show success
+        EasyLoading.showSuccess('Order status updated');
+        // Update locally and reload
+        _updateLocalOrderStatus(orderId, statusValue);
+        await Future.delayed(const Duration(milliseconds: 500));
+        await loadOrders();
+        print('✅ [ORDER STATUS] Updated successfully');
+      } else {
+        EasyLoading.showError('Failed to update order');
+        print('❌ [ORDER STATUS] Failed: ${response.statusCode}');
+      }
+    } catch (e) {
+      EasyLoading.showError('Error: $e');
+      print('❌ [ORDER STATUS] Error: $e');
+    }
+  }
+
+  void _updateLocalOrderStatus(String orderId, String status) {
+    for (final list in [orders, paidOrders]) {
+      final index = list.indexWhere((order) => order.orderId == orderId);
+      if (index != -1) {
+        // Update the raw json if available, otherwise update the status
+        final order = list[index];
+        if (order.raw is Map<String, dynamic>) {
+          (order.raw as Map<String, dynamic>)['status'] = status;
+          (order.raw as Map<String, dynamic>)['updatedAt'] = DateTime.now()
+              .toIso8601String();
+        }
+      }
+    }
+  }
 }
 
 // ignore: constant_identifier_names
