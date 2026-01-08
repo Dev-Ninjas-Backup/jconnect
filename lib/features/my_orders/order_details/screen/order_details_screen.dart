@@ -5,6 +5,9 @@ import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
+import 'dart:io';
+
+import 'package:image_picker/image_picker.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/my_orders/controller/my_order_controller.dart';
 import 'package:jconnect/features/my_orders/order_details/controller/order_details_controller.dart';
@@ -217,7 +220,133 @@ class OrderDetailsScreen extends StatelessWidget {
                   );
                 }
 
-                // For non-PENDING statuses show the Cancel button as before
+                // For IN_PROGRESS: show Upload Proof (for seller) and Cancel
+                if (order.status == 'IN_PROGRESS') {
+                  return FutureBuilder<String?>(
+                    future: (() {
+                      try {
+                        return Get.find<SharedPreferencesHelperController>()
+                            .getUserId();
+                      } catch (_) {
+                        return Get.put(
+                          SharedPreferencesHelperController(),
+                        ).getUserId();
+                      }
+                    })(),
+                    builder: (context, snapshot) {
+                      final loggedInUserId = snapshot.data;
+                      final isBuyer =
+                          loggedInUserId != null &&
+                          loggedInUserId == order.buyerId;
+
+                      // Seller (not buyer) can upload proof
+                      if (!isBuyer) {
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: CustomPrimaryButton(
+                                buttonText: 'Upload Proof',
+                                onTap: () async {
+                                  final picker = ImagePicker();
+                                  final picked = await picker.pickImage(
+                                    source: ImageSource.gallery,
+                                  );
+                                  if (picked == null) return;
+                                  final file = File(picked.path);
+                                  final success = await controller.uploadProof(
+                                    file,
+                                  );
+                                  if (success) {
+                                    // timeline updated by controller
+                                    Get.snackbar('Success', 'Proof uploaded');
+                                  }
+                                },
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: CustomPrimaryButton(
+                                buttonText: 'Cancel Order',
+                                onTap: () async {
+                                  await orderController.updateOrderStatus(
+                                    orderId: order.id.toString(),
+                                    status: OrderStatus.CANCELLED,
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      // Buyer sees only Cancel
+                      return CustomPrimaryButton(
+                        buttonText: 'Cancel Order',
+                        onTap: () async {
+                          await orderController.updateOrderStatus(
+                            orderId: order.id.toString(),
+                            status: OrderStatus.CANCELLED,
+                          );
+                        },
+                      );
+                    },
+                  );
+                }
+
+                // For PROOF_SUBMITTED: show Confirm Order (for buyer) and Cancel
+                if (order.status == 'PROOF_SUBMITTED') {
+                  return FutureBuilder<String?>(
+                    future: (() {
+                      try {
+                        return Get.find<SharedPreferencesHelperController>()
+                            .getUserId();
+                      } catch (_) {
+                        return Get.put(
+                          SharedPreferencesHelperController(),
+                        ).getUserId();
+                      }
+                    })(),
+                    builder: (context, snapshot) {
+                      final loggedInUserId = snapshot.data;
+                      final isBuyer =
+                          loggedInUserId != null &&
+                          loggedInUserId == order.buyerId;
+
+                      // Buyer can confirm order
+                      if (isBuyer) {
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: CustomPrimaryButton(
+                                buttonText: 'Confirm Order',
+                                onTap: () async {
+                                  final success = await controller
+                                      .confirmOrder();
+                                  if (success) {
+                                    Get.snackbar(
+                                      'Success',
+                                      'Order confirmed & payment released',
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      // Seller sees nothing (no buttons for seller on PROOF_SUBMITTED)
+                      return const SizedBox.shrink();
+                    },
+                  );
+                }
+
+                // For RELEASED status: no buttons for anyone
+                if (order.status == 'RELEASED') {
+                  return const SizedBox.shrink();
+                }
+
+                // For other non-PENDING statuses show the Cancel button as before
                 return CustomPrimaryButton(
                   buttonText: 'Cancel Order',
                   onTap: () async {

@@ -134,17 +134,22 @@ class OrderDetailsModel {
           case 'PENDING':
             completedIndex = -1; // none completed for PENDING
             break;
+          case 'ACTIVE':
           case 'IN_PROGRESS':
             completedIndex =
                 0; // first step completed when ACTIVE or IN_PROGRESS
             break;
+          case 'PROOF_SUBMITTED':
+            completedIndex = 2; // waiting for reviewer & proof completed
+            break;
+          case 'RELEASED':
+          case 'COMPLETE':
+          case 'COMPLETED':
+            completedIndex = 3; // all steps completed
+            break;
           case 'PAYMENTCONFIRM':
           case 'PAYMENT_CONFIRM':
             completedIndex = 1;
-            break;
-          case 'COMPLETE':
-          case 'COMPLETED':
-            completedIndex = 3;
             break;
         }
 
@@ -153,8 +158,11 @@ class OrderDetailsModel {
         if (statusStr == 'PENDING') {
           // For PENDING do not show any timestamp for the first step
           firstStepDate = '';
-        } else if (statusStr == 'ACTIVE' || statusStr == 'IN_PROGRESS') {
-          // For ACTIVE or IN_PROGRESS show updatedAt (if present)
+        } else if (statusStr == 'ACTIVE' ||
+            statusStr == 'IN_PROGRESS' ||
+            statusStr == 'PROOF_SUBMITTED' ||
+            statusStr == 'RELEASED') {
+          // For ACTIVE, IN_PROGRESS, PROOF_SUBMITTED, or RELEASED show updatedAt (if present)
           firstStepDate = updated.isNotEmpty ? updated : '';
         } else {
           // For other statuses fall back to created timestamp
@@ -162,13 +170,22 @@ class OrderDetailsModel {
         }
 
         return List.generate(steps.length, (i) {
+          // Provide timestamps for intermediate steps when PROOF_SUBMITTED or RELEASED
+          String dt = '';
+          if (i == 0) dt = firstStepDate;
+          if ((i == 1 || i == 2) &&
+              (statusStr == 'PROOF_SUBMITTED' || statusStr == 'RELEASED')) {
+            dt = updated.isNotEmpty ? updated : '';
+          }
+          if (i == 3) {
+            dt = (statusStr == 'RELEASED' && updated.isNotEmpty)
+                ? updated
+                : delivery;
+          }
+
           return OrderTimelineStep(
             title: steps[i],
-            dateTime: i == 0
-                ? firstStepDate
-                : i == 3
-                ? delivery
-                : '',
+            dateTime: dt,
             isCompleted: i <= completedIndex,
           );
         });

@@ -101,7 +101,7 @@ class OrderModel {
       icon: '', // replace if you have service icon
       type: 'Received',
       status: json['status'] ?? '',
-      price: (json['amount'] ?? 0).toDouble(),
+      price: (json['service']?['price'] ?? 0).toDouble(),
       description: json['service']?['description'] ?? '',
       orderId: json['id'] ?? '', // DATABASE ID for API
       orderCode: json['orderCode'] ?? '', // display to user

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:jconnect/core/endpoint.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/my_orders/model/order_model.dart';
+import 'package:jconnect/features/my_orders/order_details/controller/order_details_controller.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class MyOrdersController extends GetxController {
@@ -32,8 +33,8 @@ class MyOrdersController extends GetxController {
         return 'PENDING';
       case 'Paid Orders':
         return 'PAID';
-      case 'Completed':
-        return 'COMPLETE';
+      case 'Released':
+        return 'RELEASED';
       case 'Cancelled':
         return 'CANCELLED';
       case 'All Orders':
@@ -335,9 +336,20 @@ class MyOrdersController extends GetxController {
         // Update the raw json if available, otherwise update the status
         final order = list[index];
         if (order.raw is Map<String, dynamic>) {
+          final updatedAt = DateTime.now().toIso8601String();
           (order.raw as Map<String, dynamic>)['status'] = status;
-          (order.raw as Map<String, dynamic>)['updatedAt'] = DateTime.now()
-              .toIso8601String();
+          (order.raw as Map<String, dynamic>)['updatedAt'] = updatedAt;
+
+          // If an OrderDetailsController is active and showing this order,
+          // update it immediately so timeline reflects the change.
+          try {
+            if (Get.isRegistered<OrderDetailsController>()) {
+              final odc = Get.find<OrderDetailsController>();
+              odc.applyStatusUpdate(orderId, status, updatedAt: updatedAt);
+            }
+          } catch (_) {
+            // ignore: intentionally silent - non-fatal if controller not present
+          }
         }
       }
     }

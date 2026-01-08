@@ -1,4 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:jconnect/core/endpoint.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/features/my_orders/order_details/model/order_details_model.dart';
 import 'package:jconnect/features/my_orders/model/order_model.dart';
 import 'package:jconnect/features/my_orders/order_details/model/order_timeline_step.dart';
@@ -117,13 +124,17 @@ class OrderDetailsController extends GetxController {
       case 'IN_PROGRESS':
         completedIndex = 0;
         break;
+      case 'PROOF_SUBMITTED':
+        completedIndex = 2; // waiting for reviewer & proof completed
+        break;
+      case 'RELEASED':
+      case 'COMPLETE':
+      case 'COMPLETED':
+        completedIndex = 3; // all steps completed
+        break;
       case 'PAYMENTCONFIRM':
       case 'PAYMENT_CONFIRM':
         completedIndex = 1;
-        break;
-      case 'COMPLETE':
-      case 'COMPLETED':
-        completedIndex = 3;
         break;
     }
 
@@ -138,15 +149,148 @@ class OrderDetailsController extends GetxController {
               : (createdAt ?? ''));
 
     return List.generate(steps.length, (i) {
+      // Provide timestamps for intermediate steps when relevant
+      String dt = '';
+      if (i == 0) dt = firstStepDate;
+      if ((i == 1 || i == 2) && statusUpper == 'PROOF_SUBMITTED') {
+        dt = updated.isNotEmpty ? updated : '';
+      }
+      if (i == 3) dt = deliveryDate ?? '';
+
       return OrderTimelineStep(
         title: steps[i],
-        dateTime: i == 0
-            ? firstStepDate
-            : i == 3
-            ? (deliveryDate ?? '')
-            : '',
+        dateTime: dt,
         isCompleted: i <= completedIndex,
       );
     });
+  }
+
+  /// Upload proof file for the currently loaded order. Returns true on success.
+  Future<bool> uploadProof(File file) async {
+    final current = order.value;
+    if (current == null) return false;
+
+    try {
+      final prefs = Get.find<SharedPreferencesHelperController>();
+      final token = await prefs.getAccessToken();
+      if (token == null || token.isEmpty) {
+        EasyLoading.showError('No auth token available');
+        return false;
+      }
+
+      final authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+      final url = '${Endpoint.proofUpload}?orderId=${current.id}';
+
+      final request = http.MultipartRequest('POST', Uri.parse(url));
+      request.headers.addAll({'Authorization': authHeader, 'accept': '*/*'});
+
+      request.files.add(await http.MultipartFile.fromPath('file', file.path));
+
+      EasyLoading.show(status: 'Uploading proof...');
+      final streamed = await request.send();
+      final resp = await http.Response.fromStream(streamed);
+      EasyLoading.dismiss();
+
+      print('🔥 [UPLOAD PROOF] Status: ${resp.statusCode}');
+      print('🔥 [UPLOAD PROOF] Body: ${resp.body}');
+
+      // Accept 200-299 as success (API might return 201 Created)
+      if (resp.statusCode >= 200 && resp.statusCode < 300) {
+        EasyLoading.showSuccess('Proof uploaded');
+        final updatedAt = DateTime.now().toIso8601String();
+        applyStatusUpdate(current.id, 'PROOF_SUBMITTED', updatedAt: updatedAt);
+        return true;
+      } else {
+        EasyLoading.showError('Failed: ${resp.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      EasyLoading.showError('Upload error: $e');
+      return false;
+    }
+  }
+
+  /// Confirm order and release payment (buyer action). Returns true on success.
+  Future<bool> confirmOrder() async {
+    final current = order.value;
+    if (current == null) return false;
+
+    try {
+      final prefs = Get.find<SharedPreferencesHelperController>();
+      final token = await prefs.getAccessToken();
+      if (token == null || token.isEmpty) {
+        EasyLoading.showError('No auth token available');
+        return false;
+      }
+
+      final authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+      final url = Endpoint.releasePayment;
+
+      final body = jsonEncode({'orderID': current.id});
+
+      EasyLoading.show(status: 'Confirming order...');
+      final resp = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/json',
+        },
+        body: body,
+      );
+      EasyLoading.dismiss();
+
+      print('🔥 [CONFIRM ORDER] Status: ${resp.statusCode}');
+      print('🔥 [CONFIRM ORDER] Body: ${resp.body}');
+
+      if (resp.statusCode >= 200 && resp.statusCode < 300) {
+        EasyLoading.showSuccess('Order confirmed');
+        final updatedAt = DateTime.now().toIso8601String();
+        applyStatusUpdate(current.id, 'RELEASED', updatedAt: updatedAt);
+        return true;
+      } else {
+        EasyLoading.showError('Failed: ${resp.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      EasyLoading.showError('Confirmation error: $e');
+      return false;
+    }
+  }
+
+  /// Apply a status update to the currently held OrderDetailsModel (if it
+  /// matches [orderId]) so UI (timeline) updates immediately without
+  /// re-entering the screen.
+  void applyStatusUpdate(String orderId, String status, {String? updatedAt}) {
+    final current = order.value;
+    if (current == null) return;
+    if (current.id != orderId) return;
+
+    final newTimeline = _generateTimeline(
+      status: status,
+      createdAt: current.orderCreated.isNotEmpty ? current.orderCreated : null,
+      deliveryDate: current.deliveryDate.isNotEmpty
+          ? current.deliveryDate
+          : null,
+      updatedAt: updatedAt ?? DateTime.now().toIso8601String(),
+    );
+
+    order.value = OrderDetailsModel(
+      id: current.id,
+      orderCode: current.orderCode,
+      platform: current.platform,
+      serviceTitle: current.serviceTitle,
+      subServiceTitle: current.subServiceTitle,
+      sellerName: current.sellerName,
+      sellerEmail: current.sellerEmail,
+      rating: current.rating,
+      status: status,
+      orderCreated: current.orderCreated,
+      deliveryDate: current.deliveryDate,
+      servicePrice: current.servicePrice,
+      platformRate: current.platformRate,
+      platformFee: current.platformFee,
+      buyerId: current.buyerId,
+      timeline: newTimeline,
+    );
   }
 }

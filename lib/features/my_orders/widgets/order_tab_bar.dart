@@ -14,7 +14,7 @@ class OrderTabBar extends StatelessWidget {
       'Pending',
       'My orders',
       'Paid Orders',
-      'Completed',
+      'Released',
       'Cancelled',
     ];
 
