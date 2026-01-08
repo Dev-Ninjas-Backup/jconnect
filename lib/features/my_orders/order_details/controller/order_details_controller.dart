@@ -54,6 +54,10 @@ class OrderDetailsController extends GetxController {
           ? ((incoming.raw!['updatedAt'] ?? incoming.raw!['updated_at'])
                 ?.toString())
           : null;
+      final String? buyerIdFromRaw = incoming.raw != null
+          ? ((incoming.raw!['buyerId'] ?? incoming.raw!['buyer_id'])
+                ?.toString())
+          : null;
 
       order.value = OrderDetailsModel(
         id: incoming.orderId, // internal DB id
@@ -71,6 +75,7 @@ class OrderDetailsController extends GetxController {
         platformFee: price,
         // OrderModel does not always include a platformRate; use empty string fallback
         platformRate: '',
+        buyerId: buyerIdFromRaw ?? '',
         timeline: _generateTimeline(
           status: incoming.status,
           createdAt: createdAtFromRaw,
@@ -109,6 +114,7 @@ class OrderDetailsController extends GetxController {
         completedIndex = -1; // none completed
         break;
       case 'ACTIVE':
+      case 'IN_PROGRESS':
         completedIndex = 0;
         break;
       case 'PAYMENTCONFIRM':
@@ -123,10 +129,11 @@ class OrderDetailsController extends GetxController {
 
     // Determine first step date according to status
     final updated = updatedAt ?? '';
+    final statusUpper = status.toUpperCase();
 
-    final firstStepDate = status.toUpperCase() == 'PENDING'
+    final firstStepDate = statusUpper == 'PENDING'
         ? ''
-        : (status.toUpperCase() == 'ACTIVE'
+        : (statusUpper == 'ACTIVE' || statusUpper == 'IN_PROGRESS'
               ? (updated.isNotEmpty ? updated : '')
               : (createdAt ?? ''));
 
