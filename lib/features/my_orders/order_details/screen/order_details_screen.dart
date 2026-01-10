@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
@@ -13,6 +14,7 @@ import 'package:jconnect/features/my_orders/controller/my_order_controller.dart'
 import 'package:jconnect/features/my_orders/order_details/controller/order_details_controller.dart';
 import 'package:jconnect/features/my_orders/order_details/widgets/order_timeline_widget.dart';
 import 'package:jconnect/features/my_orders/order_details/widgets/reviewer_details_widget.dart';
+import 'package:jconnect/features/my_orders/order_details/widgets/review_popup.dart';
 
 class OrderDetailsScreen extends StatelessWidget {
   const OrderDetailsScreen({super.key});
@@ -73,8 +75,8 @@ class OrderDetailsScreen extends StatelessWidget {
                             '\$${(order.servicePrice / 100).toStringAsFixed(2)}',
                           ),
                           _buildDetailRow(
-                            'Platform Fee (${order.platformRate}%)',
-                            '\$${order.platformFee.toStringAsFixed(2)}',
+                            'Platform Fee',
+                            '\$${(order.platformFee / 100).toStringAsFixed(2)}',
                           ),
                           Divider(
                             color: AppColors.secondaryTextColor.withValues(
@@ -84,7 +86,7 @@ class OrderDetailsScreen extends StatelessWidget {
                           ),
                           _buildDetailRow(
                             'Total',
-                            '\$${(order.total / 100).toStringAsFixed(2)}',
+                            '\$${((order.servicePrice + order.platformFee) / 100).toStringAsFixed(2)}',
                             isBold: true,
                           ),
                           SizedBox(height: 12),
@@ -323,8 +325,7 @@ class OrderDetailsScreen extends StatelessWidget {
                                   final success = await controller
                                       .confirmOrder();
                                   if (success) {
-                                    Get.snackbar(
-                                      'Success',
+                                    EasyLoading.showSuccess(
                                       'Order confirmed & payment released',
                                     );
                                   }
@@ -343,7 +344,56 @@ class OrderDetailsScreen extends StatelessWidget {
 
                 // For RELEASED status: no buttons for anyone
                 if (order.status == 'RELEASED') {
-                  return const SizedBox.shrink();
+                  return FutureBuilder<String?>(
+                    future: (() {
+                      try {
+                        final prefs =
+                            Get.find<SharedPreferencesHelperController>();
+                        return prefs.getUserId();
+                      } catch (_) {
+                        return Get.put(
+                          SharedPreferencesHelperController(),
+                        ).getUserId();
+                      }
+                    })(),
+                    builder: (context, snapshot) {
+                      final loggedInUserId = snapshot.data;
+                      final isBuyer =
+                          loggedInUserId != null &&
+                          loggedInUserId == order.buyerId;
+
+                      // Buyer can post a review
+                      if (isBuyer) {
+                        return CustomPrimaryButton(
+                          buttonText: 'Post Review',
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => ReviewPopup(
+                                onSubmit: (rating, reviewText) async {
+                                  final success = await controller.postReview(
+                                    rating: rating,
+                                    reviewText: reviewText,
+                                  );
+                                  if (success) {
+                                    Get.snackbar(
+                                      'Success',
+                                      'Review posted successfully!',
+                                      backgroundColor: Colors.green,
+                                      colorText: Colors.white,
+                                    );
+                                  }
+                                },
+                              ),
+                            );
+                          },
+                        );
+                      }
+
+                      // Seller sees nothing on RELEASED
+                      return const SizedBox.shrink();
+                    },
+                  );
                 }
 
                 // For other non-PENDING statuses show the Cancel button as before
