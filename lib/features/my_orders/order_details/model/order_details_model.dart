@@ -1,4 +1,6 @@
+import 'package:get/get.dart';
 import 'package:jconnect/features/my_orders/order_details/model/order_timeline_step.dart';
+import 'package:jconnect/features/user_profile/profile/controller/profile_controller.dart';
 
 class OrderDetailsModel {
   final String id; // database ID
@@ -85,14 +87,33 @@ class OrderDetailsModel {
     // Provide explicit fallback to avoid returning null at runtime
     final platformFee = pickDouble(['platformFee'], 0.0);
 
+    // Get seller info from API, fallback to logged-in user if empty
+    String sellerName = pickString(['seller.full_name'], '');
+    String sellerEmail = pickString(['seller.email'], '');
+
+    // If seller info is empty, try to get logged-in user's info
+    if (sellerName.isEmpty || sellerEmail.isEmpty) {
+      try {
+        final profileController = Get.find<ProfileController>();
+        if (sellerName.isEmpty) {
+          sellerName = profileController.user.value.name;
+        }
+        if (sellerEmail.isEmpty) {
+          sellerEmail = profileController.user.value.email ?? '';
+        }
+      } catch (_) {
+        // ProfileController not available, keep empty strings
+      }
+    }
+
     final result = OrderDetailsModel(
       id: pickString(['id']),
       orderCode: pickString(['orderCode']),
       platform: pickString(['platform', 'service.serviceType']),
       serviceTitle: pickString(['service.serviceName', 'title']),
       subServiceTitle: pickString(['service.description']),
-      sellerName: pickString(['seller.full_name'], ''),
-      sellerEmail: pickString(['seller.email'], ''),
+      sellerName: sellerName,
+      sellerEmail: sellerEmail,
       rating: pickDouble(['rating', 'review.rating'], 0.0),
       status: pickString(['status'], ''),
       orderCreated: pickString(['createdAt'], ''),
