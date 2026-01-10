@@ -82,6 +82,58 @@ class LoginController extends GetxController {
     }
   }
 
+
+
+
+
+
+
+
+  Future<void> performLoginAfterVerification(String email, String password) async {
+    try {
+      isLoading.value = true;
+      EasyLoading.show(status: 'Logging in...');
+
+      final response = await authRepository.login(
+        email: email,
+        password: password,
+      );
+
+      isLoading.value = false;
+      EasyLoading.dismiss();
+
+      // Extract token and user data from response
+      final token = response['data']['token'] ?? '';
+      final user = response['data']['user'];
+      pref.saveToken(token);
+      pref.saveRowToken(token);
+      pref.saveUserId(user['id'].toString());
+
+      print('DEBUG: Login Response: $response');
+      print('DEBUG: Token: $token');
+      print('DEBUG: User: $user');
+
+      if (token.isNotEmpty) {
+     //   EasyLoading.showSuccess('Login successful!');
+
+        Future.delayed(Duration(seconds: 1), () {
+        Get.toNamed(AppRoute.profileSetupScreen);
+        });
+      } else {
+     //   EasyLoading.showError('Login failed: No token received');
+      }
+    } catch (e) {
+      isLoading.value = false;
+     // EasyLoading.showError('Login failed: $e');
+      print('DEBUG: Login error: $e');
+    }
+  }
+
+
+
+
+
+
   @override
   void onClose() {
     emailController.dispose();

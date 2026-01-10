@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/routes/approute.dart';
 import 'package:jconnect/features/auth/repository/auth_repository.dart';
 
@@ -12,6 +13,7 @@ class SignupController extends GetxController {
   final phoneController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  final pref = Get.put(SharedPreferencesHelperController());
 
   final authRepository = AuthRepository();
   RxBool isLoading = false.obs;
@@ -104,6 +106,13 @@ class SignupController extends GetxController {
       Get.find<SignupController>().emailController.text = email;
       Get.find<SignupController>().phoneController.text = phone;
 
+      await pref.saveEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      final saveemail = await pref.getSavedEmail();
+      print("Email save email: ${saveemail.toString()}");
       // Navigate to email OTP verification screen
       Get.toNamed(
         AppRoute.signupOtpVerification,

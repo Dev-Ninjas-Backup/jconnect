@@ -3,11 +3,12 @@
 import 'dart:async';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:jconnect/routes/approute.dart';
+import 'package:jconnect/features/auth/login/controller/login_controller.dart';
 import 'package:jconnect/features/auth/repository/auth_repository.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 
 class SignupOtpVerificationController extends GetxController {
+  final loginController = Get.put(LoginController());
   var remainingSeconds = 50.obs;
   Timer? timer;
   final authRepository = AuthRepository();
@@ -103,9 +104,18 @@ class SignupOtpVerificationController extends GetxController {
 
       // Navigate to profile setup screen after email verification
       EasyLoading.showSuccess('Email verified successfully!');
-      Future.delayed(Duration(seconds: 1), () {
-        Get.toNamed(AppRoute.profileSetupScreen);
-      //  Get.toNamed(AppRoute.loginScreen);
+      Future.delayed(Duration(seconds: 2), () async {
+        final email = await pref.getSavedEmail();
+        final password = await pref.getSavedPassword();
+
+        await loginController.performLoginAfterVerification(
+          email.toString().trim(),
+          password.toString().trim(),
+        );
+        await pref.clearAfterLogin();
+
+        // Get.toNamed(AppRoute.profileSetupScreen);
+        //  Get.toNamed(AppRoute.loginScreen);
       });
     } catch (e) {
       isLoading.value = false;
