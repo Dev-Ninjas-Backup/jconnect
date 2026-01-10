@@ -48,4 +48,8 @@ class Endpoint {
       "$baseUrl/orders/$id/status";
   static String proofUpload = "$baseUrl/orders/ProofUpload";
   static String releasePayment = "$baseUrl/payments/approve-payment";
+  static String postReview = "$baseUrl/reviews";
+  static String getUserById(String id) =>
+      "$baseUrl/users/$id";
+  static String platformFee = "$baseUrl/settings";
 }

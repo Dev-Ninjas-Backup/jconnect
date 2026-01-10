@@ -14,6 +14,8 @@ import 'package:jconnect/features/my_orders/order_details/model/order_timeline_s
 
 class OrderDetailsController extends GetxController {
   final order = Rxn<OrderDetailsModel>();
+  // seller average rating loaded from user endpoint
+  final sellerAverage = Rxn<double>();
 
   @override
   void onInit() {
@@ -67,6 +69,10 @@ class OrderDetailsController extends GetxController {
           ? ((incoming.raw!['buyerId'] ?? incoming.raw!['buyer_id'])
                 ?.toString())
           : null;
+      final String? sellerIdFromRaw = incoming.raw != null
+          ? ((incoming.raw!['sellerId'] ?? incoming.raw!['seller_id'])
+                ?.toString())
+          : null;
 
       order.value = OrderDetailsModel(
         id: incoming.orderId, // internal DB id
@@ -76,6 +82,7 @@ class OrderDetailsController extends GetxController {
         subServiceTitle: incoming.description ?? '',
         sellerName: incoming.sellerName,
         sellerEmail: incoming.sellerEmail,
+        sellerId: sellerIdFromRaw ?? '',
         rating: 0.0,
         status: incoming.status,
         orderCreated: createdAtFromRaw ?? '',
@@ -112,7 +119,7 @@ class OrderDetailsController extends GetxController {
   }) {
     final steps = [
       'Order has been placed',
-      'Waiting for Reviewer',
+      'Waiting to be Reviewed',
       'Waiting for proof',
       'Completed',
     ];
@@ -284,6 +291,7 @@ class OrderDetailsController extends GetxController {
       subServiceTitle: current.subServiceTitle,
       sellerName: current.sellerName,
       sellerEmail: current.sellerEmail,
+      sellerId: current.sellerId,
       rating: current.rating,
       status: status,
       orderCreated: current.orderCreated,
@@ -295,4 +303,62 @@ class OrderDetailsController extends GetxController {
       timeline: newTimeline,
     );
   }
+
+  /// Post a review for the seller. Returns true on success.
+  Future<bool> postReview({
+    required int rating,
+    required String reviewText,
+  }) async {
+    final current = order.value;
+    if (current == null || current.sellerId.isEmpty) {
+      EasyLoading.showError('Seller information missing');
+      return false;
+    }
+
+    try {
+      final prefs = Get.find<SharedPreferencesHelperController>();
+      final token = await prefs.getAccessToken();
+      if (token == null || token.isEmpty) {
+        EasyLoading.showError('Authentication required');
+        return false;
+      }
+
+      final authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+      final url = Endpoint.postReview;
+
+      final body = jsonEncode({
+        'artistId': current.sellerId,
+        'rating': rating,
+        'reviewText': reviewText,
+      });
+
+      EasyLoading.show(status: 'Posting review...');
+      final resp = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/json',
+          'accept': '*/*',
+        },
+        body: body,
+      );
+      EasyLoading.dismiss();
+
+      print('🔥 [POST REVIEW] Status: ${resp.statusCode}');
+      print('🔥 [POST REVIEW] Body: ${resp.body}');
+
+      if (resp.statusCode >= 200 && resp.statusCode < 300) {
+        EasyLoading.showSuccess('Review posted successfully!');
+        return true;
+      } else {
+        EasyLoading.showError('Failed to post review: ${resp.body}');
+        return false;
+      }
+    } catch (e) {
+      EasyLoading.showError('Review error: $e');
+      return false;
+    }
+  }
+
+  /// Fetch seller's profile (to obtain averageRating) by user id.
 }

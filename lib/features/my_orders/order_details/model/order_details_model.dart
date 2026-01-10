@@ -10,6 +10,7 @@ class OrderDetailsModel {
   final String subServiceTitle;
   final String sellerName;
   final String sellerEmail;
+  final String sellerId;
   final double rating;
   final String status;
   final String orderCreated;
@@ -20,8 +21,6 @@ class OrderDetailsModel {
   final String buyerId;
   final List<OrderTimelineStep> timeline;
 
-  double get total => servicePrice + platformFee;
-
   OrderDetailsModel({
     required this.id,
     required this.orderCode,
@@ -30,6 +29,7 @@ class OrderDetailsModel {
     required this.subServiceTitle,
     required this.sellerName,
     required this.sellerEmail,
+    required this.sellerId,
     required this.rating,
     required this.status,
     required this.orderCreated,
@@ -90,6 +90,7 @@ class OrderDetailsModel {
     // Get seller info from API, fallback to logged-in user if empty
     String sellerName = pickString(['seller.full_name'], '');
     String sellerEmail = pickString(['seller.email'], '');
+    String sellerId = pickString(['sellerId'], '');
 
     // If seller info is empty, try to get logged-in user's info
     if (sellerName.isEmpty || sellerEmail.isEmpty) {
@@ -114,10 +115,11 @@ class OrderDetailsModel {
       subServiceTitle: pickString(['service.description']),
       sellerName: sellerName,
       sellerEmail: sellerEmail,
+      sellerId: sellerId,
       rating: pickDouble(['rating', 'review.rating'], 0.0),
       status: pickString(['status'], ''),
       orderCreated: pickString(['createdAt'], ''),
-      deliveryDate: pickString(['deliveryDate', 'delivery_date'], ''),
+      deliveryDate: pickString(['deliveryDate'], ''),
       servicePrice: servicePrice,
       // Ensure platformRate is never null by passing an explicit empty-string fallback
       platformRate: pickString(['platformFee_percents'], ''),
@@ -145,7 +147,7 @@ class OrderDetailsModel {
 
         final steps = [
           'Order has been placed',
-          'Waiting for Reviewer',
+          'Waiting to be Reviewed',
           'Waiting for proof',
           'Completed',
         ];

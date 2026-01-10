@@ -4,6 +4,7 @@ import 'package:jconnect/core/common/constants/app_colors.dart';
 //import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/my_orders/order_details/model/order_details_model.dart';
+//import 'package:jconnect/features/my_orders/order_details/controller/order_details_controller.dart';
 
 class ReviewerDetails extends StatelessWidget {
   ReviewerDetails({super.key, required this.order});
@@ -13,6 +14,7 @@ class ReviewerDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //final odController = Get.find<OrderDetailsController>();
     return Container(
       padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -50,9 +52,10 @@ class ReviewerDetails extends StatelessWidget {
                     ),
                   ],
                 ),
-              ),SizedBox(width: 8),
+              ),
+              SizedBox(width: 8),
               Text(
-                '\$${(order!.servicePrice/100).toStringAsFixed(2)}',
+                '\$${(order!.servicePrice / 100).toStringAsFixed(2)}',
                 style: getTextStyle(
                   color: AppColors.primaryTextColor,
                   fontweight: FontWeight.w600,
@@ -95,19 +98,31 @@ class ReviewerDetails extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Row(
-                      children: [
-                        Icon(Icons.star, color: Colors.amber, size: 18),
-                        const SizedBox(width: 4),
-                        Text(
-                          order!.rating.toString(),
-                          style: getTextStyle(
-                            color: Colors.amber,
-                            fontsize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
+                    // Row(
+                    //   children: [
+                    //     Icon(Icons.star, color: Colors.amber, size: 18),
+                    //     const SizedBox(width: 4),
+                    //     Obx(() {
+                    //       final avg = odController.sellerAverage.value;
+                    //       String display;
+                    //       if (avg != null) {
+                    //         // show integer when whole number, otherwise 1 decimal
+                    //         display = (avg % 1 == 0)
+                    //             ? avg.toInt().toString()
+                    //             : avg.toStringAsFixed(1);
+                    //       } else {
+                    //         display = order!.rating.toString();
+                    //       }
+                    //       return Text(
+                    //         display,
+                    //         style: getTextStyle(
+                    //           color: Colors.amber,
+                    //           fontsize: 13,
+                    //         ),
+                    //       );
+                    //     }),
+                    //   ],
+                    // ),
                   ],
                 ),
                 SizedBox(height: 8),
