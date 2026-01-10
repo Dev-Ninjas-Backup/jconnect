@@ -104,8 +104,8 @@ class SignupOtpVerificationController extends GetxController {
       // Navigate to profile setup screen after email verification
       EasyLoading.showSuccess('Email verified successfully!');
       Future.delayed(Duration(seconds: 1), () {
-        //Get.toNamed(AppRoute.profileSetupScreen);
-        Get.toNamed(AppRoute.loginScreen);
+        Get.toNamed(AppRoute.profileSetupScreen);
+      //  Get.toNamed(AppRoute.loginScreen);
       });
     } catch (e) {
       isLoading.value = false;

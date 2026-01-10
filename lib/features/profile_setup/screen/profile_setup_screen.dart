@@ -27,7 +27,7 @@ class ProfileSetupScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              /// --- HEADER ---
+              
               Center(
                 child: Column(
                   children: [
@@ -107,7 +107,7 @@ class ProfileSetupScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              /// --- DYNAMIC SOCIAL MEDIA SECTION ---
+              // --- DYNAMIC SOCIAL MEDIA SECTION ---
               Obx(
                 () => ListView.separated(
                   shrinkWrap: true,
