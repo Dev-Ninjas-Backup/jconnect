@@ -44,12 +44,12 @@ class Endpoint {
   static const String raiseDispute = '$baseUrl/disputes';
 
   static const String viewArtists = "$baseUrl/users";
-  static String updateOrderStatus(String id) =>
-      "$baseUrl/orders/$id/status";
+  static String updateOrderStatus(String id) => "$baseUrl/orders/$id/status";
   static String proofUpload = "$baseUrl/orders/ProofUpload";
   static String releasePayment = "$baseUrl/payments/approve-payment";
   static String postReview = "$baseUrl/reviews";
-  static String getUserById(String id) =>
-      "$baseUrl/users/$id";
-  static String platformFee = "$baseUrl/settings";
+  static String getUserById(String id) => "$baseUrl/users/$id";
+  static String withdrawalRequests = "$baseUrl/payments";
+  static String withdrawalHistory = "$baseUrl/payments/my-withdrawal-history";
+  static String getPaymentMethods = "$baseUrl/payments/my-paymentsss-methods";
 }

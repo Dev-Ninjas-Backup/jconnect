@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
@@ -129,28 +130,23 @@ class EarningsSection extends StatelessWidget {
               SizedBox(height: 20.h),
               CustomPrimaryButton(
                 buttonText: 'Withdraw',
-                onTap: () {
+                onTap: () async {
                   final enteredAmount = int.tryParse(amountController.text);
                   if (enteredAmount == null || enteredAmount <= 0) {
-                    Get.snackbar(
-                      'Invalid Amount',
+                    EasyLoading.showError(
                       'Please enter a valid withdrawal amount',
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.red.withValues(alpha: .7),
-                      colorText: AppColors.primaryTextColor,
                     );
                     return;
                   }
 
-                  controller.processWithdrawal(enteredAmount);
-                  Get.back();
-                  Get.snackbar(
-                    'Success',
-                    'Withdrawal request submitted successfully',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: Colors.green.withValues(alpha: .7),
-                    colorText: Colors.white,
+                  // Call controller to process withdrawal via API
+                  final success = await controller.processWithdrawal(
+                    enteredAmount,
                   );
+                  if (success) {
+                    // Close the dialog and let the controller refresh UI
+                    Get.back();
+                  }
                 },
               ),
             ],
