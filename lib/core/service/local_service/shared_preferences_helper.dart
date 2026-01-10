@@ -11,6 +11,9 @@ class SharedPreferencesHelperController extends GetxController {
   static const String _emailOrPhoneKey = 'email_or_phone';
   static const String _userIdKey = 'user_id';
 
+  static const String _emailKey = 'saved_email';
+  static const String _passwordKey = 'saved_password';
+
   // Save access token
   Future<void> saveToken(String token) async {
     final String saveToken = 'Bearer $token';
@@ -24,7 +27,8 @@ class SharedPreferencesHelperController extends GetxController {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(_accessTokenKey);
   }
-//save raw token
+
+  //save raw token
   Future<void> saveRowToken(String token) async {
     final String saveToken = token;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -77,10 +81,21 @@ class SharedPreferencesHelperController extends GetxController {
   // Clear access token
   Future<void> clearAllData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_accessTokenKey); // Clear the token
-    await prefs.remove(_selectedRoleKey); // Clear the role
-    await prefs.remove('success'); // Clear the login status
+    await prefs.remove(_accessTokenKey);
+    await prefs.remove(_accessRowTokenKey);
+    await prefs.remove(_selectedRoleKey);
+    await prefs.remove(_emailOrPhoneKey);
     await prefs.remove(_userIdKey);
+    await prefs.remove(_emailKey);
+    await prefs.remove(_passwordKey);
+    await prefs.remove('success');
+  }
+
+  Future<void> clearAfterLogin() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.remove(_emailKey);
+    await prefs.remove(_passwordKey);
   }
 
   Future<void> saveUserId(String userId) async {
@@ -108,5 +123,24 @@ class SharedPreferencesHelperController extends GetxController {
   Future<bool?> checkLogin() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getBool("success") ?? false;
+  }
+
+  Future<void> saveEmailAndPassword({
+    required String email,
+    required String password,
+  }) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_emailKey, email);
+    await prefs.setString(_passwordKey, password);
+  }
+
+  Future<String?> getSavedEmail() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_emailKey);
+  }
+
+  Future<String?> getSavedPassword() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_passwordKey);
   }
 }
