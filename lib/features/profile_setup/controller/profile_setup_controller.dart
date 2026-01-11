@@ -8,10 +8,8 @@ import 'package:jconnect/features/user_profile/edit_profile/model/social_profile
 import 'package:jconnect/features/user_profile/repository/profile_repository.dart';
 import 'package:jconnect/features/user_profile/profile/controller/profile_controller.dart';
 
-
 class SetUpProfileController extends GetxController {
-
-final pref=Get.find<SharedPreferencesHelperController>();
+  final pref = Get.find<SharedPreferencesHelperController>();
   final RxString imagePath = ''.obs;
   final RxBool isLoading = false.obs;
 
@@ -165,23 +163,31 @@ final pref=Get.find<SharedPreferencesHelperController>();
         }
       }
 
+      // Resolve fullName and phone from SharedPreferences with sensible fallbacks
+      final String? savedName = await pref.getSavedUserName();
+      final String? savedPhone = await pref.getSavedPhoneNumber();
+      final profileController = Get.find<ProfileController>();
+
+      final String finalFullName = (savedName != null && savedName.isNotEmpty)
+          ? savedName
+          : (profileController.user.value.fullName ??
+                profileController.user.value.name);
+
+      final String finalPhone = (savedPhone != null && savedPhone.isNotEmpty)
+          ? savedPhone
+          : (profileController.user.value.phone ?? phoneController.text);
+
       await profileRepository.updateProfile(
-        fullName:
-           pref.getSavedName().toString(),
-        phone:"sss",
+        fullName: finalFullName,
+        phone: finalPhone,
         shortBio: bioController.text.trim(),
         imagePath: imagePath.value.isNotEmpty ? imagePath.value : null,
         socialProfiles: socialProfiles,
-
-
-        
       );
-      print("name123:${ pref.getSavedName().toString()}");
-            print("phone123:${pref.getPhoneNumber().toString()}");
-
+      print("name123:$finalFullName");
+      print("phone123:$finalPhone");
 
       EasyLoading.showSuccess('Profile updated successfully');
-      Get.back();
     } catch (e) {
       EasyLoading.showError(e.toString());
       print("Errrrrrrrror $e");
