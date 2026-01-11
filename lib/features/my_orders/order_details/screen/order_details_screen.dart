@@ -75,7 +75,7 @@ class OrderDetailsScreen extends StatelessWidget {
                             '\$${(order.servicePrice / 100).toStringAsFixed(2)}',
                           ),
                           _buildDetailRow(
-                            'Platform Fee',
+                            'Platform Fee (${order.platformRate}%)',
                             '\$${(order.platformFee / 100).toStringAsFixed(2)}',
                           ),
                           Divider(

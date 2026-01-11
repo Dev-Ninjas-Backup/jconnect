@@ -54,24 +54,19 @@ class OrderDetailsController extends GetxController {
 
       // Extract possible timestamps from the raw JSON when OrderModel lacks them
       final String? createdAtFromRaw = incoming.raw != null
-          ? ((incoming.raw!['createdAt'] ?? incoming.raw!['created_at'])
-                ?.toString())
+          ? ((incoming.raw!['createdAt'])?.toString())
           : null;
       final String? deliveryDateFromRaw = incoming.raw != null
-          ? ((incoming.raw!['deliveryDate'] ?? incoming.raw!['delivery_date'])
-                ?.toString())
+          ? ((incoming.raw!['deliveryDate'])?.toString())
           : null;
       final String? updatedAtFromRaw = incoming.raw != null
-          ? ((incoming.raw!['updatedAt'] ?? incoming.raw!['updated_at'])
-                ?.toString())
+          ? ((incoming.raw!['updatedAt'])?.toString())
           : null;
       final String? buyerIdFromRaw = incoming.raw != null
-          ? ((incoming.raw!['buyerId'] ?? incoming.raw!['buyer_id'])
-                ?.toString())
+          ? ((incoming.raw!['buyerId'])?.toString())
           : null;
       final String? sellerIdFromRaw = incoming.raw != null
-          ? ((incoming.raw!['sellerId'] ?? incoming.raw!['seller_id'])
-                ?.toString())
+          ? ((incoming.raw!['sellerId'])?.toString())
           : null;
 
       order.value = OrderDetailsModel(

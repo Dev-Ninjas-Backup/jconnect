@@ -20,9 +20,6 @@ class DisputeController extends GetxController {
   var proofImage = Rxn<File>();
   var issueController = Rx<TextEditingController>(TextEditingController());
 
-  // Use centralized endpoints from Endpoint
-  // Endpoints are: Endpoint.dispute, Endpoint.orders, Endpoint.raiseDispute
-
   @override
   void onInit() {
     fetchDisputes();
