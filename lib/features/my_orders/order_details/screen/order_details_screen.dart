@@ -261,6 +261,10 @@ class OrderDetailsScreen extends StatelessWidget {
                                   if (success) {
                                     // timeline updated by controller
                                     Get.snackbar('Success', 'Proof uploaded');
+                                    // Refresh orders list in My Orders screen
+                                    try {
+                                      await orderController.loadOrders();
+                                    } catch (_) {}
                                   }
                                 },
                               ),
@@ -328,6 +332,10 @@ class OrderDetailsScreen extends StatelessWidget {
                                     EasyLoading.showSuccess(
                                       'Order confirmed & payment released',
                                     );
+                                    // Refresh orders list in My Orders screen
+                                    try {
+                                      await orderController.loadOrders();
+                                    } catch (_) {}
                                   }
                                 },
                               ),
@@ -382,6 +390,10 @@ class OrderDetailsScreen extends StatelessWidget {
                                       backgroundColor: Colors.green,
                                       colorText: Colors.white,
                                     );
+                                    // Refresh orders list in My Orders screen
+                                    try {
+                                      await orderController.loadOrders();
+                                    } catch (_) {}
                                   }
                                 },
                               ),
