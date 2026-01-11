@@ -19,7 +19,13 @@ class AddServiceScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Obx(() {
-            final hasServices = controller.services.isNotEmpty;
+            // Build a list of indices for services that are NOT custom
+            final visibleIndices = List<int>.generate(
+              controller.services.length,
+              (i) => i,
+            ).where((i) => controller.services[i]['isCustom'] != true).toList();
+
+            final hasVisibleServices = visibleIndices.isNotEmpty;
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,13 +58,18 @@ class AddServiceScreen extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          if (hasServices)
+                          if (hasVisibleServices)
                             ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
-                              itemCount: controller.services.length,
-                              itemBuilder: (context, index) =>
-                                  ServiceCardWidget(controller, index),
+                              itemCount: visibleIndices.length,
+                              itemBuilder: (context, idx) {
+                                final originalIndex = visibleIndices[idx];
+                                return ServiceCardWidget(
+                                  controller,
+                                  originalIndex,
+                                );
+                              },
                             )
                           else
                             ServiceFormWidget(
@@ -116,6 +127,23 @@ class AddServiceScreen extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 16),
+                          //  if (hasServices)
+                          GestureDetector(
+                            onTap: () {
+                              controller.clearForm();
+                              _showAddServiceSheet(context, controller);
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.add, color: Colors.white),
+                                const SizedBox(width: 6),
+                                Text(
+                                  "Add More Services",
+                                  style: getTextStyle(
+                                    color: Colors.white,
+                                    fontsize: 15,
+                                    fontweight: FontWeight.w500,
                         //  if (hasServices)
                             GestureDetector(
                               onTap: () {
@@ -135,9 +163,10 @@ class AddServiceScreen extends StatelessWidget {
                                       fontweight: FontWeight.w500,
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
+                          ),
                         ],
                       ),
                     ),
