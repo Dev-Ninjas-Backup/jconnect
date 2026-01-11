@@ -15,14 +15,23 @@ class Services extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Only show services that are not custom (isCustom == false)
+    final visibleServices = controller.services.where((s) {
+      try {
+        return s.isCustom == false;
+      } catch (_) {
+        return true;
+      }
+    }).toList();
+
     return ListView.builder(
       padding: EdgeInsets.zero,
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       //itemCount: controller.serviceListItem.length,
-      itemCount: controller.services.length,
+      itemCount: visibleServices.length,
       itemBuilder: (_, index) {
-        var item = controller.services[index];
+        var item = visibleServices[index];
         return Padding(
           padding: EdgeInsets.only(bottom: 20.h),
           child: GradientBorderContainer(
@@ -68,7 +77,6 @@ class Services extends StatelessWidget {
                       ),
                     ),
 
-
                     Obx(() {
                       final artistId = controller.artistsDetails.value?.id;
                       final userId = controller.userId.value;
@@ -91,8 +99,6 @@ class Services extends StatelessWidget {
                               },
                             );
                     }),
-
-
 
                     // CustomPrimaryButton(
                     //   buttonHeight: 10.h,
