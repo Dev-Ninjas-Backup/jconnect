@@ -127,11 +127,10 @@ class AddServiceScreen extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          //  if (hasServices)
                           GestureDetector(
                             onTap: () {
                               controller.clearForm();
-                              _showAddServiceSheet(context, controller);
+                              showAddServiceSheet(context, controller);
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -144,24 +143,6 @@ class AddServiceScreen extends StatelessWidget {
                                     color: Colors.white,
                                     fontsize: 15,
                                     fontweight: FontWeight.w500,
-                        //  if (hasServices)
-                            GestureDetector(
-                              onTap: () {
-                                controller.clearForm();
-                                showAddServiceSheet(context, controller);
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.add, color: Colors.white),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    "Add More Services",
-                                    style: getTextStyle(
-                                      color: Colors.white,
-                                      fontsize: 15,
-                                      fontweight: FontWeight.w500,
-                                    ),
                                   ),
                                 ),
                               ],
