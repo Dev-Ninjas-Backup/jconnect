@@ -16,6 +16,9 @@ class CustomServiceFormWidget extends StatelessWidget {
       () => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
+        Center(child: Text("Custom Service Form",style: getTextStyle(color: Colors.white),),),
+        SizedBox(height: 12,),
           _buildTextField(
             controller.serviceNameController,
             "Service Name",
