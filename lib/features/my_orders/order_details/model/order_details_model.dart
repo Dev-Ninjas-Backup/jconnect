@@ -121,7 +121,7 @@ class OrderDetailsModel {
       orderCreated: pickString(['createdAt'], ''),
       deliveryDate: pickString(['deliveryDate'], ''),
       servicePrice: servicePrice,
-      platformRate: pickString(['platformRate'], ''),
+      platformRate: pickString(['platformFee_percents'], ''),
       platformFee: platformFee,
       buyerId: pickString(['buyerId', 'buyer_id'], ''),
       timeline: (() {
