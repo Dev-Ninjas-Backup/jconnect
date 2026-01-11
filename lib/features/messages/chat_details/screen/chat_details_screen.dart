@@ -404,8 +404,13 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                                               ],
                                             ),
                                             SizedBox(height: 12),
-                                            // Pay Now button (only visible to the sender)
-                                            if (isMine)
+                                            // Pay Now button logic:
+                                            // - For custom services: only recipient (not mine) should pay
+                                            // - For regular services: only sender (me) should pay
+                                            if (msgItem.service!.isCustom ==
+                                                    true
+                                                ? !isMine // Custom: show to recipient only
+                                                : isMine) // Regular: show to sender only
                                               SizedBox(
                                                 width: double.infinity,
                                                 child: ElevatedButton(
