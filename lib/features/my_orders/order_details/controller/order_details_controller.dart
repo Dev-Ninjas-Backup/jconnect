@@ -346,7 +346,15 @@ class OrderDetailsController extends GetxController {
         EasyLoading.showSuccess('Review posted successfully!');
         return true;
       } else {
-        EasyLoading.showError('Failed to post review: ${resp.body}');
+        // Parse error message from JSON response
+        String errorMsg = 'Failed to post review';
+        try {
+          final respJson = jsonDecode(resp.body);
+          errorMsg = respJson['message'] ?? errorMsg;
+        } catch (_) {
+          // If JSON parse fails, use generic message
+        }
+        EasyLoading.showError(errorMsg);
         return false;
       }
     } catch (e) {
