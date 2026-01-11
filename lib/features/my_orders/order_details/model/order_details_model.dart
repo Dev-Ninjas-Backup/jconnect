@@ -121,8 +121,7 @@ class OrderDetailsModel {
       orderCreated: pickString(['createdAt'], ''),
       deliveryDate: pickString(['deliveryDate'], ''),
       servicePrice: servicePrice,
-      // Ensure platformRate is never null by passing an explicit empty-string fallback
-      platformRate: pickString(['platformFee_percents'], ''),
+      platformRate: pickString(['platformRate'], ''),
       platformFee: platformFee,
       buyerId: pickString(['buyerId', 'buyer_id'], ''),
       timeline: (() {

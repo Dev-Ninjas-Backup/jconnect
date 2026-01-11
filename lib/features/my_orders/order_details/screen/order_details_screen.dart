@@ -75,7 +75,7 @@ class OrderDetailsScreen extends StatelessWidget {
                             '\$${(order.servicePrice / 100).toStringAsFixed(2)}',
                           ),
                           _buildDetailRow(
-                            'Platform Fee',
+                            'Platform Fee (${order.platformRate}%)',
                             '\$${(order.platformFee / 100).toStringAsFixed(2)}',
                           ),
                           Divider(
@@ -397,6 +397,11 @@ class OrderDetailsScreen extends StatelessWidget {
                 }
 
                 // For other non-PENDING statuses show the Cancel button as before
+                // Do not show cancel button if the order is already CANCELLED
+                if (order.status.toUpperCase() == 'CANCELLED') {
+                  return const SizedBox.shrink();
+                }
+
                 return CustomPrimaryButton(
                   buttonText: 'Cancel Order',
                   onTap: () async {
