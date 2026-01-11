@@ -61,13 +61,14 @@ class ProfileRepository {
     }
   }
 
-  Future<void> createProfile() async {
+  // ignore: non_constant_identifier_names
+  Future<void> createProfile({String? profile_image_url, required String shortBio, required socialProfiles}) async {
     final token = await _prefs.getAccessToken();
     if (token == null) throw Exception("Access token not found");
 
     final request = http.MultipartRequest(
       'POST',
-      Uri.parse(Endpoint.editProfile),
+      Uri.parse("${Endpoint.baseUrl}/profiles"),
     );
 
     request.headers['Authorization'] = token;
