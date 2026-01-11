@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/endpoint.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/user_profile/profile/model/profile_model.dart';
+import 'package:jconnect/routes/approute.dart';
 
 class ProfileController extends GetxController {
   // USER PROFILE DATA
@@ -46,7 +48,7 @@ class ProfileController extends GetxController {
   void updateFromApi(Map<String, dynamic> json) {
     final existing = user.value;
     final name = json['full_name']?.toString() ?? existing.name;
-    final email=json['email']?.toString()?? existing.email;
+    final email = json['email']?.toString() ?? existing.email;
     //final fullName = json['full_name']?.toString() ?? existing.fullName;
     final phone = json['phone']?.toString() ?? existing.phone;
     // If API returns null for profile_image_url use the app default profile image
@@ -86,7 +88,7 @@ class ProfileController extends GetxController {
       //fullName: fullName,
       phone: phone,
       socialProfiles: socialProfiles,
-      email: email
+      email: email,
     );
   }
 
@@ -131,11 +133,64 @@ class ProfileController extends GetxController {
   }
 
   void deleteAccount() {
-    Get.snackbar(
-      'Deleted',
-      'Your account has been deleted.',
-      backgroundColor: AppColors.redColor.withValues(alpha: .8),
-      colorText: AppColors.backGroundColor,
-    );
+    // Deprecated synchronous stub. Use async deleteAccountAsync instead.
+    deleteAccountAsync();
+  }
+
+  Future<void> deleteAccountAsync() async {
+    try {
+      final prefs = SharedPreferencesHelperController();
+      final token = await prefs.getAccessToken();
+      final userId = await prefs.getUserId();
+
+      if (token == null || token.isEmpty || userId == null || userId.isEmpty) {
+        Get.snackbar('Error', 'Unable to delete account: missing credentials');
+        return;
+      }
+
+      EasyLoading.show(status: 'Deleting account...');
+
+      final resp = await http.delete(
+        Uri.parse(Endpoint.deleteUserById(userId)),
+        headers: {'Authorization': token, 'Content-Type': 'application/json'},
+      );
+
+      EasyLoading.dismiss();
+
+      if (resp.statusCode >= 200 && resp.statusCode < 300) {
+        // clear local data and navigate to login
+        await prefs.clearAllData();
+        Get.offAllNamed(AppRoute.loginScreen);
+        // Show server message if available
+        try {
+          final map = json.decode(resp.body) as Map<String, dynamic>?;
+          final message = map?['message']?.toString() ?? 'Account deleted';
+          Get.snackbar(
+            'Deleted',
+            message,
+            backgroundColor: AppColors.redColor.withValues(alpha: .8),
+            colorText: AppColors.backGroundColor,
+          );
+        } catch (_) {
+          Get.snackbar(
+            'Deleted',
+            'Your account has been deleted.',
+            backgroundColor: AppColors.redColor.withValues(alpha: .8),
+            colorText: AppColors.backGroundColor,
+          );
+        }
+      } else {
+        String msg = 'Failed to delete account (${resp.statusCode})';
+        try {
+          final map = json.decode(resp.body) as Map<String, dynamic>?;
+          if (map != null && map['message'] != null)
+            msg = map['message'].toString();
+        } catch (_) {}
+        Get.snackbar('Error', msg);
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
+      Get.snackbar('Error', 'Failed to delete account: $e');
+    }
   }
 }
