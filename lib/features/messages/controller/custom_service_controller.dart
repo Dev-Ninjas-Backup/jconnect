@@ -18,7 +18,6 @@ class AddCustomServiceController extends GetxController {
   RxnInt editingIndex = RxnInt();
   RxBool isCustomService = true.obs;
 
-
   final AddCustomServiceRepository repository = AddCustomServiceRepository();
 
   @override
@@ -67,7 +66,8 @@ class AddCustomServiceController extends GetxController {
   }
 
   /// ADD OR UPDATE SERVICE
-  Future<void> saveService() async {
+  /// Returns the created/updated service map on success, or null on failure
+  Future<Map<String, dynamic>?> saveService() async {
     final priceValue = double.tryParse(priceController.text) ?? 0.00;
 
     try {
@@ -84,13 +84,13 @@ class AddCustomServiceController extends GetxController {
       if (selectedServiceType.value == null) {
         EasyLoading.dismiss();
         Get.snackbar('Error', 'Please select a service type.');
-        return;
+        return null;
       }
 
       if (isSocial && selectedSocialPlatform.value == null) {
         EasyLoading.dismiss();
         Get.snackbar('Error', 'Please select a social platform.');
-        return;
+        return null;
       }
 
       if (editingIndex.value != null) {
@@ -106,19 +106,20 @@ class AddCustomServiceController extends GetxController {
           price: priceValue.toString(),
           logoAssetPath: isSocial ? selectedLogoPath.value : null,
           socialPlatform: isSocial ? selectedSocialPlatform.value : null,
-            isCustom: isCustomService.value,
-
+          isCustom: isCustomService.value,
         );
 
         print("update service response: $response");
 
-        if (response['success'] != true || response['service'] == null) {
+        // Server returns {message: "...", service: {...}} on success
+        // Check if service object exists in response
+        if (response['service'] == null) {
           EasyLoading.dismiss();
           Get.snackbar(
             'Error',
             response['data']?.toString() ?? 'Failed to update service',
           );
-          return;
+          return null;
         }
 
         final updatedSvc = response['service'];
@@ -130,6 +131,9 @@ class AddCustomServiceController extends GetxController {
           'serviceType': updatedSvc['serviceType'],
           'isCustom': updatedSvc['isCustom'],
         };
+        EasyLoading.dismiss();
+        clearForm();
+        return updatedSvc;
       } else {
         // ADD NEW SERVICE
         response = await repository.createService(
@@ -144,7 +148,10 @@ class AddCustomServiceController extends GetxController {
 
         print("service response: $response");
 
-        if (response['success'] != true) {
+        // Server returns {message: "...", service: {...}} on success
+        // Check if service object exists in response
+        final svc = response['service'];
+        if (svc == null) {
           EasyLoading.dismiss();
 
           Get.snackbar(
@@ -154,14 +161,7 @@ class AddCustomServiceController extends GetxController {
                 'Service already exists',
             snackPosition: SnackPosition.BOTTOM,
           );
-          return;
-        }
-
-        final svc = response['service'];
-        if (svc == null) {
-          EasyLoading.dismiss();
-          Get.snackbar('Error', 'Invalid service response');
-          return;
+          return null;
         }
 
         services.add({
@@ -174,10 +174,10 @@ class AddCustomServiceController extends GetxController {
         });
 
         print("service response: $svc");
+        EasyLoading.dismiss();
+        clearForm();
+        return svc;
       }
-
-      EasyLoading.dismiss();
-      clearForm();
     } catch (e) {
       EasyLoading.dismiss();
       print('Error saving service: $e');
@@ -188,7 +188,9 @@ class AddCustomServiceController extends GetxController {
             : 'Failed to add service',
         snackPosition: SnackPosition.BOTTOM,
       );
+      return null;
     }
+    //return null;
   }
 
   /// DELETE SERVICE

@@ -404,8 +404,13 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                                               ],
                                             ),
                                             SizedBox(height: 12),
-                                            // Pay Now button (only visible to the sender)
-                                            if (isMine)
+                                            // Pay Now button logic:
+                                            // - For custom services: only recipient (not mine) should pay
+                                            // - For regular services: only sender (me) should pay
+                                            if (msgItem.service!.isCustom ==
+                                                    true
+                                                ? !isMine // Custom: show to recipient only
+                                                : isMine) // Regular: show to sender only
                                               SizedBox(
                                                 width: double.infinity,
                                                 child: ElevatedButton(
@@ -649,6 +654,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                             showAddServiceSheet(
                               context,
                               addCustomServiceController,
+                              recipientId: recipientId,
                             );
                           },
 
@@ -821,8 +827,9 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
 
 void showAddServiceSheet(
   BuildContext context,
-  AddCustomServiceController controller,
-) {
+  AddCustomServiceController controller, {
+  required String recipientId,
+}) {
   Get.bottomSheet(
     StatefulBuilder(
       builder: (context, setState) {
@@ -867,8 +874,89 @@ void showAddServiceSheet(
                           Get.arguments['initialServiceId'] = null;
                         }
 
-                        await controller.saveService();
-                        Get.back();
+                        // Use the passed-in recipientId directly (already captured from ChatDetailsScreen scope)
+                        print(
+                          '🔥 [CUSTOM_SERVICE_SHEET] Using passed recipientId: $recipientId',
+                        );
+
+                        // Now save the custom service
+                        final created = await controller.saveService();
+
+                        if (created != null) {
+                          print(
+                            '🔥 [CUSTOM_SERVICE_SHEET] created is not null',
+                          );
+                          print(
+                            '🔥 [CUSTOM_SERVICE_SHEET] Created service payload: $created',
+                          );
+
+                          // Extract service id - handle nested response structure
+                          final dynamic maybeId =
+                              created['id'] ??
+                              created['_id'] ??
+                              created['serviceId'] ??
+                              (created['service'] is Map
+                                  ? created['service']['id']
+                                  : null);
+                          print(
+                            '🔥 [CUSTOM_SERVICE_SHEET] Resolved service id: $maybeId (type: ${maybeId.runtimeType})',
+                          );
+
+                          final serviceIdStr = maybeId?.toString();
+                          print(
+                            '🔥 [CUSTOM_SERVICE_SHEET] serviceIdStr: $serviceIdStr',
+                          );
+                          print(
+                            '🔥 [CUSTOM_SERVICE_SHEET] recipientId before sheet close: $recipientId',
+                          );
+
+                          if (recipientId.isNotEmpty &&
+                              serviceIdStr != null &&
+                              serviceIdStr.isNotEmpty) {
+                            print(
+                              '🔥 [CUSTOM_SERVICE_SHEET] About to call sendMessage with recipientId=$recipientId, serviceId=$serviceIdStr',
+                            );
+                            try {
+                              final msgCtrl = Get.find<MessagesController>();
+                              // sendMessage is declared as void async, do not await its (void) result
+                              msgCtrl.sendMessage(
+                                recipientId: recipientId,
+                                content: '',
+                                serviceId: serviceIdStr,
+                                files: null,
+                              );
+                              print(
+                                '🔥 [CUSTOM_SERVICE_SHEET] sendMessage called successfully',
+                              );
+                              // Close the sheet AFTER calling sendMessage
+                              Get.back();
+                              Get.snackbar('Success', 'Service sent');
+                            } catch (e) {
+                              print(
+                                '🔥 [CUSTOM_SERVICE_SHEET] Failed to send created service: $e',
+                              );
+                              // Close the sheet even on error
+                              Get.back();
+                              Get.snackbar('Error', 'Failed to send service');
+                            }
+                          } else {
+                            print(
+                              '🔥 [CUSTOM_SERVICE_SHEET] Validation failed: recipientId.isEmpty=${recipientId.isEmpty}, serviceIdStr=$serviceIdStr',
+                            );
+                            // Close the sheet
+                            Get.back();
+                            Get.snackbar(
+                              'Info',
+                              'Service created but recipient or ID not found. recipientId=$recipientId, serviceId=$serviceIdStr',
+                            );
+                          }
+                        } else {
+                          print(
+                            '🔥 [CUSTOM_SERVICE_SHEET] created is null - nothing to send',
+                          );
+                          // Nothing created - just close the sheet
+                          Get.back();
+                        }
                       },
 
                       // onPressed:
