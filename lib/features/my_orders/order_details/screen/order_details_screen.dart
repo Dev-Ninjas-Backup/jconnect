@@ -397,6 +397,11 @@ class OrderDetailsScreen extends StatelessWidget {
                 }
 
                 // For other non-PENDING statuses show the Cancel button as before
+                // Do not show cancel button if the order is already CANCELLED
+                if (order.status.toUpperCase() == 'CANCELLED') {
+                  return const SizedBox.shrink();
+                }
+
                 return CustomPrimaryButton(
                   buttonText: 'Cancel Order',
                   onTap: () async {

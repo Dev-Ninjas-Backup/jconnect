@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import '../model/dispute_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:jconnect/core/endpoint.dart';
 
 class DisputeController extends GetxController {
   // List of disputes
@@ -19,11 +20,8 @@ class DisputeController extends GetxController {
   var proofImage = Rxn<File>();
   var issueController = Rx<TextEditingController>(TextEditingController());
 
-  // Endpoints
-  static const String baseUrl = 'https://jconnect-server.saikat.com.bd';
-  static const String getDisputesEndpoint = '$baseUrl/disputes/my';
-  static const String getOrdersEndpoint = '$baseUrl/orders/my-orders';
-  static const String raiseDisputeEndpoint = '$baseUrl/disputes';
+  // Use centralized endpoints from Endpoint
+  // Endpoints are: Endpoint.dispute, Endpoint.orders, Endpoint.raiseDispute
 
   @override
   void onInit() {
@@ -39,7 +37,7 @@ class DisputeController extends GetxController {
       if (token == null) return;
 
       final response = await http.get(
-        Uri.parse(getDisputesEndpoint),
+        Uri.parse(Endpoint.dispute),
         headers: {'Authorization': token},
       );
 
@@ -61,7 +59,7 @@ class DisputeController extends GetxController {
       if (token == null) return;
 
       final response = await http.get(
-        Uri.parse(getOrdersEndpoint),
+        Uri.parse(Endpoint.orders),
         headers: {'Authorization': token},
       );
 
@@ -88,7 +86,7 @@ class DisputeController extends GetxController {
 
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse(raiseDisputeEndpoint),
+        Uri.parse(Endpoint.raiseDispute),
       );
       request.headers['Authorization'] = token;
       request.fields['orderId'] = orderId;
