@@ -144,6 +144,24 @@ class AddServiceScreen extends StatelessWidget {
                                     color: Colors.white,
                                     fontsize: 15,
                                     fontweight: FontWeight.w500,
+                        //  if (hasServices)
+                            GestureDetector(
+                              onTap: () {
+                                controller.clearForm();
+                                showAddServiceSheet(context, controller);
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.add, color: Colors.white),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    "Add More Services",
+                                    style: getTextStyle(
+                                      color: Colors.white,
+                                      fontsize: 15,
+                                      fontweight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -163,7 +181,7 @@ class AddServiceScreen extends StatelessWidget {
   }
 
   // ✅ CHANGED: Use saveService() instead of addService()
-  void _showAddServiceSheet(
+  void showAddServiceSheet(
     BuildContext context,
     AddServiceController controller,
   ) {

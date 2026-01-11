@@ -183,8 +183,9 @@ class ProfileController extends GetxController {
         String msg = 'Failed to delete account (${resp.statusCode})';
         try {
           final map = json.decode(resp.body) as Map<String, dynamic>?;
-          if (map != null && map['message'] != null)
+          if (map != null && map['message'] != null) {
             msg = map['message'].toString();
+          }
         } catch (_) {}
         Get.snackbar('Error', msg);
       }
