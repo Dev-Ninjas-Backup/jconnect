@@ -11,7 +11,6 @@ import 'package:jconnect/features/user_profile/profile/controller/profile_contro
 import 'package:jconnect/features/user_profile/profile/widgets/profile_activity_section.dart';
 //import 'package:jconnect/features/user_profile/profile/widgets/profile_rate_section.dart';
 import 'package:jconnect/features/user_profile/profile/widgets/profile_settings_section.dart';
-import 'package:jconnect/routes/approute.dart';
 
 class ProfileScreen extends StatelessWidget {
   final ProfileController controller = Get.put(ProfileController());
@@ -66,8 +65,9 @@ class ProfileScreen extends StatelessWidget {
                 SizedBox(height: 18.h),
                 GestureDetector(
                   onTap: () async {
-                    await pref.clearAllData();
-                    Get.toNamed(AppRoute.loginScreen);
+                    // Call controller's delete account flow which performs API DELETE,
+                    // clears local data and navigates to login on success.
+                    await controller.deleteAccountAsync();
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
