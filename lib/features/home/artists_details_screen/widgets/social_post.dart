@@ -19,13 +19,22 @@ class SocialPost extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Only show social posts that are not custom (isCustom == false)
+    final visiblePosts = controller.socialPosts.where((p) {
+      try {
+        return p.isCustom == false;
+      } catch (_) {
+        return true;
+      }
+    }).toList();
+
     return ListView.builder(
       padding: EdgeInsets.zero,
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
-      itemCount: controller.socialPosts.length,
+      itemCount: visiblePosts.length,
       itemBuilder: (_, index) {
-        var item = controller.socialPosts[index];
+        var item = visiblePosts[index];
         return Padding(
           padding: EdgeInsets.only(bottom: 20.h),
           child: GradientBorderContainer(
@@ -46,9 +55,16 @@ class SocialPost extends StatelessWidget {
                         fontweight: FontWeight.w500,
                       ),
                     ),
-                    Image.network(item.socialLogoForSocialService.toString(), height: 30.h, width: 30.w,
-                    
-                    errorBuilder: (context, error, stackTrace) => Icon(Icons.broken_image,size: 30.sp,color: Colors.white,),
+                    Image.network(
+                      item.socialLogoForSocialService.toString(),
+                      height: 30.h,
+                      width: 30.w,
+
+                      errorBuilder: (context, error, stackTrace) => Icon(
+                        Icons.broken_image,
+                        size: 30.sp,
+                        color: Colors.white,
+                      ),
                     ),
                   ],
                 ),

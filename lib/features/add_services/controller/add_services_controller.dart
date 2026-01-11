@@ -48,7 +48,8 @@ class AddServiceController extends GetxController {
               'name': svc['serviceName'],
               'desc': svc['description'],
               'price': svc['price'],
-              'serviceType': svc['serviceType'], 
+              'serviceType': svc['serviceType'],
+              'isCustom': svc['isCustom'] ?? false,
             };
           }).toList(),
         );
@@ -184,8 +185,9 @@ class AddServiceController extends GetxController {
     priceController.text = svc['price'].toString();
 
     final serviceType = svc['serviceType'];
-    final socialPlatforms =
-        SocialServiceType.values.map((e) => e.name).toList();
+    final socialPlatforms = SocialServiceType.values
+        .map((e) => e.name)
+        .toList();
 
     if (socialPlatforms.contains(serviceType)) {
       isSocialService.value = true;
@@ -230,8 +232,9 @@ class AddServiceController extends GetxController {
   void onSocialPlatformChanged(String? value) {
     selectedSocialPlatform.value = value;
     if (value != null) {
-      selectedLogoPath.value =
-          SocialServiceType.values.firstWhere((e) => e.name == value).assetPath;
+      selectedLogoPath.value = SocialServiceType.values
+          .firstWhere((e) => e.name == value)
+          .assetPath;
     } else {
       selectedLogoPath.value = '';
     }
