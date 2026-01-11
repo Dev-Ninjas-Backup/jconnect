@@ -884,7 +884,7 @@ void showAddServiceSheet(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text("Save"),
+                      child: const Text("Send"),
                     ),
                   ),
                 ],
