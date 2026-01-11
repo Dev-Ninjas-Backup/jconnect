@@ -6,8 +6,10 @@ import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
+import 'package:jconnect/features/messages/controller/custom_service_controller.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:jconnect/features/messages/widget/addcustomwidgets.dart';
 import 'package:jconnect/features/payment/payment_screen.dart';
 
 class ChatDetailsScreen extends StatefulWidget {
@@ -18,6 +20,7 @@ class ChatDetailsScreen extends StatefulWidget {
 }
 
 class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
+  final addCustomServiceController = Get.put(AddCustomServiceController());
   final controller = Get.find<MessagesController>();
   final dynamic arguments = Get.arguments;
   late ScrollController _scrollController;
@@ -152,7 +155,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
     if (sid.isEmpty) return;
 
     _initialServiceRequestSent = true;
-    
+
     // Ensure user ID is initialized before sending message
     final prefHelper = Get.find<SharedPreferencesHelperController>();
     final userId = await prefHelper.getUserId();
@@ -160,34 +163,44 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       controller.initUserId(userId);
       print('🔥 [CHAT_DETAILS] User ID initialized: $userId');
     }
-    
+
     // Add small delay to ensure socket is ready
     await Future.delayed(Duration(milliseconds: 300));
-    
-    print('🔥 [CHAT_DETAILS] Sending initial service request with serviceId: $sid');
+
+    print(
+      '🔥 [CHAT_DETAILS] Sending initial service request with serviceId: $sid',
+    );
     controller.sendMessage(
       recipientId: recipientId,
       content: '',
       serviceId: sid,
     );
-    
+
     // Wait for the message to be sent and processed
     await Future.delayed(Duration(milliseconds: 2000));
-    print('🔥 [CHAT_DETAILS] Initial service request sent, messages count: ${controller.messages.length}');
-    
+    print(
+      '🔥 [CHAT_DETAILS] Initial service request sent, messages count: ${controller.messages.length}',
+    );
+
     // Update conversation ID from the sent message if we have one
     if (controller.messages.isNotEmpty) {
       final lastMsg = controller.messages.last;
       if (lastMsg.conversationId.isNotEmpty) {
-        print('🔥 [CHAT_DETAILS] Updating conversation ID to: ${lastMsg.conversationId}');
+        print(
+          '🔥 [CHAT_DETAILS] Updating conversation ID to: ${lastMsg.conversationId}',
+        );
         // Force refresh to get full conversation with service details
         if (lastMsg.serviceId != null) {
-          print('🔥 [CHAT_DETAILS] Force refreshing conversation to get service details...');
+          print(
+            '🔥 [CHAT_DETAILS] Force refreshing conversation to get service details...',
+          );
           await controller.initConversationFromAPI(
             conversationId: lastMsg.conversationId,
             force: true,
           );
-          print('🔥 [CHAT_DETAILS] Conversation refreshed, messages count: ${controller.messages.length}');
+          print(
+            '🔥 [CHAT_DETAILS] Conversation refreshed, messages count: ${controller.messages.length}',
+          );
         }
         // Refresh conversation list to ensure it appears in messages screen
         print('🔥 [CHAT_DETAILS] Refreshing conversation list...');
@@ -632,6 +645,21 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                     Row(
                       children: [
                         GestureDetector(
+                          onTap: () {
+                            showAddServiceSheet(
+                              context,
+                              addCustomServiceController,
+                            );
+                          },
+
+                          child: Icon(
+                            Icons.file_copy_sharp,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+
+                        GestureDetector(
                           onTap: _pickFile,
                           child: Image.asset(
                             Iconpath.cekol,
@@ -640,6 +668,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                           ),
                         ),
                         SizedBox(width: 10),
+
                         Expanded(
                           child: TextField(
                             controller: controller.messageController,
@@ -788,4 +817,83 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       ),
     );
   }
+}
+
+void showAddServiceSheet(
+  BuildContext context,
+  AddCustomServiceController controller,
+) {
+  Get.bottomSheet(
+    StatefulBuilder(
+      builder: (context, setState) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: const BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomServiceFormWidget(
+                controller,
+                // onChanged: (_) => checkFields()
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Get.back(),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.white24),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        // ✅ Disable auto-send ONLY for custom service creation
+                        if (Get.arguments is Map) {
+                          Get.arguments['sendInitialServiceRequest'] = false;
+                          Get.arguments['initialServiceId'] = null;
+                        }
+
+                        await controller.saveService();
+                        Get.back();
+                      },
+
+                      // onPressed:
+                      //     //  controller.isSaveEnabled.value
+                      //     () async {
+                      //       await controller.saveService();
+                      //       Get.back();
+                      //     },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text("Save"),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    ),
+    isScrollControlled: true,
+  );
 }
