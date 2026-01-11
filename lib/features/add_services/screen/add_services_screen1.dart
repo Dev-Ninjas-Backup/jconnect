@@ -120,7 +120,7 @@ class AddServiceScreen extends StatelessWidget {
                             GestureDetector(
                               onTap: () {
                                 controller.clearForm();
-                                _showAddServiceSheet(context, controller);
+                                showAddServiceSheet(context, controller);
                               },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -152,7 +152,7 @@ class AddServiceScreen extends StatelessWidget {
   }
 
   // ✅ CHANGED: Use saveService() instead of addService()
-  void _showAddServiceSheet(
+  void showAddServiceSheet(
     BuildContext context,
     AddServiceController controller,
   ) {
