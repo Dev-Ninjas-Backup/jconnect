@@ -45,7 +45,7 @@ class LoginController extends GetxController {
   Future<void> _performLogin(String email, String password) async {
     try {
       isLoading.value = true;
-      EasyLoading.show(status: 'Logging in...');
+      EasyLoading();
 
       final response = await authRepository.login(
         email: email,
