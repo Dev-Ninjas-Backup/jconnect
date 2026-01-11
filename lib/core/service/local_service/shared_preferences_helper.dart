@@ -13,10 +13,8 @@ class SharedPreferencesHelperController extends GetxController {
 
   static const String _emailKey = 'saved_email';
   static const String _passwordKey = 'saved_password';
-  static const String _userName='user_name';
-  static const String _phoneNumber='phone_number';
-
-
+  static const String _userName = 'user_name';
+  static const String _phoneNumber = 'phone_number';
 
   // Save access token
   Future<void> saveToken(String token) async {
@@ -102,13 +100,12 @@ class SharedPreferencesHelperController extends GetxController {
     await prefs.remove(_passwordKey);
   }
 
-    Future<void> clearUserNamePhone() async {
+  Future<void> clearUserNamePhone() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     await prefs.remove(_userName);
     await prefs.remove(_phoneNumber);
   }
-  
 
   Future<void> saveUserId(String userId) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -146,8 +143,7 @@ class SharedPreferencesHelperController extends GetxController {
     await prefs.setString(_passwordKey, password);
   }
 
-
-    Future<void> saveNameAndPassword({
+  Future<void> saveUserName({
     required String userName,
     required String phoneNumber,
   }) async {
@@ -156,17 +152,15 @@ class SharedPreferencesHelperController extends GetxController {
     await prefs.setString(_phoneNumber, phoneNumber);
   }
 
-
-
- Future<String?> getSavedName() async {
+  Future<String?> getSavedUserName() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(_userName);
   }
- Future<String?> getPhoneNumber() async {
+
+  Future<String?> getSavedPhoneNumber() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(_phoneNumber);
   }
-
 
   Future<String?> getSavedEmail() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();

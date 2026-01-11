@@ -111,6 +111,9 @@ class SignupController extends GetxController {
         password: passwordController.text.trim(),
       );
 
+      // Save the user's name and phone locally so Profile Setup can prefill fields
+      await pref.saveUserName(userName: fullName, phoneNumber: phone);
+
       final saveemail = await pref.getSavedEmail();
       print("Email save email: ${saveemail.toString()}");
       // Navigate to email OTP verification screen
