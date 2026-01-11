@@ -11,12 +11,25 @@ class PaymentController extends GetxController {
   final isLoading = false.obs;
   final PaymentService _paymentService = PaymentService();
   final Rxn<PaymentMethodModel> paymentMethod = Rxn();
+  RxInt platformFee = 0.obs;
 
   final RxBool isDeleting = false.obs;
   @override
   void onInit() {
     super.onInit();
     loadPaymentMethod();
+    loadPlatformFee();
+  }
+
+  Future<void> loadPlatformFee() async {
+    try {
+      isLoading.value = true;
+      platformFee.value = await _paymentService.fetchPlatformFee();
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> loadPaymentMethod() async {

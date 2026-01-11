@@ -35,4 +35,5 @@ class Iconpath {
   static String paymentIcon = 'assets/icons/payment.png';
   static String messageIcon = 'assets/icons/message.png';
   static String reportIcon = 'assets/icons/report.png';
+  static String searchIcon = 'assets/icons/search.png';
 }
