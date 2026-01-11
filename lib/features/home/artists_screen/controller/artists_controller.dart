@@ -91,4 +91,14 @@ class ArtistsController extends GetxController {
   }
 }
 
+
+ @override
+void onClose() {
+  debugPrint("ArtistsController disposed");
+  searchTextController.clear();
+  searchTextController.dispose();
+  searchArtistItems.clear();
+  super.onClose();
+}
+
 }

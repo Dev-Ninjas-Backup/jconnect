@@ -8,6 +8,7 @@ import 'package:jconnect/features/bottom_navbar/controller/bottom_navbar_control
 import 'package:jconnect/features/home/home_screen/screen/home_page.dart';
 import 'package:jconnect/features/messages/screen/messages_screen.dart';
 import 'package:jconnect/features/my_orders/screen/my_orders_screen.dart';
+import 'package:jconnect/features/search_screen/screen/search_screen.dart';
 import 'package:jconnect/features/user_profile/profile/screen/profile_screen.dart';
 
 class NavBarScreen extends StatelessWidget {
@@ -18,21 +19,28 @@ class NavBarScreen extends StatelessWidget {
     final NavBarController controller = Get.put(NavBarController());
 
     final List<Widget> pages = [
-      const HomePage(),
+      HomePage(),
       MessagesScreen(),
-
-      const MyOrdersScreen(),
+      SearchScreen(),
+      MyOrdersScreen(),
       ProfileScreen(),
     ];
 
     final List<String> icons = [
       Iconpath.homeIcon,
       Iconpath.messagesIcon,
+      Iconpath.searchIcon,
       Iconpath.orderIcon,
       Iconpath.profileIcon,
     ];
 
-    final List<String> labels = ["Home", "Messages", "Orders", "Profile"];
+    final List<String> labels = [
+      "Home",
+      "Messages",
+      "Search",
+      "Orders",
+      "Profile",
+    ];
 
     return Obx(
       () => Scaffold(

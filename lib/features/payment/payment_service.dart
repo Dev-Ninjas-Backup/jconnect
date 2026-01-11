@@ -49,10 +49,9 @@ class PaymentService {
       print(response.statusCode);
     }
 
-  if(response.statusCode==200 || response.statusCode==201){
-    
-    return;
-  } else {
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return;
+    } else {
       throw Exception('Payment failed: ${response.body}');
     }
   }
@@ -86,6 +85,21 @@ class PaymentService {
       return true;
     } else {
       throw Exception('Failed to delete payment method');
+    }
+  }
+
+  /// Fetch platform fee percentage
+  Future<int> fetchPlatformFee() async {
+    final response = await http.get(
+      Uri.parse('${Endpoint.baseUrl}/settings'),
+      headers: await _headers(),
+    );
+
+    if (response.statusCode == 200||response.statusCode==201) {
+      final data = jsonDecode(response.body);
+      return data['platformFee_percents'];
+    } else {
+      throw Exception('Failed to load platform fee: ${response.body}');
     }
   }
 }
