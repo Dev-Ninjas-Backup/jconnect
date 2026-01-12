@@ -1,13 +1,17 @@
 // ignore_for_file: avoid_print
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/core/common/widgets/custom_secondary_button.dart';
+import 'package:jconnect/core/endpoint.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/home/request_service/controller/request_service_controller.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
 import 'package:jconnect/features/messages/model/message_model2.dart';
@@ -236,20 +240,6 @@ class RequestServiceScreen extends StatelessWidget {
                       price: service.price.toDouble(),
                     );
 
-                    // // Show success dialog
-                    // Get.dialog(
-                    //   AlertDialog(
-                    //     title: const Text('Success'),
-                    //     content: const Text('Service request sent successfully!'),
-                    //     actions: [
-                    //       TextButton(
-                    //         onPressed: () => Get.back(),
-                    //         child: const Text('OK'),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // );
-
                     // Send message with service ID to the service provider
                     final messagesController = Get.find<MessagesController>();
 
@@ -271,27 +261,10 @@ class RequestServiceScreen extends StatelessWidget {
                       return;
                     }
 
-                    // Debug the creatorId type and value
-                    print(
-                      '🔥 [REQUEST SERVICE] Service Creator ID type: ${service.creatorId.runtimeType}',
-                    );
-                    print(
-                      '🔥 [REQUEST SERVICE] Service Creator ID value: "${service.creatorId}"',
-                    );
-                    print(
-                      '🔥 [REQUEST SERVICE] Service Creator ID length: ${service.creatorId?.length}',
-                    );
-
                     // Ensure creatorId is a proper string
                     final String recipientIdStr = service.creatorId
                         .toString()
                         .trim();
-                    print(
-                      '🔥 [REQUEST SERVICE] Converted recipientId: "$recipientIdStr"',
-                    );
-                    print(
-                      '🔥 [REQUEST SERVICE] Converted recipientId length: ${recipientIdStr.length}',
-                    );
 
                     if (recipientIdStr.isEmpty) {
                       print(
@@ -299,6 +272,23 @@ class RequestServiceScreen extends StatelessWidget {
                       );
                       return;
                     }
+
+                    // Fetch user profile to get the full name
+                    print(
+                      '🔥 [REQUEST SERVICE] Fetching user profile for: $recipientIdStr',
+                    );
+                    final fullName = await _fetchUserFullName(recipientIdStr);
+                    final displayName = fullName.isNotEmpty
+                        ? fullName
+                        : (service.creator?.full_name ??
+                                  service.creator?.email ??
+                                  'User')
+                              .toString()
+                              .trim();
+
+                    print(
+                      '🔥 [REQUEST SERVICE] Resolved display name: $displayName',
+                    );
 
                     // Check if there's an existing conversation
                     final existingChat = messagesController.allChats
@@ -309,16 +299,6 @@ class RequestServiceScreen extends StatelessWidget {
                     print(
                       '🔥 [REQUEST SERVICE] Existing chat found: ${existingChat != null}',
                     );
-                    if (existingChat != null) {
-                      print(
-                        '🔥 [REQUEST SERVICE] Existing chat ID: ${existingChat.chatId}',
-                      );
-                    }
-
-                    // Send message with service information (empty content, service data only)
-                    print(
-                      '🔥 [REQUEST SERVICE] Sending message with serviceId: ${service.id}',
-                    );
 
                     // Navigate to chat to continue conversation
                     if (existingChat != null && existingChat.chatId != null) {
@@ -326,10 +306,25 @@ class RequestServiceScreen extends StatelessWidget {
                       print(
                         '🔥 [REQUEST SERVICE] Navigating to existing conversation: ${existingChat.chatId}',
                       );
+
+                      final chatToSend = ChatItem(
+                        type: existingChat.type,
+                        chatId: existingChat.chatId,
+                        participant: ChatParticipant(
+                          id: recipientIdStr,
+                          fullName: displayName,
+                          profilePhoto:
+                              existingChat.participant?.profilePhoto ??
+                              service.creator?.profilePhoto,
+                        ),
+                        lastMessage: existingChat.lastMessage,
+                        updatedAt: existingChat.updatedAt,
+                      );
+
                       Get.toNamed(
                         AppRoute.chatDetailsScreen,
                         arguments: {
-                          'chatItem': existingChat,
+                          'chatItem': chatToSend,
                           'recipientId': recipientIdStr,
                           'isNewConversation': false,
                           'sendInitialServiceRequest': true,
@@ -341,31 +336,13 @@ class RequestServiceScreen extends StatelessWidget {
                       print(
                         '🔥 [REQUEST SERVICE] Creating new conversation with user: $recipientIdStr',
                       );
-                      print(
-                        '🔥 [REQUEST SERVICE] Service creator name: ${service.creator?.full_name}',
-                      );
-                      print(
-                        '🔥 [REQUEST SERVICE] Service creator object: ${service.creator}',
-                      );
-
-                      // Get creator name with better fallback
-                      final creatorName =
-                          service.creator?.full_name?.isNotEmpty == true
-                          ? service.creator!.full_name!
-                          : (service.creator?.email?.isNotEmpty == true
-                                ? service.creator!.email!
-                                : 'User');
-
-                      print(
-                        '🔥 [REQUEST SERVICE] Using creator name: $creatorName',
-                      );
 
                       final chatItem = ChatItem(
                         type: 'private',
                         chatId: null,
                         participant: ChatParticipant(
                           id: recipientIdStr,
-                          fullName: creatorName,
+                          fullName: displayName,
                           profilePhoto: service.creator?.profilePhoto,
                         ),
                       );
@@ -403,7 +380,7 @@ class RequestServiceScreen extends StatelessWidget {
                   Expanded(
                     child: CustomSecondaryButton(
                       buttonText: "Message Seller",
-                      onTap: () {
+                      onTap: () async {
                         print('🔥 [MESSAGE SELLER] Button pressed');
                         print(
                           '🔥 [MESSAGE SELLER] Service Provider ID: ${service.creatorId}',
@@ -420,6 +397,23 @@ class RequestServiceScreen extends StatelessWidget {
                         final messagesController =
                             Get.find<MessagesController>();
 
+                        // Fetch user profile to get the full name
+                        print(
+                          '🔥 [MESSAGE SELLER] Fetching user profile for: $sellerIdStr',
+                        );
+                        final fullName = await _fetchUserFullName(sellerIdStr);
+                        final displayName = fullName.isNotEmpty
+                            ? fullName
+                            : (service.creator?.full_name ??
+                                      service.creator?.email ??
+                                      'Service Provider')
+                                  .toString()
+                                  .trim();
+
+                        print(
+                          '🔥 [MESSAGE SELLER] Resolved display name: $displayName',
+                        );
+
                         // Check if there's an existing conversation
                         final existingChat = messagesController.allChats
                             .firstWhereOrNull(
@@ -429,11 +423,6 @@ class RequestServiceScreen extends StatelessWidget {
                         print(
                           '🔥 [MESSAGE SELLER] Existing chat found: ${existingChat != null}',
                         );
-                        if (existingChat != null) {
-                          print(
-                            '🔥 [MESSAGE SELLER] Existing chat ID: ${existingChat.chatId}',
-                          );
-                        }
 
                         if (existingChat != null &&
                             existingChat.chatId != null) {
@@ -441,10 +430,25 @@ class RequestServiceScreen extends StatelessWidget {
                           print(
                             '🔥 [MESSAGE SELLER] Navigating to existing chat: ${existingChat.chatId}',
                           );
+
+                          final chatToSend = ChatItem(
+                            type: existingChat.type,
+                            chatId: existingChat.chatId,
+                            participant: ChatParticipant(
+                              id: sellerIdStr,
+                              fullName: displayName,
+                              profilePhoto:
+                                  existingChat.participant?.profilePhoto ??
+                                  service.creator?.profilePhoto,
+                            ),
+                            lastMessage: existingChat.lastMessage,
+                            updatedAt: existingChat.updatedAt,
+                          );
+
                           Get.toNamed(
                             AppRoute.chatDetailsScreen,
                             arguments: {
-                              'chatItem': existingChat,
+                              'chatItem': chatToSend,
                               'recipientId': sellerIdStr,
                               'isNewConversation': false,
                             },
@@ -455,20 +459,12 @@ class RequestServiceScreen extends StatelessWidget {
                             '🔥 [MESSAGE SELLER] Creating new conversation',
                           );
 
-                          // Get creator name with better fallback
-                          final creatorName =
-                              service.creator?.full_name?.isNotEmpty == true
-                              ? service.creator!.full_name!
-                              : (service.creator?.email?.isNotEmpty == true
-                                    ? service.creator!.email!
-                                    : 'Service Provider');
-
                           final chatItem = ChatItem(
                             type: 'private',
                             chatId: null,
                             participant: ChatParticipant(
                               id: sellerIdStr,
-                              fullName: creatorName,
+                              fullName: displayName,
                               profilePhoto: service.creator?.profilePhoto,
                             ),
                           );
@@ -502,5 +498,37 @@ class RequestServiceScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Fetch user profile by ID from API to get full name
+  Future<String> _fetchUserFullName(String userId) async {
+    try {
+      final prefs = Get.find<SharedPreferencesHelperController>();
+      final token = await prefs.getAccessToken();
+      if (token == null) throw Exception('No auth token');
+
+      final response = await http.get(
+        Uri.parse(Endpoint.getUserById(userId)),
+        headers: {'Authorization': token},
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        final userJson = data['data'] ?? data;
+        final fullName = (userJson['full_name'] ?? userJson['fullName'] ?? '')
+            .toString()
+            .trim();
+        print(
+          '✅ [FETCH USER] Retrieved full name: $fullName for user: $userId',
+        );
+        return fullName.isNotEmpty ? fullName : '';
+      } else {
+        print('❌ [FETCH USER] Failed to fetch user: ${response.statusCode}');
+        return '';
+      }
+    } catch (e) {
+      print('❌ [FETCH USER] Error: $e');
+      return '';
+    }
   }
 }
