@@ -22,9 +22,9 @@ class ArtistsScreen extends StatelessWidget {
         child: Column(
           children: [
             CustomAppBar2(
-              title: "Artists",
-             // actionIconUrl: Iconpath.notificationIcon,
-            //  actionOnTap: () {},
+              title: "Users",
+              // actionIconUrl: Iconpath.notificationIcon,
+              //  actionOnTap: () {},
               leadingIconUrl: Iconpath.backIcon,
               onLeadingTap: () {
                 Get.back();
@@ -42,9 +42,9 @@ class ArtistsScreen extends StatelessWidget {
 
               onChanged: (value) {
                 if (value.trim().isEmpty) {
-                  controller.searchArtistItems.clear(); 
+                  controller.searchArtistItems.clear();
                 } else {
-                  controller.searchArtistByName(value); 
+                  controller.searchArtistByName(value);
                 }
               },
             ),

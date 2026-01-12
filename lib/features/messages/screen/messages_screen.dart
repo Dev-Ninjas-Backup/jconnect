@@ -26,6 +26,22 @@ class _MessagesScreenState extends State<MessagesScreen> {
     });
   }
 
+  String _formatDateTime(String? iso) {
+    if (iso == null || iso.trim().isEmpty) return '';
+    try {
+      final dt = DateTime.parse(iso).toLocal();
+      final mm = dt.month.toString().padLeft(2, '0');
+      final dd = dt.day.toString().padLeft(2, '0');
+      final yyyy = dt.year.toString();
+      final hh = dt.hour.toString().padLeft(2, '0');
+      final min = dt.minute.toString().padLeft(2, '0');
+      final ss = dt.second.toString().padLeft(2, '0');
+      return '$mm/$dd/$yyyy, $hh:$min:$ss';
+    } catch (e) {
+      return iso;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -169,7 +185,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                     ),
                                   ),
                                   Text(
-                                    msg.lastMessage?.createdAt ?? '',
+                                    _formatDateTime(msg.lastMessage?.createdAt),
                                     style: TextStyle(
                                       color: Color(0xFF7E7E7E),
                                       fontSize: 11.sp,

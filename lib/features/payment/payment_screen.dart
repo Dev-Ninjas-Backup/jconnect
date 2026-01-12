@@ -203,6 +203,29 @@ class PaymentPage extends StatelessWidget {
 
             const Spacer(),
 
+            /// Add Card button (show when no payment method)
+            Obx(() {
+              final hasCard = controller.paymentMethod.value != null;
+              if (hasCard) return const SizedBox.shrink();
+
+              return Center(
+                child: ElevatedButton.icon(
+                  onPressed: () => controller.addCard(context),
+                  icon: const Icon(Icons.add_card),
+                  label: const Text('Add Card'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                  ),
+                ),
+              );
+            }),
+
+            // const Spacer(),
+            const SizedBox(height: 16),
+
             /// Pay button
             Center(
               child: Obx(

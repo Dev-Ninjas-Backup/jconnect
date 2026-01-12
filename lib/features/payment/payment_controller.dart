@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/features/payment/model/payment_model.dart';
@@ -49,21 +50,10 @@ class PaymentController extends GetxController {
 
       await _paymentService.makePayment(serviceId);
 
-      Get.snackbar(
-        'Success',
-        'Payment completed successfully',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
+      EasyLoading.showSuccess('Payment completed successfully');
     } catch (e) {
       print("payment error: $e");
-      Get.snackbar(
-        " ",
-        'Add your payment method in profile ✨',
-
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      EasyLoading.showError('Add your payment method before proceeding ✨');
     } finally {
       isLoading.value = false;
     }

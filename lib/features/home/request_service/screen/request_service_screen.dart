@@ -347,16 +347,19 @@ class RequestServiceScreen extends StatelessWidget {
                       print(
                         '🔥 [REQUEST SERVICE] Service creator object: ${service.creator}',
                       );
-                      
+
                       // Get creator name with better fallback
-                      final creatorName = service.creator?.full_name?.isNotEmpty == true
+                      final creatorName =
+                          service.creator?.full_name?.isNotEmpty == true
                           ? service.creator!.full_name!
-                          : (service.creator?.email?.isNotEmpty == true 
-                              ? service.creator!.email!
-                              : 'User');
-                      
-                      print('🔥 [REQUEST SERVICE] Using creator name: $creatorName');
-                      
+                          : (service.creator?.email?.isNotEmpty == true
+                                ? service.creator!.email!
+                                : 'User');
+
+                      print(
+                        '🔥 [REQUEST SERVICE] Using creator name: $creatorName',
+                      );
+
                       final chatItem = ChatItem(
                         type: 'private',
                         chatId: null,
@@ -451,14 +454,15 @@ class RequestServiceScreen extends StatelessWidget {
                           print(
                             '🔥 [MESSAGE SELLER] Creating new conversation',
                           );
-                          
+
                           // Get creator name with better fallback
-                          final creatorName = service.creator?.full_name?.isNotEmpty == true
+                          final creatorName =
+                              service.creator?.full_name?.isNotEmpty == true
                               ? service.creator!.full_name!
-                              : (service.creator?.email?.isNotEmpty == true 
-                                  ? service.creator!.email!
-                                  : 'Service Provider');
-                          
+                              : (service.creator?.email?.isNotEmpty == true
+                                    ? service.creator!.email!
+                                    : 'Service Provider');
+
                           final chatItem = ChatItem(
                             type: 'private',
                             chatId: null,
@@ -486,7 +490,7 @@ class RequestServiceScreen extends StatelessWidget {
 
               SizedBox(height: 12),
               Text(
-                "Your payment is protected until the service is completed. DJ Connect ensures both sides confirm delivery before funds are released.",
+                "Your payment is protected until the service is completed. Da Connect ensures both sides confirm delivery before funds are released.",
                 textAlign: TextAlign.center,
                 style: getTextStyle(
                   fontsize: sp(10),
