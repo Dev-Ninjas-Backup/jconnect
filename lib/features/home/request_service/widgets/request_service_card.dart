@@ -6,14 +6,30 @@ import '../../../../core/common/style/global_text_style.dart';
 import '../../../../core/common/widgets/gradient_border_container.dart';
 
 class ReqestServiceCard extends StatelessWidget {
-final dynamic service;
-  const ReqestServiceCard({
-    required this.service,
-    super.key,
-  });
+  final dynamic service;
+  const ReqestServiceCard({required this.service, super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Normalize price to integer (no decimals) for display
+    final dynamic rawPrice = service.price;
+    int displayPrice;
+    try {
+      if (rawPrice is num) {
+        displayPrice = rawPrice.toInt();
+      } else {
+        final s = rawPrice?.toString() ?? '0';
+        if (s.contains('.')) {
+          displayPrice =
+              int.tryParse(s.split('.').first) ??
+              (double.tryParse(s)?.toInt() ?? 0);
+        } else {
+          displayPrice = int.tryParse(s) ?? (double.tryParse(s)?.toInt() ?? 0);
+        }
+      }
+    } catch (_) {
+      displayPrice = 0;
+    }
     return GradientBorderContainer(
       borderRadius: 9.r,
       borderWidth: .6,
@@ -41,12 +57,10 @@ final dynamic service;
                   overflow: TextOverflow.ellipsis,
                   style: getTextStyle(
                     fontsize: sp(12),
-                    color: AppColors.primaryTextColor.withValues(
-                      alpha: .5,
-                    ),
+                    color: AppColors.primaryTextColor.withValues(alpha: .5),
                   ),
                 ),
-    
+
                 SizedBox(height: 8.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -68,7 +82,7 @@ final dynamic service;
                     //       ),
                     //     ),
                     //     SizedBox(width: 8.w),
-    
+
                     //     Text(
                     //       "(124 reviews)",
                     //       style: getTextStyle(
@@ -81,7 +95,7 @@ final dynamic service;
                     //   ],
                     // ),
                     Text(
-                     "\$${service.price.toString()}",
+                      "\$${displayPrice}",
                       style: getTextStyle(
                         fontsize: sp(16),
                         color: AppColors.primaryTextColor,

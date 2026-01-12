@@ -16,7 +16,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     HomeController controller = Get.put(HomeController());
     controller.refreshHomeData();
-   // final notificationController = Get.find<NotificationController>();
+    // final notificationController = Get.find<NotificationController>();
 
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
@@ -29,9 +29,9 @@ class HomePage extends StatelessWidget {
               CustomAppBar2(
                 title: "Home",
                 actionIconUrl: Iconpath.notificationIcon,
-                actionOnTap: ()  {
+                actionOnTap: () {
                   Get.toNamed(AppRoute.notificationScreen);
-                 // await notificationController.fetchNotifications();
+                  // await notificationController.fetchNotifications();
                 },
               ),
 
@@ -56,7 +56,7 @@ class HomePage extends StatelessWidget {
                       Get.toNamed(AppRoute.getArtistsScreen());
                     },
                     child: Text(
-                      "View all artists",
+                      "View all Users",
                       style: getTextStyle(
                         fontsize: sp(12),
                         color: AppColors.secondaryTextColor,

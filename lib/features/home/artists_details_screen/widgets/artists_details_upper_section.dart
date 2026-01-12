@@ -180,7 +180,7 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomAppBar2(
-            title: "Artist Details",
+            title: "User Details",
             leadingIconUrl: Iconpath.backIcon,
             onLeadingTap: Get.back,
           ),
@@ -216,15 +216,15 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                     fontweight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 8.h),
-                Text(
-                  artist.email,
-                  style: getTextStyle(
-                    fontsize: sp(18),
-                    fontweight: FontWeight.w400,
-                    color: AppColors.primaryTextColor.withValues(alpha: .7),
-                  ),
-                ),
+                // SizedBox(height: 8.h),
+                // Text(
+                //   artist.email,
+                //   style: getTextStyle(
+                //     fontsize: sp(18),
+                //     fontweight: FontWeight.w400,
+                //     color: AppColors.primaryTextColor.withValues(alpha: .7),
+                //   ),
+                // ),
               ],
             ),
           ),

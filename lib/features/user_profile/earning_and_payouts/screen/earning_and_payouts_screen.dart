@@ -91,7 +91,6 @@ class EarningAndPayoutsScreen extends StatelessWidget {
             'Monthly Earnings',
             style: TextStyle(color: Colors.white, fontSize: 14.sp),
           ),
-          const Icon(Icons.keyboard_arrow_down, color: Colors.white),
         ],
       ),
     );
