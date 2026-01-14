@@ -43,7 +43,7 @@ class ServiceCardWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  service['price'].toString(),
+                  service['price'].toStringAsFixed(0),
                   style: getTextStyle(
                     color: Colors.white,
                     fontsize: 14,
@@ -80,7 +80,6 @@ class ServiceCardWidget extends StatelessWidget {
     Get.bottomSheet(
       StatefulBuilder(
         builder: (context, setState) {
-
           return Container(
             padding: const EdgeInsets.all(20),
             decoration: const BoxDecoration(
@@ -93,7 +92,7 @@ class ServiceCardWidget extends StatelessWidget {
                 // You can reuse your ServiceFormWidget here
                 ServiceFormWidget(
                   controller,
-                //  onChanged: (_) => checkFields(),
+                  //  onChanged: (_) => checkFields(),
                 ), // ✅ CHANGED
                 const SizedBox(height: 16),
                 Row(
@@ -101,8 +100,9 @@ class ServiceCardWidget extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
-                        controller.clearForm();
-                        Get.back();},
+                          controller.clearForm();
+                          Get.back();
+                        },
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Colors.white24),
                           shape: RoundedRectangleBorder(
@@ -118,24 +118,26 @@ class ServiceCardWidget extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: 
-                      // controller.isSaveEnabled.value
-                           () async {
-                                await controller.saveService();
-                                Get.back();
-                              }
-                            ,
+                        onPressed:
+                            // controller.isSaveEnabled.value
+                            () async {
+                              await controller.saveService();
+                              Get.back();
+                            },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: 
-                          //controller.isSaveEnabled.value
-                             // ? Colors.white70
-                               Colors.white70,
+                          backgroundColor:
+                              //controller.isSaveEnabled.value
+                              // ? Colors.white70
+                              Colors.white70,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text("Save",style: TextStyle(color: Colors.black),),
+                        child: const Text(
+                          "Save",
+                          style: TextStyle(color: Colors.black),
+                        ),
                       ),
                     ),
                   ],

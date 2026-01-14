@@ -8,6 +8,61 @@ import 'package:jconnect/features/user_profile/profile/controller/profile_contro
 
 import '../model/social_profile_model.dart';
 
+class SocialPlatform {
+  final String name;
+  final String iconPath;
+  final String baseUrl;
+
+  SocialPlatform({
+    required this.name,
+    required this.iconPath,
+    required this.baseUrl,
+  });
+}
+
+final Map<String, SocialPlatform> platformMap = {
+  'INSTAGRAM': SocialPlatform(
+    name: 'INSTAGRAM',
+    iconPath: 'assets/icons/instagram.png',
+    baseUrl: 'https://instagram.com/',
+  ),
+  'FACEBOOK': SocialPlatform(
+    name: 'FACEBOOK',
+    iconPath: 'assets/icons/facebook.png',
+    baseUrl: 'https://facebook.com/',
+  ),
+  'TWITTER': SocialPlatform(
+    name: 'TWITTER',
+    iconPath: 'assets/icons/twitter.png',
+    baseUrl: 'https://twitter.com/',
+  ),
+  'TIKTOK': SocialPlatform(
+    name: 'TIKTOK',
+    iconPath: 'assets/icons/tiktok.png',
+    baseUrl: 'https://tiktok.com/@',
+  ),
+  'LINKEDIN': SocialPlatform(
+    name: 'LINKEDIN',
+    iconPath: 'assets/icons/linkedin.png',
+    baseUrl: 'https://linkedin.com/in/',
+  ),
+  'YOUTUBE': SocialPlatform(
+    name: 'YOUTUBE',
+    iconPath: 'assets/icons/youtube.png',
+    baseUrl: 'https://youtube.com/@',
+  ),
+  'SNAPCHAT': SocialPlatform(
+    name: 'SNAPCHAT',
+    iconPath: 'assets/icons/snapchat.png',
+    baseUrl: 'https://snapchat.com/add/',
+  ),
+  'TWITCH': SocialPlatform(
+    name: 'TWITCH',
+    iconPath: 'assets/icons/twitch.jpg',
+    baseUrl: 'https://twitch.tv/',
+  ),
+};
+
 class EditProfileController extends GetxController {
   final RxString imagePath = ''.obs;
   final RxBool isLoading = false.obs;
@@ -15,13 +70,11 @@ class EditProfileController extends GetxController {
   final profileRepository = ProfileRepository();
   final ImagePicker _picker = ImagePicker();
 
-  final firstNameController = TextEditingController();
-  final lastNameController = TextEditingController();
+  final fullNameController = TextEditingController();
   final bioController = TextEditingController();
   final phoneController = TextEditingController();
 
-  final RxList<Map<String, TextEditingController>> socialLinks =
-      <Map<String, TextEditingController>>[].obs;
+  final RxList<Map<String, dynamic>> socialLinks = <Map<String, dynamic>>[].obs;
 
   @override
   void onInit() {
@@ -34,14 +87,9 @@ class EditProfileController extends GetxController {
       final profileController = Get.find<ProfileController>();
       final user = profileController.user.value;
 
-      // Parse full name into first and last name
+      // Parse full name
       final fullName = user.fullName ?? user.name;
-      final nameParts = fullName.split(' ');
-
-      firstNameController.text = nameParts.isNotEmpty ? nameParts.first : '';
-      lastNameController.text = nameParts.length > 1
-          ? nameParts.sublist(1).join(' ')
-          : '';
+      fullNameController.text = fullName;
 
       bioController.text = user.shortbio;
       phoneController.text = user.phone ?? '';
@@ -65,52 +113,49 @@ class EditProfileController extends GetxController {
       // If user has existing social profiles, populate them
       if (user.socialProfiles != null && user.socialProfiles!.isNotEmpty) {
         for (var profile in user.socialProfiles!) {
+          // Extract platform name from the platformLink if it's a URL
+          // Otherwise use platformName directly
+          String platformName = profile.platformName ?? 'INSTAGRAM';
+          String username = profile.platformLink ?? '';
+
+          // If platformLink is a URL, try to extract the username
+          if (username.contains('http')) {
+            for (var entry in platformMap.entries) {
+              if (username.contains(entry.value.baseUrl)) {
+                platformName = entry.key;
+                username = username
+                    .replaceAll(entry.value.baseUrl, '')
+                    .replaceAll('@', '');
+                break;
+              }
+            }
+          }
+
           socialLinks.add({
-            'platform': TextEditingController(text: profile.platformName ?? ''),
-            'username': TextEditingController(text: profile.platformLink ?? ''),
+            'selectedPlatform': platformName,
+            'username': TextEditingController(text: username),
           });
         }
       } else {
         // Default empty social links
         socialLinks.value = [
           {
-            'platform': TextEditingController(text: 'Instagram'),
+            'selectedPlatform': 'INSTAGRAM',
             'username': TextEditingController(),
           },
-          {
-            'platform': TextEditingController(text: 'Facebook'),
-            'username': TextEditingController(),
-          },
-          {
-            'platform': TextEditingController(text: 'TikTok'),
-            'username': TextEditingController(),
-          },
-          {
-            'platform': TextEditingController(text: 'YouTube'),
-            'username': TextEditingController(),
-          },
+          {'selectedPlatform': 'FACEBOOK', 'username': TextEditingController()},
+          {'selectedPlatform': 'TIKTOK', 'username': TextEditingController()},
+          {'selectedPlatform': 'YOUTUBE', 'username': TextEditingController()},
         ];
       }
     } catch (e) {
       print('Error initializing social links: $e');
       // Fallback to default links
       socialLinks.value = [
-        {
-          'platform': TextEditingController(text: 'Instagram'),
-          'username': TextEditingController(),
-        },
-        {
-          'platform': TextEditingController(text: 'Facebook'),
-          'username': TextEditingController(),
-        },
-        {
-          'platform': TextEditingController(text: 'TikTok'),
-          'username': TextEditingController(),
-        },
-        {
-          'platform': TextEditingController(text: 'YouTube'),
-          'username': TextEditingController(),
-        },
+        {'selectedPlatform': 'INSTAGRAM', 'username': TextEditingController()},
+        {'selectedPlatform': 'FACEBOOK', 'username': TextEditingController()},
+        {'selectedPlatform': 'TIKTOK', 'username': TextEditingController()},
+        {'selectedPlatform': 'YOUTUBE', 'username': TextEditingController()},
       ];
     }
   }
@@ -124,14 +169,13 @@ class EditProfileController extends GetxController {
 
   void addSocialLink() {
     socialLinks.add({
-      'platform': TextEditingController(),
+      'selectedPlatform': 'INSTAGRAM',
       'username': TextEditingController(),
     });
   }
 
   void removeSocialLink(int index) {
     if (socialLinks.length > 1) {
-      socialLinks[index]['platform']?.dispose();
       socialLinks[index]['username']?.dispose();
       socialLinks.removeAt(index);
     }
@@ -146,16 +190,20 @@ class EditProfileController extends GetxController {
       int orderId = 1;
 
       for (var link in socialLinks) {
-        final platform = link['platform']?.text.trim() ?? '';
+        final platformKey = link['selectedPlatform'] as String? ?? 'INSTAGRAM';
         final value = link['username']?.text.trim() ?? '';
 
-        // Accept any platform name as long as the username/value is not empty
-        if (value.isNotEmpty && platform.isNotEmpty) {
+        if (value.isNotEmpty) {
+          final platformInfo = platformMap[platformKey];
+          final fullUrl = platformInfo != null
+              ? '${platformInfo.baseUrl}$value'
+              : value;
+
           socialProfiles.add(
             SocialProfile(
               orderId: orderId,
-              platformName: platform,
-              platformLink: value,
+              platformName: platformKey,
+              platformLink: fullUrl,
             ),
           );
           orderId++;
@@ -163,8 +211,7 @@ class EditProfileController extends GetxController {
       }
 
       await profileRepository.updateProfile(
-        fullName:
-            "${firstNameController.text.trim()} ${lastNameController.text.trim()}",
+        fullName: fullNameController.text.trim(),
         phone: phoneController.text.trim(),
         shortBio: bioController.text.trim(),
         imagePath: imagePath.value.isNotEmpty ? imagePath.value : null,
@@ -184,13 +231,11 @@ class EditProfileController extends GetxController {
 
   @override
   void onClose() {
-    firstNameController.dispose();
-    lastNameController.dispose();
+    fullNameController.dispose();
     bioController.dispose();
     phoneController.dispose();
 
     for (var link in socialLinks) {
-      link['platform']?.dispose();
       link['username']?.dispose();
     }
     super.onClose();

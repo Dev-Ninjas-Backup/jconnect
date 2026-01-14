@@ -7,6 +7,8 @@ import 'package:jconnect/core/service/local_service/shared_preferences_helper.da
 import 'package:jconnect/features/user_profile/edit_profile/model/social_profile_model.dart';
 import 'package:jconnect/features/user_profile/repository/profile_repository.dart';
 import 'package:jconnect/features/user_profile/profile/controller/profile_controller.dart';
+import 'package:jconnect/features/user_profile/edit_profile/controller/edit_profile_controller.dart'
+    show platformMap;
 
 class SetUpProfileController extends GetxController {
   final pref = Get.find<SharedPreferencesHelperController>();
@@ -21,8 +23,7 @@ class SetUpProfileController extends GetxController {
   final bioController = TextEditingController();
   final phoneController = TextEditingController();
 
-  final RxList<Map<String, TextEditingController>> socialLinks =
-      <Map<String, TextEditingController>>[].obs;
+  final RxList<Map<String, dynamic>> socialLinks = <Map<String, dynamic>>[].obs;
 
   @override
   void onInit() {
@@ -66,52 +67,49 @@ class SetUpProfileController extends GetxController {
       // If user has existing social profiles, populate them
       if (user.socialProfiles != null && user.socialProfiles!.isNotEmpty) {
         for (var profile in user.socialProfiles!) {
+          // Extract platform name from the platformLink if it's a URL
+          // Otherwise use platformName directly
+          String platformName = profile.platformName ?? 'INSTAGRAM';
+          String username = profile.platformLink ?? '';
+
+          // If platformLink is a URL, try to extract the username
+          if (username.contains('http')) {
+            for (var entry in platformMap.entries) {
+              if (username.contains(entry.value.baseUrl)) {
+                platformName = entry.key;
+                username = username
+                    .replaceAll(entry.value.baseUrl, '')
+                    .replaceAll('@', '');
+                break;
+              }
+            }
+          }
+
           socialLinks.add({
-            'platform': TextEditingController(text: profile.platformName ?? ''),
-            'username': TextEditingController(text: profile.platformLink ?? ''),
+            'selectedPlatform': platformName,
+            'username': TextEditingController(text: username),
           });
         }
       } else {
         // Default empty social links
         socialLinks.value = [
           {
-            'platform': TextEditingController(text: 'Instagram'),
+            'selectedPlatform': 'INSTAGRAM',
             'username': TextEditingController(),
           },
-          {
-            'platform': TextEditingController(text: 'Facebook'),
-            'username': TextEditingController(),
-          },
-          {
-            'platform': TextEditingController(text: 'TikTok'),
-            'username': TextEditingController(),
-          },
-          {
-            'platform': TextEditingController(text: 'YouTube'),
-            'username': TextEditingController(),
-          },
+          {'selectedPlatform': 'FACEBOOK', 'username': TextEditingController()},
+          {'selectedPlatform': 'TIKTOK', 'username': TextEditingController()},
+          {'selectedPlatform': 'YOUTUBE', 'username': TextEditingController()},
         ];
       }
     } catch (e) {
       print('Error initializing social links: $e');
       // Fallback to default links
       socialLinks.value = [
-        {
-          'platform': TextEditingController(text: 'Instagram'),
-          'username': TextEditingController(),
-        },
-        {
-          'platform': TextEditingController(text: 'Facebook'),
-          'username': TextEditingController(),
-        },
-        {
-          'platform': TextEditingController(text: 'TikTok'),
-          'username': TextEditingController(),
-        },
-        {
-          'platform': TextEditingController(text: 'YouTube'),
-          'username': TextEditingController(),
-        },
+        {'selectedPlatform': 'INSTAGRAM', 'username': TextEditingController()},
+        {'selectedPlatform': 'FACEBOOK', 'username': TextEditingController()},
+        {'selectedPlatform': 'TIKTOK', 'username': TextEditingController()},
+        {'selectedPlatform': 'YOUTUBE', 'username': TextEditingController()},
       ];
     }
   }
@@ -125,14 +123,13 @@ class SetUpProfileController extends GetxController {
 
   void addSocialLink() {
     socialLinks.add({
-      'platform': TextEditingController(),
+      'selectedPlatform': 'INSTAGRAM',
       'username': TextEditingController(),
     });
   }
 
   void removeSocialLink(int index) {
     if (socialLinks.length > 1) {
-      socialLinks[index]['platform']?.dispose();
       socialLinks[index]['username']?.dispose();
       socialLinks.removeAt(index);
     }
@@ -147,16 +144,20 @@ class SetUpProfileController extends GetxController {
       int orderId = 1;
 
       for (var link in socialLinks) {
-        final platform = link['platform']?.text.trim() ?? '';
+        final platformKey = link['selectedPlatform'] as String? ?? 'INSTAGRAM';
         final value = link['username']?.text.trim() ?? '';
 
-        // Accept any platform name as long as the username/value is not empty
-        if (value.isNotEmpty && platform.isNotEmpty) {
+        if (value.isNotEmpty) {
+          final platformInfo = platformMap[platformKey];
+          final fullUrl = platformInfo != null
+              ? '${platformInfo.baseUrl}$value'
+              : value;
+
           socialProfiles.add(
             SocialProfile(
               orderId: orderId,
-              platformName: platform,
-              platformLink: value,
+              platformName: platformKey,
+              platformLink: fullUrl,
             ),
           );
           orderId++;
