@@ -159,6 +159,14 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
         return Iconpath.tiktok;
       case 'youtube':
         return Iconpath.youtube;
+      case 'twitter':
+        return Iconpath.twitter;
+      case 'linkedin':
+        return Iconpath.linkedIn;
+      case 'snapchat':
+        return Iconpath.snapChat;
+      case 'twitch':
+        return Iconpath.twitch;
       default:
         return Iconpath.defaultSocial;
     }
@@ -263,25 +271,28 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
           SizedBox(height: 24.h),
 
           if (socialProfiles.isNotEmpty)
-            Row(
-              children: List.generate(socialProfiles.length, (index) {
-                final iconPath = getSocialIcon(
-                  socialProfiles[index].platformName ?? '',
-                );
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(socialProfiles.length, (index) {
+                  final iconPath = getSocialIcon(
+                    socialProfiles[index].platformName ?? '',
+                  );
 
-                return Padding(
-                  padding: EdgeInsets.only(right: 34.w),
-                  child: GestureDetector(
-                    onTap: () {
-                      final url = socialProfiles[index].platformLink;
-                      if (url != null && url.isNotEmpty) {
-                        controller.launchURL(url);
-                      }
-                    },
-                    child: Image.asset(iconPath, height: 24.w, width: 24.w),
-                  ),
-                );
-              }),
+                  return Padding(
+                    padding: EdgeInsets.only(right: 34.w),
+                    child: GestureDetector(
+                      onTap: () {
+                        final url = socialProfiles[index].platformLink;
+                        if (url != null && url.isNotEmpty) {
+                          controller.launchURL(url);
+                        }
+                      },
+                      child: Image.asset(iconPath, height: 24.w, width: 24.w),
+                    ),
+                  );
+                }),
+              ),
             )
           else if (socialProfiles.isEmpty)
             Text(

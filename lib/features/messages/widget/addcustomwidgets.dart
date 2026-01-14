@@ -16,9 +16,13 @@ class CustomServiceFormWidget extends StatelessWidget {
       () => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-        Center(child: Text("Custom Service Form",style: getTextStyle(color: Colors.white),),),
-        SizedBox(height: 12,),
+          Center(
+            child: Text(
+              "Custom Service Form",
+              style: getTextStyle(color: Colors.white),
+            ),
+          ),
+          SizedBox(height: 12),
           _buildTextField(
             controller.serviceNameController,
             "Service Name",
@@ -62,13 +66,10 @@ class CustomServiceFormWidget extends StatelessWidget {
           _buildTextField(
             controller.priceController,
             "Price/promotion",
-            "\$ Enter Price",
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(
-                RegExp(r'^\d*\.?\d{0,2}'),
-              ), // allow up to 2 decimals
-            ],
+            "Enter Price",
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            prefixText: '\$ ',
           ),
         ],
       ),
@@ -98,7 +99,7 @@ class CustomServiceFormWidget extends StatelessWidget {
             (t) => DropdownMenuItem<String>(
               value: t,
               child: Text(
-                t,
+                t.replaceAll('_', ' '),
                 style: getTextStyle(color: AppColors.primaryTextColor),
               ),
             ),
@@ -130,8 +131,10 @@ class CustomServiceFormWidget extends StatelessWidget {
           .map(
             (e) => DropdownMenuItem<String>(
               value: e.name,
-              child: Text(e.name,
-                  style: getTextStyle(color: AppColors.primaryTextColor)),
+              child: Text(
+                e.name,
+                style: getTextStyle(color: AppColors.primaryTextColor),
+              ),
             ),
           )
           .toList(),
@@ -148,6 +151,7 @@ class CustomServiceFormWidget extends StatelessWidget {
     int maxLines = 1,
     TextInputType? keyboardType,
     List<TextInputFormatter>? inputFormatters,
+    String? prefixText,
   }) {
     return TextField(
       controller: controller,
@@ -156,6 +160,8 @@ class CustomServiceFormWidget extends StatelessWidget {
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
       decoration: InputDecoration(
+        prefixText: prefixText,
+        prefixStyle: getTextStyle(color: AppColors.primaryTextColor),
         labelText: title,
         labelStyle: getTextStyle(color: AppColors.secondaryTextColor),
         hintText: hint,

@@ -284,6 +284,7 @@ enum SocialServiceType {
   FACEBOOK,
   INSTAGRAM,
   TWITTER,
+  TIKTOK,
   LINKEDIN,
   YOUTUBE,
   SNAPCHAT,
@@ -301,6 +302,8 @@ extension SocialServiceTypeX on SocialServiceType {
         return Iconpath.instagram;
       case SocialServiceType.TWITTER:
         return Iconpath.twitter;
+      case SocialServiceType.TIKTOK:
+        return Iconpath.tiktok;
       case SocialServiceType.LINKEDIN:
         return Iconpath.linkedIn;
       case SocialServiceType.YOUTUBE:

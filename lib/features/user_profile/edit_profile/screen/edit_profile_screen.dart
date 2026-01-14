@@ -42,18 +42,11 @@ class EditProfileScreen extends StatelessWidget {
                           children: [
                             _buildProfileImage(),
                             SizedBox(height: 25.h),
-                            Text('Your First Name', style: getTextStyle()),
+                            Text('Full Name', style: getTextStyle()),
                             SizedBox(height: 6.h),
                             CustomTextfield(
-                              hintText: 'First Name',
-                              controller: controller.firstNameController,
-                            ),
-                            SizedBox(height: 14.h),
-                            Text('Your Last Name', style: getTextStyle()),
-                            SizedBox(height: 6.h),
-                            CustomTextfield(
-                              hintText: 'Last Name',
-                              controller: controller.lastNameController,
+                              hintText: 'Full Name',
+                              controller: controller.fullNameController,
                             ),
                             SizedBox(height: 14.h),
                             Text('Bio', style: getTextStyle()),
@@ -86,31 +79,135 @@ class EditProfileScreen extends StatelessWidget {
                                   controller.socialLinks.length,
                                   (index) {
                                     final link = controller.socialLinks[index];
+                                    final selectedPlatform =
+                                        link['selectedPlatform'] as String;
+                                    final platformInfo =
+                                        platformMap[selectedPlatform];
+
                                     return Padding(
                                       padding: EdgeInsets.only(bottom: 10.h),
-                                      child: Row(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Expanded(
-                                            child: CustomTextfield(
-                                              hintText: 'Platform',
-                                              controller: link['platform'],
+                                          // Platform dropdown
+                                          DropdownButtonFormField<String>(
+                                            value: selectedPlatform,
+                                            dropdownColor:
+                                                AppColors.backGroundColor,
+                                            style: getTextStyle(
+                                              color: AppColors.primaryTextColor,
                                             ),
+                                            decoration: InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                    horizontal: 12.w,
+                                                    vertical: 12.h,
+                                                  ),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                borderSide: BorderSide(
+                                                  color: AppColors
+                                                      .secondaryTextColor,
+                                                  width: 1,
+                                                ),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                borderSide: BorderSide(
+                                                  color: AppColors
+                                                      .primaryTextColor,
+                                                  width: 1.5,
+                                                ),
+                                              ),
+                                            ),
+                                            items: platformMap.keys.map((
+                                              platform,
+                                            ) {
+                                              return DropdownMenuItem(
+                                                value: platform,
+                                                child: Text(
+                                                  platform,
+                                                  style: getTextStyle(
+                                                    color: AppColors
+                                                        .primaryTextColor,
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+                                            onChanged: (value) {
+                                              if (value != null) {
+                                                link['selectedPlatform'] =
+                                                    value;
+                                                WidgetsBinding.instance
+                                                    .addPostFrameCallback((_) {
+                                                      controller.socialLinks
+                                                          .refresh();
+                                                    });
+                                              }
+                                            },
                                           ),
-                                          SizedBox(width: 10.w),
-                                          Expanded(
-                                            flex: 2,
-                                            child: CustomTextfield(
-                                              hintText: 'Profile Link',
-                                              controller: link['username'],
-                                            ),
-                                          ),
-                                          IconButton(
-                                            onPressed: () => controller
-                                                .removeSocialLink(index),
-                                            icon: Icon(
-                                              Icons.remove_circle_outline,
-                                              color: AppColors.redColor,
-                                            ),
+                                          SizedBox(height: 8.h),
+                                          // Icon + Username row
+                                          Row(
+                                            children: [
+                                              // Platform icon with improved styling
+                                              if (platformInfo != null)
+                                                Container(
+                                                  width: 48.w,
+                                                  height: 48.w,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white
+                                                        .withOpacity(0.05),
+                                                    border: Border.all(
+                                                      color: AppColors
+                                                          .secondaryTextColor,
+                                                      width: 1.5,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                  ),
+                                                  padding: EdgeInsets.all(6.w),
+                                                  child: Image.asset(
+                                                    platformInfo.iconPath,
+                                                    fit: BoxFit.contain,
+                                                    errorBuilder:
+                                                        (_, __, ___) => Icon(
+                                                          Icons
+                                                              .image_not_supported,
+                                                          color: AppColors
+                                                              .secondaryTextColor,
+                                                          size: 24,
+                                                        ),
+                                                  ),
+                                                ),
+                                              SizedBox(width: 10.w),
+                                              // Username field
+                                              Expanded(
+                                                child: CustomTextfield(
+                                                  hintText: 'Username',
+                                                  controller: link['username'],
+                                                ),
+                                              ),
+                                              // Remove button
+                                              SizedBox(width: 4.w),
+                                              GestureDetector(
+                                                onTap: () => controller
+                                                    .removeSocialLink(index),
+                                                child: Container(
+                                                  padding: EdgeInsets.all(8.w),
+                                                  child: Icon(
+                                                    Icons.remove_circle,
+                                                    color: AppColors.redColor,
+                                                    size: 24,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
