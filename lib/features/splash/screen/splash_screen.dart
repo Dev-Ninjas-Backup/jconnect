@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
-import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/splash/controller/splash_controller.dart';
+import 'package:lottie/lottie.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -24,10 +24,12 @@ class SplashScreen extends StatelessWidget {
         children: [
           Positioned(
             top: 160.h,
-            child: Image.asset(
-              Imagepath.splashImage,
+            child: Lottie.asset(
+              "assets/images/icon rotate.json",
               width: 300.w,
               fit: BoxFit.contain,
+              repeat: true,
+              animate: true
             ),
           ),
 
