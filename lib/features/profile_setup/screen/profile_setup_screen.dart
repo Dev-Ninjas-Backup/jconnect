@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -127,7 +129,7 @@ class ProfileSetupScreen extends StatelessWidget {
                                         children: [
                                           // Platform dropdown
                                           DropdownButtonFormField<String>(
-                                            value: selectedPlatform,
+                                            initialValue: selectedPlatform,
                                             dropdownColor:
                                                 AppColors.backGroundColor,
                                             style: getTextStyle(
