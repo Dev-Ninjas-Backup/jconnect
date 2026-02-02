@@ -53,4 +53,6 @@ class Endpoint {
   static String withdrawalHistory = "$baseUrl/payments/my-withdrawal-history";
   static String getPaymentMethods = "$baseUrl/payments/my-paymentsss-methods";
   static String deleteUserById(String id) => "$baseUrl/users/$id";
+  static String followers = "$baseUrl/follow-function/followers";
+  static String followings = "$baseUrl/follow-function/followings";
 }

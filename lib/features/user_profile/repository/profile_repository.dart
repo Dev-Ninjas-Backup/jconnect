@@ -12,6 +12,9 @@ class ProfileRepository {
     required String fullName,
     required String phone,
     required String shortBio,
+    required String location,
+    required String username,
+    required String hashtags,
     String? imagePath,
     required List<SocialProfile> socialProfiles,
   }) async {
@@ -29,6 +32,9 @@ class ProfileRepository {
     request.fields['full_name'] = fullName;
     request.fields['phone'] = phone;
     request.fields['short_bio'] = shortBio;
+    request.fields['location'] = location;
+    request.fields['username'] = username;
+    request.fields['hashTags'] = hashtags;
     request.fields['socialProfiles'] = jsonEncode(
       socialProfiles.map((e) => e.toJson()).toList(),
     );
@@ -62,7 +68,11 @@ class ProfileRepository {
   }
 
   // ignore: non_constant_identifier_names
-  Future<void> createProfile({String? profile_image_url, required String shortBio, required socialProfiles}) async {
+  Future<void> createProfile({
+    String? profile_image_url,
+    required String shortBio,
+    required socialProfiles,
+  }) async {
     final token = await _prefs.getAccessToken();
     if (token == null) throw Exception("Access token not found");
 
