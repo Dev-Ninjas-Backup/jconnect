@@ -20,6 +20,7 @@ class OrderDetailsModel {
   final double platformFee;
   final String buyerId;
   final List<OrderTimelineStep> timeline;
+  final List<String> proofUrl;
 
   OrderDetailsModel({
     required this.id,
@@ -39,6 +40,7 @@ class OrderDetailsModel {
     required this.platformFee,
     required this.buyerId,
     required this.timeline,
+    required this.proofUrl,
   });
 
   factory OrderDetailsModel.fromJson(Map<String, dynamic> json) {
@@ -84,15 +86,11 @@ class OrderDetailsModel {
     }
 
     final servicePrice = pickDouble(['amount', 'price'], 0.0);
-    // Provide explicit fallback to avoid returning null at runtime
     final platformFee = pickDouble(['platformFee'], 0.0);
-
-    // Get seller info from API, fallback to logged-in user if empty
     String sellerName = pickString(['seller.full_name'], '');
     String sellerEmail = pickString(['seller.email'], '');
     String sellerId = pickString(['sellerId'], '');
 
-    // If seller info is empty, try to get logged-in user's info
     if (sellerName.isEmpty || sellerEmail.isEmpty) {
       try {
         final profileController = Get.find<ProfileController>();
@@ -103,7 +101,17 @@ class OrderDetailsModel {
           sellerEmail = profileController.user.value.email ?? '';
         }
       } catch (_) {
-        // ProfileController not available, keep empty strings
+      }
+    }
+
+    List<String> proofUrlList = [];
+    if (json['proofUrl'] != null) {
+      if (json['proofUrl'] is List) {
+        proofUrlList = (json['proofUrl'] as List)
+            .map((e) => e.toString())
+            .toList();
+      } else if (json['proofUrl'] is String) {
+        proofUrlList = [json['proofUrl'].toString()];
       }
     }
 
@@ -124,6 +132,7 @@ class OrderDetailsModel {
       platformRate: pickString(['platformFee_percents'], ''),
       platformFee: platformFee,
       buyerId: pickString(['buyerId', 'buyer_id'], ''),
+      proofUrl: proofUrlList,
       timeline: (() {
         final parsed = (json['timeline'] as List<dynamic>?)
             ?.map(
