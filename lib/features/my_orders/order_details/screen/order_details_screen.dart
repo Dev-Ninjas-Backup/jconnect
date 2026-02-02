@@ -146,7 +146,10 @@ class OrderDetailsScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 10),
-                    OrderTimelineWidget(timeline: order.timeline),
+                    OrderTimelineWidget(
+                      timeline: order.timeline,
+                      proofUrl: order.proofUrl,
+                    ),
                   ],
                 );
               }),

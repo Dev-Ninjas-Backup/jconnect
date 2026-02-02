@@ -2,16 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/features/my_orders/order_details/model/order_timeline_step.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'dart:io';
 
 class OrderTimelineWidget extends StatelessWidget {
   final List<OrderTimelineStep> timeline;
+  final List<String> proofUrl;
 
-  const OrderTimelineWidget({super.key, required this.timeline});
+  const OrderTimelineWidget({
+    super.key,
+    required this.timeline,
+    required this.proofUrl,
+  });
 
   String _formatDateShort(String iso) {
     try {
       final dt = DateTime.parse(iso);
-      // Build a short readable representation: "dd MMM • hh:mm a"
       const months = [
         'Jan',
         'Feb',
@@ -33,9 +41,52 @@ class OrderTimelineWidget extends StatelessWidget {
       final ampm = dt.hour >= 12 ? 'PM' : 'AM';
       return '$day $month • $hour:$minute $ampm';
     } catch (_) {
-      // If parsing fails return the original (or truncated) string
       return iso;
     }
+  }
+
+  Future<void> _downloadAttachment() async {
+    if (proofUrl.isEmpty) {
+      EasyLoading.showError('No attachment available');
+      return;
+    }
+
+    try {
+      EasyLoading.show(status: 'Downloading...');
+
+      final url = proofUrl[0];
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final dir = await getDownloadsDirectory();
+        if (dir == null) {
+          EasyLoading.showError('Downloads directory not found');
+          return;
+        }
+        final fileName =
+            'attachment_${DateTime.now().millisecondsSinceEpoch}.${_getFileExtension(url)}';
+        final filePath = '${dir.path}/$fileName';
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+        EasyLoading.dismiss();
+        EasyLoading.showSuccess('Downloaded proof file to: $filePath');
+      } else {
+        EasyLoading.showError('Download failed');
+      }
+    } catch (e) {
+      EasyLoading.showError('Error: $e');
+    }
+  }
+
+  String _getFileExtension(String url) {
+    if (url.contains('.jpg')) return 'jpg';
+    if (url.contains('.jpeg')) return 'jpeg';
+    if (url.contains('.png')) return 'png';
+    if (url.contains('.pdf')) return 'pdf';
+    if (url.contains('.gif')) return 'gif';
+    if (url.contains('.mp4')) return 'mp4';
+    if (url.contains('.webp')) return 'webp';
+    return 'jpg';
   }
 
   @override
@@ -52,6 +103,7 @@ class OrderTimelineWidget extends StatelessWidget {
         children: List.generate(timeline.length, (index) {
           final step = timeline[index];
           final isLast = index == timeline.length - 1;
+          final isWaitingForProof = step.title == 'Waiting for proof';
           return Column(
             children: [
               Row(
@@ -84,19 +136,40 @@ class OrderTimelineWidget extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Title on the left — allow up to 2 lines to keep original design
                           Expanded(
-                            child: Text(
-                              step.title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: getTextStyle(
-                                color: AppColors.primaryTextColor,
-                                fontweight: FontWeight.w500,
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  step.title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: getTextStyle(
+                                    color: AppColors.primaryTextColor,
+                                    fontweight: FontWeight.w500,
+                                  ),
+                                ),
+                                if (isWaitingForProof &&
+                                    timeline
+                                        .sublist(0, index)
+                                        .every((s) => s.isCompleted))
+                                  Padding(
+                                    padding: EdgeInsets.only(top: 8),
+                                    child: GestureDetector(
+                                      onTap: _downloadAttachment,
+                                      child: Text(
+                                        'Download Attachment',
+                                        style: getTextStyle(
+                                          color: AppColors.redColor,
+                                          fontsize: 10,
+                                          fontweight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
-                          // Timestamp on the right — format shortened to avoid overflow
                           if (step.dateTime.isNotEmpty)
                             ConstrainedBox(
                               constraints: BoxConstraints(maxWidth: 140),

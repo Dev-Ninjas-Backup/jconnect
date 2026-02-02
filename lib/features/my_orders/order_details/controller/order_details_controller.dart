@@ -87,6 +87,7 @@ class OrderDetailsController extends GetxController {
         // OrderModel does not always include a platformRate; use empty string fallback
         platformRate: '',
         buyerId: buyerIdFromRaw ?? '',
+        proofUrl: [],
         timeline: _generateTimeline(
           status: incoming.status,
           createdAt: createdAtFromRaw,
@@ -295,6 +296,7 @@ class OrderDetailsController extends GetxController {
       platformRate: current.platformRate,
       platformFee: current.platformFee,
       buyerId: current.buyerId,
+      proofUrl: current.proofUrl,
       timeline: newTimeline,
     );
   }
