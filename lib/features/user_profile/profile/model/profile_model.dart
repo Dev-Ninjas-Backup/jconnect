@@ -3,7 +3,7 @@ class ProfileModel {
   final String imageUrl;
   final String shortbio;
   final String location;
-  final String hashtags;
+  final List<String> hashtags; 
   final String username;
   final int totaldeals;
   final double earnings;

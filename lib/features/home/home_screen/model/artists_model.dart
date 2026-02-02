@@ -33,6 +33,8 @@ class ArtistsModel {
   final int totalReviews;
   final int followerCount;
 
+  final List<String> hashTags;
+
   const ArtistsModel({
     required this.id,
     required this.fullName,
@@ -59,6 +61,7 @@ class ArtistsModel {
     required this.averageRating,
     required this.totalReviews,
     required this.followerCount,
+    required this.hashTags,
   });
 
   factory ArtistsModel.fromJson(Map<String, dynamic> json) {
@@ -97,6 +100,11 @@ class ArtistsModel {
       averageRating: (json['averageRating'] ?? 0).toDouble(),
       totalReviews: json['totalReviews'] ?? 0,
       followerCount: json['followerCount'] ?? 0,
+
+      hashTags: (json['hashTags'] as List? ?? [])
+          .map((e) => e.toString())
+          .where((tag) => tag.trim().isNotEmpty) // Only filter empty strings
+          .toList(),
     );
   }
 }

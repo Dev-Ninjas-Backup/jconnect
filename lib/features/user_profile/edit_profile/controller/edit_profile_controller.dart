@@ -97,10 +97,15 @@ class EditProfileController extends GetxController {
       bioController.text = user.shortbio;
       phoneController.text = user.phone ?? '';
 
-      // ✅ Load additional fields if available
-      locationController.text = user.location ?? '';
-      userNameController.text = user.username ?? '';
-      hashTageController.text = user.hashtags ?? '';
+      //Load additional fields if available
+
+      locationController.text = user.location;
+      userNameController.text = user.username;
+      if (user.hashtags.isNotEmpty) {
+        hashTageController.text = user.hashtags
+            .map((tag) => tag.replaceFirst('#', '')) 
+            .join(', ');
+      }
 
       print("User data loaded: $user");
 
@@ -220,18 +225,30 @@ class EditProfileController extends GetxController {
         }
       }
 
+        // Process hashtags
+
+      List<String> hashtagsList = [];
+      if (hashTageController.text.trim().isNotEmpty) {
+        hashtagsList = hashTageController.text
+            .split(',')
+            .map((tag) => tag.trim())
+            .where((tag) => tag.isNotEmpty)
+            .map(
+              (tag) => tag.startsWith('#') ? tag : '#$tag',
+            ) 
+            .toList();
+      }
+
       await profileRepository.updateProfile(
         fullName: fullNameController.text.trim(),
         phone: phoneController.text.trim(),
         shortBio: bioController.text.trim(),
         location: locationController.text.trim(),
         username: userNameController.text.trim(),
-        hashtags: hashTageController.text.trim(),
+        hashtags: hashtagsList,
         imagePath: imagePath.value.isNotEmpty ? imagePath.value : null,
         socialProfiles: socialProfiles,
-
       );
-
 
       EasyLoading.showSuccess('Profile updated successfully');
 

@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/features/home/artists_details_screen/controller/artists_details_controller.dart';
-
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/constants/iconpath.dart';
 import '../../../../core/common/style/global_text_style.dart';
@@ -366,6 +365,56 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
               color: AppColors.primaryTextColor.withValues(alpha: .5),
             ),
           ),
+          SizedBox(height: 40.h),
+
+          Text(
+            'Hash Tags',
+            style: getTextStyle(
+              fontsize: sp(18),
+              fontweight: FontWeight.w500,
+              color: AppColors.primaryTextColor.withValues(alpha: .7),
+            ),
+          ),
+          SizedBox(height: 12.h),
+
+          // Display hashtags
+          if (artist.hashTags.isNotEmpty)
+            Wrap(
+              spacing: 8.w,
+              runSpacing: 8.h,
+              children: artist.hashTags.map<Widget>((tag) {
+                return Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 6.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryTextColor.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(20.r),
+                    border: Border.all(
+                      color: AppColors.primaryTextColor.withValues(alpha: 0.5),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    tag,
+                    style: getTextStyle(
+                      fontsize: sp(12),
+                      fontweight: FontWeight.w500,
+                      color: AppColors.primaryTextColor,
+                    ),
+                  ),
+                );
+              }).toList(),
+            )
+          else
+            Text(
+              "No hashtags available",
+              style: getTextStyle(
+                fontsize: sp(12),
+                color: AppColors.primaryTextColor.withValues(alpha: .5),
+              ),
+            ),
         ],
       );
     });

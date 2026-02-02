@@ -14,7 +14,7 @@ class ProfileRepository {
     required String shortBio,
     required String location,
     required String username,
-    required String hashtags,
+    required List<String> hashtags,
     String? imagePath,
     required List<SocialProfile> socialProfiles,
   }) async {
@@ -34,7 +34,7 @@ class ProfileRepository {
     request.fields['short_bio'] = shortBio;
     request.fields['location'] = location;
     request.fields['username'] = username;
-    request.fields['hashTags'] = hashtags;
+    request.fields['hashTags'] = jsonEncode(hashtags);
     request.fields['socialProfiles'] = jsonEncode(
       socialProfiles.map((e) => e.toJson()).toList(),
     );
