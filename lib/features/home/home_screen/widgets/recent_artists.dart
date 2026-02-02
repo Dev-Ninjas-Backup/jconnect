@@ -126,7 +126,7 @@ class ArtistsYouKnow extends StatelessWidget {
                               alignment: Alignment.center,
                               child: Icon(
                                 Icons.broken_image,
-                                size: 40,
+                                size: 80.h,
                                 color: Colors.white,
                               ),
                             ),
@@ -138,7 +138,7 @@ class ArtistsYouKnow extends StatelessWidget {
                             alignment: Alignment.center,
                             child: Icon(
                               Icons.broken_image,
-                              size: 40,
+                              size: 80,
                               color: Colors.white,
                             ),
                           ),

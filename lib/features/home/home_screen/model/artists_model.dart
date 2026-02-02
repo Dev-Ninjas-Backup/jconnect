@@ -31,6 +31,7 @@ class ArtistsModel {
 
   final double averageRating;
   final int totalReviews;
+  final int followerCount;
 
   const ArtistsModel({
     required this.id,
@@ -57,6 +58,7 @@ class ArtistsModel {
     required this.reviewsReceived,
     required this.averageRating,
     required this.totalReviews,
+    required this.followerCount,
   });
 
   factory ArtistsModel.fromJson(Map<String, dynamic> json) {
@@ -94,6 +96,7 @@ class ArtistsModel {
           .toList(),
       averageRating: (json['averageRating'] ?? 0).toDouble(),
       totalReviews: json['totalReviews'] ?? 0,
+      followerCount: json['followerCount'] ?? 0,
     );
   }
 }

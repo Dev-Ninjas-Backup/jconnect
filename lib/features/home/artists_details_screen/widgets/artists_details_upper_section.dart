@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/features/home/artists_details_screen/controller/artists_details_controller.dart';
 
 import '../../../../core/common/constants/app_colors.dart';
@@ -224,7 +225,52 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                     fontweight: FontWeight.w600,
                   ),
                 ),
-                // SizedBox(height: 8.h),
+                SizedBox(height: 8.h),
+                Obx(() {
+                  final isOwnProfile = controller.isOwnProfile(artist.id);
+                  final isFollowing =
+                      controller.followingUsers[artist.id] ?? false;
+
+                  if (isOwnProfile) {
+                    return Text(
+                      "Your Own Profile",
+
+                      style: getTextStyle(
+                        fontsize: sp(12),
+                        fontweight: FontWeight.w400,
+                        color: AppColors.primaryTextColor.withValues(alpha: .5),
+                      ),
+                    );
+                  }
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '${artist.followerCount} Followers',
+                        style: getTextStyle(
+                          fontsize: sp(12),
+                          fontweight: FontWeight.w500,
+                          color: AppColors.primaryTextColor.withValues(
+                            alpha: .7,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 16.w),
+                      Opacity(
+                        opacity: isFollowing ? 1.0 : 0.5,
+                        child: CustomPrimaryButton(
+                          buttonHeight: 4,
+                          buttonWidth: 12,
+                          buttonText: isFollowing ? 'Following' : 'Follow',
+                          onTap: () {
+                            controller.followUser(artist.id);
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                }),
                 // Text(
                 //   artist.email,
                 //   style: getTextStyle(

@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_brace_in_string_interps
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -95,7 +97,7 @@ class ReqestServiceCard extends StatelessWidget {
                     //   ],
                     // ),
                     Text(
-                      "\$${displayPrice}",
+                      "\$$displayPrice",
                       style: getTextStyle(
                         fontsize: sp(16),
                         color: AppColors.primaryTextColor,

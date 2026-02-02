@@ -79,9 +79,7 @@ class ArtistsItem extends StatelessWidget {
           currentList = homeController.suggestedForYouList;
         }
 
-        return
-        
-         GridView.builder(
+        return GridView.builder(
           itemCount: currentList.length,
           scrollDirection: Axis.vertical,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -121,222 +119,261 @@ class ArtistsItem extends StatelessWidget {
                 await artistsDetailsController.fetchArtistById(artist.id);
                 Get.toNamed(AppRoute.artistsDetailsPage);
               },
-              child: 
-                       GradientBorderContainer(
-              width: double.infinity,
-              borderRadius: 10.r,
-              borderWidth: 1,
-              gradientColors: [Colors.white, Colors.white.withOpacity(0.5)],
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 16.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  /// Profile photo
-                  Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(100.r),
+              child: GradientBorderContainer(
+                width: double.infinity,
+                borderRadius: 10.r,
+                borderWidth: 1,
+                gradientColors: [Colors.white, Colors.white.withOpacity(0.5)],
+                padding: EdgeInsetsGeometry.zero,
+                // EdgeInsets.symmetric(horizontal: 10.w, vertical: 16.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /// Profile photo
+                    ClipRRect(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10.r),
+                        topRight: Radius.circular(10.r),
+                      ),
                       child:
                           artist.profilePhoto != null &&
                               artist.profilePhoto!.trim().isNotEmpty
                           ? Image.network(
                               artist.profilePhoto!,
                               height: 80.h,
-                              width: 80.w,
+                              width: double.infinity,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Icon(
-                                Icons.broken_image,
-                                size: 80,
-                                color: Colors.white,
+                              errorBuilder: (_, __, ___) => Center(
+                                child: Padding(
+                                  padding: EdgeInsets.only(top: 8),
+                                  child: Icon(
+                                    Icons.broken_image,
+                                    size: 80,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
                             )
-                          : Icon(
-                              Icons.broken_image,
-                              size: 80,
-                              color: Colors.white,
+                          : Center(
+                              child: Padding(
+                                  padding: EdgeInsets.only(top: 8),
+                                child: Icon(
+                                  Icons.broken_image,
+                                  size: 80,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                     ),
-                  ),
 
-                  SizedBox(height: 12.h),
+                    SizedBox(height: 12.h),
 
-                  /// Name + price
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          artist.fullName.trim().isEmpty
-                              ? "Unknown Artist"
-                              : artist.fullName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: getTextStyle(
-                            fontsize: sp(16),
-                            fontweight: FontWeight.w500,
+                    /// Name + price
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              artist.fullName.trim().isEmpty
+                                  ? "Unknown Artist"
+                                  : artist.fullName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: getTextStyle(
+                                fontsize: sp(16),
+                                fontweight: FontWeight.w500,
+                              ),
+                            ),
                           ),
-                        ),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8.w,
+                              vertical: 4.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(4.r),
+                              border: Border.all(
+                                width: 0.25,
+                                color: AppColors.secondaryTextColor,
+                              ),
+                            ),
+                            child: Text(
+                              "From \$${servicePrice.toStringAsFixed(2)}",
+                              style: getTextStyle(
+                                fontsize: sp(8),
+                                color: AppColors.secondaryTextColor,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8.w,
-                          vertical: 4.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4.r),
-                          border: Border.all(
-                            width: 0.25,
-                            color: AppColors.secondaryTextColor,
-                          ),
-                        ),
-                        child: Text(
-                          "From \$${servicePrice.toStringAsFixed(2)}",
-                          style: getTextStyle(
-                            fontsize: sp(8),
-                            color: AppColors.secondaryTextColor,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: 8.h),
-                  Text(
-                    "Services",
-                    style: getTextStyle(
-                      fontsize: sp(10),
-                      color: AppColors.secondaryTextColor,
                     ),
-                  ),
 
-                  SizedBox(height: 6.h),
-                  Text(
-                    serviceDesc,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: getTextStyle(
-                      fontsize: sp(10),
-                      color: AppColors.secondaryTextColor,
-                    ),
-                  ),
-
-                  SizedBox(height: 20.h),
-
-                  /// Rating
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      RatingBarIndicator(
-                        rating: avgRating,
-                        itemBuilder: (_, __) =>
-                            const Icon(Icons.star, color: Color(0xffBD001F)),
-                        itemCount: 5,
-                        itemSize: 14,
-                        unratedColor: const Color(0xFFD96B7D),
-                      ),
-                      Text(
-                        "${avgRating.toStringAsFixed(1)} (${reviews.length})",
+                    SizedBox(height: 8.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      child: Text(
+                        "Services",
                         style: getTextStyle(
                           fontsize: sp(10),
                           color: AppColors.secondaryTextColor,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
 
-                  const Spacer(),
-                  CustomPrimaryButton(
-                    buttonText: "Buy A Service",
-                    onTap: () async {
-                      final artistsDetailsController = Get.put(
-                        ArtistsDetailsController(
-                          networkClient: NetworkClient(
-                            onUnAuthorize: () {
-                              if (kDebugMode) {
-                                print("unauthorized");
-                              }
-                            },
-                          ),
+                    SizedBox(height: 6.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      child: Text(
+                        serviceDesc,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: getTextStyle(
+                          fontsize: sp(10),
+                          color: AppColors.secondaryTextColor,
                         ),
-                      );
-                      await artistsDetailsController.fetchArtistById(artist.id);
-                      Get.to(()=>ArtistsServiceList());
-                    },
-                    fontSize: sp(10),
-                  ),
-                  SizedBox(height: 12.h),
-                  CustomPrimaryButton(
-                    buttonText: "Buy A Social Post",
+                      ),
+                    ),
 
-                   onTap: () async {
-                      final artistsDetailsController = Get.put(
-                        ArtistsDetailsController(
-                          networkClient: NetworkClient(
-                            onUnAuthorize: () {
-                              if (kDebugMode) {
-                                print("unauthorized");
-                              }
-                            },
+                    SizedBox(height: 20.h),
+
+                    /// Rating
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          RatingBarIndicator(
+                            rating: avgRating,
+                            itemBuilder: (_, __) => const Icon(
+                              Icons.star,
+                              color: Color(0xffBD001F),
+                            ),
+                            itemCount: 5,
+                            itemSize: 14,
+                            unratedColor: const Color(0xFFD96B7D),
                           ),
-                        ),
-                      );
-                      await artistsDetailsController.fetchArtistById(artist.id);
-                     Get.to(() => ArtistsSocialPostList());
-                    },
+                          Text(
+                            "${avgRating.toStringAsFixed(1)} (${reviews.length})",
+                            style: getTextStyle(
+                              fontsize: sp(10),
+                              color: AppColors.secondaryTextColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
 
-                    // onTap: () {
-                    //   Get.to(() => ArtistsSocialPostList());
-                    // },
-                    fontSize: sp(10),
-                  ),
-                  SizedBox(height: 12.h),
-
-                  /// Message button
-                  CustomPrimaryButton(
-                    fontSize: sp(10),
-                    buttonText: "Message",
-                    onTap: () {
-                      final messagesController = Get.find<MessagesController>();
-
-                      final existingChat = messagesController.allChats
-                          .firstWhereOrNull(
-                            (chat) => chat.participant?.id == artist.id,
+                    const Spacer(),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      child: CustomPrimaryButton(
+                        buttonText: "Buy A Service",
+                        onTap: () async {
+                          final artistsDetailsController = Get.put(
+                            ArtistsDetailsController(
+                              networkClient: NetworkClient(
+                                onUnAuthorize: () {
+                                  if (kDebugMode) {
+                                    print("unauthorized");
+                                  }
+                                },
+                              ),
+                            ),
                           );
+                          await artistsDetailsController.fetchArtistById(
+                            artist.id,
+                          );
+                          Get.to(() => ArtistsServiceList());
+                        },
+                        fontSize: sp(10),
+                      ),
+                    ),
+                    SizedBox(height: 12.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      child: CustomPrimaryButton(
+                        buttonText: "Buy A Social Post",
 
-                      if (existingChat != null && existingChat.chatId != null) {
-                        Get.toNamed(
-                          AppRoute.chatDetailsScreen,
-                          arguments: {
-                            'chatItem': existingChat,
-                            'recipientId': artist.id,
-                            'isNewConversation': false,
-                          },
-                        );
-                      } else {
-                        final chatItem = ChatItem(
-                          type: 'private',
-                          chatId: null,
-                          participant: ChatParticipant(
-                            id: artist.id,
-                            fullName: artist.fullName,
-                            profilePhoto: artist.profilePhoto,
-                          ),
-                        );
-                        Get.toNamed(
-                          AppRoute.chatDetailsScreen,
-                          arguments: {
-                            'chatItem': chatItem,
-                            'recipientId': artist.id,
-                            'isNewConversation': true,
-                          },
-                        );
-                      }
-                    },
-                  ),
-                ],
+                        onTap: () async {
+                          final artistsDetailsController = Get.put(
+                            ArtistsDetailsController(
+                              networkClient: NetworkClient(
+                                onUnAuthorize: () {
+                                  if (kDebugMode) {
+                                    print("unauthorized");
+                                  }
+                                },
+                              ),
+                            ),
+                          );
+                          await artistsDetailsController.fetchArtistById(
+                            artist.id,
+                          );
+                          Get.to(() => ArtistsSocialPostList());
+                        },
+
+                        // onTap: () {
+                        //   Get.to(() => ArtistsSocialPostList());
+                        // },
+                        fontSize: sp(10),
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+
+                    /// Message button
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w,vertical: 10.h),
+                      child: CustomPrimaryButton(
+                        fontSize: sp(10),
+                        buttonText: "Message",
+                        onTap: () {
+                          final messagesController =
+                              Get.find<MessagesController>();
+
+                          final existingChat = messagesController.allChats
+                              .firstWhereOrNull(
+                                (chat) => chat.participant?.id == artist.id,
+                              );
+
+                          if (existingChat != null &&
+                              existingChat.chatId != null) {
+                            Get.toNamed(
+                              AppRoute.chatDetailsScreen,
+                              arguments: {
+                                'chatItem': existingChat,
+                                'recipientId': artist.id,
+                                'isNewConversation': false,
+                              },
+                            );
+                          } else {
+                            final chatItem = ChatItem(
+                              type: 'private',
+                              chatId: null,
+                              participant: ChatParticipant(
+                                id: artist.id,
+                                fullName: artist.fullName,
+                                profilePhoto: artist.profilePhoto,
+                              ),
+                            );
+                            Get.toNamed(
+                              AppRoute.chatDetailsScreen,
+                              arguments: {
+                                'chatItem': chatItem,
+                                'recipientId': artist.id,
+                                'isNewConversation': true,
+                              },
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-              
-              
+
               // GradientBordevrContainer(
               //   // width: 213.w,
               //   borderRadius: 10.r,
