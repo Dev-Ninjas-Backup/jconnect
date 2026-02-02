@@ -97,7 +97,7 @@ class ReqestServiceCard extends StatelessWidget {
                     //   ],
                     // ),
                     Text(
-                      "\$${displayPrice}",
+                      "\$$displayPrice",
                       style: getTextStyle(
                         fontsize: sp(16),
                         color: AppColors.primaryTextColor,
