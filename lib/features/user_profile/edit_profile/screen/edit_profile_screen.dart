@@ -65,6 +65,32 @@ class EditProfileScreen extends StatelessWidget {
                               controller: controller.phoneController,
                               keyboardType: TextInputType.phone,
                             ),
+
+                            // extra fields
+                            SizedBox(height: 14.h),
+                            Text('Location', style: getTextStyle()),
+                            SizedBox(height: 6.h),
+                            CustomTextfield(
+                              hintText: 'Location',
+                              controller: controller.locationController,
+                            ),
+
+                            SizedBox(height: 14.h),
+                            Text('Hash Tags', style: getTextStyle()),
+                            SizedBox(height: 6.h),
+                            CustomTextfield(
+                              hintText: 'Hash Tags',
+                              controller: controller.hashTageController,
+                            ),
+                            SizedBox(height: 14.h),
+                            Text('User Name', style: getTextStyle()),
+                            SizedBox(height: 6.h),
+                            CustomTextfield(
+                              hintText: 'User Name',
+                              controller: controller.userNameController,
+                            ),
+
+                            ///
                             SizedBox(height: 25.h),
                             Text(
                               'Social Links:',

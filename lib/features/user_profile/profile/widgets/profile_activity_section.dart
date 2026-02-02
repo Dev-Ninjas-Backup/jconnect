@@ -35,6 +35,11 @@ class ProfileActivitySection extends StatelessWidget {
         'onTap': () => {Get.to(MessagesScreen())},
       },
       {
+        'icon': Icons.request_page_outlined,
+        'label': 'Followers & Followings',
+        'onTap': () => Get.toNamed(AppRoute.followScreen),
+      },
+      {
         'icon': Icons.star_border_rounded,
         'label': 'Reviews',
         'onTap': () => {Get.toNamed(AppRoute.reviewScreen)},

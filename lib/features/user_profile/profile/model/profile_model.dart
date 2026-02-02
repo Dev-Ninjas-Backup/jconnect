@@ -2,6 +2,9 @@ class ProfileModel {
   final String name;
   final String imageUrl;
   final String shortbio;
+  final String location;
+  final String hashtags;
+  final String username;
   final int totaldeals;
   final double earnings;
   final double rating;
@@ -14,6 +17,9 @@ class ProfileModel {
     required this.name,
     required this.imageUrl,
     required this.shortbio,
+    required this.location,
+    required this.hashtags,
+    required this.username,
     required this.totaldeals,
     required this.earnings,
     required this.rating,
@@ -22,6 +28,7 @@ class ProfileModel {
     this.email,
     this.socialProfiles,
   });
+  
 }
 
 class SocialLinkModel {

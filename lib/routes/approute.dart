@@ -23,6 +23,7 @@ import 'package:jconnect/features/profile_setup/screen/profile_setup_screen.dart
 import 'package:jconnect/features/splash/screen/splash_screen.dart';
 import 'package:jconnect/features/user_profile/earning_and_payouts/screen/earning_and_payouts_screen.dart';
 import 'package:jconnect/features/user_profile/edit_profile/screen/edit_profile_screen.dart';
+import 'package:jconnect/features/user_profile/followers_followings/screens/follow_screen.dart';
 import 'package:jconnect/features/user_profile/help_and_support/support_sreen/screen/help_and_support_screen.dart';
 import 'package:jconnect/features/user_profile/payment_method/add_stripe/screen/add_stripe.dart';
 import 'package:jconnect/features/user_profile/payment_method/manage_via_stripe/screen/manage_via_stripe.dart';
@@ -72,6 +73,7 @@ class AppRoute {
   static String customServices = '/home/customServices';
   static String notificationScreen = '/notificationScreen';
   static String chatDetailsScreen = '/chatDetailsScreen';
+  static String followScreen = '/followScreen';
 
   static String getSplashScreen() => splashScreen;
   static String getOnboardingScreen() => onboardingScreen;
@@ -106,6 +108,7 @@ class AppRoute {
   static String getHelpAndSupport() => helpAndSupportScreen;
   static String getNotificationScreen() => notificationScreen;
   static String getChatDetailsScreen() => chatDetailsScreen;
+  static String getFollowScreen() => followScreen;
 
   static List<GetPage> routes = [
     GetPage(name: splashScreen, page: () => SplashScreen()),
@@ -144,9 +147,7 @@ class AppRoute {
     GetPage(name: manageViaStripe, page: () => MyPaymentMethodScreen()),
     GetPage(name: helpAndSupportScreen, page: () => HelpAndSupportScreen()),
     GetPage(name: notificationScreen, page: () => NotificationScreen()),
-    GetPage(
-      name: chatDetailsScreen,
-      page: () => ChatDetailsScreen(),
-    ),
+    GetPage(name: chatDetailsScreen, page: () => ChatDetailsScreen()),
+    GetPage(name: followScreen, page: () => FollowScreen())
   ];
 }

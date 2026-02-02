@@ -73,6 +73,9 @@ class EditProfileController extends GetxController {
   final fullNameController = TextEditingController();
   final bioController = TextEditingController();
   final phoneController = TextEditingController();
+  final locationController = TextEditingController();
+  final hashTageController = TextEditingController();
+  final userNameController = TextEditingController();
 
   final RxList<Map<String, dynamic>> socialLinks = <Map<String, dynamic>>[].obs;
 
@@ -93,6 +96,13 @@ class EditProfileController extends GetxController {
 
       bioController.text = user.shortbio;
       phoneController.text = user.phone ?? '';
+
+      // ✅ Load additional fields if available
+      locationController.text = user.location ?? '';
+      userNameController.text = user.username ?? '';
+      hashTageController.text = user.hashtags ?? '';
+
+      print("User data loaded: $user");
 
       // Initialize social links with API data
       _initializeSocialLinks();
@@ -214,9 +224,16 @@ class EditProfileController extends GetxController {
         fullName: fullNameController.text.trim(),
         phone: phoneController.text.trim(),
         shortBio: bioController.text.trim(),
+        location: locationController.text.trim(),
+        username: userNameController.text.trim(),
+        hashtags: hashTageController.text.trim(),
         imagePath: imagePath.value.isNotEmpty ? imagePath.value : null,
         socialProfiles: socialProfiles,
+
       );
+
+
+      EasyLoading.showSuccess('Profile updated successfully');
 
       EasyLoading.showSuccess('Profile updated successfully');
       Get.back();

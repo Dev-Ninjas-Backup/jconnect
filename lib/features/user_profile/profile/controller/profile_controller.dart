@@ -15,6 +15,9 @@ class ProfileController extends GetxController {
     name: '',
     imageUrl: Imagepath.profileImage,
     shortbio: 'No Bio',
+    location: 'No Location',
+    hashtags: 'No Hashtags',
+    username: 'No Username',   
     email: " ",
     totaldeals: 0,
     earnings: 0.0,
@@ -55,6 +58,12 @@ class ProfileController extends GetxController {
     final imageUrl = json['profilePhoto']?.toString() ?? Imagepath.profileImage;
     final shortbio =
         json['profile']?['short_bio']?.toString() ?? existing.shortbio;
+    final location =
+        json['profile']?['location']?.toString() ?? existing.location;
+    final hashtags =
+        json['profile']?['hashtags']?.toString() ?? existing.hashtags;
+    final username =
+        json['profile']?['username']?.toString() ?? existing.username;
     final totaldeals =
         json['stats']?['totalDeals'] as int? ?? existing.totaldeals;
     final earnings =
@@ -82,6 +91,9 @@ class ProfileController extends GetxController {
       name: name,
       imageUrl: imageUrl,
       shortbio: shortbio,
+      location: location,
+      hashtags: hashtags,
+      username: username,
       totaldeals: totaldeals,
       earnings: earnings,
       rating: rating,
