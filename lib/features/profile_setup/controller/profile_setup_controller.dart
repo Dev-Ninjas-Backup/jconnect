@@ -23,7 +23,6 @@ class SetUpProfileController extends GetxController {
   final bioController = TextEditingController();
   final phoneController = TextEditingController();
   final locationController = TextEditingController();
-  final hashTageController = TextEditingController();
   final userNameController = TextEditingController();
 
   final RxList<Map<String, dynamic>> socialLinks = <Map<String, dynamic>>[].obs;
@@ -181,13 +180,15 @@ class SetUpProfileController extends GetxController {
           ? savedPhone
           : (profileController.user.value.phone ?? phoneController.text);
 
+      
+
       await profileRepository.updateProfile(
         fullName: finalFullName,
         phone: finalPhone,
         shortBio: bioController.text.trim(),
         location: locationController.text.trim(),
         username: userNameController.text.trim(),
-        hashtags: hashTageController.text.trim(),
+        hashtags: [],
         imagePath: imagePath.value.isNotEmpty ? imagePath.value : null,
         socialProfiles: socialProfiles,
       );
@@ -210,6 +211,8 @@ class SetUpProfileController extends GetxController {
     lastNameController.dispose();
     bioController.dispose();
     phoneController.dispose();
+    locationController.dispose();
+    userNameController.dispose();
 
     for (var link in socialLinks) {
       link['platform']?.dispose();
