@@ -53,23 +53,12 @@ class SignupOtpVerificationController extends GetxController {
   Future<void> resendCode() async {
     try {
       EasyLoading.show(status: 'Resending code...');
-
-      // Call the register endpoint again to resend OTP to email
-      final response = await authRepository.register(
-        fullName: '', // Not used for resend
+      final response = await authRepository.resendEmailOtp(
         email: email,
-        password: '', // Not used for resend
-        phone: phone,
       );
 
       EasyLoading.dismiss();
       EasyLoading.showSuccess('Code resent to your email!');
-
-      // Extract and update resetToken if needed
-      if (response['data'] != null && response['data'] is Map) {
-        resetToken = response['data']['resetToken'] ?? resetToken;
-        print('DEBUG: New Reset Token from resend: $resetToken');
-      }
 
       startTimer();
     } catch (e) {
