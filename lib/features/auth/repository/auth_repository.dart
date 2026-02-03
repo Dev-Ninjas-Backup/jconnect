@@ -96,6 +96,29 @@ class AuthRepository {
     }
   }
 
+  Future<Map<String, dynamic>> resendEmailOtp({
+    required String email,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse(Endpoint.resendEmailOtp),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('DEBUG: Resend Email OTP Response: ${response.body}');
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to resend email OTP: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Resend email OTP error: $e');
+    }
+  }
+
   Future<Map<String, dynamic>> login({
     required String email,
     required String password,

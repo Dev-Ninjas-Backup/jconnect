@@ -6,6 +6,7 @@ class Endpoint {
   static const String sendPhoneOtp = '$baseUrl/auth/register';
   static const String verifyPhoneOtp = '$baseUrl/auth/phone/verify-otp';
   static const String verifyEmailOtp = '$baseUrl/auth/signup-verify-otp';
+  static const String resendEmailOtp = '$baseUrl/auth/resend-email';
   static const String login = '$baseUrl/auth/login';
   static const String orders = '$baseUrl/orders/my-orders';
   static const String recentArtis =
