@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "837643959794",
+    "project_id": "daconnect-f38a6",
+    "storage_bucket": "daconnect-f38a6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:837643959794:android:95fac484150dca88797f6b",
+        "android_client_info": {
+          "package_name": "com.jconnectApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "837643959794-b1sjtpdmo54vo4u1b74q29ehqm454cp5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jconnectApp",
+            "certificate_hash": "0300445f20e100d8bdcdde7a3ce52e79a142247d"
+          }
+        },
+        {
+          "client_id": "837643959794-flbi9hfpn1pnt576rdk6b3r50beudkj3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiF7I0l6RaEbeF0gOf0ywPWqRG2zuRGNs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "837643959794-flbi9hfpn1pnt576rdk6b3r50beudkj3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
