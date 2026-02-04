@@ -5,6 +5,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:jconnect/core/binding/controller_binder.dart';
 import 'package:jconnect/routes/approute.dart';
+import 'package:jconnect/secrets/stripe_key.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -21,7 +22,8 @@ class _MyAppState extends State<MyApp> {
     // ✅ SAFE Stripe initialization
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Stripe.publishableKey =
-          'pk_test_51STA6VAXBWlDgH16B93sDb5ljUdMznqUvUctIchof13FERdETjlATINexABJmM7zmHq7oAfam4HSikD4zPBXgXrY00pmIwTyNE';
+          // 'pk_test_51STA6VAXBWlDgH16B93sDb5ljUdMznqUvUctIchof13FERdETjlATINexABJmM7zmHq7oAfam4HSikD4zPBXgXrY00pmIwTyNE';
+          StripeKey.stripeKey;
 
       await Stripe.instance.applySettings();
     });
