@@ -180,10 +180,15 @@ class LoginScreen extends StatelessWidget {
                       child: Image.asset(Iconpath.googleIcon, height: 40),
                     ),
                     const SizedBox(width: 20),
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: Colors.white,
-                      child: Image.asset(Iconpath.facebookIcon, height: 40),
+                    GestureDetector(
+                      onTap: () async {
+                        await Get.find<LoginController>().signInWithApple();
+                      },
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Colors.white,
+                        child: Image.asset(Imagepath.appleLogo, height: 40),
+                      ),
                     ),
                   ],
                 ),
