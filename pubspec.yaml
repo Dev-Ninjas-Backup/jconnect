@@ -58,6 +58,8 @@ dependencies:
   lottie: ^3.3.2
   path_provider: ^2.1.5
   firebase_core: ^4.4.0
+  firebase_auth: ^6.1.4
+  sign_in_with_apple: ^7.0.1
   google_sign_in: ^7.2.0
 
 
