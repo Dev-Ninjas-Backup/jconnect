@@ -15,6 +15,7 @@ class Endpoint {
   static const String suggestedtArtis =
       "$baseUrl/users/artist?filter=suggested";
   static const String allArtists = "$baseUrl/users/artist";
+  static const String firebaseGoogleLogin = '$baseUrl/auth/firebase-login';
 
   // Profile endpoints
   static const String editProfile = '$baseUrl/users/me';
