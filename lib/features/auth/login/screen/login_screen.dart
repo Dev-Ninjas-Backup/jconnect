@@ -174,10 +174,13 @@ class LoginScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: Colors.white,
-                      child: Image.asset(Iconpath.googleIcon, height: 40),
+                    GestureDetector(
+                      onTap: () => loginController.signInWithGoogle(),
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Colors.white,
+                        child: Image.asset(Iconpath.googleIcon, height: 40),
+                      ),
                     ),
                     const SizedBox(width: 20),
                     GestureDetector(
