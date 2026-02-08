@@ -138,81 +138,6 @@ class LoginController extends GetxController {
 
   // Apple Sign-In method
 
-  // Future<void> signInWithApple() async {
-  //   try {
-  //     isLoading.value = true;
-  //     EasyLoading.show(status: 'Signing in with Apple...');
-
-  //     // 1️⃣ Apple credentials
-  //     final appleCredential = await SignInWithApple.getAppleIDCredential(
-  //       scopes: [
-  //         AppleIDAuthorizationScopes.email,
-  //         AppleIDAuthorizationScopes.fullName,
-  //       ],
-  //     );
-
-  //     // 2️⃣ Firebase credential
-  //     final oauthCredential = OAuthProvider("apple.com").credential(
-  //       idToken: appleCredential.identityToken,
-  //       accessToken: appleCredential.authorizationCode,
-  //     );
-
-  //     // 3️⃣ Sign in to Firebase
-  //     final userCredential = await FirebaseAuth.instance.signInWithCredential(
-  //       oauthCredential,
-  //     );
-  //     final firebaseUser = userCredential.user;
-
-  //     if (firebaseUser == null) {
-  //       EasyLoading.showError("Apple login failed");
-  //       isLoading.value = false;
-  //       return;
-  //     }
-
-  //     // 4️⃣ Get Firebase ID Token
-  //     final idToken = await firebaseUser.getIdToken(true);
-  //     print('DEBUG: Firebase User: $firebaseUser');
-
-  //     print('DEBUG: Firebase ID Token: $idToken');
-
-  //     // 5️⃣ Call backend API using GetConnect
-  //     final response = await GetConnect().post(
-  //       'https://api.theconnectapp.net/auth/firebase-login',
-  //       {"idToken": idToken, "provider": "apple", "username": ""},
-  //       headers: {"Content-Type": "application/json"},
-  //     );
-
-  //     isLoading.value = false;
-  //     EasyLoading.dismiss();
-
-  //     if (response.statusCode == 200 && response.statusCode == 201) {
-  //       final token = response.body['data']['token'] ?? '';
-  //       final user = response.body['data']['user'];
-
-  //       // 6️⃣ Save token & user info
-  //       await pref.saveToken(token);
-  //       await pref.saveRowToken(token);
-  //       await pref.saveUserId(user['id'].toString());
-  //       await pref.saveUserName(
-  //         userName: user['name'] ?? '',
-  //         phoneNumber: user['phone'] ?? '',
-  //       );
-
-  //       EasyLoading.showSuccess('Login successful!');
-  //       Future.delayed(Duration(seconds: 5), () {
-  //         Get.offAllNamed(AppRoute.navBarScreen);
-  //       });
-  //     } else {
-  //       EasyLoading.showError(response.body['message'] ?? 'Login failed');
-  //     }
-  //   } catch (e) {
-  //     isLoading.value = false;
-  //     EasyLoading.dismiss();
-  //     print('DEBUG: Apple login error: $e');
-  //     EasyLoading.showError('Apple login failed: $e');
-  //   }
-  // }
-
   Future<void> signInWithApple() async {
     try {
       isLoading.value = true;
@@ -255,7 +180,6 @@ class LoginController extends GetxController {
       debugPrint('DEBUG: Firebase User => $firebaseUser');
       debugPrint('DEBUG: Firebase ID Token => $idToken');
 
-   
       // 5️⃣ Get username from Firebase user
       final response = await GetConnect().post(
         'https://api.theconnectapp.net/auth/firebase-login',
@@ -273,12 +197,8 @@ class LoginController extends GetxController {
       debugPrint('DEBUG: API RESPONSE => ${response.body}');
 
       // 6️⃣ Success
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = response.body['data'];
-        final token = data['token'];
-        final user = data['user'];
-      // 6️⃣ Call backend API using GetConnect
-      if (response.statusCode == 200 && response.body['success'] == true) {
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          response.body['success'] == true) {
         final token = response.body['data']['token'] ?? '';
         final user = response.body['data']['user'];
 
@@ -307,7 +227,6 @@ class LoginController extends GetxController {
     }
   }
 
-  
   Future<void> _initializeGoogle() async {
     if (!_googleSignInInitialized) {
       await _googleSignIn.initialize();
