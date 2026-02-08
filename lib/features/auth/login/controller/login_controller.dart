@@ -178,7 +178,10 @@ class LoginController extends GetxController {
       final idToken = await firebaseUser.getIdToken(true);
 
       debugPrint('DEBUG: Firebase User => $firebaseUser');
-      debugPrint('DEBUG: Firebase ID Token => $idToken');
+      // debugPrint('DEBUG: Firebase ID Token => $idToken');
+      debugPrint('Firebase ID Token => $idToken', wrapWidth: 2048);
+
+      // print('......... $idToken');
 
       // 5️⃣ Get username from Firebase user
       final response = await GetConnect().post(
@@ -195,6 +198,7 @@ class LoginController extends GetxController {
 
       debugPrint('DEBUG: API STATUS => ${response.statusCode}');
       debugPrint('DEBUG: API RESPONSE => ${response.body}');
+      debugPrint('Firebase ID Token => $idToken');
 
       // 6️⃣ Success
       if ((response.statusCode == 200 || response.statusCode == 201) &&
@@ -216,6 +220,7 @@ class LoginController extends GetxController {
           Get.offAllNamed(AppRoute.navBarScreen);
         });
       } else {
+        print("=================${response.body['message']}}");
         EasyLoading.showError(response.body['message'] ?? 'Login failed');
       }
     } catch (e) {
@@ -233,6 +238,8 @@ class LoginController extends GetxController {
       _googleSignInInitialized = true;
     }
   }
+
+  // Google Sign-In method
 
   Future<void> signInWithGoogle() async {
     try {
