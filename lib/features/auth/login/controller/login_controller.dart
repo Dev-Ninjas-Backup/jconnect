@@ -80,8 +80,8 @@ class LoginController extends GetxController {
       if (token.isNotEmpty) {
         EasyLoading.showSuccess('Login successful!');
 
-        Future.delayed(Duration(seconds: 1), () {
-          Get.offAllNamed(AppRoute.navBarScreen);
+        Future.delayed(Duration(seconds: 1), () async {
+          await Get.offAllNamed(AppRoute.navBarScreen);
         });
       } else {
         EasyLoading.showError('Login failed: No token received');
@@ -138,12 +138,87 @@ class LoginController extends GetxController {
 
   // Apple Sign-In method
 
+  // Future<void> signInWithApple() async {
+  //   try {
+  //     isLoading.value = true;
+  //     EasyLoading.show(status: 'Signing in with Apple...');
+
+  //     // 1️⃣ Apple credentials
+  //     final appleCredential = await SignInWithApple.getAppleIDCredential(
+  //       scopes: [
+  //         AppleIDAuthorizationScopes.email,
+  //         AppleIDAuthorizationScopes.fullName,
+  //       ],
+  //     );
+
+  //     // 2️⃣ Firebase credential
+  //     final oauthCredential = OAuthProvider("apple.com").credential(
+  //       idToken: appleCredential.identityToken,
+  //       accessToken: appleCredential.authorizationCode,
+  //     );
+
+  //     // 3️⃣ Sign in to Firebase
+  //     final userCredential = await FirebaseAuth.instance.signInWithCredential(
+  //       oauthCredential,
+  //     );
+  //     final firebaseUser = userCredential.user;
+
+  //     if (firebaseUser == null) {
+  //       EasyLoading.showError("Apple login failed");
+  //       isLoading.value = false;
+  //       return;
+  //     }
+
+  //     // 4️⃣ Get Firebase ID Token
+  //     final idToken = await firebaseUser.getIdToken(true);
+  //     print('DEBUG: Firebase User: $firebaseUser');
+
+  //     print('DEBUG: Firebase ID Token: $idToken');
+
+  //     // 5️⃣ Call backend API using GetConnect
+  //     final response = await GetConnect().post(
+  //       'https://api.theconnectapp.net/auth/firebase-login',
+  //       {"idToken": idToken, "provider": "apple", "username": ""},
+  //       headers: {"Content-Type": "application/json"},
+  //     );
+
+  //     isLoading.value = false;
+  //     EasyLoading.dismiss();
+
+  //     if (response.statusCode == 200 && response.statusCode == 201) {
+  //       final token = response.body['data']['token'] ?? '';
+  //       final user = response.body['data']['user'];
+
+  //       // 6️⃣ Save token & user info
+  //       await pref.saveToken(token);
+  //       await pref.saveRowToken(token);
+  //       await pref.saveUserId(user['id'].toString());
+  //       await pref.saveUserName(
+  //         userName: user['name'] ?? '',
+  //         phoneNumber: user['phone'] ?? '',
+  //       );
+
+  //       EasyLoading.showSuccess('Login successful!');
+  //       Future.delayed(Duration(seconds: 5), () {
+  //         Get.offAllNamed(AppRoute.navBarScreen);
+  //       });
+  //     } else {
+  //       EasyLoading.showError(response.body['message'] ?? 'Login failed');
+  //     }
+  //   } catch (e) {
+  //     isLoading.value = false;
+  //     EasyLoading.dismiss();
+  //     print('DEBUG: Apple login error: $e');
+  //     EasyLoading.showError('Apple login failed: $e');
+  //   }
+  // }
+
   Future<void> signInWithApple() async {
     try {
       isLoading.value = true;
       EasyLoading.show(status: 'Signing in with Apple...');
 
-      // 1️⃣ Apple credentials
+      // 1️⃣ Apple credential
       final appleCredential = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
@@ -151,42 +226,62 @@ class LoginController extends GetxController {
         ],
       );
 
-      // 2️⃣ Firebase credential
+      // Apple name (only first login)
+      final fullName =
+          '${appleCredential.givenName ?? ''} ${appleCredential.familyName ?? ''}'
+              .trim();
+
+      // 2️⃣ Firebase OAuth credential (IMPORTANT)
       final oauthCredential = OAuthProvider("apple.com").credential(
         idToken: appleCredential.identityToken,
         accessToken: appleCredential.authorizationCode,
       );
 
-      // 3️⃣ Sign in to Firebase
+      // 3️⃣ Firebase sign in
       final userCredential = await FirebaseAuth.instance.signInWithCredential(
         oauthCredential,
       );
+
       final firebaseUser = userCredential.user;
 
       if (firebaseUser == null) {
         EasyLoading.showError("Apple login failed");
-        isLoading.value = false;
         return;
       }
 
-      // 4️⃣ Get Firebase ID Token
+      // 4️⃣ Firebase ID token
       final idToken = await firebaseUser.getIdToken(true);
 
+      debugPrint('DEBUG: Firebase User => $firebaseUser');
+      debugPrint('DEBUG: Firebase ID Token => $idToken');
+
+   
       // 5️⃣ Get username from Firebase user
       final response = await GetConnect().post(
         'https://api.theconnectapp.net/auth/firebase-login',
-        {"idToken": idToken, "provider": "apple", "username": ""},
+        {
+          "idToken": idToken,
+          "provider": "APPLE",
+          "username": fullName.isNotEmpty
+              ? fullName
+              : firebaseUser.displayName ?? "",
+        },
+        headers: {"Content-Type": "application/json"},
       );
 
-      isLoading.value = false;
-      EasyLoading.dismiss();
+      debugPrint('DEBUG: API STATUS => ${response.statusCode}');
+      debugPrint('DEBUG: API RESPONSE => ${response.body}');
 
+      // 6️⃣ Success
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = response.body['data'];
+        final token = data['token'];
+        final user = data['user'];
       // 6️⃣ Call backend API using GetConnect
       if (response.statusCode == 200 && response.body['success'] == true) {
         final token = response.body['data']['token'] ?? '';
         final user = response.body['data']['user'];
 
-        // 6️⃣ Save token & user info
         await pref.saveToken(token);
         await pref.saveRowToken(token);
         await pref.saveUserId(user['id'].toString());
@@ -196,17 +291,19 @@ class LoginController extends GetxController {
         );
 
         EasyLoading.showSuccess('Login successful!');
-        Future.delayed(Duration(seconds: 1), () {
+
+        Future.delayed(const Duration(milliseconds: 800), () {
           Get.offAllNamed(AppRoute.navBarScreen);
         });
       } else {
         EasyLoading.showError(response.body['message'] ?? 'Login failed');
       }
     } catch (e) {
+      debugPrint('DEBUG: Apple login error => $e');
+      EasyLoading.showError('Apple login failed');
+    } finally {
       isLoading.value = false;
       EasyLoading.dismiss();
-      print('DEBUG: Apple login error: $e');
-      EasyLoading.showError('Apple login failed: $e');
     }
   }
 
