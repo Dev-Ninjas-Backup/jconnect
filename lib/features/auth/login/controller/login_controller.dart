@@ -7,7 +7,9 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/routes/approute.dart';
 import 'package:jconnect/features/auth/repository/auth_repository.dart';
+import 'package:jconnect/core/endpoint.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginController extends GetxController {
   final emailController = TextEditingController();
@@ -16,6 +18,11 @@ class LoginController extends GetxController {
   SharedPreferencesHelperController pref = Get.put(
     SharedPreferencesHelperController(),
   );
+
+  // Google Sign-In 7.2.0+ is now a singleton - use GoogleSignIn.instance
+  // Must call initialize() once before using any methods
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  bool _googleSignInInitialized = false;
 
   var rememberMe = false.obs;
   RxBool isLoading = false.obs;
@@ -248,10 +255,9 @@ class LoginController extends GetxController {
       debugPrint('DEBUG: Firebase User => $firebaseUser');
       debugPrint('DEBUG: Firebase ID Token => $idToken');
 
-      // 5️⃣ Backend API call
-      final connect = GetConnect();
-
-      final response = await connect.post(
+   
+      // 5️⃣ Get username from Firebase user
+      final response = await GetConnect().post(
         'https://api.theconnectapp.net/auth/firebase-login',
         {
           "idToken": idToken,
@@ -271,6 +277,10 @@ class LoginController extends GetxController {
         final data = response.body['data'];
         final token = data['token'];
         final user = data['user'];
+      // 6️⃣ Call backend API using GetConnect
+      if (response.statusCode == 200 && response.body['success'] == true) {
+        final token = response.body['data']['token'] ?? '';
+        final user = response.body['data']['user'];
 
         await pref.saveToken(token);
         await pref.saveRowToken(token);
@@ -294,6 +304,137 @@ class LoginController extends GetxController {
     } finally {
       isLoading.value = false;
       EasyLoading.dismiss();
+    }
+  }
+
+  
+  Future<void> _initializeGoogle() async {
+    if (!_googleSignInInitialized) {
+      await _googleSignIn.initialize();
+      _googleSignInInitialized = true;
+    }
+  }
+
+  Future<void> signInWithGoogle() async {
+    try {
+      isLoading.value = true;
+      EasyLoading.show(status: 'Signing in with Google...');
+
+      // 1️⃣ Initialize GoogleSignIn (singleton, call once)
+      await _initializeGoogle();
+
+      // 2️⃣ Trigger Google Sign-In flow using authenticate() NOT signIn()
+      final GoogleSignInAccount? googleUser = await _googleSignIn
+          .authenticate();
+
+      if (googleUser == null) {
+        isLoading.value = false;
+        EasyLoading.dismiss();
+        print('DEBUG: User canceled Google sign-in');
+        return;
+      }
+
+      print('DEBUG: Google User signed in: ${googleUser.email}');
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      print('DEBUG: Google ID Token: ${googleAuth.idToken}');
+      // 4️⃣ Create Firebase credential using idToken
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+
+      print('DEBUG: Firebase credential created');
+      // 5️⃣ Sign in to Firebase
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
+      final firebaseUser = userCredential.user;
+
+      if (firebaseUser == null) {
+        EasyLoading.showError("Google login failed");
+        isLoading.value = false;
+        print('DEBUG: Firebase user is null');
+        return;
+      }
+      print('DEBUG: Firebase User: ${firebaseUser.email}');
+      print('DEBUG: Firebase User Display Name: ${firebaseUser.displayName}');
+
+      print(firebaseUser.displayName);
+
+      // 6️⃣ Get Firebase ID Token
+      final idToken = await firebaseUser.getIdToken(true);
+
+      print('DEBUG: Firebase ID Token: $idToken');
+
+      // 7️⃣ Get username from Firebase user
+      final userName = firebaseUser.displayName ?? '';
+
+      print('DEBUG: Username: $userName');
+
+      // 8️⃣ Prepare request body
+      final requestBody = {
+        "idToken": idToken,
+        "provider": "google",
+        "username": userName,
+      };
+
+      print('DEBUG: Request URL: ${Endpoint.firebaseGoogleLogin}');
+      print('DEBUG: Request Body: $requestBody');
+
+      // 9️⃣ Call backend API using GetConnect
+      final response = await GetConnect().post(
+        Endpoint.firebaseGoogleLogin,
+        requestBody,
+        headers: {"accept": "application/json"},
+      );
+
+      print('DEBUG: Response Status Code: ${response.statusCode}');
+      print('DEBUG: Response Body: ${response.body}');
+      print('DEBUG: Response Status Text: ${response.statusText}');
+
+      isLoading.value = false;
+      EasyLoading.dismiss();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final token = response.body['data']['token'] ?? '';
+        final user = response.body['data']['user'];
+
+        print('DEBUG: Backend Token: $token');
+        print('DEBUG: Backend User: $user');
+
+        // 🔟 Save token & user info
+        await pref.saveToken(token);
+        await pref.saveRowToken(token);
+        await pref.saveUserId(user['id'].toString());
+        await pref.saveUserName(
+          userName: user['name'] ?? '',
+          phoneNumber: user['phone'] ?? '',
+        );
+
+        print('DEBUG: Token and user info saved successfully');
+
+        EasyLoading.showSuccess('Login successful!');
+        Future.delayed(Duration(seconds: 1), () async {
+          await Get.offAllNamed(AppRoute.navBarScreen);
+        });
+      } else {
+        print('DEBUG: Login failed - Status: ${response.statusCode}');
+        print('DEBUG: Error message: ${response.body}');
+        EasyLoading.showError(response.body['message'] ?? 'Login failed');
+      }
+    } on FirebaseAuthException catch (e) {
+      isLoading.value = false;
+      EasyLoading.dismiss();
+      print('DEBUG: Firebase auth error: ${e.code} - ${e.message}');
+      EasyLoading.showError('Google login failed: ${e.message}');
+    } catch (e) {
+      isLoading.value = false;
+      EasyLoading.dismiss();
+      print('DEBUG: Google login error: $e');
+      print('DEBUG: Error type: ${e.runtimeType}');
+      EasyLoading.showError('Google login failed: $e');
     }
   }
 
