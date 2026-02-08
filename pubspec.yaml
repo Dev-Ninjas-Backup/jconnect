@@ -61,6 +61,7 @@ dependencies:
   firebase_auth: ^6.1.4
   sign_in_with_apple: ^7.0.1
   google_sign_in: ^7.2.0
+  flutter_launcher_icons: ^0.14.4
 
 
 
@@ -90,6 +91,11 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/daconnecticon.png"
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

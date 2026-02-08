@@ -10,7 +10,7 @@
 
     <application
         android:name="${applicationName}"
-        android:label="jconnect"
+        android:label="da connect"
         android:icon="@mipmap/ic_launcher"
         android:theme="@style/LaunchTheme"
         android:requestLegacyExternalStorage="true">
