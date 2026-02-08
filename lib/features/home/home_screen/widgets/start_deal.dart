@@ -42,7 +42,7 @@ class StartDeal extends StatelessWidget {
                 child: Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: padding * 0.6,
-                    vertical: padding,
+                    vertical: padding * 0.6,
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.backGroundColor,

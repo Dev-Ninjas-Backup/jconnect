@@ -188,7 +188,7 @@ class LoginController extends GetxController {
         'https://api.theconnectapp.net/auth/firebase-login',
         {
           "idToken": idToken,
-          "provider": "APPLE",
+          "provider": "GOOGLE",
           "username": fullName.isNotEmpty
               ? fullName
               : firebaseUser.displayName ?? "",
