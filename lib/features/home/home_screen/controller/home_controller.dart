@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:jconnect/core/endpoint.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/home/home_screen/services/home_service.dart';
 import 'package:jconnect/features/home/home_screen/model/artists_model.dart';
@@ -16,6 +19,8 @@ class HomeController extends GetxController {
       },
     ),
   );
+  SharedPreferencesHelperController sharedPreferencesHelperController =
+      Get.find<SharedPreferencesHelperController>();
 
   final RxList<StartDealModel> startDealList = <StartDealModel>[].obs;
   var isLoading = false.obs;
@@ -159,5 +164,26 @@ Future<void> refreshHomeData() async {
 
 
 
+  Future<void> sendInquiry({
+    required String userID,
+  }) async {
+    final url = Uri.parse(
+      "${Endpoint.baseUrl}/users/$userID/inquiry",
+    );
+
+    try {
+      await http.get(
+        url,
+        headers: {
+          "Authorization": "Bearer ${sharedPreferencesHelperController.getAccessRowToken()}",
+          "Accept": "application/json",
+        },
+      );
+
+      // No response handling needed
+    } catch (e) {
+      print("Inquire API hit error: $e");
+    }
+  }
 
 }
