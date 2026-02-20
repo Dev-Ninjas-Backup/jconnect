@@ -293,45 +293,47 @@ class ArtistsYouKnow extends StatelessWidget {
                         /// Message button
                         CustomPrimaryButton(
                           fontSize: sp(10),
-                          buttonText: "Message",
+                          buttonText: "Inquire",
                           onTap: () {
-                            final messagesController =
-                                Get.find<MessagesController>();
+                            controller.sendInquiry(userID: artist.id);
 
-                            final existingChat = messagesController.allChats
-                                .firstWhereOrNull(
-                                  (chat) => chat.participant?.id == artist.id,
-                                );
+                            // final messagesController =
+                            //     Get.find<MessagesController>();
 
-                            if (existingChat != null &&
-                                existingChat.chatId != null) {
-                              Get.toNamed(
-                                AppRoute.chatDetailsScreen,
-                                arguments: {
-                                  'chatItem': existingChat,
-                                  'recipientId': artist.id,
-                                  'isNewConversation': false,
-                                },
-                              );
-                            } else {
-                              final chatItem = ChatItem(
-                                type: 'private',
-                                chatId: null,
-                                participant: ChatParticipant(
-                                  id: artist.id,
-                                  fullName: artist.fullName,
-                                  profilePhoto: artist.profilePhoto,
-                                ),
-                              );
-                              Get.toNamed(
-                                AppRoute.chatDetailsScreen,
-                                arguments: {
-                                  'chatItem': chatItem,
-                                  'recipientId': artist.id,
-                                  'isNewConversation': true,
-                                },
-                              );
-                            }
+                            // final existingChat = messagesController.allChats
+                            //     .firstWhereOrNull(
+                            //       (chat) => chat.participant?.id == artist.id,
+                            //     );
+
+                            // if (existingChat != null &&
+                            //     existingChat.chatId != null) {
+                            //   Get.toNamed(
+                            //     AppRoute.chatDetailsScreen,
+                            //     arguments: {
+                            //       'chatItem': existingChat,
+                            //       'recipientId': artist.id,
+                            //       'isNewConversation': false,
+                            //     },
+                            //   );
+                            // } else {
+                            //   final chatItem = ChatItem(
+                            //     type: 'private',
+                            //     chatId: null,
+                            //     participant: ChatParticipant(
+                            //       id: artist.id,
+                            //       fullName: artist.fullName,
+                            //       profilePhoto: artist.profilePhoto,
+                            //     ),
+                            //   );
+                            //   Get.toNamed(
+                            //     AppRoute.chatDetailsScreen,
+                            //     arguments: {
+                            //       'chatItem': chatItem,
+                            //       'recipientId': artist.id,
+                            //       'isNewConversation': true,
+                            //     },
+                            //   );
+                            // }
                           },
                         ),
                       ],

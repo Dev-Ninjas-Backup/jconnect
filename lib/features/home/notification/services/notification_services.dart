@@ -49,6 +49,11 @@ class NotificationSocketService {
       onNotification(data);
     });
 
+    socket!.on('inquiry.create', (data) {
+      debugPrint('inquire created notification received: $data');
+      onNotification(data);
+    });
+
     socket!.connect();
   }
 
@@ -57,8 +62,6 @@ class NotificationSocketService {
     socket?.dispose();
     socket = null;
   }
-
-
 
   Future<List<dynamic>> fetchNotifications(String token) async {
     final response = await http.get(
@@ -69,7 +72,7 @@ class NotificationSocketService {
       },
     );
 
-    if (response.statusCode == 200||response.statusCode==201) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       final body = jsonDecode(response.body);
       return body['data']['notifications'];
     } else {
