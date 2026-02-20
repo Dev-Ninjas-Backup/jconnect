@@ -10,6 +10,7 @@ class OrderDetailsModel {
   final String subServiceTitle;
   final String sellerName;
   final String sellerEmail;
+  final String sellerUsername;
   final String sellerId;
   final double rating;
   final String status;
@@ -30,6 +31,7 @@ class OrderDetailsModel {
     required this.subServiceTitle,
     required this.sellerName,
     required this.sellerEmail,
+    required this.sellerUsername,
     required this.sellerId,
     required this.rating,
     required this.status,
@@ -88,6 +90,8 @@ class OrderDetailsModel {
     final servicePrice = pickDouble(['amount', 'price'], 0.0);
     final platformFee = pickDouble(['platformFee'], 0.0);
     String sellerName = pickString(['seller.full_name'], '');
+    String sellerUsername = pickString(['seller.username'], '');
+    String sellerImage = pickString(['seller.imageUrl'], '');
     String sellerEmail = pickString(['seller.email'], '');
     String sellerId = pickString(['sellerId'], '');
 
@@ -97,11 +101,16 @@ class OrderDetailsModel {
         if (sellerName.isEmpty) {
           sellerName = profileController.user.value.name;
         }
+        if (sellerUsername.isEmpty) {
+          sellerUsername = profileController.user.value.username;
+        }
+        if (sellerImage.isEmpty) {
+          sellerImage = profileController.user.value.imageUrl;
+        }
         if (sellerEmail.isEmpty) {
           sellerEmail = profileController.user.value.email ?? '';
         }
-      } catch (_) {
-      }
+      } catch (_) {}
     }
 
     List<String> proofUrlList = [];
@@ -123,6 +132,7 @@ class OrderDetailsModel {
       subServiceTitle: pickString(['service.description']),
       sellerName: sellerName,
       sellerEmail: sellerEmail,
+      sellerUsername: sellerUsername,
       sellerId: sellerId,
       rating: pickDouble(['rating', 'review.rating'], 0.0),
       status: pickString(['status'], ''),

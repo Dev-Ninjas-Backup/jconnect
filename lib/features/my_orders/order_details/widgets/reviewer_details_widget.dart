@@ -89,7 +89,7 @@ class ReviewerDetails extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            order!.sellerEmail,
+                            order!.sellerUsername,
                             style: getTextStyle(
                               color: AppColors.secondaryTextColor,
                               fontsize: 13,
