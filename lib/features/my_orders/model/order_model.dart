@@ -64,7 +64,6 @@
 //   }
 // }
 
-
 class OrderModel {
   final String title;
   final String platform;
@@ -78,6 +77,7 @@ class OrderModel {
   final Map<String, dynamic>? raw;
   final String sellerName;
   final String sellerEmail;
+  final String sellerUsername;
 
   OrderModel({
     required this.title,
@@ -91,6 +91,7 @@ class OrderModel {
     required this.orderCode,
     this.sellerName = '',
     this.sellerEmail = '',
+    this.sellerUsername = '',
     this.raw,
   });
 
@@ -108,6 +109,7 @@ class OrderModel {
       raw: json,
       sellerName: json['buyer']?['full_name'] ?? '',
       sellerEmail: json['buyer']?['email'] ?? '',
+      sellerUsername: json['buyer']?['username'] ?? '',
     );
   }
 
@@ -127,6 +129,7 @@ class OrderModel {
       raw: json,
       sellerName: json['seller']?['full_name'] ?? '',
       sellerEmail: json['seller']?['email'] ?? '',
+      sellerUsername: json['seller']?['username'] ?? '',
     );
   }
 
@@ -144,6 +147,7 @@ class OrderModel {
     Map<String, dynamic>? raw,
     String? sellerName,
     String? sellerEmail,
+    String? sellerUsername,
   }) {
     return OrderModel(
       title: title ?? this.title,
@@ -158,6 +162,7 @@ class OrderModel {
       raw: raw ?? this.raw,
       sellerName: sellerName ?? this.sellerName,
       sellerEmail: sellerEmail ?? this.sellerEmail,
+      sellerUsername: sellerUsername ?? this.sellerUsername,
     );
   }
 }
