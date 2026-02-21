@@ -15,6 +15,8 @@ class ReviewerDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //final odController = Get.find<OrderDetailsController>();
+    // CHANGED: Use seller image URL from order model instead of profile controller
+    final sellerImageUrl = order?.sellerimageUrl ?? '';
     return Container(
       padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -97,6 +99,22 @@ class ReviewerDetails extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ),
+                    // CHANGED: Display seller image on the right side
+                    SizedBox(width: 12),
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: AppColors.secondaryTextColor,
+                      backgroundImage: sellerImageUrl.isNotEmpty
+                          ? NetworkImage(sellerImageUrl)
+                          : null,
+                      child: sellerImageUrl.isEmpty
+                          ? Icon(
+                              Icons.person,
+                              color: AppColors.primaryTextColor,
+                              size: 20,
+                            )
+                          : null,
                     ),
                     // Row(
                     //   children: [

@@ -11,6 +11,7 @@ class OrderDetailsModel {
   final String sellerName;
   final String sellerEmail;
   final String sellerUsername;
+  final String sellerimageUrl;
   final String sellerId;
   final double rating;
   final String status;
@@ -32,6 +33,7 @@ class OrderDetailsModel {
     required this.sellerName,
     required this.sellerEmail,
     required this.sellerUsername,
+    required this.sellerimageUrl,
     required this.sellerId,
     required this.rating,
     required this.status,
@@ -105,7 +107,10 @@ class OrderDetailsModel {
           sellerUsername = profileController.user.value.username;
         }
         if (sellerImage.isEmpty) {
-          sellerImage = profileController.user.value.imageUrl;
+          try {
+            final profileController = Get.find<ProfileController>();
+            sellerImage = profileController.user.value.imageUrl;
+          } catch (_) {}
         }
         if (sellerEmail.isEmpty) {
           sellerEmail = profileController.user.value.email ?? '';
@@ -133,6 +138,7 @@ class OrderDetailsModel {
       sellerName: sellerName,
       sellerEmail: sellerEmail,
       sellerUsername: sellerUsername,
+      sellerimageUrl: sellerImage,
       sellerId: sellerId,
       rating: pickDouble(['rating', 'review.rating'], 0.0),
       status: pickString(['status'], ''),
