@@ -19,8 +19,9 @@ class HomeController extends GetxController {
       },
     ),
   );
-  SharedPreferencesHelperController sharedPreferencesHelperController =
-      Get.find<SharedPreferencesHelperController>();
+  SharedPreferencesHelperController sharedPreferencesHelperController = Get.put(
+    SharedPreferencesHelperController(),
+  );
 
   final RxList<StartDealModel> startDealList = <StartDealModel>[].obs;
   var isLoading = false.obs;
@@ -68,122 +69,119 @@ class HomeController extends GetxController {
     ]);
   }
 
-
-Future<void> fetchRecentArtists() async {
-  isLoading(true);
-  isError(false);
-  errorMessage('');
-
-  try {
-    final artists = await service.fetchRecentArtist();
-
-    recentArtistsList.assignAll(artists);
-    debugPrint("Recent artists loaded: ${artists.length}");
-  } catch (e) {
-    isError(true);
-    errorMessage(e.toString());
-
-    debugPrint("Error in HomeController: $e");
-
-    EasyLoading.showError(
-      "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
-    );
-  } finally {
-    isLoading(false);
-  }
-}
-
-
-
-Future<void> fetchTopRatedArtistsMethod() async {
-  isLoading(true);
-  isError(false);
-  errorMessage('');
-
-  try {
-    final artists = await service.fetchTopRatedArtist();
-
-    topRatedArtistsList.assignAll(artists);
-    debugPrint("Toprated artists loaded: ${artists.length}");
-  } catch (e) {
-    isError(true);
-    errorMessage(e.toString());
-
-    debugPrint("Error in HomeController: $e");
-
-    EasyLoading.showError(
-      "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
-    );
-  } finally {
-    isLoading(false);
-  }
-}
-
-Future<void> fetchSuggestedArtistsMethod() async {
-  isLoading(true);
-  isError(false);
-  errorMessage('');
-
-  try {
-    final artists = await service.fetchSuggestedArtist();
-
-    suggestedForYouList.assignAll(artists);
-    debugPrint("Suggested artists loaded: ${artists.length}");
-  } catch (e) {
-    isError(true);
-    errorMessage(e.toString());
-
-    debugPrint("Error in HomeController: $e");
-
-    EasyLoading.showError(
-      "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
-    );
-  } finally {
-    isLoading(false);
-  }
-}
-
-
-
-
-
-Future<void> refreshHomeData() async {
-  try {
+  Future<void> fetchRecentArtists() async {
     isLoading(true);
-
-    await Future.wait([
-      fetchRecentArtists(),
-      fetchTopRatedArtistsMethod(),
-      fetchSuggestedArtistsMethod(),
-    ]);
-  } finally {
-    isLoading(false);
-  }
-}
-
-
-
-
-  Future<void> sendInquiry({
-    required String userID,
-  }) async {
-    final url = Uri.parse(
-      "${Endpoint.baseUrl}/users/$userID/inquiry",
-    );
+    isError(false);
+    errorMessage('');
 
     try {
-      await http.get(
+      final artists = await service.fetchRecentArtist();
+
+      recentArtistsList.assignAll(artists);
+      debugPrint("Recent artists loaded: ${artists.length}");
+    } catch (e) {
+      isError(true);
+      errorMessage(e.toString());
+
+      debugPrint("Error in HomeController: $e");
+
+      EasyLoading.showError(
+        "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
+      );
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  Future<void> fetchTopRatedArtistsMethod() async {
+    isLoading(true);
+    isError(false);
+    errorMessage('');
+
+    try {
+      final artists = await service.fetchTopRatedArtist();
+
+      topRatedArtistsList.assignAll(artists);
+      debugPrint("Toprated artists loaded: ${artists.length}");
+    } catch (e) {
+      isError(true);
+      errorMessage(e.toString());
+
+      debugPrint("Error in HomeController: $e");
+
+      EasyLoading.showError(
+        "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
+      );
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  Future<void> fetchSuggestedArtistsMethod() async {
+    isLoading(true);
+    isError(false);
+    errorMessage('');
+
+    try {
+      final artists = await service.fetchSuggestedArtist();
+
+      suggestedForYouList.assignAll(artists);
+      debugPrint("Suggested artists loaded: ${artists.length}");
+    } catch (e) {
+      isError(true);
+      errorMessage(e.toString());
+
+      debugPrint("Error in HomeController: $e");
+
+      EasyLoading.showError(
+        "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
+      );
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  Future<void> refreshHomeData() async {
+    try {
+      isLoading(true);
+
+      await Future.wait([
+        fetchRecentArtists(),
+        fetchTopRatedArtistsMethod(),
+        fetchSuggestedArtistsMethod(),
+      ]);
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  Future<bool> sendInquiry({required String userID}) async {
+    final url = Uri.parse("${Endpoint.baseUrl}/users/$userID/inquiry");
+
+    try {
+      final response = await http.get(
         url,
         headers: {
-          "Authorization": "Bearer ${sharedPreferencesHelperController.getAccessRowToken()}",
+          "Authorization":
+              await sharedPreferencesHelperController.getAccessToken() != null
+              ? "${await sharedPreferencesHelperController.getAccessToken()}"
+              : "",
           "Accept": "application/json",
         },
       );
 
-      // No response handling needed
+      if (response.statusCode == 200 || response.statusCode == 202) {
+        print("Inquiry Success");
+        EasyLoading.showSuccess("Inquiry sent successfully!");
+        return true;
+      } else {
+        EasyLoading.showError("Failed to send inquiry. Please try again.");
+        print("Inquiry Failed: ${response.statusCode}${response.body}");
+        return false;
+      }
     } catch (e) {
       print("Inquire API hit error: $e");
+      return false;
     }
   }
-
 }
