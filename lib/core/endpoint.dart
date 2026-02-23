@@ -57,4 +57,6 @@ class Endpoint {
   static String deleteUserById(String id) => "$baseUrl/users/$id";
   static String followers = "$baseUrl/follow-function/followers";
   static String followings = "$baseUrl/follow-function/followings";
+  static String fileUpload =
+      "$baseUrl/aws-file-upload-additional-all/upload-image-single";
 }

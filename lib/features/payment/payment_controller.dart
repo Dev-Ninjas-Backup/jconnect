@@ -183,7 +183,7 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
                           await _createPaymentMethod();
 
                           // ✅ Navigate when card is complete
-                          Get.toNamed(AppRoute.manageViaStripe);
+                          //Get.toNamed(AppRoute.manageViaStripe);
                         }
                       : null,
                   child: const Text('Use Card'),

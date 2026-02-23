@@ -26,7 +26,7 @@ import 'package:jconnect/features/user_profile/edit_profile/screen/edit_profile_
 import 'package:jconnect/features/user_profile/followers_followings/screens/follow_screen.dart';
 import 'package:jconnect/features/user_profile/help_and_support/support_sreen/screen/help_and_support_screen.dart';
 import 'package:jconnect/features/user_profile/payment_method/add_stripe/screen/add_stripe.dart';
-import 'package:jconnect/features/user_profile/payment_method/manage_via_stripe/screen/manage_via_stripe.dart';
+//import 'package:jconnect/features/user_profile/payment_method/manage_via_stripe/screen/manage_via_stripe.dart';
 import 'package:jconnect/features/user_profile/privacy_security/screen/privacy_security_screen.dart';
 import 'package:jconnect/features/user_profile/profile/screen/profile_screen.dart';
 import 'package:jconnect/features/user_profile/reviews/screen/review_screen.dart';
@@ -144,10 +144,10 @@ class AppRoute {
     GetPage(name: earningsAndPayouts, page: () => EarningAndPayoutsScreen()),
     GetPage(name: reviewScreen, page: () => ReviewScreen()),
     GetPage(name: addStripe, page: () => AddStripe()),
-    GetPage(name: manageViaStripe, page: () => MyPaymentMethodScreen()),
+    //GetPage(name: manageViaStripe, page: () => MyPaymentMethodScreen()),
     GetPage(name: helpAndSupportScreen, page: () => HelpAndSupportScreen()),
     GetPage(name: notificationScreen, page: () => NotificationScreen()),
     GetPage(name: chatDetailsScreen, page: () => ChatDetailsScreen()),
-    GetPage(name: followScreen, page: () => FollowScreen())
+    GetPage(name: followScreen, page: () => FollowScreen()),
   ];
 }

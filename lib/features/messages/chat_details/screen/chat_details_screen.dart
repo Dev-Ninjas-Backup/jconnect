@@ -11,6 +11,12 @@ import 'package:jconnect/features/messages/controller/messages_controller.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jconnect/features/messages/widget/addcustomwidgets.dart';
 import 'package:jconnect/features/payment/payment_screen.dart';
+import 'dart:io';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:jconnect/core/endpoint.dart';
 
 class ChatDetailsScreen extends StatefulWidget {
   const ChatDetailsScreen({super.key});
@@ -73,12 +79,117 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
         source: ImageSource.gallery,
       );
       if (image != null) {
-        selectedFiles.add(image.path);
-        print('📎 File selected: ${image.path}');
+        // Show loading
+        EasyLoading.show(
+          status: 'Uploading file...',
+          maskType: EasyLoadingMaskType.black,
+        );
+
+        // Upload file to API
+        final request = http.MultipartRequest(
+          'POST',
+          Uri.parse(Endpoint.fileUpload),
+        );
+
+        // Add file to request
+        final file = await http.MultipartFile.fromPath('file', image.path);
+        request.files.add(file);
+
+        // Send request
+        final response = await request.send();
+        final responseBody = await response.stream.bytesToString();
+
+        EasyLoading.dismiss();
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // Parse response
+          final jsonResponse = jsonDecode(responseBody);
+          final fileUrl = jsonResponse['file'];
+
+          if (fileUrl != null) {
+            selectedFiles.add(fileUrl);
+            print('📎 File uploaded: $fileUrl');
+            EasyLoading.showSuccess(
+              'File uploaded successfully',
+              duration: Duration(seconds: 1),
+            );
+          } else {
+            EasyLoading.showError(
+              'Failed to get file URL',
+              duration: Duration(seconds: 2),
+            );
+            print('❌ No file URL in response');
+          }
+        } else {
+          EasyLoading.showError(
+            'Upload failed: ${response.statusCode}',
+            duration: Duration(seconds: 2),
+          );
+          print('❌ Upload failed: ${response.statusCode}');
+        }
       }
     } catch (e) {
-      print('❌ Error picking file: $e');
-      Get.snackbar('Error', 'Failed to pick file');
+      EasyLoading.dismiss();
+      EasyLoading.showError(
+        'Error uploading file: $e',
+        duration: Duration(seconds: 2),
+      );
+      print('❌ Error uploading file: $e');
+    }
+  }
+
+  Future<void> _downloadFile(String fileUrl) async {
+    try {
+      // Show loading
+      EasyLoading.show(
+        status: 'Downloading...',
+        maskType: EasyLoadingMaskType.black,
+      );
+
+      // Get the downloads directory
+      final Directory? downloadDir = await getDownloadsDirectory();
+      if (downloadDir == null) {
+        EasyLoading.dismiss();
+        EasyLoading.showError(
+          'Downloads directory not available',
+          duration: Duration(seconds: 2),
+        );
+        print('❌ Downloads directory not available');
+        return;
+      }
+
+      final String fileName = fileUrl.split('/').last;
+      final String filePath = '${downloadDir.path}/$fileName';
+
+      // Download the file
+      final response = await http.get(Uri.parse(fileUrl));
+
+      if (response.statusCode == 200) {
+        // Save file to the directory
+        final File file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+
+        EasyLoading.dismiss();
+        EasyLoading.showSuccess(
+          'Downloaded to:\n$filePath',
+          duration: Duration(seconds: 3),
+        );
+        print('✅ File downloaded: $filePath');
+      } else {
+        EasyLoading.dismiss();
+        EasyLoading.showError(
+          'Download failed: ${response.statusCode}',
+          duration: Duration(seconds: 2),
+        );
+        print('❌ Download failed: ${response.statusCode}');
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
+      EasyLoading.showError(
+        'Error downloading file: $e',
+        duration: Duration(seconds: 2),
+      );
+      print('❌ Error downloading file: $e');
     }
   }
 
@@ -510,40 +621,47 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                                               final fileName = file
                                                   .split('/')
                                                   .last;
-                                              return Container(
-                                                padding: EdgeInsets.symmetric(
-                                                  horizontal: 8,
-                                                  vertical: 6,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.grey[700],
-                                                  borderRadius:
-                                                      BorderRadius.circular(6),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Icon(
-                                                      Icons.image,
-                                                      color: Colors.white70,
-                                                      size: 14,
-                                                    ),
-                                                    SizedBox(width: 6),
-                                                    Flexible(
-                                                      child: Text(
-                                                        fileName.length > 20
-                                                            ? '${fileName.substring(0, 17)}...'
-                                                            : fileName,
-                                                        style: TextStyle(
-                                                          color: Colors.white70,
-                                                          fontSize: 11,
+                                              return GestureDetector(
+                                                onTap: () =>
+                                                    _downloadFile(file),
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 6,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.grey[700],
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          6,
                                                         ),
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.download,
+                                                        color: Colors.white70,
+                                                        size: 14,
                                                       ),
-                                                    ),
-                                                  ],
+                                                      SizedBox(width: 6),
+                                                      Flexible(
+                                                        child: Text(
+                                                          fileName.length > 20
+                                                              ? '${fileName.substring(0, 17)}...'
+                                                              : fileName,
+                                                          style: TextStyle(
+                                                            color:
+                                                                Colors.white70,
+                                                            fontSize: 11,
+                                                          ),
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                               );
                                             }).toList(),

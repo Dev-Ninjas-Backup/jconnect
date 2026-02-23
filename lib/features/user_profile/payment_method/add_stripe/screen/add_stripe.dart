@@ -28,32 +28,110 @@ class AddStripe extends StatelessWidget {
                   Get.back();
                 },
               ),
-              Spacer(),
-              Text(
-                'Connect Your Stripe Account',
-                style: getTextStyle(
-                  color: AppColors.primaryTextColor,
-                  fontsize: 18,
-                  fontweight: FontWeight.w500,
-                ),
+              Expanded(
+                child: Obx(() {
+                  if (controller.isLoading.value) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final card = controller.paymentMethod.value;
+                  final hasCard = card != null;
+
+                  if (hasCard) {
+                    // Show card at the top
+                    return SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Card(
+                          elevation: 4,
+                          child: ListTile(
+                            leading: const Icon(Icons.credit_card),
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '${card.cardBrand?.toUpperCase() ?? 'CARD'} •••• ${card.last4 ?? '----'}',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Get.defaultDialog(
+                                      title: 'Delete card?',
+                                      middleText:
+                                          'This card will be removed permanently.',
+                                      backgroundColor: Colors.black,
+                                      titleStyle: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                      middleTextStyle: const TextStyle(
+                                        color: Colors.white70,
+                                      ),
+                                      textConfirm: 'Delete',
+                                      textCancel: 'Cancel',
+                                      buttonColor: Colors.red,
+                                      onConfirm: () {
+                                        Get.back();
+                                        controller.deleteMethod(card.id);
+                                      },
+                                    );
+                                  },
+                                  child: Icon(
+                                    Icons.delete,
+                                    color: Colors.red[400],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            subtitle: Text(
+                              (card.expMonth != null && card.expYear != null)
+                                  ? 'Expires ${card.expMonth}/${card.expYear}'
+                                  : 'Expiry not available',
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  // No card, show centered content
+                  return Center(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Connect Your Stripe Account',
+                            style: getTextStyle(
+                              color: AppColors.primaryTextColor,
+                              fontsize: 18,
+                              fontweight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Secure payouts are processed through Stripe. Connect your account to start receiving payments.',
+                            style: getTextStyle(
+                              fontsize: 13,
+                              color: AppColors.secondaryTextColor,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          SizedBox(height: 18.h),
+                          CustomPrimaryButton(
+                            buttonText: 'Connect With Stripe',
+                            onTap: () {
+                              controller.addCard(context);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
               ),
-              SizedBox(height: 8),
-              Text(
-                'Secure payouts are processed through Stripe. Connect your account to start receiving payments.',
-                style: getTextStyle(
-                  fontsize: 13,
-                  color: AppColors.secondaryTextColor,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              SizedBox(height: 18.h),
-              CustomPrimaryButton(
-                buttonText: 'Connect With Stripe',
-                onTap: () {
-                  controller.addCard(context);
-                },
-              ),
-              Spacer(),
             ],
           ),
         ),

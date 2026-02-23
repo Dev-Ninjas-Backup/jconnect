@@ -83,13 +83,13 @@ class ReviewerDetails extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            order!.sellerName,
-                            style: getTextStyle(
-                              color: AppColors.primaryTextColor,
-                              fontweight: FontWeight.w600,
-                            ),
-                          ),
+                          // Text(
+                          //   order!.sellerName,
+                          //   style: getTextStyle(
+                          //     color: AppColors.primaryTextColor,
+                          //     fontweight: FontWeight.w600,
+                          //   ),
+                          // ),
                           Text(
                             order!.sellerUsername,
                             style: getTextStyle(
@@ -144,10 +144,7 @@ class ReviewerDetails extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 8),
-                Padding(
-                  padding: EdgeInsets.only(left: 10.0),
-                  child: Text(order!.status, style: getTextStyle(fontsize: 12)),
-                ),
+                Text(order!.status, style: getTextStyle(fontsize: 12)),
               ],
             ),
           ),

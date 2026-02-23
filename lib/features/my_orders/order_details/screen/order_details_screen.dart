@@ -34,7 +34,11 @@ class OrderDetailsScreen extends StatelessWidget {
               CustomAppBar2(
                 title: 'Order Details',
                 leadingIconUrl: Iconpath.backIcon,
-                onLeadingTap: () {
+                onLeadingTap: () async {
+                  // Refresh orders list before going back
+                  try {
+                    await orderController.loadOrders();
+                  } catch (_) {}
                   Get.back();
                 },
               ),

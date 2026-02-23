@@ -93,7 +93,7 @@ class OrderDetailsModel {
     final platformFee = pickDouble(['platformFee'], 0.0);
     String sellerName = pickString(['seller.full_name'], '');
     String sellerUsername = pickString(['seller.username'], '');
-    String sellerImage = pickString(['seller.imageUrl'], '');
+    String sellerImage = pickString(['seller.profilePhoto'], '');
     String sellerEmail = pickString(['seller.email'], '');
     String sellerId = pickString(['sellerId'], '');
 
