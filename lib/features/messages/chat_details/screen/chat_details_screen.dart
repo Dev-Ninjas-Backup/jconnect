@@ -18,21 +18,17 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/core/endpoint.dart';
 
-class ChatDetailsScreen extends StatefulWidget {
-  const ChatDetailsScreen({super.key});
+class ChatDetailsScreen extends StatelessWidget {
+  ChatDetailsScreen({super.key});
 
-  @override
-  State<ChatDetailsScreen> createState() => _ChatDetailsScreenState();
-}
+  late final ScrollController _scrollController = ScrollController();
+  late final ImagePicker _imagePicker = ImagePicker();
+  late final RxList<String> selectedFiles = <String>[].obs;
+  late final RxBool _initialServiceRequestSent = false.obs;
 
-class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   final addCustomServiceController = Get.put(AddCustomServiceController());
-  final controller = Get.find<MessagesController>();
-  final dynamic arguments = Get.arguments;
-  late ScrollController _scrollController;
-  final ImagePicker _imagePicker = ImagePicker();
-  final selectedFiles = <String>[].obs;
-  bool _initialServiceRequestSent = false;
+  late final controller = Get.find<MessagesController>();
+  late final dynamic arguments = Get.arguments;
 
   String _formatDateFromDateTime(DateTime dt) {
     const months = <String>[
@@ -52,63 +48,36 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
     return '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController();
-
-    // Initialize socket connection first, then load conversation
-    _initializeAndLoadConversation();
-
-    // Listen to messages changes and scroll to bottom
-    ever(controller.messages, (_) {
-      _scrollToBottom();
-    });
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    selectedFiles.clear();
-    super.dispose();
-  }
-
   Future<void> _pickFile() async {
     try {
       final XFile? image = await _imagePicker.pickImage(
         source: ImageSource.gallery,
       );
       if (image != null) {
-        // Show loading
         EasyLoading.show(
           status: 'Uploading file...',
           maskType: EasyLoadingMaskType.black,
         );
 
-        // Upload file to API
         final request = http.MultipartRequest(
           'POST',
           Uri.parse(Endpoint.fileUpload),
         );
 
-        // Add file to request
         final file = await http.MultipartFile.fromPath('file', image.path);
         request.files.add(file);
 
-        // Send request
         final response = await request.send();
         final responseBody = await response.stream.bytesToString();
 
         EasyLoading.dismiss();
 
         if (response.statusCode == 200 || response.statusCode == 201) {
-          // Parse response
           final jsonResponse = jsonDecode(responseBody);
           final fileUrl = jsonResponse['file'];
 
           if (fileUrl != null) {
             selectedFiles.add(fileUrl);
-            print('📎 File uploaded: $fileUrl');
             EasyLoading.showSuccess(
               'File uploaded successfully',
               duration: Duration(seconds: 1),
@@ -118,14 +87,12 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
               'Failed to get file URL',
               duration: Duration(seconds: 2),
             );
-            print('❌ No file URL in response');
           }
         } else {
           EasyLoading.showError(
             'Upload failed: ${response.statusCode}',
             duration: Duration(seconds: 2),
           );
-          print('❌ Upload failed: ${response.statusCode}');
         }
       }
     } catch (e) {
@@ -134,19 +101,16 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
         'Error uploading file: $e',
         duration: Duration(seconds: 2),
       );
-      print('❌ Error uploading file: $e');
     }
   }
 
   Future<void> _downloadFile(String fileUrl) async {
     try {
-      // Show loading
       EasyLoading.show(
         status: 'Downloading...',
         maskType: EasyLoadingMaskType.black,
       );
 
-      // Get the downloads directory
       final Directory? downloadDir = await getDownloadsDirectory();
       if (downloadDir == null) {
         EasyLoading.dismiss();
@@ -154,18 +118,15 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
           'Downloads directory not available',
           duration: Duration(seconds: 2),
         );
-        print('❌ Downloads directory not available');
         return;
       }
 
       final String fileName = fileUrl.split('/').last;
       final String filePath = '${downloadDir.path}/$fileName';
 
-      // Download the file
       final response = await http.get(Uri.parse(fileUrl));
 
       if (response.statusCode == 200) {
-        // Save file to the directory
         final File file = File(filePath);
         await file.writeAsBytes(response.bodyBytes);
 
@@ -174,14 +135,12 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
           'Downloaded to:\n$filePath',
           duration: Duration(seconds: 3),
         );
-        print('✅ File downloaded: $filePath');
       } else {
         EasyLoading.dismiss();
         EasyLoading.showError(
           'Download failed: ${response.statusCode}',
           duration: Duration(seconds: 2),
         );
-        print('❌ Download failed: ${response.statusCode}');
       }
     } catch (e) {
       EasyLoading.dismiss();
@@ -189,12 +148,10 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
         'Error downloading file: $e',
         duration: Duration(seconds: 2),
       );
-      print('❌ Error downloading file: $e');
     }
   }
 
   void _scrollToBottom() {
-    // Schedule scroll after frame is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
@@ -207,22 +164,17 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   }
 
   void _initializeAndLoadConversation() async {
-    // Initialize socket connection if not already connected
     await _initializeSocketConnection();
 
-    // Small delay to ensure socket connection is established
     await Future.delayed(Duration(milliseconds: 500));
 
     if (arguments != null) {
       if (arguments is Map) {
-        // New conversation format
         final chatItem = arguments['chatItem'];
         final recipientId = arguments['recipientId'];
         final isNewConversation = arguments['isNewConversation'] ?? false;
 
         if (isNewConversation && recipientId != null) {
-          // For new conversations, we'll start with empty messages
-          // and set the recipient ID for sending messages
           controller.initNewConversation(
             recipientId: recipientId,
             recipientParticipant: chatItem?.participant,
@@ -230,7 +182,6 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
 
           await _maybeSendInitialServiceRequest(recipientId.toString());
         } else if (chatItem?.chatId != null) {
-          // Existing conversation - load from API
           await controller.initConversationFromAPI(
             conversationId: chatItem.chatId,
           );
@@ -240,8 +191,6 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
           }
         }
       } else {
-        // Legacy format - existing conversation
-        print('🔄 Loading existing conversation: ${arguments.chatId}');
         await controller.initConversationFromAPI(
           conversationId: arguments.chatId ?? '',
         );
@@ -255,7 +204,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   }
 
   Future<void> _maybeSendInitialServiceRequest(String recipientId) async {
-    if (_initialServiceRequestSent) return;
+    if (_initialServiceRequestSent.value) return;
     if (arguments is! Map) return;
 
     final shouldSend = arguments['sendInitialServiceRequest'] == true;
@@ -265,74 +214,53 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
     final sid = serviceId.toString().trim();
     if (sid.isEmpty) return;
 
-    _initialServiceRequestSent = true;
+    _initialServiceRequestSent.value = true;
 
-    // Ensure user ID is initialized before sending message
     final prefHelper = Get.find<SharedPreferencesHelperController>();
     final userId = await prefHelper.getUserId();
     if (userId != null && userId.isNotEmpty) {
       controller.initUserId(userId);
-      print('🔥 [CHAT_DETAILS] User ID initialized: $userId');
     }
 
-    // Add small delay to ensure socket is ready
     await Future.delayed(Duration(milliseconds: 300));
 
-    print(
-      '🔥 [CHAT_DETAILS] Sending initial service request with serviceId: $sid',
-    );
     controller.sendMessage(
       recipientId: recipientId,
       content: '',
       serviceId: sid,
     );
 
-    // Wait for the message to be sent and processed
     await Future.delayed(Duration(milliseconds: 2000));
-    print(
-      '🔥 [CHAT_DETAILS] Initial service request sent, messages count: ${controller.messages.length}',
-    );
 
-    // Update conversation ID from the sent message if we have one
     if (controller.messages.isNotEmpty) {
       final lastMsg = controller.messages.last;
-      if (lastMsg.conversationId.isNotEmpty) {
-        print(
-          '🔥 [CHAT_DETAILS] Updating conversation ID to: ${lastMsg.conversationId}',
+      if (lastMsg.conversationId.isNotEmpty && lastMsg.serviceId != null) {
+        await controller.initConversationFromAPI(
+          conversationId: lastMsg.conversationId,
+          force: true,
         );
-        // Force refresh to get full conversation with service details
-        if (lastMsg.serviceId != null) {
-          print(
-            '🔥 [CHAT_DETAILS] Force refreshing conversation to get service details...',
-          );
-          await controller.initConversationFromAPI(
-            conversationId: lastMsg.conversationId,
-            force: true,
-          );
-          print(
-            '🔥 [CHAT_DETAILS] Conversation refreshed, messages count: ${controller.messages.length}',
-          );
-        }
-        // Refresh conversation list to ensure it appears in messages screen
-        print('🔥 [CHAT_DETAILS] Refreshing conversation list...');
         await controller.fetchallchatMethod();
-        print('🔥 [CHAT_DETAILS] Conversation list refreshed');
       }
     }
   }
 
   Future<void> _initializeSocketConnection() async {
     try {
-      // Use controller's method to initialize socket with proper auth
       await controller.initializeSocketConnection();
-      print('✅ Socket connection initialized');
     } catch (e) {
-      print('❌ Failed to initialize socket: $e');
+      // Socket initialization error handled in controller
     }
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
+    _initializeAndLoadConversation();
+
+    ever(controller.messages, (_) {
+      _scrollToBottom();
+    });
+
     // Get participant info from arguments
     dynamic chatParticipant;
     String recipientId = '';
@@ -415,9 +343,6 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
               ),
               Expanded(
                 child: Obx(() {
-                  print(
-                    '🔄 UI Rebuilding - Messages count: ${controller.messages.length}',
-                  );
                   return controller.messages.isEmpty
                       ? Center(
                           child: Text(
@@ -439,17 +364,6 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                           itemBuilder: (context, index) {
                             final msgItem = controller.messages[index];
                             final isMine = controller.isMyMessage(msgItem);
-                            print(
-                              '💬 Displaying message $index: ${msgItem.content}, isMine: $isMine',
-                            );
-                            print(
-                              '💬 Message serviceId: ${msgItem.serviceId}, service: ${msgItem.service != null ? "EXISTS" : "NULL"}',
-                            );
-                            if (msgItem.service != null) {
-                              print(
-                                '💬 Service details: ${msgItem.service!.serviceName} - \$${msgItem.service!.price}',
-                              );
-                            }
 
                             return Align(
                               alignment: isMine
@@ -740,7 +654,6 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                                       child: GestureDetector(
                                         onTap: () {
                                           selectedFiles.removeAt(index);
-                                          print('🗑️ File removed: $fileName');
                                         },
                                         child: Container(
                                           decoration: BoxDecoration(
@@ -847,96 +760,6 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
               SizedBox(height: 40),
             ],
           ),
-          // Obx(
-          //   () => controller.showSidebar.value
-          //       ? Positioned(
-          //           top: 100,
-          //           right: 0,
-          //           width: 220,
-          //           height: 300,
-          //           child: Material(
-          //             elevation: 5,
-          //             color: Colors.transparent,
-          //             child: Container(
-          //               decoration: BoxDecoration(
-          //                 color: Colors.grey[850],
-          //                 borderRadius: BorderRadius.circular(12),
-          //               ),
-          //               child: Column(
-          //                 children: [
-          //                   ListTile(
-          //                     title: Text(
-          //                       '📎 Send File',
-          //                       style: TextStyle(color: Colors.white),
-          //                     ),
-          //                     onTap: () {
-          //                       showDialog(
-          //                         context: context,
-          //                         builder: (_) => const SendFileDialogWidget(),
-          //                       );
-          //                     },
-          //                   ),
-          //
-          //                   Divider(color: Colors.white24, height: 2),
-          //                   ListTile(
-          //                     title: Text(
-          //                       '💵 Make Payment',
-          //                       style: TextStyle(color: Colors.white),
-          //                     ),
-          //                     onTap: () {
-          //                       showDialog(
-          //                         context: context,
-          //                         builder: (context) => PaymentDialogWidget(),
-          //                       );
-          //                     },
-          //                   ),
-          //                   Divider(color: Colors.white24, height: 2),
-          //                   ListTile(
-          //                     title: Text(
-          //                       '📅 Set Date',
-          //                       style: TextStyle(color: Colors.white),
-          //                     ),
-          //                     onTap: () {
-          //                       showDialog(
-          //                         context: context,
-          //                         builder: (context) => SetDateWidget(),
-          //                       );
-          //                     },
-          //                   ),
-          //                   Divider(color: Colors.white24, height: 2),
-          //                   ListTile(
-          //                     title: Text(
-          //                       '🛒 View Order Details',
-          //                       style: TextStyle(color: Colors.white),
-          //                     ),
-          //                     onTap: () {
-          //                       showDialog(
-          //                         context: context,
-          //                         builder: (context) =>
-          //                             ViewOrderDetailsWidget(),
-          //                       );
-          //                     },
-          //                   ),
-          //                   Divider(color: Colors.white24, height: 2),
-          //                   ListTile(
-          //                     title: Text(
-          //                       '❌ Cancel Deal',
-          //                       style: TextStyle(color: Colors.white),
-          //                     ),
-          //                     onTap: () {
-          //                       showDialog(
-          //                         context: context,
-          //                         builder: (context) => CancelDealWidget(),
-          //                       );
-          //                     },
-          //                   ),
-          //                 ],
-          //               ),
-          //             ),
-          //           ),
-          //         )
-          //       : SizedBox.shrink(),
-          // ),
         ],
       ),
     );
@@ -986,29 +809,14 @@ void showAddServiceSheet(
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        // ✅ Disable auto-send ONLY for custom service creation
                         if (Get.arguments is Map) {
                           Get.arguments['sendInitialServiceRequest'] = false;
                           Get.arguments['initialServiceId'] = null;
                         }
 
-                        // Use the passed-in recipientId directly (already captured from ChatDetailsScreen scope)
-                        print(
-                          '🔥 [CUSTOM_SERVICE_SHEET] Using passed recipientId: $recipientId',
-                        );
-
-                        // Now save the custom service
                         final created = await controller.saveService();
 
                         if (created != null) {
-                          print(
-                            '🔥 [CUSTOM_SERVICE_SHEET] created is not null',
-                          );
-                          print(
-                            '🔥 [CUSTOM_SERVICE_SHEET] Created service payload: $created',
-                          );
-
-                          // Extract service id - handle nested response structure
                           final dynamic maybeId =
                               created['id'] ??
                               created['_id'] ??
@@ -1016,63 +824,34 @@ void showAddServiceSheet(
                               (created['service'] is Map
                                   ? created['service']['id']
                                   : null);
-                          print(
-                            '🔥 [CUSTOM_SERVICE_SHEET] Resolved service id: $maybeId (type: ${maybeId.runtimeType})',
-                          );
 
                           final serviceIdStr = maybeId?.toString();
-                          print(
-                            '🔥 [CUSTOM_SERVICE_SHEET] serviceIdStr: $serviceIdStr',
-                          );
-                          print(
-                            '🔥 [CUSTOM_SERVICE_SHEET] recipientId before sheet close: $recipientId',
-                          );
 
                           if (recipientId.isNotEmpty &&
                               serviceIdStr != null &&
                               serviceIdStr.isNotEmpty) {
-                            print(
-                              '🔥 [CUSTOM_SERVICE_SHEET] About to call sendMessage with recipientId=$recipientId, serviceId=$serviceIdStr',
-                            );
                             try {
                               final msgCtrl = Get.find<MessagesController>();
-                              // sendMessage is declared as void async, do not await its (void) result
                               msgCtrl.sendMessage(
                                 recipientId: recipientId,
                                 content: '',
                                 serviceId: serviceIdStr,
                                 files: null,
                               );
-                              print(
-                                '🔥 [CUSTOM_SERVICE_SHEET] sendMessage called successfully',
-                              );
-                              // Close the sheet AFTER calling sendMessage
                               Get.back();
                               Get.snackbar('Success', 'Service sent');
                             } catch (e) {
-                              print(
-                                '🔥 [CUSTOM_SERVICE_SHEET] Failed to send created service: $e',
-                              );
-                              // Close the sheet even on error
                               Get.back();
                               Get.snackbar('Error', 'Failed to send service');
                             }
                           } else {
-                            print(
-                              '🔥 [CUSTOM_SERVICE_SHEET] Validation failed: recipientId.isEmpty=${recipientId.isEmpty}, serviceIdStr=$serviceIdStr',
-                            );
-                            // Close the sheet
                             Get.back();
                             Get.snackbar(
                               'Info',
-                              'Service created but recipient or ID not found. recipientId=$recipientId, serviceId=$serviceIdStr',
+                              'Service creation issue. Please try again.',
                             );
                           }
                         } else {
-                          print(
-                            '🔥 [CUSTOM_SERVICE_SHEET] created is null - nothing to send',
-                          );
-                          // Nothing created - just close the sheet
                           Get.back();
                         }
                       },
