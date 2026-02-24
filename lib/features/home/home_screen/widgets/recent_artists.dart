@@ -156,7 +156,7 @@ class ArtistsYouKnow extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 artist.fullName.trim().isEmpty
-                                    ? "Unknown Artist"
+                                    ? "Unknown User"
                                     : artist.fullName,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
