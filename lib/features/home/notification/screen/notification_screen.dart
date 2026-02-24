@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/features/messages/controller/messages_controller.dart';
+import 'package:jconnect/features/messages/model/message_model2.dart';
+import 'package:jconnect/routes/approute.dart';
 import '../controller/notification_controller.dart';
 import '../model/notification_model.dart';
 
 class NotificationScreen extends StatelessWidget {
   NotificationScreen({super.key});
 
-  final NotificationController controller =
-      Get.find<NotificationController>();
+  final NotificationController controller = Get.find<NotificationController>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Notifications',style: TextStyle(color: Colors.white),),
+        title: const Text(
+          'Notifications',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
         backgroundColor: Colors.black,
         leading: IconButton(
@@ -29,10 +34,7 @@ class NotificationScreen extends StatelessWidget {
           return const Center(
             child: Text(
               'No notifications yet',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.white),
             ),
           );
         }
@@ -75,12 +77,82 @@ class NotificationScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          notification.title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              notification.title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                            ),
+                            notification.title == "New Inquiry Received"
+                                ? GestureDetector(
+                                onTap: 
+                                (){
+                                  final messagesController =
+                                    Get.find<MessagesController>();
+                                  final artistId = notification.currentUser?.id;
+
+                                  if (artistId == null) {
+                                    Get.snackbar('Error', 'Sender information not available');
+                                    return;
+                                  }
+
+                                  final existingChat = messagesController.allChats
+                                      .firstWhereOrNull(
+                                        (chat) => chat.participant?.id == artistId,
+                                      );
+
+                                  if (existingChat != null &&
+                                      existingChat.chatId != null) {
+                                    Get.toNamed(
+                                      AppRoute.chatDetailsScreen,
+                                      arguments: {
+                                        'chatItem': existingChat,
+                                        'recipientId': artistId,
+                                        'isNewConversation': false,
+                                      },
+                                    );
+                                  } else {
+                                    final chatItem = ChatItem(
+                                      type: 'private',
+                                      chatId: null,
+                                      participant: ChatParticipant(
+                                        id: artistId,
+                                        fullName: notification.currentUser?.full_name ?? 'User',
+                                        profilePhoto: notification.currentUser?.profilePhoto,
+                                      ),
+                                    );
+                                    Get.toNamed(
+                                      AppRoute.chatDetailsScreen,
+                                      arguments: {
+                                        'chatItem': chatItem,
+                                        'recipientId': artistId,
+                                        'isNewConversation': true,
+                                      },
+                                    );
+                                  }
+                                }
+                                
+                                
+                                
+        
+                                
+                                
+                                
+                                
+                                
+                                ,
+                                  child: Icon(
+                                      Icons.message,
+                                      color: Colors.greenAccent,
+                                      size: 24,
+                                    ),
+                                )
+                                : SizedBox.shrink(),
+                          ],
                         ),
                         const SizedBox(height: 6),
                         Text(

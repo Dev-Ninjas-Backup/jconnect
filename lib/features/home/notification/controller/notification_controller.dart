@@ -61,6 +61,11 @@ class NotificationController extends GetxController {
       print(
         "===================Notification Length: ${notification.length}===================",
       );
+      
+      // Debug logs
+      for (var i = 0; i < notification.length; i++) {
+        print('🔔 Notification $i: ID=${notification[i].id}, CurrentUser=${notification[i].currentUser?.id}');
+      }
     } catch (e) {
       print("❌ Error fetching notifications: $e");
     } finally {

@@ -170,7 +170,9 @@ class HomeController extends GetxController {
         },
       );
 
-      if (response.statusCode == 200 || response.statusCode == 202) {
+      if (response.statusCode == 200 ||
+          response.statusCode == 201 ||
+          response.statusCode == 202) {
         print("Inquiry Success");
         EasyLoading.showSuccess("Inquiry sent successfully!");
         return true;
