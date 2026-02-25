@@ -9,6 +9,7 @@ class CustomAppBar2 extends StatelessWidget {
   final VoidCallback? actionOnTap;
   final String? leadingIconUrl;
   final VoidCallback? onLeadingTap;
+  final int badgeCount;
 
   const CustomAppBar2({
     required this.title,
@@ -16,6 +17,7 @@ class CustomAppBar2 extends StatelessWidget {
     this.actionOnTap,
     this.leadingIconUrl,
     this.onLeadingTap,
+    this.badgeCount = 0,
     super.key,
   });
 
@@ -49,11 +51,38 @@ class CustomAppBar2 extends StatelessWidget {
         ),
 
         // Action Icon
-        GestureDetector(
-          onTap: actionOnTap,
-          child: actionIconUrl != null
-              ? Image.asset(actionIconUrl!, height: 36.h, width: 36.w)
-              : SizedBox(height: 36.h,width: 36.w,),
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            GestureDetector(
+              onTap: actionOnTap,
+              child: actionIconUrl != null
+                  ? Image.asset(actionIconUrl!, height: 36.h, width: 36.w)
+                  : SizedBox(height: 36.h,width: 36.w,),
+            ),
+            if (badgeCount > 0)
+              Positioned(
+                right: -6,
+                top: -6,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  constraints: BoxConstraints(minWidth: 18.w, minHeight: 18.h),
+                  child: Text(
+                    badgeCount > 99 ? '99+' : badgeCount.toString(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+          ],
         ),
       ],
     );

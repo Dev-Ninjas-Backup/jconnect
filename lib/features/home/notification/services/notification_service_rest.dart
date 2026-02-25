@@ -8,7 +8,7 @@ class NotificationServiceRest {
 
   NotificationServiceRest({required this.networkClient});
 
-  Future<List<AppNotification>> fetchNotifications() async {
+  Future<Map<String, dynamic>> fetchNotifications() async {
     final response = await networkClient.getRequest(
       url: Endpoint.userNotifications,
     );
@@ -16,15 +16,40 @@ class NotificationServiceRest {
     if (response.isSuccess &&
         (response.statusCode == 200 || response.statusCode == 201)) {
       final List list = response.responseData!['data']['notifications'];
+      final int unreadCount = response.responseData!['data']['unreadCount'] ?? 0;
       if (kDebugMode) {
         print("Notification List: $list");
+        print("Unread Count: $unreadCount");
       }
 
-      return list
-          .map((e) => AppNotification.fromJson(e))
-          .toList();
+      return {
+        'notifications': list
+            .map((e) => AppNotification.fromJson(e))
+            .toList(),
+        'unreadCount': unreadCount,
+      };
     } else {
       throw Exception('Failed to load notifications');
+    }
+  }
+
+  Future<bool> markAllNotificationsAsRead() async {
+    final response = await networkClient.patchRequest(
+      body: {},
+      url: Endpoint.markAllNotificationsRead,
+    );
+
+    if (response.isSuccess &&
+        (response.statusCode == 200 || response.statusCode == 201)) {
+      if (kDebugMode) {
+        print("✅ All notifications marked as read");
+      }
+      return true;
+    } else {
+      if (kDebugMode) {
+        print("❌ Failed to mark notifications as read");
+      }
+      return false;
     }
   }
 }

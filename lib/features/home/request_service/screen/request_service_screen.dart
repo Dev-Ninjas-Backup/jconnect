@@ -236,7 +236,7 @@ class RequestServiceScreen extends StatelessWidget {
                   try {
                     // Submit the service request first
                     await controller.submitServiceRequest(
-                      serviceId: service.id,
+                      serviceId: service.id,                      
                       price: service.price.toDouble(),
                     );
 

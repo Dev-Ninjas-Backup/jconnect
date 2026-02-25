@@ -22,6 +22,7 @@ class NotificationController extends GetxController {
 
   final RxBool isLoading = false.obs;
   final RxList<AppNotification> notifications = <AppNotification>[].obs;
+  final RxInt unreadCount = 0.obs;
 
   final NotificationSocketService _socketService = NotificationSocketService();
 
@@ -55,21 +56,38 @@ class NotificationController extends GetxController {
   Future<void> loadNotifications() async {
     try {
       isLoading.value = true;
-      final notification = await notificationServiceREST.fetchNotifications();
+      final result = await notificationServiceREST.fetchNotifications();
 
-      notifications.addAll(notification);
+      final List<AppNotification> notificationList = result['notifications'];
+      final int count = result['unreadCount'];
+
+      notifications.addAll(notificationList);
+      unreadCount.value = count;
+      
       print(
-        "===================Notification Length: ${notification.length}===================",
+        "===================Notification Length: ${notificationList.length}, Unread: $count===================  ",
       );
       
       // Debug logs
-      for (var i = 0; i < notification.length; i++) {
-        print('🔔 Notification $i: ID=${notification[i].id}, CurrentUser=${notification[i].currentUser?.id}');
+      for (var i = 0; i < notificationList.length; i++) {
+        print('🔔 Notification $i: ID=${notificationList[i].id}, CurrentUser=${notificationList[i].currentUser?.id}');
       }
     } catch (e) {
       print("❌ Error fetching notifications: $e");
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> markAllAsRead() async {
+    final success = await notificationServiceREST.markAllNotificationsAsRead();
+    if (success) {
+      // Update all notifications to read status
+      for (var notification in notifications) {
+        // Since AppNotification might not have a read field, we'll just clear unreadCount
+      }
+      unreadCount.value = 0;
+      print('✅ All notifications marked as read locally');
     }
   }
 

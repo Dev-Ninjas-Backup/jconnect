@@ -156,7 +156,7 @@ class ArtistsItem extends StatelessWidget {
                             )
                           : Center(
                               child: Padding(
-                                  padding: EdgeInsets.only(top: 8),
+                                padding: EdgeInsets.only(top: 8),
                                 child: Icon(
                                   Icons.broken_image,
                                   size: 80,
@@ -176,7 +176,7 @@ class ArtistsItem extends StatelessWidget {
                           Expanded(
                             child: Text(
                               artist.fullName.trim().isEmpty
-                                  ? "Unknown Artist"
+                                  ? "Unknown User"
                                   : artist.fullName,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -325,49 +325,57 @@ class ArtistsItem extends StatelessWidget {
 
                     /// Message button
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w,vertical: 10.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10.w,
+                        vertical: 10.h,
+                      ),
                       child: CustomPrimaryButton(
                         fontSize: sp(10),
-                        buttonText: "Message",
+                        buttonText: "Inquire",
                         onTap: () {
-                          final messagesController =
-                              Get.find<MessagesController>();
-
-                          final existingChat = messagesController.allChats
-                              .firstWhereOrNull(
-                                (chat) => chat.participant?.id == artist.id,
-                              );
-
-                          if (existingChat != null &&
-                              existingChat.chatId != null) {
-                            Get.toNamed(
-                              AppRoute.chatDetailsScreen,
-                              arguments: {
-                                'chatItem': existingChat,
-                                'recipientId': artist.id,
-                                'isNewConversation': false,
-                              },
-                            );
-                          } else {
-                            final chatItem = ChatItem(
-                              type: 'private',
-                              chatId: null,
-                              participant: ChatParticipant(
-                                id: artist.id,
-                                fullName: artist.fullName,
-                                profilePhoto: artist.profilePhoto,
-                              ),
-                            );
-                            Get.toNamed(
-                              AppRoute.chatDetailsScreen,
-                              arguments: {
-                                'chatItem': chatItem,
-                                'recipientId': artist.id,
-                                'isNewConversation': true,
-                              },
-                            );
-                          }
+                          homeController.sendInquiry(userID: artist.id);
                         },
+
+                        // {
+
+                        //   final messagesController =
+                        //       Get.find<MessagesController>();
+
+                        //   final existingChat = messagesController.allChats
+                        //       .firstWhereOrNull(
+                        //         (chat) => chat.participant?.id == artist.id,
+                        //       );
+
+                        //   if (existingChat != null &&
+                        //       existingChat.chatId != null) {
+                        //     Get.toNamed(
+                        //       AppRoute.chatDetailsScreen,
+                        //       arguments: {
+                        //         'chatItem': existingChat,
+                        //         'recipientId': artist.id,
+                        //         'isNewConversation': false,
+                        //       },
+                        //     );
+                        //   } else {
+                        //     final chatItem = ChatItem(
+                        //       type: 'private',
+                        //       chatId: null,
+                        //       participant: ChatParticipant(
+                        //         id: artist.id,
+                        //         fullName: artist.fullName,
+                        //         profilePhoto: artist.profilePhoto,
+                        //       ),
+                        //     );
+                        //     Get.toNamed(
+                        //       AppRoute.chatDetailsScreen,
+                        //       arguments: {
+                        //         'chatItem': chatItem,
+                        //         'recipientId': artist.id,
+                        //         'isNewConversation': true,
+                        //       },
+                        //     );
+                        //   }
+                        // },
                       ),
                     ),
                   ],
