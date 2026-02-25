@@ -28,6 +28,8 @@ class Endpoint {
   static const String notificationsIO = '$baseUrl/notification';
   static const String getUserSpecificNotification =
       '$baseUrl/notification-setting/user-specific-notification';
+  static const String markAllNotificationsRead =
+      '$baseUrl/notification-setting/mark-all-read';
   static const String addService = '$baseUrl/services';
 
   static String serviceRequest = "$baseUrl/service-requests";
