@@ -15,6 +15,7 @@ class PaymentController extends GetxController {
   RxInt platformFee = 0.obs;
 
   final RxBool isDeleting = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -70,7 +71,7 @@ class PaymentController extends GetxController {
       final success = await _paymentService.deletePaymentMethod(id);
 
       if (success) {
-        paymentMethod.value = null; // 🔥 instant UI update
+        paymentMethod.value = null;
         Get.snackbar('Success', 'Payment method deleted');
       }
     } catch (e) {
@@ -90,7 +91,6 @@ class PaymentController extends GetxController {
 
       await _paymentService.paymentMethodAdd(paymentMethodId);
 
-      /// 🔥 RELOAD CARD AFTER ADD
       await loadPaymentMethod();
 
       Get.snackbar(
@@ -118,19 +118,26 @@ Future<String?> _collectCardAndCreatePaymentMethod(BuildContext context) async {
   await showModalBottomSheet(
     context: context,
     isScrollControlled: true,
+    backgroundColor: Colors.transparent, // 🔥 IMPORTANT
     builder: (_) {
-      return Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 16,
+      return Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         ),
-        child: _CardEntrySheet(
-          onCreated: (id) {
-            paymentMethodId = id;
-            Get.back();
-          },
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 16,
+          ),
+          child: _CardEntrySheet(
+            onCreated: (id) {
+              paymentMethodId = id;
+              Get.back();
+            },
+          ),
         ),
       );
     },
@@ -158,35 +165,51 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
       mainAxisSize: MainAxisSize.min,
       children: [
         const SizedBox(height: 8),
-        const Text('Enter card details', style: TextStyle(fontSize: 16)),
-        const SizedBox(height: 12),
-        CardFormField(onCardChanged: (card) => setState(() => _card = card)),
+
+        Text(
+          'Enter card details',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+
         const SizedBox(height: 12),
 
-        // Padding(
-        //   padding: const EdgeInsets.only(bottom: 16),
-        //   child: _loading
-        //       ? const CircularProgressIndicator()
-        //       : ElevatedButton(
-        //           onPressed:
-        //               _card?.complete == true ? _createPaymentMethod : null,
-        //           child: const Text('Use Card'),
-        //         ),
-        // ),
+        CardFormField(
+          style: CardFormStyle(
+            backgroundColor: Colors.white,
+            textColor: Colors.black,
+            placeholderColor: Colors.black,
+            borderRadius: 8,
+            cursorColor: Theme.of(context).primaryColor,
+            textErrorColor: Colors.red,
+          ),
+          onCardChanged: (card) {
+            setState(() => _card = card);
+          },
+        ),
+
+        const SizedBox(height: 20),
+
         Padding(
           padding: const EdgeInsets.only(bottom: 16),
           child: _loading
               ? const CircularProgressIndicator()
-              : ElevatedButton(
-                  onPressed: _card?.complete == true
-                      ? () async {
-                          await _createPaymentMethod();
-
-                          // ✅ Navigate when card is complete
-                          //Get.toNamed(AppRoute.manageViaStripe);
-                        }
-                      : null,
-                  child: const Text('Use Card'),
+              : SizedBox(
+                  //width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _card?.complete == true
+                        ? () async {
+                            await _createPaymentMethod();
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.all(14),
+                    ),
+                    child: const Text('Use Card'),
+                  ),
                 ),
         ),
       ],
@@ -195,6 +218,7 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
 
   Future<void> _createPaymentMethod() async {
     setState(() => _loading = true);
+
     try {
       final pm = await Stripe.instance.createPaymentMethod(
         params: const PaymentMethodParams.card(
@@ -202,13 +226,9 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
         ),
       );
 
-      // ignore: unnecessary_null_comparison
-      if (pm.id != null) {
-        widget.onCreated(pm.id);
-      }
+      widget.onCreated(pm.id);
     } catch (e) {
       ScaffoldMessenger.of(
-        // ignore: use_build_context_synchronously
         context,
       ).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
