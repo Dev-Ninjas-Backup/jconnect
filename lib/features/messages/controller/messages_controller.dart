@@ -33,6 +33,21 @@ class MessagesController extends GetxController {
     _patchMessagesWithCache();
   }
 
+  /// Mark a specific message's service request as paid locally (instant UI update).
+  void markMessageAsPaid(String messageId) {
+    for (int i = 0; i < messages.length; i++) {
+      if (messages[i].id == messageId) {
+        final existing = messages[i].serviceRequest;
+        if (existing != null) {
+          messages[i] = messages[i].copyWith(
+            serviceRequest: existing.copyWith(isPaid: true),
+          );
+        }
+        break;
+      }
+    }
+  }
+
   void _patchMessagesWithCache() {
     if (_serviceRequestCache.isEmpty) return;
     for (int i = 0; i < messages.length; i++) {

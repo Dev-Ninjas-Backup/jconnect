@@ -127,6 +127,7 @@ class PaymentPage extends StatelessWidget {
 
   String get serviceId => arg.service!.id ?? '';
   String get serviceTitle => arg.service!.serviceName ?? '';
+  String get serviceRequestId => (arg.serviceRequest?.id ?? '').toString();
   final String serviceDescription = 'Get unlimited access to all features.';
   double get servicePrice => (arg.service!.price ?? 0).toDouble();
 
@@ -272,7 +273,7 @@ class PaymentPage extends StatelessWidget {
       buttonColor: Colors.green,
       onConfirm: () {
         Get.back();
-        controller.makePayment(serviceId);
+        controller.makePayment(serviceId, serviceRequestId: serviceRequestId);
       },
     );
   }

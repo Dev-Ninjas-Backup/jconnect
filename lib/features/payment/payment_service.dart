@@ -88,6 +88,20 @@ class PaymentService {
     }
   }
 
+  /// Mark service request as paid
+  Future<void> markServiceRequestPaid(String serviceRequestId) async {
+    final response = await http.patch(
+      Uri.parse(
+        '${Endpoint.markServiceRequestPaid(serviceRequestId)}?isPaid=true',
+      ),
+      headers: await _headers(),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Mark service request paid failed: ${response.body}');
+    }
+  }
+
   /// Fetch platform fee percentage
   Future<int> fetchPlatformFee() async {
     final response = await http.get(

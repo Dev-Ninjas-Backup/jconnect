@@ -6,7 +6,6 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/features/payment/model/payment_model.dart';
 import 'package:jconnect/features/payment/payment_service.dart';
-import 'package:jconnect/routes/approute.dart';
 
 class PaymentController extends GetxController {
   final isLoading = false.obs;
@@ -45,13 +44,23 @@ class PaymentController extends GetxController {
     }
   }
 
-  Future<void> makePayment(String serviceId) async {
+  Future<void> makePayment(String serviceId, {String? serviceRequestId}) async {
     try {
       isLoading.value = true;
 
       await _paymentService.makePayment(serviceId);
 
+      // Mark the service request as paid if ID is available
+      if (serviceRequestId != null && serviceRequestId.isNotEmpty) {
+        try {
+          await _paymentService.markServiceRequestPaid(serviceRequestId);
+        } catch (e) {
+          print('⚠️ Failed to mark service request as paid: $e');
+        }
+      }
+
       EasyLoading.showSuccess('Payment completed successfully');
+      Get.back(result: true);
     } catch (e) {
       print("payment error: $e");
       EasyLoading.showError('Add your payment method before proceeding ✨');
