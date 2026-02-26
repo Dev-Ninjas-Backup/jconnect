@@ -23,6 +23,7 @@ class OrderDetailsModel {
   final String buyerId;
   final List<OrderTimelineStep> timeline;
   final List<String> proofUrl;
+  final bool isCancalProofSubmitted;
 
   OrderDetailsModel({
     required this.id,
@@ -45,6 +46,7 @@ class OrderDetailsModel {
     required this.buyerId,
     required this.timeline,
     required this.proofUrl,
+    this.isCancalProofSubmitted = false,
   });
 
   factory OrderDetailsModel.fromJson(Map<String, dynamic> json) {
@@ -129,6 +131,15 @@ class OrderDetailsModel {
       }
     }
 
+    bool isCancalProofSubmitted = false;
+    if (json['isCancalProofSubmitted'] != null) {
+      isCancalProofSubmitted =
+          json['isCancalProofSubmitted'] == true ||
+          json['isCancalProofSubmitted'] == 1 ||
+          json['isCancalProofSubmitted'] == '1' ||
+          json['isCancalProofSubmitted'] == 'true';
+    }
+
     final result = OrderDetailsModel(
       id: pickString(['id']),
       orderCode: pickString(['orderCode']),
@@ -149,6 +160,7 @@ class OrderDetailsModel {
       platformFee: platformFee,
       buyerId: pickString(['buyerId', 'buyer_id'], ''),
       proofUrl: proofUrlList,
+      isCancalProofSubmitted: isCancalProofSubmitted,
       timeline: (() {
         final parsed = (json['timeline'] as List<dynamic>?)
             ?.map(
@@ -184,10 +196,13 @@ class OrderDetailsModel {
           case 'ACTIVE':
           case 'IN_PROGRESS':
             completedIndex =
-                0; // first step completed when ACTIVE or IN_PROGRESS
+                1; // "Order placed" and "Waiting to be Reviewed" completed when ACTIVE or IN_PROGRESS
             break;
           case 'PROOF_SUBMITTED':
-            completedIndex = 2; // waiting for reviewer & proof completed
+            // If proof was cancelled, mark "Waiting for proof" as incomplete
+            completedIndex = isCancalProofSubmitted
+                ? 1
+                : 2; // waiting for reviewer & proof completed
             break;
           case 'RELEASED':
           case 'COMPLETE':

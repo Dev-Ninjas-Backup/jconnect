@@ -306,7 +306,7 @@ class OrderDetailsScreen extends StatelessWidget {
                   );
                 }
 
-                // For PROOF_SUBMITTED: show Confirm Order (for buyer) and Cancel
+                // For PROOF_SUBMITTED: show Confirm Order and Reject Proof (for buyer) and Cancel
                 if (order.status == 'PROOF_SUBMITTED') {
                   return FutureBuilder<String?>(
                     future: (() {
@@ -325,20 +325,86 @@ class OrderDetailsScreen extends StatelessWidget {
                           loggedInUserId != null &&
                           loggedInUserId == order.buyerId;
 
-                      // Buyer can confirm order
+                      // Buyer can confirm or reject order
                       if (isBuyer) {
+                        return Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: CustomPrimaryButton(
+                                    buttonText: 'Confirm Order',
+                                    onTap: () async {
+                                      final success = await controller
+                                          .confirmOrder();
+                                      if (success) {
+                                        EasyLoading.showSuccess(
+                                          'Order confirmed & payment released',
+                                        );
+                                        // Refresh orders list in My Orders screen
+                                        try {
+                                          await orderController.loadOrders();
+                                        } catch (_) {}
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            // Show Reject Proof button only if proof is pending rejection (isCancalProofSubmitted = true)
+                            if (order.isCancalProofSubmitted)
+                              Column(
+                                children: [
+                                  SizedBox(height: 12),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: CustomPrimaryButton(
+                                          buttonText: 'Reject Proof',
+                                          onTap: () async {
+                                            final success = await controller
+                                                .rejectProof();
+                                            if (success) {
+                                              EasyLoading.showSuccess(
+                                                'Proof rejected. Seller can now re-submit.',
+                                              );
+                                              // Refresh orders list in My Orders screen
+                                              try {
+                                                await orderController
+                                                    .loadOrders();
+                                              } catch (_) {}
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                          ],
+                        );
+                      }
+
+                      // Seller can re-upload proof if it was rejected (isCancalProofSubmitted)
+                      if (!isBuyer && order.isCancalProofSubmitted) {
                         return Row(
                           children: [
                             Expanded(
                               child: CustomPrimaryButton(
-                                buttonText: 'Confirm Order',
+                                buttonText: 'Upload Proof',
                                 onTap: () async {
-                                  final success = await controller
-                                      .confirmOrder();
+                                  final picker = ImagePicker();
+                                  final picked = await picker.pickImage(
+                                    source: ImageSource.gallery,
+                                  );
+                                  if (picked == null) return;
+                                  final file = File(picked.path);
+                                  final success = await controller.uploadProof(
+                                    file,
+                                  );
                                   if (success) {
-                                    EasyLoading.showSuccess(
-                                      'Order confirmed & payment released',
-                                    );
+                                    // timeline updated by controller
+                                    Get.snackbar('Success', 'Proof uploaded');
                                     // Refresh orders list in My Orders screen
                                     try {
                                       await orderController.loadOrders();
@@ -351,7 +417,7 @@ class OrderDetailsScreen extends StatelessWidget {
                         );
                       }
 
-                      // Seller sees nothing (no buttons for seller on PROOF_SUBMITTED)
+                      // Seller sees nothing (no buttons for seller on PROOF_SUBMITTED unless proof was rejected)
                       return const SizedBox.shrink();
                     },
                   );

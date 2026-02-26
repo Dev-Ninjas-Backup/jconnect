@@ -96,6 +96,7 @@ class OrderDetailsController extends GetxController {
           deliveryDate: deliveryDateFromRaw,
           updatedAt: updatedAtFromRaw,
         ),
+        isCancalProofSubmitted: false,
       );
       return;
     }
@@ -114,6 +115,7 @@ class OrderDetailsController extends GetxController {
     String? createdAt,
     String? deliveryDate,
     String? updatedAt,
+    bool isCancalProofSubmitted = false,
   }) {
     final steps = [
       'Order has been placed',
@@ -129,10 +131,12 @@ class OrderDetailsController extends GetxController {
         break;
       case 'ACTIVE':
       case 'IN_PROGRESS':
-        completedIndex = 0;
+        completedIndex =
+            1; // "Order placed" and "Waiting to be Reviewed" completed
         break;
       case 'PROOF_SUBMITTED':
-        completedIndex = 2; // waiting for reviewer & proof completed
+        // If proof was cancelled, mark "Waiting for proof" as incomplete
+        completedIndex = isCancalProofSubmitted ? 1 : 2;
         break;
       case 'RELEASED':
       case 'COMPLETE':
@@ -204,8 +208,150 @@ class OrderDetailsController extends GetxController {
       // Accept 200-299 as success (API might return 201 Created)
       if (resp.statusCode >= 200 && resp.statusCode < 300) {
         EasyLoading.showSuccess('Proof uploaded');
+
+        // Parse the response to get updated proof URL and other data
+        List<String> newProofUrl = [];
+        bool isCancalProofSubmitted = false;
+
+        try {
+          final respJson = jsonDecode(resp.body);
+          if (respJson is Map<String, dynamic>) {
+            // Extract proofUrl from response
+            if (respJson['proofUrl'] != null) {
+              if (respJson['proofUrl'] is List) {
+                newProofUrl = (respJson['proofUrl'] as List)
+                    .map((e) => e.toString())
+                    .toList();
+              } else if (respJson['proofUrl'] is String) {
+                newProofUrl = [respJson['proofUrl'].toString()];
+              }
+            }
+
+            // Extract isCancalProofSubmitted flag
+            if (respJson['isCancalProofSubmitted'] != null) {
+              isCancalProofSubmitted =
+                  respJson['isCancalProofSubmitted'] == true ||
+                  respJson['isCancalProofSubmitted'] == 1 ||
+                  respJson['isCancalProofSubmitted'] == '1' ||
+                  respJson['isCancalProofSubmitted'] == 'true';
+            }
+          }
+        } catch (e) {
+          print('⚠️ [UPLOAD PROOF] Could not parse response: $e');
+          // If parsing fails, we'll just use empty proofUrl
+          newProofUrl = [];
+        }
+
+        // Update order with new proof URL and isCancalProofSubmitted flag
         final updatedAt = DateTime.now().toIso8601String();
-        applyStatusUpdate(current.id, 'PROOF_SUBMITTED', updatedAt: updatedAt);
+        final newTimeline = _generateTimeline(
+          status: 'PROOF_SUBMITTED',
+          createdAt: current.orderCreated.isNotEmpty
+              ? current.orderCreated
+              : null,
+          deliveryDate: current.deliveryDate.isNotEmpty
+              ? current.deliveryDate
+              : null,
+          updatedAt: updatedAt,
+          isCancalProofSubmitted: isCancalProofSubmitted,
+        );
+
+        order.value = OrderDetailsModel(
+          id: current.id,
+          orderCode: current.orderCode,
+          platform: current.platform,
+          serviceTitle: current.serviceTitle,
+          subServiceTitle: current.subServiceTitle,
+          sellerName: current.sellerName,
+          sellerEmail: current.sellerEmail,
+          sellerUsername: current.sellerUsername,
+          sellerimageUrl: current.sellerimageUrl,
+          sellerId: current.sellerId,
+          rating: current.rating,
+          status: 'PROOF_SUBMITTED',
+          orderCreated: current.orderCreated,
+          deliveryDate: current.deliveryDate,
+          servicePrice: current.servicePrice,
+          platformRate: current.platformRate,
+          platformFee: current.platformFee,
+          buyerId: current.buyerId,
+          proofUrl: newProofUrl,
+          isCancalProofSubmitted: isCancalProofSubmitted,
+          timeline: newTimeline,
+        );
+
+        // Call cancel-proof API with isCancalProofSubmitted=false to ensure proof is marked as accepted
+        try {
+          final cancelUrl =
+              '${Endpoint.baseUrl}/orders/${current.id}/cancel-proof?isCancalProofSubmitted=false';
+          final cancelResp = await http.patch(
+            Uri.parse(cancelUrl),
+            headers: {'Authorization': authHeader, 'Accept': '*/*'},
+          );
+
+          print('🔥 [RESET PROOF FLAG] Status: ${cancelResp.statusCode}');
+          print('🔥 [RESET PROOF FLAG] Body: ${cancelResp.body}');
+
+          if (cancelResp.statusCode >= 200 && cancelResp.statusCode < 300) {
+            // Parse response to ensure isCancalProofSubmitted is false
+            try {
+              final resetJson = jsonDecode(cancelResp.body);
+              if (resetJson is Map<String, dynamic>) {
+                bool resetFlag = false;
+                if (resetJson['isCancalProofSubmitted'] != null) {
+                  resetFlag =
+                      resetJson['isCancalProofSubmitted'] == true ||
+                      resetJson['isCancalProofSubmitted'] == 1 ||
+                      resetJson['isCancalProofSubmitted'] == '1' ||
+                      resetJson['isCancalProofSubmitted'] == 'true';
+                }
+
+                // Update with confirmed false flag
+                final confirmedTimeline = _generateTimeline(
+                  status: 'PROOF_SUBMITTED',
+                  createdAt: current.orderCreated.isNotEmpty
+                      ? current.orderCreated
+                      : null,
+                  deliveryDate: current.deliveryDate.isNotEmpty
+                      ? current.deliveryDate
+                      : null,
+                  updatedAt: updatedAt,
+                  isCancalProofSubmitted: resetFlag,
+                );
+
+                order.value = OrderDetailsModel(
+                  id: current.id,
+                  orderCode: current.orderCode,
+                  platform: current.platform,
+                  serviceTitle: current.serviceTitle,
+                  subServiceTitle: current.subServiceTitle,
+                  sellerName: current.sellerName,
+                  sellerEmail: current.sellerEmail,
+                  sellerUsername: current.sellerUsername,
+                  sellerimageUrl: current.sellerimageUrl,
+                  sellerId: current.sellerId,
+                  rating: current.rating,
+                  status: 'PROOF_SUBMITTED',
+                  orderCreated: current.orderCreated,
+                  deliveryDate: current.deliveryDate,
+                  servicePrice: current.servicePrice,
+                  platformRate: current.platformRate,
+                  platformFee: current.platformFee,
+                  buyerId: current.buyerId,
+                  proofUrl: newProofUrl,
+                  isCancalProofSubmitted: resetFlag,
+                  timeline: confirmedTimeline,
+                );
+              }
+            } catch (e) {
+              print('⚠️ [RESET PROOF FLAG] Could not parse response: $e');
+            }
+          }
+        } catch (e) {
+          print('⚠️ [RESET PROOF FLAG] Error calling cancel-proof API: $e');
+          // Continue anyway - proof is already uploaded
+        }
+
         return true;
       } else {
         EasyLoading.showError('Failed: ${resp.statusCode}');
@@ -279,6 +425,7 @@ class OrderDetailsController extends GetxController {
           ? current.deliveryDate
           : null,
       updatedAt: updatedAt ?? DateTime.now().toIso8601String(),
+      isCancalProofSubmitted: current.isCancalProofSubmitted,
     );
 
     order.value = OrderDetailsModel(
@@ -301,6 +448,7 @@ class OrderDetailsController extends GetxController {
       platformFee: current.platformFee,
       buyerId: current.buyerId,
       proofUrl: current.proofUrl,
+      isCancalProofSubmitted: current.isCancalProofSubmitted,
       timeline: newTimeline,
     );
   }
@@ -365,6 +513,79 @@ class OrderDetailsController extends GetxController {
       }
     } catch (e) {
       EasyLoading.showError('Review error: $e');
+      return false;
+    }
+  }
+
+  /// Reject proof submitted by seller (buyer action). Returns true on success.
+  Future<bool> rejectProof() async {
+    final current = order.value;
+    if (current == null) return false;
+
+    try {
+      final prefs = Get.find<SharedPreferencesHelperController>();
+      final token = await prefs.getAccessToken();
+      if (token == null || token.isEmpty) {
+        EasyLoading.showError('No auth token available');
+        return false;
+      }
+
+      final authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+      final url = Endpoint.cancelProof(current.id);
+
+      EasyLoading.show(status: 'Rejecting proof...');
+      final resp = await http.patch(
+        Uri.parse(url),
+        headers: {'Authorization': authHeader, 'Accept': '*/*'},
+      );
+      EasyLoading.dismiss();
+
+      print('🔥 [REJECT PROOF] Status: ${resp.statusCode}');
+      print('🔥 [REJECT PROOF] Body: ${resp.body}');
+
+      if (resp.statusCode >= 200 && resp.statusCode < 300) {
+        EasyLoading.showSuccess('Proof rejected. Please upload new proof.');
+        // Reset to IN_PROGRESS status with empty proofUrl
+        final updatedAt = DateTime.now().toIso8601String();
+        order.value = OrderDetailsModel(
+          id: current.id,
+          orderCode: current.orderCode,
+          platform: current.platform,
+          serviceTitle: current.serviceTitle,
+          subServiceTitle: current.subServiceTitle,
+          sellerName: current.sellerName,
+          sellerEmail: current.sellerEmail,
+          sellerUsername: current.sellerUsername,
+          sellerimageUrl: current.sellerimageUrl,
+          sellerId: current.sellerId,
+          rating: current.rating,
+          status: 'IN_PROGRESS',
+          orderCreated: current.orderCreated,
+          deliveryDate: current.deliveryDate,
+          servicePrice: current.servicePrice,
+          platformRate: current.platformRate,
+          platformFee: current.platformFee,
+          buyerId: current.buyerId,
+          proofUrl: [], // Clear proof URLs
+          isCancalProofSubmitted: false,
+          timeline: _generateTimeline(
+            status: 'IN_PROGRESS',
+            createdAt: current.orderCreated.isNotEmpty
+                ? current.orderCreated
+                : null,
+            deliveryDate: current.deliveryDate.isNotEmpty
+                ? current.deliveryDate
+                : null,
+            updatedAt: updatedAt,
+          ),
+        );
+        return true;
+      } else {
+        EasyLoading.showError('Failed: ${resp.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      EasyLoading.showError('Rejection error: $e');
       return false;
     }
   }
