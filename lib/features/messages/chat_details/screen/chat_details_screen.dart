@@ -17,6 +17,7 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/core/endpoint.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ChatDetailsScreen extends StatelessWidget {
   ChatDetailsScreen({super.key});
@@ -230,7 +231,9 @@ class ChatDetailsScreen extends StatelessWidget {
       recipientId: recipientId,
       content: '',
       serviceId: sid,
-      serviceRequestId: serviceRequestId?.isNotEmpty == true ? serviceRequestId : null,
+      serviceRequestId: serviceRequestId?.isNotEmpty == true
+          ? serviceRequestId
+          : null,
     );
 
     await Future.delayed(Duration(milliseconds: 2000));
@@ -386,9 +389,7 @@ class ChatDetailsScreen extends StatelessWidget {
                                             MediaQuery.of(context).size.width *
                                             0.75,
                                       ),
-                                      child:
-                                      
-                                       Container(
+                                      child: Container(
                                         margin: EdgeInsets.only(bottom: 8),
                                         padding: EdgeInsets.all(14),
                                         decoration: BoxDecoration(
@@ -406,13 +407,42 @@ class ChatDetailsScreen extends StatelessWidget {
                                               CrossAxisAlignment.start,
                                           children: [
                                             // Title with service name and price
-                                            Text(
-                                              '${msgItem.service!.serviceName} - \$${msgItem.service!.price}',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 13,
-                                              ),
+                                            Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text(
+                                                  '${msgItem.service!.serviceName} - \$${msgItem.service!.price}',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 13,
+                                                  ),
+                                                ),
+
+                                                if (msgItem.service!.serviceType == 'SOCIAL_POST' &&
+                                                    (msgItem.serviceRequest?.uploadedFileUrl.isNotEmpty ?? false))
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      final urls = msgItem
+                                                          .serviceRequest!
+                                                          .uploadedFileUrl
+                                                          .join('\n');
+                                                      SharePlus.instance.share(
+                                                        ShareParams(
+                                                          text: urls,
+                                                          subject: msgItem.service!.serviceName,
+                                                        ),
+                                                      );
+                                                    },
+                                                    child: Icon(
+                                                      Icons.share,
+                                                      color: Colors.white,
+                                                      size: 18,
+                                                    ),
+                                                  )
+                                                else
+                                                  SizedBox.shrink(),
+                                              ],
                                             ),
                                             SizedBox(height: 12),
                                             // Delivery date
@@ -435,37 +465,63 @@ class ChatDetailsScreen extends StatelessWidget {
                                             ),
 
                                             // Service request extra details
-                                            if (msgItem.serviceRequest?.hasExtraDetails == true) ...[
+                                            if (msgItem
+                                                    .serviceRequest
+                                                    ?.hasExtraDetails ==
+                                                true) ...[
                                               SizedBox(height: 10),
-                                              Divider(color: Colors.white12, height: 1),
+                                              Divider(
+                                                color: Colors.white12,
+                                                height: 1,
+                                              ),
                                               SizedBox(height: 10),
 
                                               // Caption / Instructions
-                                              if (msgItem.serviceRequest!.captionOrInstructions?.isNotEmpty == true)
+                                              if (msgItem
+                                                      .serviceRequest!
+                                                      .captionOrInstructions
+                                                      ?.isNotEmpty ==
+                                                  true)
                                                 Padding(
-                                                  padding: EdgeInsets.only(bottom: 8),
+                                                  padding: EdgeInsets.only(
+                                                    bottom: 8,
+                                                  ),
                                                   child: Row(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
-                                                      Icon(Icons.notes, color: Colors.white54, size: 14),
+                                                      Icon(
+                                                        Icons.notes,
+                                                        color: Colors.white54,
+                                                        size: 14,
+                                                      ),
                                                       SizedBox(width: 6),
                                                       Expanded(
                                                         child: Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
                                                           children: [
                                                             Text(
                                                               'Instructions',
                                                               style: TextStyle(
-                                                                color: Colors.white38,
+                                                                color: Colors
+                                                                    .white38,
                                                                 fontSize: 10,
-                                                                fontWeight: FontWeight.w500,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
                                                               ),
                                                             ),
                                                             SizedBox(height: 2),
                                                             Text(
-                                                              msgItem.serviceRequest!.captionOrInstructions!,
+                                                              msgItem
+                                                                  .serviceRequest!
+                                                                  .captionOrInstructions!,
                                                               style: TextStyle(
-                                                                color: Colors.white70,
+                                                                color: Colors
+                                                                    .white70,
                                                                 fontSize: 12,
                                                               ),
                                                             ),
@@ -477,31 +533,52 @@ class ChatDetailsScreen extends StatelessWidget {
                                                 ),
 
                                               // Special Notes
-                                              if (msgItem.serviceRequest!.specialNotes?.isNotEmpty == true)
+                                              if (msgItem
+                                                      .serviceRequest!
+                                                      .specialNotes
+                                                      ?.isNotEmpty ==
+                                                  true)
                                                 Padding(
-                                                  padding: EdgeInsets.only(bottom: 8),
+                                                  padding: EdgeInsets.only(
+                                                    bottom: 8,
+                                                  ),
                                                   child: Row(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
-                                                      Icon(Icons.sticky_note_2_outlined, color: Colors.white54, size: 14),
+                                                      Icon(
+                                                        Icons
+                                                            .sticky_note_2_outlined,
+                                                        color: Colors.white54,
+                                                        size: 14,
+                                                      ),
                                                       SizedBox(width: 6),
                                                       Expanded(
                                                         child: Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
                                                           children: [
                                                             Text(
                                                               'Special Notes',
                                                               style: TextStyle(
-                                                                color: Colors.white38,
+                                                                color: Colors
+                                                                    .white38,
                                                                 fontSize: 10,
-                                                                fontWeight: FontWeight.w500,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
                                                               ),
                                                             ),
                                                             SizedBox(height: 2),
                                                             Text(
-                                                              msgItem.serviceRequest!.specialNotes!,
+                                                              msgItem
+                                                                  .serviceRequest!
+                                                                  .specialNotes!,
                                                               style: TextStyle(
-                                                                color: Colors.white70,
+                                                                color: Colors
+                                                                    .white70,
                                                                 fontSize: 12,
                                                               ),
                                                             ),
@@ -513,30 +590,48 @@ class ChatDetailsScreen extends StatelessWidget {
                                                 ),
 
                                               // Promotion Date
-                                              if (msgItem.serviceRequest!.promotionDate?.isNotEmpty == true)
+                                              if (msgItem
+                                                      .serviceRequest!
+                                                      .promotionDate
+                                                      ?.isNotEmpty ==
+                                                  true)
                                                 Padding(
-                                                  padding: EdgeInsets.only(bottom: 8),
+                                                  padding: EdgeInsets.only(
+                                                    bottom: 8,
+                                                  ),
                                                   child: Row(
                                                     children: [
-                                                      Icon(Icons.event, color: Colors.white54, size: 14),
+                                                      Icon(
+                                                        Icons.event,
+                                                        color: Colors.white54,
+                                                        size: 14,
+                                                      ),
                                                       SizedBox(width: 6),
                                                       Expanded(
                                                         child: Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
                                                           children: [
                                                             Text(
                                                               'Promotion Date',
                                                               style: TextStyle(
-                                                                color: Colors.white38,
+                                                                color: Colors
+                                                                    .white38,
                                                                 fontSize: 10,
-                                                                fontWeight: FontWeight.w500,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
                                                               ),
                                                             ),
                                                             SizedBox(height: 2),
                                                             Text(
-                                                              msgItem.serviceRequest!.promotionDate!,
+                                                              msgItem
+                                                                  .serviceRequest!
+                                                                  .promotionDate!,
                                                               style: TextStyle(
-                                                                color: Colors.white70,
+                                                                color: Colors
+                                                                    .white70,
                                                                 fontSize: 12,
                                                               ),
                                                             ),
@@ -548,22 +643,37 @@ class ChatDetailsScreen extends StatelessWidget {
                                                 ),
 
                                               // Uploaded Files
-                                              if (msgItem.serviceRequest!.uploadedFileUrl.isNotEmpty)
+                                              if (msgItem
+                                                  .serviceRequest!
+                                                  .uploadedFileUrl
+                                                  .isNotEmpty)
                                                 Padding(
-                                                  padding: EdgeInsets.only(bottom: 8),
+                                                  padding: EdgeInsets.only(
+                                                    bottom: 8,
+                                                  ),
                                                   child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Row(
                                                         children: [
-                                                          Icon(Icons.attach_file, color: Colors.white54, size: 14),
+                                                          Icon(
+                                                            Icons.attach_file,
+                                                            color:
+                                                                Colors.white54,
+                                                            size: 14,
+                                                          ),
                                                           SizedBox(width: 6),
                                                           Text(
                                                             'Attachments',
                                                             style: TextStyle(
-                                                              color: Colors.white38,
+                                                              color: Colors
+                                                                  .white38,
                                                               fontSize: 10,
-                                                              fontWeight: FontWeight.w500,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
                                                             ),
                                                           ),
                                                         ],
@@ -572,24 +682,58 @@ class ChatDetailsScreen extends StatelessWidget {
                                                       Wrap(
                                                         spacing: 6,
                                                         runSpacing: 4,
-                                                        children: msgItem.serviceRequest!.uploadedFileUrl.map((url) {
-                                                          final name = url.split('/').last;
+                                                        children: msgItem.serviceRequest!.uploadedFileUrl.map((
+                                                          url,
+                                                        ) {
+                                                          final name = url
+                                                              .split('/')
+                                                              .last;
                                                           return GestureDetector(
-                                                            onTap: () => _downloadFile(url),
+                                                            onTap: () =>
+                                                                _downloadFile(
+                                                                  url,
+                                                                ),
                                                             child: Container(
-                                                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                              padding:
+                                                                  EdgeInsets.symmetric(
+                                                                    horizontal:
+                                                                        8,
+                                                                    vertical: 4,
+                                                                  ),
                                                               decoration: BoxDecoration(
-                                                                color: Colors.grey[700],
-                                                                borderRadius: BorderRadius.circular(6),
+                                                                color: Colors
+                                                                    .grey[700],
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      6,
+                                                                    ),
                                                               ),
                                                               child: Row(
-                                                                mainAxisSize: MainAxisSize.min,
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .min,
                                                                 children: [
-                                                                  Icon(Icons.download, color: Colors.white70, size: 12),
-                                                                  SizedBox(width: 4),
+                                                                  Icon(
+                                                                    Icons
+                                                                        .download,
+                                                                    color: Colors
+                                                                        .white70,
+                                                                    size: 12,
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 4,
+                                                                  ),
                                                                   Text(
-                                                                    name.length > 18 ? '${name.substring(0, 15)}...' : name,
-                                                                    style: TextStyle(color: Colors.white70, fontSize: 11),
+                                                                    name.length >
+                                                                            18
+                                                                        ? '${name.substring(0, 15)}...'
+                                                                        : name,
+                                                                    style: TextStyle(
+                                                                      color: Colors
+                                                                          .white70,
+                                                                      fontSize:
+                                                                          11,
+                                                                    ),
                                                                   ),
                                                                 ],
                                                               ),
@@ -612,19 +756,32 @@ class ChatDetailsScreen extends StatelessWidget {
                                                 : isMine) // Regular: show to sender only
                                               SizedBox(
                                                 width: double.infinity,
-                                                child: msgItem.serviceRequest?.isPaid == true
+                                                child:
+                                                    msgItem
+                                                            .serviceRequest
+                                                            ?.isPaid ==
+                                                        true
                                                     ? Container(
-                                                        padding: EdgeInsets.symmetric(vertical: 10),
+                                                        padding:
+                                                            EdgeInsets.symmetric(
+                                                              vertical: 10,
+                                                            ),
                                                         decoration: BoxDecoration(
-                                                          color: Colors.green[700],
-                                                          borderRadius: BorderRadius.circular(6),
+                                                          color:
+                                                              Colors.green[700],
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                6,
+                                                              ),
                                                         ),
-                                                        alignment: Alignment.center,
+                                                        alignment:
+                                                            Alignment.center,
                                                         child: Text(
                                                           'Paid',
                                                           style: TextStyle(
                                                             color: Colors.white,
-                                                            fontWeight: FontWeight.w600,
+                                                            fontWeight:
+                                                                FontWeight.w600,
                                                             fontSize: 13,
                                                           ),
                                                         ),
@@ -632,7 +789,8 @@ class ChatDetailsScreen extends StatelessWidget {
                                                     : ElevatedButton(
                                                         style: ElevatedButton.styleFrom(
                                                           backgroundColor:
-                                                              AppColors.redColor,
+                                                              AppColors
+                                                                  .redColor,
                                                           padding:
                                                               EdgeInsets.symmetric(
                                                                 vertical: 10,
@@ -645,12 +803,18 @@ class ChatDetailsScreen extends StatelessWidget {
                                                           ),
                                                         ),
                                                         onPressed: () async {
-                                                          final result = await Get.to(
-                                                            () => PaymentPage(),
-                                                            arguments: msgItem,
-                                                          );
+                                                          final result =
+                                                              await Get.to(
+                                                                () =>
+                                                                    PaymentPage(),
+                                                                arguments:
+                                                                    msgItem,
+                                                              );
                                                           if (result == true) {
-                                                            controller.markMessageAsPaid(msgItem.id);
+                                                            controller
+                                                                .markMessageAsPaid(
+                                                                  msgItem.id,
+                                                                );
                                                           }
                                                         },
                                                         child: Text(
