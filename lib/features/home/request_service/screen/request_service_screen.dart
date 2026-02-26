@@ -234,11 +234,13 @@ class RequestServiceScreen extends StatelessWidget {
                 buttonText: "Send Request",
                 onTap: () async {
                   try {
-                    // Submit the service request first
-                    await controller.submitServiceRequest(
-                      serviceId: service.id,                      
+                    // Submit the service request first and await the result
+                    final srData = await controller.submitServiceRequest(
+                      serviceId: service.id,
                       price: service.price.toDouble(),
                     );
+                    final serviceRequestId = srData?['id']?.toString();
+                    print('🔥 [REQUEST SERVICE] serviceRequestId: $serviceRequestId');
 
                     // Send message with service ID to the service provider
                     final messagesController = Get.find<MessagesController>();
@@ -329,6 +331,8 @@ class RequestServiceScreen extends StatelessWidget {
                           'isNewConversation': false,
                           'sendInitialServiceRequest': true,
                           'initialServiceId': service.id,
+                          'serviceRequestId': serviceRequestId,
+                          'serviceRequestData': srData,
                         },
                       );
                     } else {
@@ -354,6 +358,8 @@ class RequestServiceScreen extends StatelessWidget {
                           'isNewConversation': true,
                           'sendInitialServiceRequest': true,
                           'initialServiceId': service.id,
+                          'serviceRequestId': serviceRequestId,
+                          'serviceRequestData': srData,
                         },
                       );
                     }

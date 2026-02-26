@@ -7,6 +7,7 @@ class ChatMessage {
   final String conversationId;
   final String? serviceId;
   final ServiceInfo? service;
+  final ServiceRequestInfo? serviceRequest;
   final SenderInfo sender;
 
   ChatMessage({
@@ -18,6 +19,7 @@ class ChatMessage {
     required this.conversationId,
     this.serviceId,
     this.service,
+    this.serviceRequest,
     required this.sender,
   });
 
@@ -35,6 +37,11 @@ class ChatMessage {
       service: json['service'] != null
           ? ServiceInfo.fromJson(json['service'])
           : null,
+      serviceRequest: (json['serviceRequest'] ?? json['service_request']) != null
+          ? ServiceRequestInfo.fromJson(
+              json['serviceRequest'] ?? json['service_request'],
+            )
+          : null,
       sender: SenderInfo.fromJson(json['sender']),
     );
   }
@@ -49,8 +56,24 @@ class ChatMessage {
       'conversationId': conversationId,
       'serviceId': serviceId,
       'service': service?.toJson(),
+      'serviceRequest': serviceRequest?.toJson(),
       'sender': sender.toJson(),
     };
+  }
+
+  ChatMessage copyWith({ServiceRequestInfo? serviceRequest}) {
+    return ChatMessage(
+      id: id,
+      content: content,
+      files: files,
+      createdAt: createdAt,
+      senderId: senderId,
+      conversationId: conversationId,
+      serviceId: serviceId,
+      service: service,
+      serviceRequest: serviceRequest ?? this.serviceRequest,
+      sender: sender,
+    );
   }
 }
 
@@ -72,6 +95,50 @@ class SenderInfo {
   Map<String, dynamic> toJson() {
     return {'id': id, 'full_name': fullName, 'profilePhoto': profilePhoto};
   }
+}
+
+class ServiceRequestInfo {
+  final String? captionOrInstructions;
+  final String? specialNotes;
+  final String? promotionDate;
+  final List<String> uploadedFileUrl;
+
+  ServiceRequestInfo({
+    this.captionOrInstructions,
+    this.specialNotes,
+    this.promotionDate,
+    this.uploadedFileUrl = const [],
+  });
+
+  bool get hasExtraDetails =>
+      (captionOrInstructions?.isNotEmpty ?? false) ||
+      (specialNotes?.isNotEmpty ?? false) ||
+      (promotionDate?.isNotEmpty ?? false) ||
+      uploadedFileUrl.isNotEmpty;
+
+  factory ServiceRequestInfo.fromJson(Map<String, dynamic> json) {
+    String? nonEmpty(dynamic v) {
+      final s = v?.toString().trim() ?? '';
+      return s.isNotEmpty ? s : null;
+    }
+
+    return ServiceRequestInfo(
+      captionOrInstructions:
+          nonEmpty(json['captionOrInstructions'] ?? json['caption_or_instructions']),
+      specialNotes: nonEmpty(json['specialNotes'] ?? json['special_notes']),
+      promotionDate: nonEmpty(json['promotionDate'] ?? json['promotion_date']),
+      uploadedFileUrl: List<String>.from(
+        json['uploadedFileUrl'] ?? json['uploaded_file_url'] ?? [],
+      ),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'captionOrInstructions': captionOrInstructions,
+        'specialNotes': specialNotes,
+        'promotionDate': promotionDate,
+        'uploadedFileUrl': uploadedFileUrl,
+      };
 }
 
 class ServiceInfo {

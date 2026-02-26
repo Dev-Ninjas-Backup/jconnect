@@ -25,6 +25,26 @@ class MessagesController extends GetxController {
     ),
   );
 
+  /// Cache of serviceId → ServiceRequestInfo so details survive conversation reloads.
+  final Map<String, ServiceRequestInfo> _serviceRequestCache = {};
+
+  void applyServiceRequest(String serviceId, ServiceRequestInfo info) {
+    _serviceRequestCache[serviceId] = info;
+    _patchMessagesWithCache();
+  }
+
+  void _patchMessagesWithCache() {
+    if (_serviceRequestCache.isEmpty) return;
+    for (int i = 0; i < messages.length; i++) {
+      final msg = messages[i];
+      if (msg.serviceId != null &&
+          _serviceRequestCache.containsKey(msg.serviceId) &&
+          msg.serviceRequest == null) {
+        messages[i] = msg.copyWith(serviceRequest: _serviceRequestCache[msg.serviceId]);
+      }
+    }
+  }
+
   // SharedPreferences helper for auth token management
   final SharedPreferencesHelperController _prefHelper =
       Get.find<SharedPreferencesHelperController>();
@@ -269,6 +289,9 @@ class MessagesController extends GetxController {
         '✅ Loaded ${apiMessages.length} messages from API (deduped) + ${optimisticMessages.length} optimistic',
       );
 
+      // Re-apply any cached service-request details (backend omits these from messages)
+      _patchMessagesWithCache();
+
       // Reset flag after API load is complete
       // API load complete
 
@@ -422,6 +445,7 @@ class MessagesController extends GetxController {
     required String recipientId,
     required String content,
     String? serviceId,
+    String? serviceRequestId,
     List<String>? files,
   }) async {
     print('🔥 [MESSAGES_CONTROLLER] sendMessage called');
@@ -431,6 +455,7 @@ class MessagesController extends GetxController {
     );
     print('🔥 [MESSAGES_CONTROLLER] content: $content');
     print('🔥 [MESSAGES_CONTROLLER] serviceId: $serviceId');
+    print('🔥 [MESSAGES_CONTROLLER] serviceRequestId: $serviceRequestId');
 
     if (content.trim().isEmpty &&
         (files == null || files.isEmpty) &&
@@ -504,6 +529,7 @@ class MessagesController extends GetxController {
         recipientId: targetRecipientId,
         content: content.trim(),
         serviceId: serviceId,
+        serviceRequestId: serviceRequestId,
         files: files,
       );
       print('🔥 [MESSAGES_CONTROLLER] API call successful');

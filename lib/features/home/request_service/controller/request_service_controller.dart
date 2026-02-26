@@ -1,6 +1,7 @@
 
 // ignore_for_file: use_build_context_synchronously, avoid_print
 
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -66,8 +67,8 @@ class RequestServiceController extends GetxController {
     );
   }
 
-  /// Submit service request
-  Future<void> submitServiceRequest({
+  /// Submit service request — returns the full `serviceRequest` JSON on success, null on failure.
+  Future<Map<String, dynamic>?> submitServiceRequest({
     required String serviceId,
     required double price,
   }) async {
@@ -82,9 +83,13 @@ class RequestServiceController extends GetxController {
 
       // Form fields
       request.fields['serviceId'] = serviceId;
-      request.fields['captionOrInstructions'] = captionTextController.text;
-      request.fields['specialNotes'] = specialNoteController.text;
       request.fields['price'] = price.toString();
+      if (captionTextController.text.trim().isNotEmpty) {
+        request.fields['captionOrInstructions'] = captionTextController.text.trim();
+      }
+      if (specialNoteController.text.trim().isNotEmpty) {
+        request.fields['specialNotes'] = specialNoteController.text.trim();
+      }
       if (promotionDate.value != null) {
         request.fields['promotionDate'] = promotionDate.value!.toUtc().toIso8601String();
       }
@@ -99,14 +104,19 @@ class RequestServiceController extends GetxController {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         EasyLoading.showSuccess("Service request created successfully");
-        clearForm();
+        final decoded = jsonDecode(respStr) as Map<String, dynamic>;
+        final srData = decoded['serviceRequest'] as Map<String, dynamic>?;
         print("Response: $respStr");
+        clearForm();
+        return srData;
       } else {
         EasyLoading.showError("Failed: ${response.statusCode}");
         print("Response: $respStr");
+        return null;
       }
     } catch (e) {
       EasyLoading.showError("Error: $e");
+      return null;
     }
   }
 
