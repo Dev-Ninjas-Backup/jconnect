@@ -54,7 +54,8 @@ class OrderTimelineWidget extends StatelessWidget {
     try {
       EasyLoading.show(status: 'Downloading...');
 
-      final url = proofUrl[0];
+      // Download the latest proof (last index)
+      final url = proofUrl.last;
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
@@ -152,7 +153,8 @@ class OrderTimelineWidget extends StatelessWidget {
                                 if (isWaitingForProof &&
                                     timeline
                                         .sublist(0, index)
-                                        .every((s) => s.isCompleted))
+                                        .every((s) => s.isCompleted) &&
+                                    proofUrl.isNotEmpty)
                                   Padding(
                                     padding: EdgeInsets.only(top: 8),
                                     child: GestureDetector(
