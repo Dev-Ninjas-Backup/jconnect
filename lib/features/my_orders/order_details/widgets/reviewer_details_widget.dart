@@ -3,20 +3,47 @@ import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 //import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/my_orders/order_details/model/order_details_model.dart';
 //import 'package:jconnect/features/my_orders/order_details/controller/order_details_controller.dart';
 
-class ReviewerDetails extends StatelessWidget {
+class ReviewerDetails extends StatefulWidget {
   ReviewerDetails({super.key, required this.order});
 
   final OrderDetailsModel? order;
-  final arguments = Get.arguments;
+
+  @override
+  State<ReviewerDetails> createState() => _ReviewerDetailsState();
+}
+
+class _ReviewerDetailsState extends State<ReviewerDetails> {
+  late bool isSeller = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _determineUserRole();
+  }
+
+  Future<void> _determineUserRole() async {
+    final prefs = Get.find<SharedPreferencesHelperController>();
+    final loggedInUserId = await prefs.getUserId();
+    setState(() {
+      isSeller = loggedInUserId == widget.order?.sellerId;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    //final odController = Get.find<OrderDetailsController>();
-    // CHANGED: Use seller image URL from order model instead of profile controller
-    final sellerImageUrl = order?.sellerimageUrl ?? '';
+    final order = widget.order;
+
+    // Determine which user's info to show based on logged-in user's role
+    final displayUsername = isSeller
+        ? (order?.buyerUsername ?? '')
+        : (order?.sellerUsername ?? '');
+    final displayImageUrl = isSeller
+        ? (order?.buyerImageUrl ?? '')
+        : (order?.sellerimageUrl ?? '');
     return Container(
       padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -33,7 +60,7 @@ class ReviewerDetails extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      order!.serviceTitle,
+                      order?.serviceTitle ?? '',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: getTextStyle(
@@ -43,7 +70,7 @@ class ReviewerDetails extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      order!.subServiceTitle,
+                      order?.subServiceTitle ?? '',
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: getTextStyle(
@@ -57,7 +84,7 @@ class ReviewerDetails extends StatelessWidget {
               ),
               SizedBox(width: 8),
               Text(
-                '\$${(order!.servicePrice / 100).toStringAsFixed(2)}',
+                '\$${((order?.servicePrice ?? 0) / 100).toStringAsFixed(2)}',
                 style: getTextStyle(
                   color: AppColors.primaryTextColor,
                   fontweight: FontWeight.w600,
@@ -91,7 +118,7 @@ class ReviewerDetails extends StatelessWidget {
                           //   ),
                           // ),
                           Text(
-                            order!.sellerUsername,
+                            displayUsername,
                             style: getTextStyle(
                               color: AppColors.secondaryTextColor,
                               fontsize: 13,
@@ -100,15 +127,15 @@ class ReviewerDetails extends StatelessWidget {
                         ],
                       ),
                     ),
-                    // CHANGED: Display seller image on the right side
+                    // CHANGED: Display image based on user role (buyer or seller)
                     SizedBox(width: 12),
                     CircleAvatar(
                       radius: 20,
                       backgroundColor: AppColors.secondaryTextColor,
-                      backgroundImage: sellerImageUrl.isNotEmpty
-                          ? NetworkImage(sellerImageUrl)
+                      backgroundImage: displayImageUrl.isNotEmpty
+                          ? NetworkImage(displayImageUrl)
                           : null,
-                      child: sellerImageUrl.isEmpty
+                      child: displayImageUrl.isEmpty
                           ? Icon(
                               Icons.person,
                               color: AppColors.primaryTextColor,
@@ -116,35 +143,10 @@ class ReviewerDetails extends StatelessWidget {
                             )
                           : null,
                     ),
-                    // Row(
-                    //   children: [
-                    //     Icon(Icons.star, color: Colors.amber, size: 18),
-                    //     const SizedBox(width: 4),
-                    //     Obx(() {
-                    //       final avg = odController.sellerAverage.value;
-                    //       String display;
-                    //       if (avg != null) {
-                    //         // show integer when whole number, otherwise 1 decimal
-                    //         display = (avg % 1 == 0)
-                    //             ? avg.toInt().toString()
-                    //             : avg.toStringAsFixed(1);
-                    //       } else {
-                    //         display = order!.rating.toString();
-                    //       }
-                    //       return Text(
-                    //         display,
-                    //         style: getTextStyle(
-                    //           color: Colors.amber,
-                    //           fontsize: 13,
-                    //         ),
-                    //       );
-                    //     }),
-                    //   ],
-                    // ),
                   ],
                 ),
                 SizedBox(height: 8),
-                Text(order!.status, style: getTextStyle(fontsize: 12)),
+                Text(order?.status ?? '', style: getTextStyle(fontsize: 12)),
               ],
             ),
           ),
