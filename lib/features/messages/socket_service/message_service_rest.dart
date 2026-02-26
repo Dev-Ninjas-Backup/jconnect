@@ -42,6 +42,7 @@ class MessageServiceRest {
     required String recipientId,
     required String content,
     String? serviceId,
+    String? serviceRequestId,
     List<String>? files,
   }) async {
     print('🔥 [MESSAGE_SERVICE_REST] sendMessage called');
@@ -80,6 +81,7 @@ class MessageServiceRest {
       'recipientId': sanitizedRecipientId,
       'content': content,
       if (serviceId != null) 'serviceId': serviceId,
+      if (serviceRequestId != null) 'serviceRequestId': serviceRequestId,
       if (files != null) 'files': files,
     };
 
