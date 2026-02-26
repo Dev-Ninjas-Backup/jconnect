@@ -351,8 +351,8 @@ class OrderDetailsScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            // Show Reject Proof button only if proof is pending rejection (isCancalProofSubmitted = true)
-                            if (order.isCancalProofSubmitted)
+                            // Show Reject Proof button only if proof has not been rejected yet (isCancalProofSubmitted = false)
+                            if (!order.isCancalProofSubmitted)
                               Column(
                                 children: [
                                   SizedBox(height: 12),

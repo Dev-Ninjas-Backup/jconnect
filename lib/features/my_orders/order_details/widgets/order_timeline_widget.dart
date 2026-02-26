@@ -172,7 +172,7 @@ class OrderTimelineWidget extends StatelessWidget {
                               ],
                             ),
                           ),
-                          if (step.dateTime.isNotEmpty)
+                          if (step.dateTime.isNotEmpty && index == 0)
                             ConstrainedBox(
                               constraints: BoxConstraints(maxWidth: 140),
                               child: Text(
