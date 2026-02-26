@@ -13,6 +13,10 @@ class OrderDetailsModel {
   final String sellerUsername;
   final String sellerimageUrl;
   final String sellerId;
+  final String buyerName;
+  final String buyerEmail;
+  final String buyerUsername;
+  final String buyerImageUrl;
   final double rating;
   final String status;
   final String orderCreated;
@@ -36,6 +40,10 @@ class OrderDetailsModel {
     required this.sellerUsername,
     required this.sellerimageUrl,
     required this.sellerId,
+    required this.buyerName,
+    required this.buyerEmail,
+    required this.buyerUsername,
+    required this.buyerImageUrl,
     required this.rating,
     required this.status,
     required this.orderCreated,
@@ -99,6 +107,12 @@ class OrderDetailsModel {
     String sellerEmail = pickString(['seller.email'], '');
     String sellerId = pickString(['sellerId'], '');
 
+    // Extract buyer info
+    String buyerName = pickString(['buyer.full_name'], '');
+    String buyerUsername = pickString(['buyer.username'], '');
+    String buyerImage = pickString(['buyer.profilePhoto'], '');
+    String buyerEmail = pickString(['buyer.email'], '');
+
     if (sellerName.isEmpty || sellerEmail.isEmpty) {
       try {
         final profileController = Get.find<ProfileController>();
@@ -151,6 +165,10 @@ class OrderDetailsModel {
       sellerUsername: sellerUsername,
       sellerimageUrl: sellerImage,
       sellerId: sellerId,
+      buyerName: buyerName,
+      buyerEmail: buyerEmail,
+      buyerUsername: buyerUsername,
+      buyerImageUrl: buyerImage,
       rating: pickDouble(['rating', 'review.rating'], 0.0),
       status: pickString(['status'], ''),
       orderCreated: pickString(['createdAt'], ''),
