@@ -545,8 +545,41 @@ class OrderDetailsController extends GetxController {
 
       if (resp.statusCode >= 200 && resp.statusCode < 300) {
         EasyLoading.showSuccess('Proof rejected. Please upload new proof.');
-        // Reset to IN_PROGRESS status with empty proofUrl
+
+        // Parse the response to get isCancalProofSubmitted flag
+        bool isCancalProofSubmitted =
+            true; // Default to true (proof was rejected)
+
+        try {
+          final respJson = jsonDecode(resp.body);
+          if (respJson is Map<String, dynamic>) {
+            if (respJson['isCancalProofSubmitted'] != null) {
+              isCancalProofSubmitted =
+                  respJson['isCancalProofSubmitted'] == true ||
+                  respJson['isCancalProofSubmitted'] == 1 ||
+                  respJson['isCancalProofSubmitted'] == '1' ||
+                  respJson['isCancalProofSubmitted'] == 'true';
+            }
+          }
+        } catch (e) {
+          print('⚠️ [REJECT PROOF] Could not parse response: $e');
+          // Keep default value (true)
+        }
+
+        // Keep status as PROOF_SUBMITTED with isCancalProofSubmitted flag to indicate rejection
         final updatedAt = DateTime.now().toIso8601String();
+        final newTimeline = _generateTimeline(
+          status: 'PROOF_SUBMITTED',
+          createdAt: current.orderCreated.isNotEmpty
+              ? current.orderCreated
+              : null,
+          deliveryDate: current.deliveryDate.isNotEmpty
+              ? current.deliveryDate
+              : null,
+          updatedAt: updatedAt,
+          isCancalProofSubmitted: isCancalProofSubmitted,
+        );
+
         order.value = OrderDetailsModel(
           id: current.id,
           orderCode: current.orderCode,
@@ -559,7 +592,7 @@ class OrderDetailsController extends GetxController {
           sellerimageUrl: current.sellerimageUrl,
           sellerId: current.sellerId,
           rating: current.rating,
-          status: 'IN_PROGRESS',
+          status: 'PROOF_SUBMITTED',
           orderCreated: current.orderCreated,
           deliveryDate: current.deliveryDate,
           servicePrice: current.servicePrice,
@@ -567,17 +600,8 @@ class OrderDetailsController extends GetxController {
           platformFee: current.platformFee,
           buyerId: current.buyerId,
           proofUrl: [], // Clear proof URLs
-          isCancalProofSubmitted: false,
-          timeline: _generateTimeline(
-            status: 'IN_PROGRESS',
-            createdAt: current.orderCreated.isNotEmpty
-                ? current.orderCreated
-                : null,
-            deliveryDate: current.deliveryDate.isNotEmpty
-                ? current.deliveryDate
-                : null,
-            updatedAt: updatedAt,
-          ),
+          isCancalProofSubmitted: isCancalProofSubmitted,
+          timeline: newTimeline,
         );
         return true;
       } else {
