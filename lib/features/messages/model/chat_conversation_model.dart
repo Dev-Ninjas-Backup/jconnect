@@ -98,16 +98,20 @@ class SenderInfo {
 }
 
 class ServiceRequestInfo {
+  final String? id;
   final String? captionOrInstructions;
   final String? specialNotes;
   final String? promotionDate;
   final List<String> uploadedFileUrl;
+  final bool isPaid;
 
   ServiceRequestInfo({
+    this.id,
     this.captionOrInstructions,
     this.specialNotes,
     this.promotionDate,
     this.uploadedFileUrl = const [],
+    this.isPaid = false,
   });
 
   bool get hasExtraDetails =>
@@ -116,6 +120,17 @@ class ServiceRequestInfo {
       (promotionDate?.isNotEmpty ?? false) ||
       uploadedFileUrl.isNotEmpty;
 
+  ServiceRequestInfo copyWith({bool? isPaid}) {
+    return ServiceRequestInfo(
+      id: id,
+      captionOrInstructions: captionOrInstructions,
+      specialNotes: specialNotes,
+      promotionDate: promotionDate,
+      uploadedFileUrl: uploadedFileUrl,
+      isPaid: isPaid ?? this.isPaid,
+    );
+  }
+
   factory ServiceRequestInfo.fromJson(Map<String, dynamic> json) {
     String? nonEmpty(dynamic v) {
       final s = v?.toString().trim() ?? '';
@@ -123,6 +138,7 @@ class ServiceRequestInfo {
     }
 
     return ServiceRequestInfo(
+      id: nonEmpty(json['id']),
       captionOrInstructions:
           nonEmpty(json['captionOrInstructions'] ?? json['caption_or_instructions']),
       specialNotes: nonEmpty(json['specialNotes'] ?? json['special_notes']),
@@ -130,14 +146,17 @@ class ServiceRequestInfo {
       uploadedFileUrl: List<String>.from(
         json['uploadedFileUrl'] ?? json['uploaded_file_url'] ?? [],
       ),
+      isPaid: json['isPaid'] ?? false,
     );
   }
 
   Map<String, dynamic> toJson() => {
+        'id': id,
         'captionOrInstructions': captionOrInstructions,
         'specialNotes': specialNotes,
         'promotionDate': promotionDate,
         'uploadedFileUrl': uploadedFileUrl,
+        'isPaid': isPaid,
       };
 }
 

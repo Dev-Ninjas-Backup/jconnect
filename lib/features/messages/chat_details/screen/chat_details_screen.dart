@@ -603,7 +603,7 @@ class ChatDetailsScreen extends StatelessWidget {
                                             ],
 
                                             SizedBox(height: 12),
-                                            // Pay Now button logic:
+                                            // Pay Now / Paid button logic:
                                             // - For custom services: only recipient (not mine) should pay
                                             // - For regular services: only sender (me) should pay
                                             if (msgItem.service!.isCustom ==
@@ -612,37 +612,57 @@ class ChatDetailsScreen extends StatelessWidget {
                                                 : isMine) // Regular: show to sender only
                                               SizedBox(
                                                 width: double.infinity,
-                                                child: ElevatedButton(
-                                                  style: ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        AppColors.redColor,
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                          vertical: 10,
+                                                child: msgItem.serviceRequest?.isPaid == true
+                                                    ? Container(
+                                                        padding: EdgeInsets.symmetric(vertical: 10),
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.green[700],
+                                                          borderRadius: BorderRadius.circular(6),
                                                         ),
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            6,
+                                                        alignment: Alignment.center,
+                                                        child: Text(
+                                                          'Paid',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontWeight: FontWeight.w600,
+                                                            fontSize: 13,
                                                           ),
-                                                    ),
-                                                  ),
-                                                  onPressed: () {
-                                                    Get.to(
-                                                      () => PaymentPage(),
-                                                      arguments: msgItem,
-                                                    );
-                                                  },
-                                                  child: Text(
-                                                    'Pay Now',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      fontSize: 13,
-                                                    ),
-                                                  ),
-                                                ),
+                                                        ),
+                                                      )
+                                                    : ElevatedButton(
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              AppColors.redColor,
+                                                          padding:
+                                                              EdgeInsets.symmetric(
+                                                                vertical: 10,
+                                                              ),
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  6,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                        onPressed: () async {
+                                                          final result = await Get.to(
+                                                            () => PaymentPage(),
+                                                            arguments: msgItem,
+                                                          );
+                                                          if (result == true) {
+                                                            controller.markMessageAsPaid(msgItem.id);
+                                                          }
+                                                        },
+                                                        child: Text(
+                                                          'Pay Now',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            fontSize: 13,
+                                                          ),
+                                                        ),
+                                                      ),
                                               ),
                                           ],
                                         ),
