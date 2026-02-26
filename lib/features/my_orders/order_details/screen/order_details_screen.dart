@@ -15,6 +15,7 @@ import 'package:jconnect/features/my_orders/order_details/controller/order_detai
 import 'package:jconnect/features/my_orders/order_details/widgets/order_timeline_widget.dart';
 import 'package:jconnect/features/my_orders/order_details/widgets/reviewer_details_widget.dart';
 import 'package:jconnect/features/my_orders/order_details/widgets/review_popup.dart';
+import 'package:intl/intl.dart';
 
 class OrderDetailsScreen extends StatelessWidget {
   const OrderDetailsScreen({super.key});
@@ -72,8 +73,8 @@ class OrderDetailsScreen extends StatelessWidget {
                       child: Column(
                         children: [
                           _buildDetailRow('Order ID', order.orderCode),
-                          _buildDetailRow('Order Created', order.orderCreated),
-                          _buildDetailRow('Delivery Date', order.deliveryDate),
+                          _buildDetailRow('Order Created', _formatDate(order.orderCreated)),
+                          _buildDetailRow('Delivery Date', _formatDate(order.deliveryDate)),
                           _buildDetailRow(
                             'Service Price',
                             '\$${(order.servicePrice / 100).toStringAsFixed(2)}',
@@ -502,6 +503,16 @@ class OrderDetailsScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatDate(String raw) {
+    if (raw.isEmpty) return '-';
+    try {
+      final dt = DateTime.parse(raw).toLocal();
+      return DateFormat('MMM d, yyyy · h:mm a').format(dt);
+    } catch (_) {
+      return raw;
+    }
   }
 
   Widget _buildDetailRow(String title, String value, {bool isBold = false}) {
