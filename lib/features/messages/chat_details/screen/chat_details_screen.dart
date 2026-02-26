@@ -18,6 +18,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/core/endpoint.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:cross_file/cross_file.dart';
 
 class ChatDetailsScreen extends StatelessWidget {
   ChatDetailsScreen({super.key});
@@ -149,6 +150,46 @@ class ChatDetailsScreen extends StatelessWidget {
         'Error downloading file: $e',
         duration: Duration(seconds: 2),
       );
+    }
+  }
+
+  Future<void> _shareFiles(List<String> urls, String subject) async {
+    try {
+      EasyLoading.show(
+        status: 'Preparing files...',
+        maskType: EasyLoadingMaskType.black,
+      );
+
+      final tempDir = await getTemporaryDirectory();
+      final List<XFile> xFiles = [];
+
+      for (final url in urls) {
+        final fileName = url.split('/').last;
+        final filePath = '${tempDir.path}/$fileName';
+        final response = await http.get(Uri.parse(url));
+        if (response.statusCode == 200) {
+          final file = File(filePath);
+          await file.writeAsBytes(response.bodyBytes);
+          xFiles.add(XFile(filePath));
+        }
+      }
+
+      EasyLoading.dismiss();
+
+      if (xFiles.isEmpty) {
+        EasyLoading.showError('No files available to share');
+        return;
+      }
+
+      await SharePlus.instance.share(
+        ShareParams(
+          files: xFiles,
+          subject: subject,
+        ),
+      );
+    } catch (e) {
+      EasyLoading.dismiss();
+      EasyLoading.showError('Error sharing files: $e');
     }
   }
 
@@ -422,18 +463,10 @@ class ChatDetailsScreen extends StatelessWidget {
                                                 if (msgItem.service!.serviceType == 'SOCIAL_POST' &&
                                                     (msgItem.serviceRequest?.uploadedFileUrl.isNotEmpty ?? false))
                                                   GestureDetector(
-                                                    onTap: () {
-                                                      final urls = msgItem
-                                                          .serviceRequest!
-                                                          .uploadedFileUrl
-                                                          .join('\n');
-                                                      SharePlus.instance.share(
-                                                        ShareParams(
-                                                          text: urls,
-                                                          subject: msgItem.service!.serviceName,
-                                                        ),
-                                                      );
-                                                    },
+                                                    onTap: () => _shareFiles(
+                                                      msgItem.serviceRequest!.uploadedFileUrl,
+                                                      msgItem.service!.serviceName,
+                                                    ),
                                                     child: Icon(
                                                       Icons.share,
                                                       color: Colors.white,
