@@ -19,6 +19,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/core/endpoint.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:cross_file/cross_file.dart';
+import 'package:intl/intl.dart';
 
 class ChatDetailsScreen extends StatelessWidget {
   ChatDetailsScreen({super.key});
@@ -659,9 +660,16 @@ class ChatDetailsScreen extends StatelessWidget {
                                                             ),
                                                             SizedBox(height: 2),
                                                             Text(
-                                                              msgItem
-                                                                  .serviceRequest!
-                                                                  .promotionDate!,
+                                                              () {
+                                                                try {
+                                                                  final dt = DateTime.parse(
+                                                                    msgItem.serviceRequest!.promotionDate!,
+                                                                  ).toLocal();
+                                                                  return DateFormat("MMM d, yyyy · h:mm a").format(dt);
+                                                                } catch (_) {
+                                                                  return msgItem.serviceRequest!.promotionDate!;
+                                                                }
+                                                              }(),
                                                               style: TextStyle(
                                                                 color: Colors
                                                                     .white70,
