@@ -250,7 +250,7 @@ class OrderTimelineWidget extends StatelessWidget {
                                     proofUrl.isNotEmpty)
                                   Padding(
                                     padding: EdgeInsets.only(top: 8),
-                                    child: Column(
+                                    child: Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
@@ -265,7 +265,7 @@ class OrderTimelineWidget extends StatelessWidget {
                                             ),
                                           ),
                                         ),
-                                        SizedBox(height: 6),
+                                        SizedBox(width: 20),
                                         GestureDetector(
                                           onTap: _downloadAttachment,
                                           child: Text(
