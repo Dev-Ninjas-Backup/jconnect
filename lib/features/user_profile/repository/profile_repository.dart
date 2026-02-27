@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names, duplicate_ignore
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';

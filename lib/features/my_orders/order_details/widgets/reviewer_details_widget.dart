@@ -8,7 +8,7 @@ import 'package:jconnect/features/my_orders/order_details/model/order_details_mo
 //import 'package:jconnect/features/my_orders/order_details/controller/order_details_controller.dart';
 
 class ReviewerDetails extends StatefulWidget {
-  ReviewerDetails({super.key, required this.order});
+  const ReviewerDetails({super.key, required this.order});
 
   final OrderDetailsModel? order;
 

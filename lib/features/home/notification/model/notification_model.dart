@@ -36,18 +36,14 @@
 //   }
 // }
 
+// ignore_for_file: non_constant_identifier_names, avoid_print
 
 class AppUser {
   final String? id;
   final String? full_name;
   final String? profilePhoto;
 
-  AppUser({
-    this.id,
-    this.full_name,
-
-    this.profilePhoto,
-  });
+  AppUser({this.id, this.full_name, this.profilePhoto});
 
   factory AppUser.fromJson(Map<String, dynamic> json) {
     print('👤 AppUser JSON: $json');
@@ -82,10 +78,10 @@ class AppNotification {
     // Handle both 'metadata' (from HTTP) and 'meta' (from socket)
     final metadata = json['metadata'] ?? json['meta'];
     final currentUserData = metadata?['currentUser'];
-    
+
     print('📱 Notification JSON metadata: $metadata');
     print('📱 Current User Data: $currentUserData');
-    
+
     return AppNotification(
       id: json['id'] as String?,
       type: json['type'] as String?,

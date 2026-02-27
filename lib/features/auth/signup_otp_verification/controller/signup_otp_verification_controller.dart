@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, unused_local_variable
 
 import 'dart:async';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -53,9 +53,7 @@ class SignupOtpVerificationController extends GetxController {
   Future<void> resendCode() async {
     try {
       EasyLoading.show(status: 'Resending code...');
-      final response = await authRepository.resendEmailOtp(
-        email: email,
-      );
+      final response = await authRepository.resendEmailOtp(email: email);
 
       EasyLoading.dismiss();
       EasyLoading.showSuccess('Code resent to your email!');

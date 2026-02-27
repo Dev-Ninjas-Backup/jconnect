@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, unused_local_variable
 
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
@@ -63,14 +63,16 @@ class NotificationController extends GetxController {
 
       notifications.addAll(notificationList);
       unreadCount.value = count;
-      
+
       print(
         "===================Notification Length: ${notificationList.length}, Unread: $count===================  ",
       );
-      
+
       // Debug logs
       for (var i = 0; i < notificationList.length; i++) {
-        print('🔔 Notification $i: ID=${notificationList[i].id}, CurrentUser=${notificationList[i].currentUser?.id}');
+        print(
+          '🔔 Notification $i: ID=${notificationList[i].id}, CurrentUser=${notificationList[i].currentUser?.id}',
+        );
       }
     } catch (e) {
       print("❌ Error fetching notifications: $e");
