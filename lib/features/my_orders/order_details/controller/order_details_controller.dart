@@ -20,6 +20,17 @@ class OrderDetailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _loadOrderFromArguments();
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    // Re-check arguments in case they've been updated
+    _loadOrderFromArguments();
+  }
+
+  void _loadOrderFromArguments() {
     final dynamic arguments = Get.arguments;
 
     dynamic incoming;
@@ -38,6 +49,7 @@ class OrderDetailsController extends GetxController {
     if (rawJson != null) {
       try {
         order.value = OrderDetailsModel.fromJson(rawJson);
+        print('✅ [ORDER DETAILS] Loaded from raw JSON, ID: ${order.value?.id}');
         return;
       } catch (_) {}
     }
@@ -45,11 +57,17 @@ class OrderDetailsController extends GetxController {
     // 2️Already parsed
     if (incoming is OrderDetailsModel) {
       order.value = incoming;
+      print(
+        '✅ [ORDER DETAILS] Loaded from OrderDetailsModel, ID: ${order.value?.id}',
+      );
       return;
     }
 
     // 3️Coming from OrderModel → build + generate timeline
     if (incoming is OrderModel) {
+      print(
+        '📝 [ORDER DETAILS] Loading from OrderModel, orderId: ${incoming.orderId}',
+      );
       final price = incoming.price;
 
       // Extract possible timestamps from the raw JSON when OrderModel lacks them
@@ -113,7 +131,7 @@ class OrderDetailsController extends GetxController {
     }
   }
 
-  // Generates timeline when API doesn’t provide one
+  // Generates timeline when API doesn't provide one
   List<OrderTimelineStep> _generateTimeline({
     required String status,
     String? createdAt,

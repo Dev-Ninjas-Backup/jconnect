@@ -20,6 +20,11 @@ class OrderDetailsScreen extends StatelessWidget {
   const OrderDetailsScreen({super.key});
   @override
   Widget build(BuildContext context) {
+    // Delete previous instance and create a fresh one for each order
+    // The onReady() callback will ensure arguments are properly read
+    if (Get.isRegistered<OrderDetailsController>()) {
+      Get.delete<OrderDetailsController>(force: true);
+    }
     final controller = Get.put(OrderDetailsController());
     final orderController = Get.find<MyOrdersController>();
 
