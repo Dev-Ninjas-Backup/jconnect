@@ -78,8 +78,14 @@ class OrderDetailsScreen extends StatelessWidget {
                       child: Column(
                         children: [
                           _buildDetailRow('Order ID', order.orderCode),
-                          _buildDetailRow('Order Created', _formatDate(order.orderCreated)),
-                          _buildDetailRow('Delivery Date', _formatDate(order.deliveryDate)),
+                          _buildDetailRow(
+                            'Order Created',
+                            _formatDate(order.orderCreated),
+                          ),
+                          _buildDetailRow(
+                            'Delivery Date',
+                            _formatDate(order.deliveryDate),
+                          ),
                           _buildDetailRow(
                             'Service Price',
                             '\$${(order.servicePrice / 100).toStringAsFixed(2)}',
@@ -210,10 +216,15 @@ class OrderDetailsScreen extends StatelessWidget {
                               child: CustomPrimaryButton(
                                 buttonText: 'Cancel Order',
                                 onTap: () async {
-                                  await orderController.updateOrderStatus(
-                                    orderId: order.id.toString(),
-                                    status: OrderStatus.CANCELLED,
-                                  );
+                                  EasyLoading.show(status: 'Cancelling...');
+                                  try {
+                                    await orderController.updateOrderStatus(
+                                      orderId: order.id.toString(),
+                                      status: OrderStatus.CANCELLED,
+                                    );
+                                  } finally {
+                                    EasyLoading.dismiss();
+                                  }
                                 },
                               ),
                             ),
@@ -225,10 +236,15 @@ class OrderDetailsScreen extends StatelessWidget {
                       return CustomPrimaryButton(
                         buttonText: 'Cancel Order',
                         onTap: () async {
-                          await orderController.updateOrderStatus(
-                            orderId: order.id.toString(),
-                            status: OrderStatus.CANCELLED,
-                          );
+                          EasyLoading.show(status: 'Cancelling...');
+                          try {
+                            await orderController.updateOrderStatus(
+                              orderId: order.id.toString(),
+                              status: OrderStatus.CANCELLED,
+                            );
+                          } finally {
+                            EasyLoading.dismiss();
+                          }
                         },
                       );
                     },
@@ -287,10 +303,15 @@ class OrderDetailsScreen extends StatelessWidget {
                               child: CustomPrimaryButton(
                                 buttonText: 'Cancel Order',
                                 onTap: () async {
-                                  await orderController.updateOrderStatus(
-                                    orderId: order.id.toString(),
-                                    status: OrderStatus.CANCELLED,
-                                  );
+                                  EasyLoading.show(status: 'Cancelling...');
+                                  try {
+                                    await orderController.updateOrderStatus(
+                                      orderId: order.id.toString(),
+                                      status: OrderStatus.CANCELLED,
+                                    );
+                                  } finally {
+                                    EasyLoading.dismiss();
+                                  }
                                 },
                               ),
                             ),
@@ -302,10 +323,15 @@ class OrderDetailsScreen extends StatelessWidget {
                       return CustomPrimaryButton(
                         buttonText: 'Cancel Order',
                         onTap: () async {
-                          await orderController.updateOrderStatus(
-                            orderId: order.id.toString(),
-                            status: OrderStatus.CANCELLED,
-                          );
+                          EasyLoading.show(status: 'Cancelling...');
+                          try {
+                            await orderController.updateOrderStatus(
+                              orderId: order.id.toString(),
+                              status: OrderStatus.CANCELLED,
+                            );
+                          } finally {
+                            EasyLoading.dismiss();
+                          }
                         },
                       );
                     },
@@ -387,44 +413,93 @@ class OrderDetailsScreen extends StatelessWidget {
                                   ),
                                 ],
                               ),
+                            SizedBox(height: 12),
+                            CustomPrimaryButton(
+                              buttonText: 'Cancel Order',
+                              onTap: () async {
+                                EasyLoading.show(status: 'Cancelling...');
+                                try {
+                                  await orderController.updateOrderStatus(
+                                    orderId: order.id.toString(),
+                                    status: OrderStatus.CANCELLED,
+                                  );
+                                } finally {
+                                  EasyLoading.dismiss();
+                                }
+                              },
+                            ),
                           ],
                         );
                       }
 
                       // Seller can re-upload proof if it was rejected (isCancalProofSubmitted)
                       if (!isBuyer && order.isCancalProofSubmitted) {
-                        return Row(
+                        return Column(
                           children: [
-                            Expanded(
-                              child: CustomPrimaryButton(
-                                buttonText: 'Upload Proof',
-                                onTap: () async {
-                                  final picker = ImagePicker();
-                                  final picked = await picker.pickImage(
-                                    source: ImageSource.gallery,
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: CustomPrimaryButton(
+                                    buttonText: 'Upload Proof',
+                                    onTap: () async {
+                                      final picker = ImagePicker();
+                                      final picked = await picker.pickImage(
+                                        source: ImageSource.gallery,
+                                      );
+                                      if (picked == null) return;
+                                      final file = File(picked.path);
+                                      final success = await controller
+                                          .uploadProof(file);
+                                      if (success) {
+                                        // timeline updated by controller
+                                        Get.snackbar(
+                                          'Success',
+                                          'Proof uploaded',
+                                        );
+                                        // Refresh orders list in My Orders screen
+                                        try {
+                                          await orderController.loadOrders();
+                                        } catch (_) {}
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 12),
+                            CustomPrimaryButton(
+                              buttonText: 'Cancel Order',
+                              onTap: () async {
+                                EasyLoading.show(status: 'Cancelling...');
+                                try {
+                                  await orderController.updateOrderStatus(
+                                    orderId: order.id.toString(),
+                                    status: OrderStatus.CANCELLED,
                                   );
-                                  if (picked == null) return;
-                                  final file = File(picked.path);
-                                  final success = await controller.uploadProof(
-                                    file,
-                                  );
-                                  if (success) {
-                                    // timeline updated by controller
-                                    Get.snackbar('Success', 'Proof uploaded');
-                                    // Refresh orders list in My Orders screen
-                                    try {
-                                      await orderController.loadOrders();
-                                    } catch (_) {}
-                                  }
-                                },
-                              ),
+                                } finally {
+                                  EasyLoading.dismiss();
+                                }
+                              },
                             ),
                           ],
                         );
                       }
 
-                      // Seller sees nothing (no buttons for seller on PROOF_SUBMITTED unless proof was rejected)
-                      return const SizedBox.shrink();
+                      // Seller sees Cancel button when proof is pending review
+                      return CustomPrimaryButton(
+                        buttonText: 'Cancel Order',
+                        onTap: () async {
+                          EasyLoading.show(status: 'Cancelling...');
+                          try {
+                            await orderController.updateOrderStatus(
+                              orderId: order.id.toString(),
+                              status: OrderStatus.CANCELLED,
+                            );
+                          } finally {
+                            EasyLoading.dismiss();
+                          }
+                        },
+                      );
                     },
                   );
                 }
@@ -496,10 +571,15 @@ class OrderDetailsScreen extends StatelessWidget {
                 return CustomPrimaryButton(
                   buttonText: 'Cancel Order',
                   onTap: () async {
-                    await orderController.updateOrderStatus(
-                      orderId: order.id.toString(),
-                      status: OrderStatus.CANCELLED,
-                    );
+                    EasyLoading.show(status: 'Cancelling...');
+                    try {
+                      await orderController.updateOrderStatus(
+                        orderId: order.id.toString(),
+                        status: OrderStatus.CANCELLED,
+                      );
+                    } finally {
+                      EasyLoading.dismiss();
+                    }
                   },
                 );
               }),

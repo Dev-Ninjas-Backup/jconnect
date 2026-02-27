@@ -37,6 +37,7 @@ class OrderCardWrapper extends StatelessWidget {
           AppRoute.orderDetails,
           // pass both the lightweight OrderModel and the raw JSON (if available)
           arguments: {'order': order, 'raw': order.raw},
+          preventDuplicates: false,
         ),
         child: OrderCard(order: order),
       ),
