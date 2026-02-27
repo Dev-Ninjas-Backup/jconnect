@@ -135,12 +135,7 @@ Future<String?> _collectCardAndCreatePaymentMethod(BuildContext context) async {
           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 16,
-            right: 16,
-            top: 16,
-          ),
+          padding: EdgeInsets.only(bottom: 32, left: 16, right: 16, top: 16),
           child: _CardEntrySheet(
             onCreated: (id) {
               paymentMethodId = id;
@@ -200,8 +195,7 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
           },
         ),
 
-        const SizedBox(height: 20),
-
+        //const SizedBox(height: 10),
         Padding(
           padding: const EdgeInsets.only(bottom: 16),
           child: _loading
