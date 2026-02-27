@@ -283,11 +283,12 @@ class MyOrdersController extends GetxController {
         // Parse response to get message
         String responseMessage = 'Order status updated';
         bool isCancellationPending = false;
+        String message = '';
         
         try {
           final responseJson = jsonDecode(response.body);
           if (responseJson is Map<String, dynamic>) {
-            final message = responseJson['message'] ?? '';
+            message = responseJson['message'] ?? '';
             if (message.isNotEmpty) {
               responseMessage = message;
               // Check if this is a pending cancellation request (don't update UI)
@@ -313,6 +314,11 @@ class MyOrdersController extends GetxController {
         } else {
           print('[ORDER STATUS] Cancellation request sent to seller');
         }
+
+        // Always send cancellation message when status is CANCELLED
+        if (status == OrderStatus.CANCELLED && message.contains('Cancellation request sent to seller successfully')) {
+          await _sendCancellationMessage(orderId, authHeader);
+        }
       } else {
         EasyLoading.showError('Failed to update order');
         print('[ORDER STATUS] Failed: ${response.statusCode}');
@@ -323,8 +329,76 @@ class MyOrdersController extends GetxController {
     }
   }
 
-  void _updateLocalOrderStatus(String orderId, String status) {
-    for (final list in [orders, paidOrders]) {
+  /// Sends a polite cancellation message to the seller when a cancellation request is made.
+  Future<void> _sendCancellationMessage(String orderId, String authHeader) async {
+    try {
+      // Find the order to get the seller's ID
+      OrderModel? targetOrder;
+      for (final o in [...orders, ...paidOrders]) {
+        if (o.orderId == orderId) {
+          targetOrder = o;
+          break;
+        }
+      }
+
+      if (targetOrder == null) {
+        print('[CANCEL MSG] Order not found in local list');
+        return;
+      }
+
+      // For a "Purchased" order the buyer is cancelling → recipient is seller
+      // For a "Received" order the seller is cancelling → recipient is buyer
+      final raw = targetOrder.raw;
+      String recipientId = '';
+      if (targetOrder.type == 'Purchased') {
+        // Try top-level sellerId first, then nested seller.id
+        recipientId = (raw?['sellerId']
+            ?? raw?['seller']?['id']
+            ?? raw?['seller']?['_id']
+            ?? '').toString().trim();
+      } else {
+        // Try top-level buyerId first, then nested buyer.id
+        recipientId = (raw?['buyerId']
+            ?? raw?['buyer_id']
+            ?? raw?['buyer']?['id']
+            ?? raw?['buyer']?['_id']
+            ?? '').toString().trim();
+      }
+
+      print('[CANCEL MSG] type: ${targetOrder.type}, recipientId: "$recipientId"');
+      print('[CANCEL MSG] raw keys: ${raw?.keys.toList()}');
+
+      if (recipientId.isEmpty) {
+        print('[CANCEL MSG] Could not determine recipient ID — aborting');
+        return;
+      }
+
+      final cancellationText =
+          "Hope you're doing well. I would like to kindly cancel my order "
+          "(Order ID: ${targetOrder.orderCode}). "
+          "Please let me know if any further action is required from my side. "
+          "Thank you for your understanding.";
+
+      final response = await http.post(
+        Uri.parse('${Endpoint.sendMessage}/$recipientId'),
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'recipientId': recipientId,
+          'content': cancellationText,
+        }),
+      );
+
+      print('[CANCEL MSG] Status: ${response.statusCode}');
+      print('[CANCEL MSG] Body: ${response.body}');
+    } catch (e) {
+      print('[CANCEL MSG] Error sending cancellation message: $e');
+    }
+  }
+
+  void _updateLocalOrderStatus(String orderId, String status) {    for (final list in [orders, paidOrders]) {
       final index = list.indexWhere((order) => order.orderId == orderId);
       if (index != -1) {
         // Update the raw json if available, otherwise update the status
