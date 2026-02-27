@@ -45,14 +45,26 @@ class MyOrdersScreen extends StatelessWidget {
 
                   final list = controller.filteredOrders;
 
-                  if (list.isEmpty) {
-                    return OrderEmptyState();
-                  }
-
-                  return ListView.builder(
-                    itemCount: list.length,
-                    itemBuilder: (context, index) =>
-                        OrderCardWrapper(order: list[index]),
+                  return RefreshIndicator(
+                    color: AppColors.redColor,
+                    onRefresh: () => controller.loadOrders(),
+                    child: list.isEmpty
+                        ? ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.5,
+                                child: OrderEmptyState(),
+                              ),
+                            ],
+                          )
+                        : ListView.builder(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            itemCount: list.length,
+                            itemBuilder: (context, index) =>
+                                OrderCardWrapper(order: list[index]),
+                          ),
                   );
                 }),
               ),
