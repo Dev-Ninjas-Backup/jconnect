@@ -18,7 +18,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/core/endpoint.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:cross_file/cross_file.dart';
 import 'package:intl/intl.dart';
 
 class ChatDetailsScreen extends StatelessWidget {
@@ -183,10 +182,7 @@ class ChatDetailsScreen extends StatelessWidget {
       }
 
       await SharePlus.instance.share(
-        ShareParams(
-          files: xFiles,
-          subject: subject,
-        ),
+        ShareParams(files: xFiles, subject: subject),
       );
     } catch (e) {
       EasyLoading.dismiss();
@@ -450,7 +446,9 @@ class ChatDetailsScreen extends StatelessWidget {
                                           children: [
                                             // Title with service name and price
                                             Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Text(
                                                   '${msgItem.service!.serviceName} - \$${msgItem.service!.price}',
@@ -461,12 +459,23 @@ class ChatDetailsScreen extends StatelessWidget {
                                                   ),
                                                 ),
 
-                                                if (msgItem.service!.serviceType == 'SOCIAL_POST' &&
-                                                    (msgItem.serviceRequest?.uploadedFileUrl.isNotEmpty ?? false))
+                                                if (msgItem
+                                                            .service!
+                                                            .serviceType ==
+                                                        'SOCIAL_POST' &&
+                                                    (msgItem
+                                                            .serviceRequest
+                                                            ?.uploadedFileUrl
+                                                            .isNotEmpty ??
+                                                        false))
                                                   GestureDetector(
                                                     onTap: () => _shareFiles(
-                                                      msgItem.serviceRequest!.uploadedFileUrl,
-                                                      msgItem.service!.serviceName,
+                                                      msgItem
+                                                          .serviceRequest!
+                                                          .uploadedFileUrl,
+                                                      msgItem
+                                                          .service!
+                                                          .serviceName,
                                                     ),
                                                     child: Icon(
                                                       Icons.share,
@@ -663,11 +672,17 @@ class ChatDetailsScreen extends StatelessWidget {
                                                               () {
                                                                 try {
                                                                   final dt = DateTime.parse(
-                                                                    msgItem.serviceRequest!.promotionDate!,
+                                                                    msgItem
+                                                                        .serviceRequest!
+                                                                        .promotionDate!,
                                                                   ).toLocal();
-                                                                  return DateFormat("MMM d, yyyy · h:mm a").format(dt);
+                                                                  return DateFormat(
+                                                                    "MMM d, yyyy · h:mm a",
+                                                                  ).format(dt);
                                                                 } catch (_) {
-                                                                  return msgItem.serviceRequest!.promotionDate!;
+                                                                  return msgItem
+                                                                      .serviceRequest!
+                                                                      .promotionDate!;
                                                                 }
                                                               }(),
                                                               style: TextStyle(

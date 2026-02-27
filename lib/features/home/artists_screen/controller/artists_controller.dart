@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -97,18 +99,15 @@ class ArtistsController extends GetxController {
     }
   }
 
-  Future<void> sendInquiry({
-    required String userID,
-  }) async {
-    final url = Uri.parse(
-      "${Endpoint.baseUrl}/users/$userID/inquiry",
-    );
+  Future<void> sendInquiry({required String userID}) async {
+    final url = Uri.parse("${Endpoint.baseUrl}/users/$userID/inquiry");
 
     try {
       await http.get(
         url,
         headers: {
-          "Authorization": "Bearer ${sharedPreferencesHelperController.getAccessRowToken()}",
+          "Authorization":
+              "Bearer ${sharedPreferencesHelperController.getAccessRowToken()}",
           "Accept": "application/json",
         },
       );

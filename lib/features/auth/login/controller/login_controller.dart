@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, unnecessary_nullable_for_final_variable_declarations, await_only_futures
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

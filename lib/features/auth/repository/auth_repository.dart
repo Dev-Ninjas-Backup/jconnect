@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:jconnect/core/endpoint.dart';
@@ -96,16 +98,12 @@ class AuthRepository {
     }
   }
 
-  Future<Map<String, dynamic>> resendEmailOtp({
-    required String email,
-  }) async {
+  Future<Map<String, dynamic>> resendEmailOtp({required String email}) async {
     try {
       final response = await http.post(
         Uri.parse(Endpoint.resendEmailOtp),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-        }),
+        body: jsonEncode({'email': email}),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -139,7 +137,4 @@ class AuthRepository {
       throw Exception('Login error: $e');
     }
   }
-
-
-  
 }
