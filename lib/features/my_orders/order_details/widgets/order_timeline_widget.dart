@@ -45,6 +45,99 @@ class OrderTimelineWidget extends StatelessWidget {
     }
   }
 
+  Future<void> _viewAttachment(BuildContext context) async {
+    if (proofUrl.isEmpty) {
+      EasyLoading.showError('No attachment available');
+      return;
+    }
+
+    try {
+      final url = proofUrl.last;
+
+      // Show dialog with image preview
+      showDialog(
+        context: context,
+        builder: (context) => Dialog(
+          backgroundColor: AppColors.backGroundColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: AppColors.secondaryTextColor),
+          ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 400, maxHeight: 500),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Attachment Preview',
+                        style: getTextStyle(
+                          color: AppColors.primaryTextColor,
+                          fontweight: FontWeight.w600,
+                          fontsize: 16,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Icon(
+                          Icons.close,
+                          color: AppColors.secondaryTextColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Divider(
+                  color: AppColors.secondaryTextColor.withValues(alpha: 0.3),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Image.network(
+                      url,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Center(
+                          child: Text(
+                            'Failed to load image',
+                            style: getTextStyle(
+                              color: AppColors.secondaryTextColor,
+                              fontsize: 14,
+                            ),
+                          ),
+                        );
+                      },
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                : null,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AppColors.redColor,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    } catch (e) {
+      EasyLoading.showError('Error: $e');
+    }
+  }
+
   Future<void> _downloadAttachment() async {
     if (proofUrl.isEmpty) {
       EasyLoading.showError('No attachment available');
@@ -157,16 +250,34 @@ class OrderTimelineWidget extends StatelessWidget {
                                     proofUrl.isNotEmpty)
                                   Padding(
                                     padding: EdgeInsets.only(top: 8),
-                                    child: GestureDetector(
-                                      onTap: _downloadAttachment,
-                                      child: Text(
-                                        'Download Attachment',
-                                        style: getTextStyle(
-                                          color: AppColors.redColor,
-                                          fontsize: 10,
-                                          fontweight: FontWeight.w500,
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () => _viewAttachment(context),
+                                          child: Text(
+                                            'View Attachment',
+                                            style: getTextStyle(
+                                              color: AppColors.redColor,
+                                              fontsize: 10,
+                                              fontweight: FontWeight.w500,
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                        SizedBox(width: 20),
+                                        GestureDetector(
+                                          onTap: _downloadAttachment,
+                                          child: Text(
+                                            'Download Attachment',
+                                            style: getTextStyle(
+                                              color: AppColors.redColor,
+                                              fontsize: 10,
+                                              fontweight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                               ],

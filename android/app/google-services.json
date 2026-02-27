@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "837643959794-23kmv6acdhtov3st2552bb309b6c7h22.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jconnectApp",
+            "certificate_hash": "103276efb61b3881cb92ac04bc3554aec1596396"
+          }
+        },
+        {
           "client_id": "837643959794-b1sjtpdmo54vo4u1b74q29ehqm454cp5.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
