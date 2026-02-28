@@ -102,11 +102,12 @@ class ArtistsYouKnow extends StatelessWidget {
               borderRadius: 10.r,
               borderWidth: 1,
               gradientColors: [Colors.white, Colors.white.withOpacity(0.5)],
-              padding: EdgeInsets.all(0),
+              padding: EdgeInsetsGeometry.zero,
+              // EdgeInsets.symmetric(horizontal: 10.w, vertical: 16.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /// Profile photo (edge-to-edge, no gap)
+                  /// Profile photo
                   ClipRRect(
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(10.r),
@@ -117,226 +118,199 @@ class ArtistsYouKnow extends StatelessWidget {
                             artist.profilePhoto!.trim().isNotEmpty
                         ? Image.network(
                             artist.profilePhoto!,
-                            height: 80.h,
+                            height: 112.h,
                             width: double.infinity,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
-                              height: 80.h,
-                              color: Colors.black12,
-                              alignment: Alignment.center,
-                              child: Icon(
-                                Icons.broken_image,
-                                size: 80.h,
-                                color: Colors.white,
+                            errorBuilder: (_, __, ___) => Center(
+                              child: Padding(
+                                padding: EdgeInsets.only(top: 8),
+                                child: Icon(
+                                  Icons.broken_image,
+                                  size: 80,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           )
-                        : Container(
-                            height: 80.h,
-                            width: double.infinity,
-                            color: Colors.black12,
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.broken_image,
-                              size: 80,
-                              color: Colors.white,
+                        : Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 8),
+                              child: Icon(
+                                Icons.broken_image,
+                                size: 112,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                   ),
 
-                  // rest of content with padding
+                  SizedBox(height: 12.h),
+
+                  /// Name + price
                   Padding(
-                    padding: EdgeInsets.fromLTRB(8.0, 12.h, 8.0, 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: Row(
                       children: [
-                        // Name + price
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                artist.fullName.trim().isEmpty
-                                    ? "Unknown User"
-                                    : artist.fullName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: getTextStyle(
-                                  fontsize: sp(16),
-                                  fontweight: FontWeight.w500,
-                                ),
-                              ),
+                        Expanded(
+                          child: Text(
+                            artist.userName.trim().isEmpty
+                                ? "Unknown User"
+                                : artist.userName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: getTextStyle(
+                              fontsize: sp(16),
+                              fontweight: FontWeight.w500,
                             ),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 8.w,
-                                vertical: 4.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(4.r),
-                                border: Border.all(
-                                  width: 0.25,
-                                  color: AppColors.secondaryTextColor,
-                                ),
-                              ),
-                              child: Text(
-                                "From \$${servicePrice.toStringAsFixed(0)}",
-                                style: getTextStyle(
-                                  fontsize: sp(8),
-                                  color: AppColors.secondaryTextColor,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: 8.h),
-                        Text(
-                          "Services",
-                          style: getTextStyle(
-                            fontsize: sp(10),
-                            color: AppColors.secondaryTextColor,
                           ),
                         ),
-
-                        SizedBox(height: 6.h),
-                        Text(
-                          serviceDesc,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: getTextStyle(
-                            fontsize: sp(10),
-                            color: AppColors.secondaryTextColor,
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8.w,
+                            vertical: 4.h,
                           ),
-                        ),
-
-                        SizedBox(height: 20.h),
-
-                        // Rating
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            RatingBarIndicator(
-                              rating: avgRating,
-                              itemBuilder: (_, __) => const Icon(
-                                Icons.star,
-                                color: Color(0xffBD001F),
-                              ),
-                              itemCount: 5,
-                              itemSize: 14,
-                              unratedColor: const Color(0xFFD96B7D),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(4.r),
+                            border: Border.all(
+                              width: 0.25,
+                              color: AppColors.secondaryTextColor,
                             ),
-                            Text(
-                              "${avgRating.toStringAsFixed(1)} (${reviews.length})",
-                              style: getTextStyle(
-                                fontsize: sp(10),
-                                color: AppColors.secondaryTextColor,
-                              ),
+                          ),
+                          child: Text(
+                            "From \$${servicePrice.toStringAsFixed(2)}",
+                            style: getTextStyle(
+                              fontsize: sp(8),
+                              color: AppColors.secondaryTextColor,
                             ),
-                          ],
-                        ),
-
-                        // avoid Spacer (flex) inside grid tile which may receive
-                        // tight/unbounded constraints; use a fixed spacer instead
-                        SizedBox(height: 12.h),
-
-                        CustomPrimaryButton(
-                          buttonText: "Buy A Service",
-                          onTap: () async {
-                            final artistsDetailsController = Get.put(
-                              ArtistsDetailsController(
-                                networkClient: NetworkClient(
-                                  onUnAuthorize: () {
-                                    if (kDebugMode) {
-                                      print("unauthorized");
-                                    }
-                                  },
-                                ),
-                              ),
-                            );
-                            await artistsDetailsController.fetchArtistById(
-                              artist.id,
-                            );
-                            Get.to(() => ArtistsServiceList());
-                          },
-                          fontSize: sp(10),
-                        ),
-                        SizedBox(height: 12.h),
-                        CustomPrimaryButton(
-                          buttonText: "Buy A Social Post",
-
-                          onTap: () async {
-                            final artistsDetailsController = Get.put(
-                              ArtistsDetailsController(
-                                networkClient: NetworkClient(
-                                  onUnAuthorize: () {
-                                    if (kDebugMode) {
-                                      print("unauthorized");
-                                    }
-                                  },
-                                ),
-                              ),
-                            );
-                            await artistsDetailsController.fetchArtistById(
-                              artist.id,
-                            );
-                            Get.to(() => ArtistsSocialPostList());
-                          },
-
-                          // onTap: () {
-                          //   Get.to(() => ArtistsSocialPostList());
-                          // },
-                          fontSize: sp(10),
-                        ),
-                        SizedBox(height: 12.h),
-
-                        /// Message button
-                        CustomPrimaryButton(
-                          fontSize: sp(10),
-                          buttonText: "Inquire",
-                          onTap: () {
-                            controller.sendInquiry(userID: artist.id);
-
-                            // final messagesController =
-                            //     Get.find<MessagesController>();
-
-                            // final existingChat = messagesController.allChats
-                            //     .firstWhereOrNull(
-                            //       (chat) => chat.participant?.id == artist.id,
-                            //     );
-
-                            // if (existingChat != null &&
-                            //     existingChat.chatId != null) {
-                            //   Get.toNamed(
-                            //     AppRoute.chatDetailsScreen,
-                            //     arguments: {
-                            //       'chatItem': existingChat,
-                            //       'recipientId': artist.id,
-                            //       'isNewConversation': false,
-                            //     },
-                            //   );
-                            // } else {
-                            //   final chatItem = ChatItem(
-                            //     type: 'private',
-                            //     chatId: null,
-                            //     participant: ChatParticipant(
-                            //       id: artist.id,
-                            //       fullName: artist.fullName,
-                            //       profilePhoto: artist.profilePhoto,
-                            //     ),
-                            //   );
-                            //   Get.toNamed(
-                            //     AppRoute.chatDetailsScreen,
-                            //     arguments: {
-                            //       'chatItem': chatItem,
-                            //       'recipientId': artist.id,
-                            //       'isNewConversation': true,
-                            //     },
-                            //   );
-                            // }
-                          },
+                          ),
                         ),
                       ],
+                    ),
+                  ),
+
+                  SizedBox(height: 8.h),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: Text(
+                      "Services",
+                      style: getTextStyle(
+                        fontsize: sp(10),
+                        color: AppColors.secondaryTextColor,
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 6.h),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: Text(
+                      serviceDesc,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: getTextStyle(
+                        fontsize: sp(10),
+                        color: AppColors.secondaryTextColor,
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 10.h),
+
+                  /// Rating
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        RatingBarIndicator(
+                          rating: avgRating,
+                          itemBuilder: (_, __) =>
+                              const Icon(Icons.star, color: Color(0xffBD001F)),
+                          itemCount: 5,
+                          itemSize: 14,
+                          unratedColor: const Color(0xFFD96B7D),
+                        ),
+                        Text(
+                          "${avgRating.toStringAsFixed(1)} (${reviews.length})",
+                          style: getTextStyle(
+                            fontsize: sp(10),
+                            color: AppColors.secondaryTextColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const Spacer(),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: CustomPrimaryButton(
+                      buttonText: "Buy A Service",
+                      onTap: () async {
+                        final artistsDetailsController = Get.put(
+                          ArtistsDetailsController(
+                            networkClient: NetworkClient(
+                              onUnAuthorize: () {
+                                if (kDebugMode) {
+                                  print("unauthorized");
+                                }
+                              },
+                            ),
+                          ),
+                        );
+                        await artistsDetailsController.fetchArtistById(
+                          artist.id,
+                        );
+                        Get.to(() => ArtistsServiceList());
+                      },
+                      fontSize: sp(10),
+                    ),
+                  ),
+                  SizedBox(height: 12.h),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: CustomPrimaryButton(
+                      buttonText: "Buy A Social Post",
+
+                      onTap: () async {
+                        final artistsDetailsController = Get.put(
+                          ArtistsDetailsController(
+                            networkClient: NetworkClient(
+                              onUnAuthorize: () {
+                                if (kDebugMode) {
+                                  print("unauthorized");
+                                }
+                              },
+                            ),
+                          ),
+                        );
+                        await artistsDetailsController.fetchArtistById(
+                          artist.id,
+                        );
+                        Get.to(() => ArtistsSocialPostList());
+                      },
+
+                      // onTap: () {
+                      //   Get.to(() => ArtistsSocialPostList());
+                      // },
+                      fontSize: sp(10),
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+
+                  /// Message button
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 10.h,
+                    ),
+                    child: CustomPrimaryButton(
+                      fontSize: sp(10),
+                      buttonText: "Inquire",
+                      onTap: () {
+                        controller.sendInquiry(userID: artist.id);
+                      },
                     ),
                   ),
                 ],
@@ -348,289 +322,3 @@ class ArtistsYouKnow extends StatelessWidget {
     });
   }
 }
-
-// class ArtistsYouKnow extends StatelessWidget {
-//   final HomeController controller;
-//   const ArtistsYouKnow({required this.controller, super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return SizedBox(
-//       height: 470.h,
-//       child: Obx(() {
-//         // Loading state
-//         if (controller.isLoading.value &&
-//             controller.recentArtistsList.isEmpty) {
-//           return const Center(
-//             child: CircularProgressIndicator(color: Colors.white),
-//           );
-//         }
-
-//         // Empty state
-//         if (controller.recentArtistsList.isEmpty) {
-//           return Center(
-//             child: Text(
-//               "No artists found",
-//               style: getTextStyle(
-//                 fontsize: sp(14),
-//                 color: AppColors.secondaryTextColor,
-//               ),
-//             ),
-//           );
-//         }
-
-//         return ListView.builder(
-//           scrollDirection: Axis.horizontal,
-//           itemCount: controller.recentArtistsList.length,
-//           padding: EdgeInsets.zero,
-//           physics: const BouncingScrollPhysics(),
-//           itemBuilder: (context, index) {
-//             final artist = controller.recentArtistsList[index];
-
-//             // Service info
-//             final firstService = artist.services.isNotEmpty
-//                 ? artist.services.first
-//                 : null;
-//             final serviceDesc =
-//                 firstService?.description.trim().isNotEmpty == true
-//                 ? firstService!.description
-//                 : "No service description available";
-//             final servicePrice = (firstService?.price ?? 0).toDouble();
-
-//             // Rating
-//             final reviews = artist.reviewsReceived;
-//             final avgRating = reviews.isEmpty
-//                 ? 0.0
-//                 : reviews
-//                           .map((r) => r.rating!.toDouble())
-//                           .reduce((a, b) => a + b) /
-//                       reviews.length;
-
-//             return Padding(
-//               padding: EdgeInsets.only(right: 20.w),
-//               child: GestureDetector(
-//                 onTap: () async {
-//                   var artistsDetailsController = Get.put(
-//                     ArtistsDetailsController(
-//                       networkClient: NetworkClient(
-//                         onUnAuthorize: () {
-//                           if (kDebugMode) {
-//                             print("unauthorized");
-//                           }
-//                         },
-//                       ),
-//                     ),
-//                   );
-//                   await artistsDetailsController.fetchArtistById(artist.id);
-//                   Get.toNamed(AppRoute.artistsDetailsPage);
-//                 },
-//                 child: GradientBorderContainer(
-//                   width: 213.w,
-//                   borderRadius: 10.r,
-//                   borderWidth: 1,
-//                   gradientColors: [Colors.white, Colors.white.withOpacity(0.5)],
-//                   padding: EdgeInsets.symmetric(
-//                     horizontal: 10.w,
-//                     vertical: 16.h,
-//                   ),
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       // Profile Photo (Fixed: placeholder + error handling)
-//                       Center(
-//                         child: ClipRRect(
-//                           borderRadius: BorderRadius.circular(100.r),
-//                           child:
-//                               artist.profilePhoto != null &&
-//                                   artist.profilePhoto!.trim().isNotEmpty
-//                               ? Image.network(
-//                                   artist.profilePhoto!,
-//                                   height: 80.h,
-//                                   width: 80.w,
-//                                   fit: BoxFit.cover,
-//                                   loadingBuilder:
-//                                       (context, child, loadingProgress) {
-//                                         if (loadingProgress == null) {
-//                                           return child;
-//                                         }
-//                                         return Container(
-//                                           height: 80.h,
-//                                           width: 80.w,
-//                                           color: Colors.grey[300],
-//                                           child: const Center(
-//                                             child: CircularProgressIndicator(
-//                                               strokeWidth: 2,
-//                                             ),
-//                                           ),
-//                                         );
-//                                       },
-//                                   errorBuilder: (_, __, ___) => Icon(
-//                                     Icons.broken_image,
-//                                     size: 80,
-//                                     color: Colors.white,
-//                                   ),
-//                                 )
-//                               : Icon(
-//                                   Icons.broken_image,
-//                                   size: 80,
-//                                   color: Colors.white,
-//                                 ),
-//                         ),
-//                       ),
-
-//                       SizedBox(height: 12.h),
-
-//                       // Name + Price
-//                       Row(
-//                         children: [
-//                           Expanded(
-//                             child: Text(
-//                               artist.fullName.trim().isEmpty
-//                                   ? "Unknown Artist"
-//                                   : artist.fullName,
-//                               style: getTextStyle(
-//                                 fontsize: sp(16),
-//                                 fontweight: FontWeight.w500,
-//                               ),
-//                               overflow: TextOverflow.ellipsis,
-//                               maxLines: 1,
-//                             ),
-//                           ),
-//                           Container(
-//                             padding: EdgeInsets.symmetric(
-//                               horizontal: 8.w,
-//                               vertical: 4.h,
-//                             ),
-//                             decoration: BoxDecoration(
-//                               color: Colors.white.withOpacity(0.1),
-//                               borderRadius: BorderRadius.circular(4.r),
-//                               border: Border.all(
-//                                 width: 0.25,
-//                                 color: AppColors.secondaryTextColor,
-//                               ),
-//                             ),
-//                             child: Text(
-//                               servicePrice > 0
-//                                   ? "From \$${servicePrice.toStringAsFixed(2)}"
-//                                   : "From \$0.00",
-//                               style: getTextStyle(
-//                                 fontsize: sp(8),
-//                                 color: AppColors.secondaryTextColor,
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-
-//                       SizedBox(height: 8.h),
-//                       Text(
-//                         "Services",
-//                         style: getTextStyle(
-//                           fontsize: sp(10),
-//                           color: AppColors.secondaryTextColor,
-//                         ),
-//                       ),
-//                       SizedBox(height: 8.h),
-//                       Text(
-//                         serviceDesc,
-
-//                         style: getTextStyle(
-//                           fontsize: sp(10),
-//                           color: AppColors.secondaryTextColor,
-//                         ),
-//                         maxLines: 2,
-//                         overflow: TextOverflow.ellipsis,
-//                       ),
-
-//                       SizedBox(height: 20.h),
-
-//                       // Rating
-//                       Row(
-//                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                         children: [
-//                           RatingBarIndicator(
-//                             rating: avgRating,
-//                             itemBuilder: (_, __) => const Icon(
-//                               Icons.star,
-//                               color: Color(0xffBD001F),
-//                             ),
-//                             itemCount: 5,
-//                             itemSize: 14.0,
-//                             direction: Axis.horizontal,
-//                             unratedColor: const Color(0xFFD96B7D),
-//                           ),
-//                           Text(
-//                             "${avgRating.toStringAsFixed(1)} (${reviews.length})",
-//                             style: getTextStyle(
-//                               fontsize: sp(10),
-//                               color: AppColors.secondaryTextColor,
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-
-//                       const Spacer(),
-
-//                       // Buttons
-//                       CustomPrimaryButton(
-//                         buttonText: "Message",
-//                         onTap: () {
-//                           // Get MessagesController to check for existing conversations
-//                           final messagesController =
-//                               Get.find<MessagesController>();
-
-//                           // Check if there's an existing conversation with this artist
-//                           final existingChat = messagesController.allChats
-//                               .firstWhereOrNull(
-//                                 (chat) => chat.participant?.id == artist.id,
-//                               );
-
-//                           if (existingChat != null &&
-//                               existingChat.chatId != null) {
-//                             // Navigate to existing conversation
-//                             Get.toNamed(
-//                               AppRoute.chatDetailsScreen,
-//                               arguments: {
-//                                 'chatItem': existingChat,
-//                                 'recipientId': artist.id,
-//                                 'isNewConversation': false,
-//                               },
-//                             );
-//                           } else {
-//                             // Create new conversation
-//                             final chatItem = ChatItem(
-//                               type: 'private',
-//                               chatId: null, // No existing conversation
-//                               participant: ChatParticipant(
-//                                 id: artist.id,
-//                                 fullName: artist.fullName,
-//                                 profilePhoto: artist.profilePhoto,
-//                               ),
-//                             );
-//                             Get.toNamed(
-//                               AppRoute.chatDetailsScreen,
-//                               arguments: {
-//                                 'chatItem': chatItem,
-//                                 'recipientId': artist.id,
-//                                 'isNewConversation': true,
-//                               },
-//                             );
-//                           }
-//                         },
-//                       ),
-//                       // SizedBox(height: 14.h),
-//                       // CustomSecondaryButton(
-//                       //   buttonText: "Custom Order",
-//                       //   onTap: () {},
-//                       // ),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//             );
-//           },
-//         );
-//       }),
-//     );
-//   }
-// }

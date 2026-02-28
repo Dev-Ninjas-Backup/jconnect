@@ -16,7 +16,9 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     HomeController controller = Get.put(HomeController());
-    NotificationController notificationController = Get.put(NotificationController());
+    NotificationController notificationController = Get.put(
+      NotificationController(),
+    );
     controller.refreshHomeData();
 
     return Scaffold(
@@ -41,8 +43,8 @@ class HomePage extends StatelessWidget {
 
               SizedBox(height: 30.h),
 
-              StartDeal(controller: controller),
-              SizedBox(height: 30.h),
+              //StartDeal(controller: controller),
+              //SizedBox(height: 30.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
