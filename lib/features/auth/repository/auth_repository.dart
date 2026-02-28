@@ -137,4 +137,64 @@ class AuthRepository {
       throw Exception('Login error: $e');
     }
   }
+
+  Future<Map<String, dynamic>> forgotPassword({required String email}) async {
+    try {
+      final response = await http.post(
+        Uri.parse(Endpoint.forgotPassword),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email}),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Forgot password failed: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Forgot password error: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> verifyResetOtp({
+    required String resetToken,
+    required String emailOtp,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse(Endpoint.resetVerifyOtp),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'resetToken': resetToken, 'emailOtp': emailOtp}),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to verify OTP: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Verify OTP error: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> resetPassword({
+    required String resetToken,
+    required String password,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse(Endpoint.resetPassword),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'resetToken': resetToken, 'password': password}),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Reset password failed: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Reset password error: $e');
+    }
+  }
 }

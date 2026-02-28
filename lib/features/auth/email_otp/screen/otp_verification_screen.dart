@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
@@ -7,7 +6,6 @@ import 'package:jconnect/core/common/widgets/custom_appbar.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/features/auth/email_otp/controller/otp_verification_controller.dart';
 import 'package:jconnect/features/auth/email_otp/widget/otp_field.dart';
-import 'package:jconnect/routes/approute.dart';
 
 class OtpVerificationScreen extends StatelessWidget {
   const OtpVerificationScreen({super.key});
@@ -15,7 +13,7 @@ class OtpVerificationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(OtpVerificationController());
-    final otpControllers = List.generate(4, (_) => TextEditingController());
+    final otpController = TextEditingController();
 
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
@@ -26,7 +24,7 @@ class OtpVerificationScreen extends StatelessWidget {
           children: [
             SizedBox(height: 40),
             Text(
-              'Code has been sent to +1 111 ******99',
+              'Code has been sent to ${controller.email}',
               style: getTextStyle(
                 fontsize: 15,
                 fontweight: FontWeight.w400,
@@ -35,7 +33,7 @@ class OtpVerificationScreen extends StatelessWidget {
             ),
             SizedBox(height: 40),
 
-            OTPfield(otpControllers: otpControllers),
+            OTPfield(otpControllers: [otpController]),
 
             SizedBox(height: 30),
 
@@ -73,12 +71,17 @@ class OtpVerificationScreen extends StatelessWidget {
 
             Spacer(),
 
-            CustomPrimaryButton(
-              buttonText: 'Verify',
-              onTap: () {
-                Get.toNamed(AppRoute.newPasswordScreen);
-                EasyLoading.showSuccess('OTP Verified');
-              },
+            Obx(
+              () => CustomPrimaryButton(
+                buttonText: controller.isLoading.value
+                    ? 'Verifying...'
+                    : 'Verify',
+                onTap: controller.isLoading.value
+                    ? () {}
+                    : () {
+                        controller.verifyOtp(otpController.text);
+                      },
+              ),
             ),
           ],
         ),

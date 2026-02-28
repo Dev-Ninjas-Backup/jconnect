@@ -8,6 +8,9 @@ class Endpoint {
   static const String verifyEmailOtp = '$baseUrl/auth/signup-verify-otp';
   static const String resendEmailOtp = '$baseUrl/auth/resend-email';
   static const String login = '$baseUrl/auth/login';
+  static const String forgotPassword = '$baseUrl/auth/forget-password';
+  static const String resetVerifyOtp = '$baseUrl/auth/reset-verify-otp';
+  static const String resetPassword = '$baseUrl/auth/reset-password';
   static const String orders = '$baseUrl/orders/my-orders';
   static const String recentArtis =
       "$baseUrl/users/artist?filter=recently-updated";
@@ -57,7 +60,8 @@ class Endpoint {
   static String withdrawalHistory = "$baseUrl/payments/my-withdrawal-history";
   static String getPaymentMethods = "$baseUrl/payments/my-paymentsss-methods";
   static String deleteUserById(String id) => "$baseUrl/users/$id";
-  static String markServiceRequestPaid(String id) => "$baseUrl/service-requests/$id/is-paid";
+  static String markServiceRequestPaid(String id) =>
+      "$baseUrl/service-requests/$id/is-paid";
   static String followers = "$baseUrl/follow-function/followers";
   static String followings = "$baseUrl/follow-function/followings";
   static String fileUpload =

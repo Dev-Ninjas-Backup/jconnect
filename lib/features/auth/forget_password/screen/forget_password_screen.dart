@@ -37,12 +37,12 @@ class ForgetPasswordScreen extends StatelessWidget {
                     isActive: controller.isEmailSelected.value,
                     onTap: controller.selectEmail,
                   ),
-                  const SizedBox(width: 12),
-                  _buildToggleButton(
-                    title: 'Phone',
-                    isActive: !controller.isEmailSelected.value,
-                    onTap: controller.selectPhone,
-                  ),
+                  // const SizedBox(width: 12),
+                  // _buildToggleButton(
+                  //   title: 'Phone',
+                  //   isActive: !controller.isEmailSelected.value,
+                  //   onTap: controller.selectPhone,
+                  // ),
                 ],
               ),
             ),
@@ -64,8 +64,11 @@ class ForgetPasswordScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     TextField(
+                      controller: controller.emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      style: getTextStyle(color: AppColors.primaryTextColor),
                       decoration: InputDecoration(
-                        hintText: 'Enter your address',
+                        hintText: 'Enter your email address',
                         filled: true,
                         fillColor: Colors.black,
                         border: OutlineInputBorder(
@@ -85,11 +88,22 @@ class ForgetPasswordScreen extends StatelessWidget {
             }),
 
             Spacer(),
-            CustomPrimaryButton(
-              buttonText: 'Continue',
-              onTap: () {
-                Get.toNamed(AppRoute.otpVerificationScreen);
-              },
+            Obx(
+              () => CustomPrimaryButton(
+                buttonText: controller.isLoading.value
+                    ? 'Please wait...'
+                    : 'Continue',
+                onTap: controller.isLoading.value
+                    ? () {}
+                    : () {
+                        if (controller.isEmailSelected.value) {
+                          controller.sendForgotPasswordEmail();
+                        } else {
+                          // TODO: Handle phone forgot password
+                          Get.toNamed(AppRoute.otpVerificationScreen);
+                        }
+                      },
+              ),
             ),
             SizedBox(height: 20),
           ],

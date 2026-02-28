@@ -7,20 +7,18 @@ import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 
 class CongratulationsDialog extends StatelessWidget {
+  final bool isResetMode;
 
   final SharedPreferencesHelperController pref =
       Get.find<SharedPreferencesHelperController>();
-   CongratulationsDialog({
-    super.key,
-  });
+
+  CongratulationsDialog({super.key, this.isResetMode = false});
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Color(0xFF1A1A1A),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 32, horizontal: 24),
         child: Column(
@@ -46,7 +44,9 @@ class CongratulationsDialog extends StatelessWidget {
             ),
             SizedBox(height: 8),
             Text(
-              "Your account is ready to use",
+              isResetMode
+                  ? "Your password has been reset"
+                  : "Your account is ready to use",
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
@@ -58,10 +58,9 @@ class CongratulationsDialog extends StatelessWidget {
             CustomPrimaryButton(
               buttonText: 'Continue',
               onTap: () async {
-              await pref.clearAllData();
-              Get.offAllNamed('/loginScreen');
-            },
-              
+                await pref.clearAllData();
+                Get.offAllNamed('/loginScreen');
+              },
             ),
           ],
         ),
