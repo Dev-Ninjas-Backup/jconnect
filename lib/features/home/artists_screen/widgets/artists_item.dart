@@ -140,7 +140,7 @@ class ArtistsItem extends StatelessWidget {
                               artist.profilePhoto!.trim().isNotEmpty
                           ? Image.network(
                               artist.profilePhoto!,
-                              height: 80.h,
+                              height: 112.h,
                               width: double.infinity,
                               fit: BoxFit.cover,
                               errorBuilder: (_, __, ___) => Center(
@@ -159,7 +159,7 @@ class ArtistsItem extends StatelessWidget {
                                 padding: EdgeInsets.only(top: 8),
                                 child: Icon(
                                   Icons.broken_image,
-                                  size: 80,
+                                  size: 112,
                                   color: Colors.white,
                                 ),
                               ),
@@ -175,9 +175,9 @@ class ArtistsItem extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              artist.fullName.trim().isEmpty
+                              artist.userName.trim().isEmpty
                                   ? "Unknown User"
-                                  : artist.fullName,
+                                  : artist.userName,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: getTextStyle(
@@ -237,7 +237,7 @@ class ArtistsItem extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 10.h),
 
                     /// Rating
                     Padding(
@@ -335,264 +335,11 @@ class ArtistsItem extends StatelessWidget {
                         onTap: () {
                           homeController.sendInquiry(userID: artist.id);
                         },
-
-                        // {
-
-                        //   final messagesController =
-                        //       Get.find<MessagesController>();
-
-                        //   final existingChat = messagesController.allChats
-                        //       .firstWhereOrNull(
-                        //         (chat) => chat.participant?.id == artist.id,
-                        //       );
-
-                        //   if (existingChat != null &&
-                        //       existingChat.chatId != null) {
-                        //     Get.toNamed(
-                        //       AppRoute.chatDetailsScreen,
-                        //       arguments: {
-                        //         'chatItem': existingChat,
-                        //         'recipientId': artist.id,
-                        //         'isNewConversation': false,
-                        //       },
-                        //     );
-                        //   } else {
-                        //     final chatItem = ChatItem(
-                        //       type: 'private',
-                        //       chatId: null,
-                        //       participant: ChatParticipant(
-                        //         id: artist.id,
-                        //         fullName: artist.fullName,
-                        //         profilePhoto: artist.profilePhoto,
-                        //       ),
-                        //     );
-                        //     Get.toNamed(
-                        //       AppRoute.chatDetailsScreen,
-                        //       arguments: {
-                        //         'chatItem': chatItem,
-                        //         'recipientId': artist.id,
-                        //         'isNewConversation': true,
-                        //       },
-                        //     );
-                        //   }
-                        // },
                       ),
                     ),
                   ],
                 ),
               ),
-
-              // GradientBordevrContainer(
-              //   // width: 213.w,
-              //   borderRadius: 10.r,
-              //   borderWidth: 1,
-              //   gradientColors: [Colors.white, Colors.white.withOpacity(0.5)],
-              //   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 16.h),
-              //   child: Column(
-              //     crossAxisAlignment: CrossAxisAlignment.start,
-              //     children: [
-              //       // Profile Photo (Fixed: placeholder + error handling)
-              //       Center(
-              //         child: GestureDetector(
-              //           onTap: () async {
-              //             await artistsDetailsController.fetchArtistById(
-              //               artist.id,
-              //             );
-              //             Get.toNamed(
-              //               AppRoute.artistsDetailsPage,
-              //               // arguments: artist.id
-              //             );
-              //           },
-
-              //           child: ClipRRect(
-              //             borderRadius: BorderRadius.circular(100.r),
-              //             child:
-              //                 artist.profilePhoto != null &&
-              //                     artist.profilePhoto!.trim().isNotEmpty
-              //                 ? Image.network(
-              //                     artist.profilePhoto!,
-              //                     height: 80.h,
-              //                     width: 80.w,
-              //                     fit: BoxFit.cover,
-              //                     loadingBuilder:
-              //                         (context, child, loadingProgress) {
-              //                           if (loadingProgress == null) {
-              //                             return child;
-              //                           }
-              //                           return Container(
-              //                             height: 80.h,
-              //                             width: 80.w,
-              //                             color: Colors.grey[300],
-              //                             child: const Center(
-              //                               child: CircularProgressIndicator(
-              //                                 strokeWidth: 2,
-              //                               ),
-              //                             ),
-              //                           );
-              //                         },
-              //                     errorBuilder: (_, __, ___) => Icon(
-              //                       Icons.broken_image,
-              //                       size: 80,
-              //                       color: Colors.white,
-              //                     ),
-              //                   )
-              //                 : Icon(
-              //                     Icons.broken_image,
-              //                     size: 80,
-              //                     color: Colors.white,
-              //                   ),
-              //           ),
-              //         ),
-              //       ),
-
-              //       SizedBox(height: 12.h),
-
-              //       // Name + Price
-              //       Row(
-              //         children: [
-              //           Expanded(
-              //             child: Text(
-              //               artist.fullName.trim().isEmpty
-              //                   ? "Unknown Artist"
-              //                   : artist.fullName,
-              //               style: getTextStyle(
-              //                 fontsize: sp(16),
-              //                 fontweight: FontWeight.w500,
-              //               ),
-              //               overflow: TextOverflow.ellipsis,
-              //               maxLines: 1,
-              //             ),
-              //           ),
-              //           Container(
-              //             padding: EdgeInsets.symmetric(
-              //               horizontal: 8.w,
-              //               vertical: 4.h,
-              //             ),
-              //             decoration: BoxDecoration(
-              //               color: Colors.white.withOpacity(0.1),
-              //               borderRadius: BorderRadius.circular(4.r),
-              //               border: Border.all(
-              //                 width: 0.25,
-              //                 color: AppColors.secondaryTextColor,
-              //               ),
-              //             ),
-              //             child: Text(
-              //               servicePrice > 0
-              //                   ? "From \$${servicePrice.toStringAsFixed(2)}"
-              //                   : "From \$0.00",
-              //               style: getTextStyle(
-              //                 fontsize: sp(8),
-              //                 color: AppColors.secondaryTextColor,
-              //               ),
-              //             ),
-              //           ),
-              //         ],
-              //       ),
-
-              //       SizedBox(height: 8.h),
-              //       Text(
-              //         "Services",
-              //         style: getTextStyle(
-              //           fontsize: sp(10),
-              //           color: AppColors.secondaryTextColor,
-              //         ),
-              //       ),
-              //       SizedBox(height: 8.h),
-              //       Text(
-              //         serviceDesc,
-
-              //         style: getTextStyle(
-              //           fontsize: sp(10),
-              //           color: AppColors.secondaryTextColor,
-              //         ),
-              //         maxLines: 2,
-              //         overflow: TextOverflow.ellipsis,
-              //       ),
-
-              //       SizedBox(height: 20.h),
-
-              //       // Rating
-              //       Row(
-              //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //         children: [
-              //           RatingBarIndicator(
-              //             rating: avgRating,
-              //             itemBuilder: (_, __) =>
-              //                 const Icon(Icons.star, color: Color(0xffBD001F)),
-              //             itemCount: 5,
-              //             itemSize: 14.0,
-              //             direction: Axis.horizontal,
-              //             unratedColor: const Color(0xFFD96B7D),
-              //           ),
-              //           Text(
-              //             "${avgRating.toStringAsFixed(1)} (${reviews.length})",
-              //             style: getTextStyle(
-              //               fontsize: sp(10),
-              //               color: AppColors.secondaryTextColor,
-              //             ),
-              //           ),
-              //         ],
-              //       ),
-
-              //       const Spacer(),
-
-              //       // Buttons
-              //       CustomPrimaryButton(
-              //         buttonText: "Message",
-              //         onTap: () {
-              //           // Get MessagesController to check for existing conversations
-              //           final messagesController =
-              //               Get.find<MessagesController>();
-
-              //           // Check if there's an existing conversation with this artist
-              //           final existingChat = messagesController.allChats
-              //               .firstWhereOrNull(
-              //                 (chat) => chat.participant?.id == artist.id,
-              //               );
-
-              //           if (existingChat != null &&
-              //               existingChat.chatId != null) {
-              //             // Navigate to existing conversation
-              //             Get.toNamed(
-              //               AppRoute.chatDetailsScreen,
-              //               arguments: {
-              //                 'chatItem': existingChat,
-              //                 'recipientId': artist.id,
-              //                 'isNewConversation': false,
-              //               },
-              //             );
-              //           } else {
-              //             // Create new conversation
-              //             final chatItem = ChatItem(
-              //               type: 'private',
-              //               chatId: null, // No existing conversation
-              //               participant: ChatParticipant(
-              //                 id: artist.id,
-              //                 fullName: artist.fullName,
-              //                 profilePhoto: artist.profilePhoto,
-              //               ),
-              //             );
-              //             Get.toNamed(
-              //               AppRoute.chatDetailsScreen,
-              //               arguments: {
-              //                 'chatItem': chatItem,
-              //                 'recipientId': artist.id,
-              //                 'isNewConversation': true,
-              //               },
-              //             );
-              //           }
-              //         },
-              //       ),
-              //       // SizedBox(height: 14.h),
-              //       // CustomSecondaryButton(
-              //       //   buttonText: "Custom Order",
-              //       //   onTap: () {
-              //       //     // Get.toNamed(AppRoute.customServices);
-              //       //   },
-              //       // ),
-              //     ],
-              //   ),
-              // ),
             );
           },
         );

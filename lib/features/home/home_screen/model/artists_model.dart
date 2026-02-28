@@ -1,6 +1,7 @@
 class ArtistsModel {
   final String id;
   final String fullName;
+  final String userName;
   final String email;
   final String? profilePhoto;
   final String phone;
@@ -38,6 +39,7 @@ class ArtistsModel {
   const ArtistsModel({
     required this.id,
     required this.fullName,
+    required this.userName,
     required this.email,
     this.profilePhoto,
     required this.phone,
@@ -70,6 +72,7 @@ class ArtistsModel {
     return ArtistsModel(
       id: json['id'],
       fullName: json['full_name'] ?? '',
+      userName: json['username'] ?? '',
       email: json['email'] ?? '',
       profilePhoto: json['profilePhoto'],
       phone: json['phone'] ?? '',
