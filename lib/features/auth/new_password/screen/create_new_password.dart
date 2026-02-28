@@ -16,28 +16,41 @@ class CreateNewPassword extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
-      appBar: CustomAppBar(title: 'Create New Password'),
+      appBar: CustomAppBar(
+        title: controller.isResetMode
+            ? 'Create New Password'
+            : 'Change Password',
+      ),
       body: Padding(
         padding: EdgeInsets.all(18.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 40),
-            Text(
-              'Enter Your Old Password',
-              style: getTextStyle(
-                fontsize: 14,
-                fontweight: FontWeight.w500,
-                color: AppColors.primaryTextColor,
+            // Old password field - only show in change password mode
+            if (!controller.isResetMode)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Enter Your Old Password',
+                    style: getTextStyle(
+                      fontsize: 14,
+                      fontweight: FontWeight.w500,
+                      color: AppColors.primaryTextColor,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  CustomObsecureTextfield(
+                    controller: controller.oldPasswordController,
+                  ),
+                  SizedBox(height: 12),
+                ],
               ),
-            ),
-            SizedBox(height: 8),
-            CustomObsecureTextfield(
-              controller: controller.oldPasswordController,
-            ),
-            SizedBox(height: 12),
             Text(
-              'Enter Your New Password',
+              controller.isResetMode
+                  ? 'Enter Your New Password'
+                  : 'Enter Your New Password',
               style: getTextStyle(
                 fontsize: 14,
                 fontweight: FontWeight.w500,
