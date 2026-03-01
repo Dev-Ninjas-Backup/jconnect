@@ -6,8 +6,10 @@ import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
+import 'package:jconnect/features/home/request_service/controller/request_service_controller.dart';
 import 'package:jconnect/features/messages/controller/custom_service_controller.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
+import 'package:jconnect/features/messages/model/chat_conversation_model.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jconnect/features/messages/widget/addcustomwidgets.dart';
 import 'package:jconnect/features/payment/payment_screen.dart';
@@ -27,6 +29,9 @@ class ChatDetailsScreen extends StatelessWidget {
   late final ImagePicker _imagePicker = ImagePicker();
   late final RxList<String> selectedFiles = <String>[].obs;
   late final RxBool _initialServiceRequestSent = false.obs;
+  final RequestServiceController requestServiceController = Get.put(
+    RequestServiceController(),
+  );
 
   final addCustomServiceController = Get.put(AddCustomServiceController());
   late final controller = Get.find<MessagesController>();
@@ -1245,12 +1250,44 @@ void showAddServiceSheet(
                               serviceIdStr != null &&
                               serviceIdStr.isNotEmpty) {
                             try {
-                              final msgCtrl = Get.find<MessagesController>();
-                              msgCtrl.sendMessage(
+                              final reqCtrl =
+                                  Get.find<RequestServiceController>();
+                              final price =
+                                  (created['price'] ?? created['amount'] ?? 0)
+                                      .toDouble();
+                              final srData = await reqCtrl.submitServiceRequest(
+                                serviceId: serviceIdStr,
+                                price: price,
+                              );
+                              final serviceRequestId = srData?['id']
+                                  ?.toString();
+                              print(
+                                '🔥 [CUSTOM SERVICE] serviceRequestId: $serviceRequestId',
+                              );
+
+                              final messagesController =
+                                  Get.find<MessagesController>();
+
+                              // Apply service request info to cache so
+                              // isPaid (and other fields) are available in
+                              // the chat message card, even if the backend
+                              // doesn't embed serviceRequest in the send-
+                              // message response for custom services.
+                              if (srData != null) {
+                                messagesController.applyServiceRequest(
+                                  serviceIdStr,
+                                  ServiceRequestInfo.fromJson(srData),
+                                );
+                              }
+
+                              messagesController.sendMessage(
                                 recipientId: recipientId,
                                 content: '',
                                 serviceId: serviceIdStr,
-                                files: null,
+                                serviceRequestId:
+                                    serviceRequestId?.isNotEmpty == true
+                                    ? serviceRequestId
+                                    : null,
                               );
                               Get.back();
                               Get.snackbar('Success', 'Service sent');
