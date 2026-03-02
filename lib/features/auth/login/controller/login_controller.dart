@@ -61,6 +61,7 @@ class LoginController extends GetxController {
       final response = await authRepository.login(
         email: email,
         password: password,
+        fcmToken: "",
       );
 
       isLoading.value = false;
@@ -96,6 +97,7 @@ class LoginController extends GetxController {
   Future<void> performLoginAfterVerification(
     String email,
     String password,
+    String fcmToken,
   ) async {
     try {
       isLoading.value = true;
@@ -104,6 +106,7 @@ class LoginController extends GetxController {
       final response = await authRepository.login(
         email: email,
         password: password,
+        fcmToken: fcmToken,
       );
 
       isLoading.value = false;

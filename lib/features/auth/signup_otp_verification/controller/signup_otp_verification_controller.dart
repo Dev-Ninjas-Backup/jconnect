@@ -94,10 +94,12 @@ class SignupOtpVerificationController extends GetxController {
       Future.delayed(Duration(seconds: 2), () async {
         final email = await pref.getSavedEmail();
         final password = await pref.getSavedPassword();
+        final fcmToken = "";
 
         await loginController.performLoginAfterVerification(
           email.toString().trim(),
           password.toString().trim(),
+          fcmToken,
         );
         await pref.clearAfterLogin();
 

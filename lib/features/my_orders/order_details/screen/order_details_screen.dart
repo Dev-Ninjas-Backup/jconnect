@@ -19,6 +19,121 @@ import 'package:intl/intl.dart';
 
 class OrderDetailsScreen extends StatelessWidget {
   const OrderDetailsScreen({super.key});
+
+  /// Pick an image and show confirmation dialog with preview before uploading
+  Future<void> _pickAndConfirmProofUpload(
+    BuildContext context,
+    OrderDetailsController controller,
+    MyOrdersController orderController,
+  ) async {
+    final picker = ImagePicker();
+
+    Future<void> _selectImage() async {
+      final picked = await picker.pickImage(source: ImageSource.gallery);
+      if (picked == null) return;
+
+      final file = File(picked.path);
+
+      // Show confirmation dialog with image preview
+      if (!context.mounted) return;
+      showDialog(
+        context: context,
+        builder: (dialogContext) => Dialog(
+          backgroundColor: AppColors.backGroundColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: AppColors.secondaryTextColor),
+          ),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Confirm Upload',
+                    style: getTextStyle(
+                      color: AppColors.primaryTextColor,
+                      fontweight: FontWeight.w600,
+                      fontsize: 16,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: 280,
+                        maxWidth: 300,
+                      ),
+                      child: Image.file(file, fit: BoxFit.contain),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Are you sure you want to upload this proof?',
+                    style: getTextStyle(
+                      color: AppColors.secondaryTextColor,
+                      fontsize: 14,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.pop(dialogContext); // Close dialog
+                            // Offer to reselect
+                            _selectImage(); // Recursively call to pick again
+                          },
+                          child: Text(
+                            'Reselect',
+                            style: getTextStyle(
+                              color: AppColors.redColor,
+                              fontweight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () async {
+                            Navigator.pop(dialogContext); // Close dialog
+                            // Proceed with upload
+                            final success = await controller.uploadProof(file);
+                            if (success) {
+                              Get.snackbar('Success', 'Proof uploaded');
+                              try {
+                                await orderController.loadOrders();
+                              } catch (_) {}
+                            }
+                          },
+                          child: Text(
+                            'Confirm',
+                            style: getTextStyle(
+                              color: AppColors.redColor,
+                              fontweight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Start the selection process
+    await _selectImage();
+  }
+
   @override
   Widget build(BuildContext context) {
     // Delete previous instance and create a fresh one for each order
@@ -277,25 +392,11 @@ class OrderDetailsScreen extends StatelessWidget {
                             Expanded(
                               child: CustomPrimaryButton(
                                 buttonText: 'Upload Proof',
-                                onTap: () async {
-                                  final picker = ImagePicker();
-                                  final picked = await picker.pickImage(
-                                    source: ImageSource.gallery,
-                                  );
-                                  if (picked == null) return;
-                                  final file = File(picked.path);
-                                  final success = await controller.uploadProof(
-                                    file,
-                                  );
-                                  if (success) {
-                                    // timeline updated by controller
-                                    Get.snackbar('Success', 'Proof uploaded');
-                                    // Refresh orders list in My Orders screen
-                                    try {
-                                      await orderController.loadOrders();
-                                    } catch (_) {}
-                                  }
-                                },
+                                onTap: () => _pickAndConfirmProofUpload(
+                                  context,
+                                  controller,
+                                  orderController,
+                                ),
                               ),
                             ),
                             SizedBox(width: 12),
@@ -441,27 +542,11 @@ class OrderDetailsScreen extends StatelessWidget {
                                 Expanded(
                                   child: CustomPrimaryButton(
                                     buttonText: 'Upload Proof',
-                                    onTap: () async {
-                                      final picker = ImagePicker();
-                                      final picked = await picker.pickImage(
-                                        source: ImageSource.gallery,
-                                      );
-                                      if (picked == null) return;
-                                      final file = File(picked.path);
-                                      final success = await controller
-                                          .uploadProof(file);
-                                      if (success) {
-                                        // timeline updated by controller
-                                        Get.snackbar(
-                                          'Success',
-                                          'Proof uploaded',
-                                        );
-                                        // Refresh orders list in My Orders screen
-                                        try {
-                                          await orderController.loadOrders();
-                                        } catch (_) {}
-                                      }
-                                    },
+                                    onTap: () => _pickAndConfirmProofUpload(
+                                      context,
+                                      controller,
+                                      orderController,
+                                    ),
                                   ),
                                 ),
                               ],

@@ -214,34 +214,6 @@ class ArtistsItem extends StatelessWidget {
                     SizedBox(height: 8.h),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10.w),
-                      child: Text(
-                        "Services",
-                        style: getTextStyle(
-                          fontsize: sp(10),
-                          color: AppColors.secondaryTextColor,
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 6.h),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w),
-                      child: Text(
-                        serviceDesc,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: getTextStyle(
-                          fontsize: sp(10),
-                          color: AppColors.secondaryTextColor,
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 10.h),
-
-                    /// Rating
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -263,6 +235,31 @@ class ArtistsItem extends StatelessWidget {
                             ),
                           ),
                         ],
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      child: Text(
+                        "Services",
+                        style: getTextStyle(
+                          fontsize: sp(10),
+                          color: AppColors.secondaryTextColor,
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: 6.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      child: Text(
+                        serviceDesc,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: getTextStyle(
+                          fontsize: sp(10),
+                          color: AppColors.secondaryTextColor,
+                        ),
                       ),
                     ),
 

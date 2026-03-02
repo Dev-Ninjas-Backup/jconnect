@@ -120,12 +120,17 @@ class AuthRepository {
   Future<Map<String, dynamic>> login({
     required String email,
     required String password,
+    required String fcmToken,
   }) async {
     try {
       final response = await http.post(
         Uri.parse(Endpoint.login),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+          'fcmToken': "",
+        }),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {

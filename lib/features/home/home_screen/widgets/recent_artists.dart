@@ -192,6 +192,30 @@ class ArtistsYouKnow extends StatelessWidget {
                   SizedBox(height: 8.h),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        RatingBarIndicator(
+                          rating: avgRating,
+                          itemBuilder: (_, __) =>
+                              const Icon(Icons.star, color: Color(0xffBD001F)),
+                          itemCount: 5,
+                          itemSize: 14,
+                          unratedColor: const Color(0xFFD96B7D),
+                        ),
+                        Text(
+                          "${avgRating.toStringAsFixed(1)} (${reviews.length})",
+                          style: getTextStyle(
+                            fontsize: sp(10),
+                            color: AppColors.secondaryTextColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
                     child: Text(
                       "Services",
                       style: getTextStyle(
@@ -212,33 +236,6 @@ class ArtistsYouKnow extends StatelessWidget {
                         fontsize: sp(10),
                         color: AppColors.secondaryTextColor,
                       ),
-                    ),
-                  ),
-
-                  SizedBox(height: 10.h),
-
-                  /// Rating
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        RatingBarIndicator(
-                          rating: avgRating,
-                          itemBuilder: (_, __) =>
-                              const Icon(Icons.star, color: Color(0xffBD001F)),
-                          itemCount: 5,
-                          itemSize: 14,
-                          unratedColor: const Color(0xFFD96B7D),
-                        ),
-                        Text(
-                          "${avgRating.toStringAsFixed(1)} (${reviews.length})",
-                          style: getTextStyle(
-                            fontsize: sp(10),
-                            color: AppColors.secondaryTextColor,
-                          ),
-                        ),
-                      ],
                     ),
                   ),
 
