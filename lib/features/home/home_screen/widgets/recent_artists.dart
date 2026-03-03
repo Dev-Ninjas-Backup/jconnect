@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
+//import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
+import 'package:jconnect/core/common/widgets/custom_primary_button_2.dart';
 import 'package:jconnect/features/home/artists_details_screen/controller/artists_details_controller.dart';
 import 'package:jconnect/features/home/artists_details_screen/screen/artists_service_list.dart';
 import 'package:jconnect/features/home/artists_details_screen/screen/artists_social_post_list.dart';
@@ -118,7 +119,7 @@ class ArtistsYouKnow extends StatelessWidget {
                             artist.profilePhoto!.trim().isNotEmpty
                         ? Image.network(
                             artist.profilePhoto!,
-                            height: 112.h,
+                            height: 185.h,
                             width: double.infinity,
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => Center(
@@ -132,12 +133,13 @@ class ArtistsYouKnow extends StatelessWidget {
                               ),
                             ),
                           )
-                        : Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 8),
+                        : SizedBox(
+                            height: 185.h,
+                            width: double.infinity,
+                            child: Center(
                               child: Icon(
                                 Icons.broken_image,
-                                size: 112,
+                                size: 100.h,
                                 color: Colors.white,
                               ),
                             ),
@@ -241,8 +243,11 @@ class ArtistsYouKnow extends StatelessWidget {
 
                   const Spacer(),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w),
-                    child: CustomPrimaryButton(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 5.h,
+                    ),
+                    child: CustomPrimaryButton2(
                       buttonText: "Buy A Service",
                       onTap: () async {
                         final artistsDetailsController = Get.put(
@@ -262,12 +267,15 @@ class ArtistsYouKnow extends StatelessWidget {
                         Get.to(() => ArtistsServiceList());
                       },
                       fontSize: sp(10),
+                      buttonHeight: 25,
                     ),
                   ),
-                  SizedBox(height: 12.h),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w),
-                    child: CustomPrimaryButton(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 5.h,
+                    ),
+                    child: CustomPrimaryButton2(
                       buttonText: "Buy A Social Post",
 
                       onTap: () async {
@@ -292,19 +300,20 @@ class ArtistsYouKnow extends StatelessWidget {
                       //   Get.to(() => ArtistsSocialPostList());
                       // },
                       fontSize: sp(10),
+                      buttonHeight: 25,
                     ),
                   ),
-                  SizedBox(height: 2.h),
 
                   /// Message button
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: 10.w,
-                      vertical: 10.h,
+                      vertical: 5.h,
                     ),
-                    child: CustomPrimaryButton(
+                    child: CustomPrimaryButton2(
                       fontSize: sp(10),
                       buttonText: "Inquire",
+                      buttonHeight: 25,
                       onTap: () {
                         controller.sendInquiry(userID: artist.id);
                       },
