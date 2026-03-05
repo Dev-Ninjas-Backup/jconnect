@@ -1,8 +1,9 @@
-// ignore_for_file: avoid_print, unused_local_variable
+// ignore_for_file: avoid_print, unused_local_variable, await_only_futures
 
 import 'dart:async';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/fcm_notification/fcm_notification_controller.dart';
 import 'package:jconnect/features/auth/login/controller/login_controller.dart';
 import 'package:jconnect/features/auth/repository/auth_repository.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
@@ -94,7 +95,7 @@ class SignupOtpVerificationController extends GetxController {
       Future.delayed(Duration(seconds: 2), () async {
         final email = await pref.getSavedEmail();
         final password = await pref.getSavedPassword();
-        final fcmToken = "";
+        final fcmToken = await FcmNotificationController().fcmToken.value;
 
         await loginController.performLoginAfterVerification(
           email.toString().trim(),

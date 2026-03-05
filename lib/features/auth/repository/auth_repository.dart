@@ -129,7 +129,7 @@ class AuthRepository {
         body: jsonEncode({
           'email': email,
           'password': password,
-          'fcmToken': "",
+          'fcmToken': fcmToken,
         }),
       );
 
