@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/app.dart';
+import 'package:jconnect/fcm_notification/fcm_notification_controller.dart';
 import 'package:jconnect/features/home/notification/controller/notification_controller.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
 import 'package:jconnect/firebase_options.dart';
@@ -20,6 +22,9 @@ Future<void> main() async {
   await Stripe.instance.applySettings();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  Get.put(FcmNotificationController(), permanent: true);
+
   configEasyLoading();
 
   runApp(const MyApp());

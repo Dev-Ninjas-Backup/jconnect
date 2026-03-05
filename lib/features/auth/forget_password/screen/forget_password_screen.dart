@@ -99,7 +99,6 @@ class ForgetPasswordScreen extends StatelessWidget {
                         if (controller.isEmailSelected.value) {
                           controller.sendForgotPasswordEmail();
                         } else {
-                          // TODO: Handle phone forgot password
                           Get.toNamed(AppRoute.otpVerificationScreen);
                         }
                       },

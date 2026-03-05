@@ -6,7 +6,6 @@ import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/features/home/home_screen/controller/home_controller.dart';
-import 'package:jconnect/features/home/home_screen/widgets/start_deal.dart';
 import 'package:jconnect/features/home/notification/controller/notification_controller.dart';
 import '../../../../routes/approute.dart';
 import '../widgets/recent_artists.dart';

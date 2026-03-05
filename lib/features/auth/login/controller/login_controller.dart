@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
+import 'package:jconnect/fcm_notification/fcm_notification_controller.dart';
 import 'package:jconnect/routes/approute.dart';
 import 'package:jconnect/features/auth/repository/auth_repository.dart';
 import 'package:jconnect/core/endpoint.dart';
@@ -18,6 +19,8 @@ class LoginController extends GetxController {
   SharedPreferencesHelperController pref = Get.put(
     SharedPreferencesHelperController(),
   );
+
+  final FcmNotificationController fcmNotificationController = Get.put(FcmNotificationController());
 
   // Google Sign-In 7.2.0+ is now a singleton - use GoogleSignIn.instance
   // Must call initialize() once before using any methods
@@ -61,7 +64,7 @@ class LoginController extends GetxController {
       final response = await authRepository.login(
         email: email,
         password: password,
-        fcmToken: "",
+        fcmToken: await fcmNotificationController.fcmToken.value,
       );
 
       isLoading.value = false;
@@ -367,8 +370,4 @@ class LoginController extends GetxController {
     }
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }
