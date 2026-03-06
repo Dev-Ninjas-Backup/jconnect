@@ -21,6 +21,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/core/endpoint.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:photo_view/photo_view.dart';
 
 class ChatDetailsScreen extends StatelessWidget {
   ChatDetailsScreen({super.key});
@@ -111,6 +112,72 @@ class ChatDetailsScreen extends StatelessWidget {
     }
   }
 
+  void _viewFile(BuildContext context, String url) {
+    final ext = url.split('.').last.split('?').first.toLowerCase();
+    final isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].contains(ext);
+
+    if (isImage) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => Scaffold(
+            backgroundColor: Colors.black,
+            appBar: AppBar(
+              backgroundColor: Colors.black,
+              iconTheme: const IconThemeData(color: Colors.white),
+              title: const Text(
+                'View File',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            body: PhotoView(
+              imageProvider: NetworkImage(url),
+              backgroundDecoration: const BoxDecoration(color: Colors.black),
+              minScale: PhotoViewComputedScale.contained,
+              maxScale: PhotoViewComputedScale.covered * 3,
+              loadingBuilder: (_, __) => const Center(
+                child: CircularProgressIndicator(color: Colors.white),
+              ),
+              errorBuilder: (_, __, ___) => const Center(
+                child: Text(
+                  'Failed to load image',
+                  style: TextStyle(color: Colors.white70),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          backgroundColor: Colors.grey[900],
+          title: const Text(
+            'Preview Not Available',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: const Text(
+            'This file type cannot be previewed. Please download it to view.',
+            style: TextStyle(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                _downloadFile(url);
+              },
+              child: const Text('Download', style: TextStyle(color: Colors.greenAccent)),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   Future<void> _downloadFile(String fileUrl) async {
     try {
       EasyLoading.show(
@@ -133,7 +200,7 @@ class ChatDetailsScreen extends StatelessWidget {
 
       final response = await http.get(Uri.parse(fileUrl));
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200|| response.statusCode == 201) {
         final File file = File(filePath);
         await file.writeAsBytes(response.bodyBytes);
 
@@ -191,7 +258,7 @@ class ChatDetailsScreen extends StatelessWidget {
       );
     } catch (e) {
       EasyLoading.dismiss();
-      EasyLoading.showError('Error sharing files: $e');
+      EasyLoading.showError('Attachment not attached');
     }
   }
 
@@ -707,6 +774,7 @@ class ChatDetailsScreen extends StatelessWidget {
                                               if (msgItem
                                                   .serviceRequest!
                                                   .uploadedFileUrl
+                                                  .where((u) => u.trim().isNotEmpty && u.trim().toLowerCase() != 'no file')
                                                   .isNotEmpty)
                                                 Padding(
                                                   padding: EdgeInsets.only(
@@ -741,63 +809,120 @@ class ChatDetailsScreen extends StatelessWidget {
                                                       ),
                                                       SizedBox(height: 6),
                                                       Wrap(
-                                                        spacing: 6,
-                                                        runSpacing: 4,
-                                                        children: msgItem.serviceRequest!.uploadedFileUrl.map((
+                                                        spacing: 8,
+                                                        runSpacing: 8,
+                                                        children: msgItem.serviceRequest!.uploadedFileUrl
+                                                            .where((u) => u.trim().isNotEmpty && u.trim().toLowerCase() != 'no file')
+                                                            .map((
                                                           url,
                                                         ) {
                                                           final name = url
                                                               .split('/')
                                                               .last;
-                                                          return GestureDetector(
-                                                            onTap: () =>
-                                                                _downloadFile(
-                                                                  url,
+                                                          final displayName = name.length > 18
+                                                              ? '${name.substring(0, 15)}...'
+                                                              : name;
+                                                          return Container(
+                                                            width: double.infinity,
+                                                            decoration: BoxDecoration(
+                                                              color: Colors.grey[800],
+                                                              borderRadius:
+                                                                  BorderRadius.circular(8),
+                                                              border: Border.all(
+                                                                color: Colors.white12,
+                                                                width: 0.8,
+                                                              ),
+                                                            ),
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment.start,
+                                                              children: [
+                                                                Padding(
+                                                                  padding: EdgeInsets.fromLTRB(8, 8, 8, 6),
+                                                                  child: Row(
+                                                                    children: [
+                                                                      Icon(
+                                                                        Icons.insert_drive_file_outlined,
+                                                                        color: Colors.white54,
+                                                                        size: 14,
+                                                                      ),
+                                                                      SizedBox(width: 4),
+                                                                      Expanded(
+                                                                        child: Text(
+                                                                          displayName,
+                                                                          style: TextStyle(
+                                                                            color: Colors.white70,
+                                                                            fontSize: 11,
+                                                                          ),
+                                                                          overflow: TextOverflow.ellipsis,
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
                                                                 ),
-                                                            child: Container(
-                                                              padding:
-                                                                  EdgeInsets.symmetric(
-                                                                    horizontal:
-                                                                        8,
+                                                                Divider(
+                                                                  color: Colors.white12,
+                                                                  height: 1,
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets.symmetric(
+                                                                    horizontal: 4,
                                                                     vertical: 4,
                                                                   ),
-                                                              decoration: BoxDecoration(
-                                                                color: Colors
-                                                                    .grey[700],
-                                                                borderRadius:
-                                                                    BorderRadius.circular(
-                                                                      6,
-                                                                    ),
-                                                              ),
-                                                              child: Row(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .min,
-                                                                children: [
-                                                                  Icon(
-                                                                    Icons
-                                                                        .download,
-                                                                    color: Colors
-                                                                        .white70,
-                                                                    size: 12,
+                                                                  child: Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment.spaceEvenly,
+                                                                    children: [
+                                                                      GestureDetector(
+                                                                        onTap: () => _viewFile(context, url),
+                                                                        child: Row(
+                                                                          mainAxisSize: MainAxisSize.min,
+                                                                          children: [
+                                                                            Icon(
+                                                                              Icons.visibility_outlined,
+                                                                              color: Colors.blueAccent,
+                                                                              size: 12,
+                                                                            ),
+                                                                            SizedBox(width: 3),
+                                                                            Text(
+                                                                              'View',
+                                                                              style: TextStyle(
+                                                                                color: Colors.blueAccent,
+                                                                                fontSize: 10,
+                                                                                fontWeight: FontWeight.w500,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                           SizedBox(width: 35,),
+                                                                      GestureDetector(
+                                                                        onTap: () =>
+                                                                            _downloadFile(url),
+                                                                        child: Row(
+                                                                          mainAxisSize: MainAxisSize.min,
+                                                                          children: [
+                                                                            Icon(
+                                                                              Icons.download_outlined,
+                                                                              color: Colors.greenAccent,
+                                                                              size: 12,
+                                                                            ),
+                                                                            SizedBox(width: 3),
+                                                                            Text(
+                                                                              'Download',
+                                                                              style: TextStyle(
+                                                                                color: Colors.greenAccent,
+                                                                                fontSize: 10,
+                                                                                fontWeight: FontWeight.w500,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                    ],
                                                                   ),
-                                                                  SizedBox(
-                                                                    width: 4,
-                                                                  ),
-                                                                  Text(
-                                                                    name.length >
-                                                                            18
-                                                                        ? '${name.substring(0, 15)}...'
-                                                                        : name,
-                                                                    style: TextStyle(
-                                                                      color: Colors
-                                                                          .white70,
-                                                                      fontSize:
-                                                                          11,
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
+                                                                ),
+                                                              ],
                                                             ),
                                                           );
                                                         }).toList(),
