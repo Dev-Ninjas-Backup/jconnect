@@ -70,4 +70,10 @@ class Endpoint {
   static String cancelProof(String id) =>
       "$baseUrl/orders/$id/cancel-proof?isCancalProofSubmitted=true";
   static String orderDetails(String id) => "$baseUrl/orders/$id";
+  static String uploadServiceRequestFiles(String id) =>
+      "$baseUrl/service-requests/$id/uploaded-files";
+  static String acceptServiceRequest(String id) =>
+      "$baseUrl/service-requests/$id/is-declined?isDeclined=false&isAccepted=true";
+  static String declineServiceRequest(String id) =>
+      "$baseUrl/service-requests/$id/is-declined?isDeclined=true&isAccepted=false";
 }

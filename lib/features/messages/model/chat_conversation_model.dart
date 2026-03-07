@@ -104,6 +104,8 @@ class ServiceRequestInfo {
   final String? promotionDate;
   final List<String> uploadedFileUrl;
   final bool isPaid;
+  final bool isDeclined;
+  final bool isAccepted;
 
   ServiceRequestInfo({
     this.id,
@@ -112,6 +114,8 @@ class ServiceRequestInfo {
     this.promotionDate,
     this.uploadedFileUrl = const [],
     this.isPaid = false,
+    this.isDeclined = false,
+    this.isAccepted = false,
   });
 
   bool get hasExtraDetails =>
@@ -120,7 +124,7 @@ class ServiceRequestInfo {
       (promotionDate?.isNotEmpty ?? false) ||
       uploadedFileUrl.isNotEmpty;
 
-  ServiceRequestInfo copyWith({bool? isPaid}) {
+  ServiceRequestInfo copyWith({bool? isPaid, bool? isDeclined, bool? isAccepted}) {
     return ServiceRequestInfo(
       id: id,
       captionOrInstructions: captionOrInstructions,
@@ -128,6 +132,8 @@ class ServiceRequestInfo {
       promotionDate: promotionDate,
       uploadedFileUrl: uploadedFileUrl,
       isPaid: isPaid ?? this.isPaid,
+      isDeclined: isDeclined ?? this.isDeclined,
+      isAccepted: isAccepted ?? this.isAccepted,
     );
   }
 
@@ -147,6 +153,8 @@ class ServiceRequestInfo {
         json['uploadedFileUrl'] ?? json['uploaded_file_url'] ?? [],
       ),
       isPaid: json['isPaid'] ?? false,
+      isDeclined: json['isDeclined'] ?? json['is_declined'] ?? false,
+      isAccepted: json['isAccepted'] ?? json['is_accepted'] ?? false,
     );
   }
 
@@ -157,6 +165,8 @@ class ServiceRequestInfo {
         'promotionDate': promotionDate,
         'uploadedFileUrl': uploadedFileUrl,
         'isPaid': isPaid,
+        'isDeclined': isDeclined,
+        'isAccepted': isAccepted,
       };
 }
 

@@ -56,6 +56,313 @@ class ChatDetailsScreen extends StatelessWidget {
     return '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
   }
 
+  Future<void> _acceptServiceRequest(String serviceRequestId) async {
+    try {
+      EasyLoading.show(
+        status: 'Accepting...',
+        maskType: EasyLoadingMaskType.black,
+      );
+
+      final prefHelper = Get.find<SharedPreferencesHelperController>();
+      final token = await prefHelper.getAccessRowToken();
+
+      final response = await http.patch(
+        Uri.parse(Endpoint.acceptServiceRequest(serviceRequestId)),
+        headers: {'Authorization': 'Bearer $token', 'Accept': '*/*'},
+      );
+
+      EasyLoading.dismiss();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        EasyLoading.showSuccess(
+          'Service request accepted',
+          duration: const Duration(seconds: 2),
+        );
+        await _refreshConversation();
+      } else {
+        EasyLoading.showError(
+          'Failed to accept: ${response.statusCode}',
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
+      EasyLoading.showError('Error: $e', duration: const Duration(seconds: 2));
+    }
+  }
+
+  Future<void> _declineServiceRequest(String serviceRequestId) async {
+    try {
+      EasyLoading.show(
+        status: 'Declining...',
+        maskType: EasyLoadingMaskType.black,
+      );
+
+      final prefHelper = Get.find<SharedPreferencesHelperController>();
+      final token = await prefHelper.getAccessRowToken();
+
+      final response = await http.patch(
+        Uri.parse(Endpoint.declineServiceRequest(serviceRequestId)),
+        headers: {'Authorization': 'Bearer $token', 'Accept': '*/*'},
+      );
+
+      EasyLoading.dismiss();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        EasyLoading.showSuccess(
+          'Service request declined',
+          duration: const Duration(seconds: 2),
+        );
+        await _refreshConversation();
+      } else {
+        EasyLoading.showError(
+          'Failed to decline: ${response.statusCode}',
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
+      EasyLoading.showError('Error: $e', duration: const Duration(seconds: 2));
+    }
+  }
+
+  /// Builds the file action buttons for receiver/seller based on accept/decline state
+  Widget _buildReceiverFileActions(
+    BuildContext context,
+    ChatMessage msgItem,
+    String url,
+  ) {
+    final sr = msgItem.serviceRequest!;
+    final isAccepted = sr.isAccepted;
+    final isDeclined = sr.isDeclined;
+    final isPending = !isAccepted && !isDeclined;
+
+    return Center(
+      child: Wrap(
+        alignment: WrapAlignment.spaceEvenly,
+
+        spacing: 15,
+        runSpacing: 6,
+        children: [
+          // Accept button - only show if pending (not accepted, not declined)
+          if (isPending)
+            GestureDetector(
+              onTap: () {
+                final srId = sr.id;
+                if (srId != null && srId.isNotEmpty) {
+                  _acceptServiceRequest(srId);
+                }
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.greenAccent,
+                    size: 12,
+                  ),
+                  SizedBox(width: 3),
+                  Text(
+                    'Accept',
+                    style: TextStyle(
+                      color: Colors.greenAccent,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          // Decline button - only show if pending (not accepted, not declined)
+          if (isPending)
+            GestureDetector(
+              onTap: () {
+                final srId = sr.id;
+                if (srId != null && srId.isNotEmpty) {
+                  _declineServiceRequest(srId);
+                }
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.cancel_outlined,
+                    color: Colors.redAccent,
+                    size: 12,
+                  ),
+                  SizedBox(width: 3),
+                  Text(
+                    'Decline',
+                    style: TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          // Status indicator when already decided
+          if (isAccepted)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.check_circle, color: Colors.green, size: 18),
+                SizedBox(width: 3),
+                Text(
+                  'Accepted',
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          if (isDeclined)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.cancel, color: Colors.red, size: 18),
+                SizedBox(width: 3),
+                Text(
+                  'Declined',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          // View button - always available
+          GestureDetector(
+            onTap: () => _viewFile(context, url),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.visibility_outlined,
+                  color: Colors.blueAccent,
+                  size: 18,
+                ),
+                SizedBox(width: 3),
+                Text(
+                  'View',
+                  style: TextStyle(
+                    color: Colors.blueAccent,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Download button - only available if accepted
+          if (isAccepted)
+            GestureDetector(
+              onTap: () => _downloadFile(url),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.download_outlined,
+                    color: Colors.cyanAccent,
+                    size: 18,
+                  ),
+                  SizedBox(width: 3),
+                  Text(
+                    'Download',
+                    style: TextStyle(
+                      color: Colors.cyanAccent,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _uploadReplacementFile(String serviceRequestId) async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
+      if (image == null) return;
+
+      EasyLoading.show(
+        status: 'Uploading...',
+        maskType: EasyLoadingMaskType.black,
+      );
+
+      final prefHelper = Get.find<SharedPreferencesHelperController>();
+      final token = await prefHelper.getAccessRowToken();
+
+      final request = http.MultipartRequest(
+        'PATCH',
+        Uri.parse(Endpoint.uploadServiceRequestFiles(serviceRequestId)),
+      );
+      request.headers['Authorization'] = 'Bearer $token';
+      request.headers['Accept'] = '*/*';
+
+      request.files.add(await http.MultipartFile.fromPath('files', image.path));
+
+      final response = await request.send();
+      EasyLoading.dismiss();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        EasyLoading.showSuccess(
+          'File uploaded successfully',
+          duration: const Duration(seconds: 2),
+        );
+        // Refresh the conversation to show updated data
+        await _refreshConversation();
+      } else {
+        final body = await response.stream.bytesToString();
+        EasyLoading.showError(
+          'Upload failed: ${response.statusCode}\n$body',
+          duration: const Duration(seconds: 3),
+        );
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
+      EasyLoading.showError(
+        'Error uploading file: $e',
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
+  Future<void> _refreshConversation() async {
+    String? conversationId;
+
+    // Try to get conversation ID from messages
+    if (controller.messages.isNotEmpty) {
+      conversationId = controller.messages.first.conversationId;
+    }
+
+    // Fallback to arguments
+    if ((conversationId == null || conversationId.isEmpty) &&
+        arguments != null) {
+      if (arguments is Map) {
+        conversationId = arguments['chatItem']?.chatId;
+      } else {
+        conversationId = arguments?.chatId;
+      }
+    }
+
+    if (conversationId != null && conversationId.isNotEmpty) {
+      await controller.initConversationFromAPI(
+        conversationId: conversationId,
+        force: true,
+      );
+    }
+  }
+
   Future<void> _pickFile() async {
     try {
       final XFile? image = await _imagePicker.pickImage(
@@ -163,14 +470,20 @@ class ChatDetailsScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white54),
+              ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
                 _downloadFile(url);
               },
-              child: const Text('Download', style: TextStyle(color: Colors.greenAccent)),
+              child: const Text(
+                'Download',
+                style: TextStyle(color: Colors.greenAccent),
+              ),
             ),
           ],
         ),
@@ -200,7 +513,7 @@ class ChatDetailsScreen extends StatelessWidget {
 
       final response = await http.get(Uri.parse(fileUrl));
 
-      if (response.statusCode == 200|| response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final File file = File(filePath);
         await file.writeAsBytes(response.bodyBytes);
 
@@ -774,7 +1087,12 @@ class ChatDetailsScreen extends StatelessWidget {
                                               if (msgItem
                                                   .serviceRequest!
                                                   .uploadedFileUrl
-                                                  .where((u) => u.trim().isNotEmpty && u.trim().toLowerCase() != 'no file')
+                                                  .where(
+                                                    (u) =>
+                                                        u.trim().isNotEmpty &&
+                                                        u.trim().toLowerCase() !=
+                                                            'no file',
+                                                  )
                                                   .isNotEmpty)
                                                 Padding(
                                                   padding: EdgeInsets.only(
@@ -811,121 +1129,205 @@ class ChatDetailsScreen extends StatelessWidget {
                                                       Wrap(
                                                         spacing: 8,
                                                         runSpacing: 8,
-                                                        children: msgItem.serviceRequest!.uploadedFileUrl
-                                                            .where((u) => u.trim().isNotEmpty && u.trim().toLowerCase() != 'no file')
-                                                            .map((
-                                                          url,
-                                                        ) {
-                                                          final name = url
-                                                              .split('/')
-                                                              .last;
-                                                          final displayName = name.length > 18
-                                                              ? '${name.substring(0, 15)}...'
-                                                              : name;
-                                                          return Container(
-                                                            width: double.infinity,
-                                                            decoration: BoxDecoration(
-                                                              color: Colors.grey[800],
-                                                              borderRadius:
-                                                                  BorderRadius.circular(8),
-                                                              border: Border.all(
-                                                                color: Colors.white12,
-                                                                width: 0.8,
-                                                              ),
-                                                            ),
-                                                            child: Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment.start,
-                                                              children: [
-                                                                Padding(
-                                                                  padding: EdgeInsets.fromLTRB(8, 8, 8, 6),
-                                                                  child: Row(
-                                                                    children: [
-                                                                      Icon(
-                                                                        Icons.insert_drive_file_outlined,
-                                                                        color: Colors.white54,
-                                                                        size: 14,
+                                                        children: msgItem
+                                                            .serviceRequest!
+                                                            .uploadedFileUrl
+                                                            .where(
+                                                              (u) =>
+                                                                  u
+                                                                      .trim()
+                                                                      .isNotEmpty &&
+                                                                  u.trim().toLowerCase() !=
+                                                                      'no file',
+                                                            )
+                                                            .map((url) {
+                                                              final name = url
+                                                                  .split('/')
+                                                                  .last;
+                                                              final displayName =
+                                                                  name.length >
+                                                                      18
+                                                                  ? '${name.substring(0, 15)}...'
+                                                                  : name;
+                                                              return Container(
+                                                                width: double
+                                                                    .infinity,
+                                                                decoration: BoxDecoration(
+                                                                  color: Colors
+                                                                      .grey[800],
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(
+                                                                        8,
                                                                       ),
-                                                                      SizedBox(width: 4),
-                                                                      Expanded(
-                                                                        child: Text(
-                                                                          displayName,
-                                                                          style: TextStyle(
-                                                                            color: Colors.white70,
-                                                                            fontSize: 11,
+                                                                  border: Border.all(
+                                                                    color: Colors
+                                                                        .white12,
+                                                                    width: 0.8,
+                                                                  ),
+                                                                ),
+                                                                child: Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Padding(
+                                                                      padding:
+                                                                          EdgeInsets.fromLTRB(
+                                                                            8,
+                                                                            8,
+                                                                            8,
+                                                                            6,
                                                                           ),
-                                                                          overflow: TextOverflow.ellipsis,
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                                Divider(
-                                                                  color: Colors.white12,
-                                                                  height: 1,
-                                                                ),
-                                                                Padding(
-                                                                  padding: EdgeInsets.symmetric(
-                                                                    horizontal: 4,
-                                                                    vertical: 4,
-                                                                  ),
-                                                                  child: Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment.spaceEvenly,
-                                                                    children: [
-                                                                      GestureDetector(
-                                                                        onTap: () => _viewFile(context, url),
-                                                                        child: Row(
-                                                                          mainAxisSize: MainAxisSize.min,
-                                                                          children: [
-                                                                            Icon(
-                                                                              Icons.visibility_outlined,
-                                                                              color: Colors.blueAccent,
-                                                                              size: 12,
-                                                                            ),
-                                                                            SizedBox(width: 3),
-                                                                            Text(
-                                                                              'View',
+                                                                      child: Row(
+                                                                        children: [
+                                                                          Icon(
+                                                                            Icons.insert_drive_file_outlined,
+                                                                            color:
+                                                                                Colors.white54,
+                                                                            size:
+                                                                                14,
+                                                                          ),
+                                                                          SizedBox(
+                                                                            width:
+                                                                                4,
+                                                                          ),
+                                                                          Expanded(
+                                                                            child: Text(
+                                                                              displayName,
                                                                               style: TextStyle(
-                                                                                color: Colors.blueAccent,
-                                                                                fontSize: 10,
-                                                                                fontWeight: FontWeight.w500,
+                                                                                color: Colors.white70,
+                                                                                fontSize: 11,
                                                                               ),
+                                                                              overflow: TextOverflow.ellipsis,
                                                                             ),
-                                                                          ],
-                                                                        ),
+                                                                          ),
+                                                                        ],
                                                                       ),
-                                                           SizedBox(width: 35,),
-                                                                      GestureDetector(
-                                                                        onTap: () =>
-                                                                            _downloadFile(url),
-                                                                        child: Row(
-                                                                          mainAxisSize: MainAxisSize.min,
-                                                                          children: [
-                                                                            Icon(
-                                                                              Icons.download_outlined,
-                                                                              color: Colors.greenAccent,
-                                                                              size: 12,
-                                                                            ),
-                                                                            SizedBox(width: 3),
-                                                                            Text(
-                                                                              'Download',
-                                                                              style: TextStyle(
-                                                                                color: Colors.greenAccent,
-                                                                                fontSize: 10,
-                                                                                fontWeight: FontWeight.w500,
-                                                                              ),
-                                                                            ),
-                                                                          ],
-                                                                        ),
+                                                                    ),
+                                                                    Divider(
+                                                                      color: Colors
+                                                                          .white12,
+                                                                      height: 1,
+                                                                    ),
+                                                                    Padding(
+                                                                      padding: EdgeInsets.symmetric(
+                                                                        horizontal:
+                                                                            4,
+                                                                        vertical:
+                                                                            4,
                                                                       ),
-                                                                    ],
-                                                                  ),
+                                                                      child:
+                                                                          isMine
+                                                                          // Sender/Buyer view
+                                                                          ? (msgItem.serviceRequest!.isDeclined ==
+                                                                                    true
+                                                                                ? Center(
+                                                                                    child: GestureDetector(
+                                                                                      onTap: () {
+                                                                                        final srId = msgItem.serviceRequest!.id;
+                                                                                        if (srId !=
+                                                                                                null &&
+                                                                                            srId.isNotEmpty) {
+                                                                                          _uploadReplacementFile(
+                                                                                            srId,
+                                                                                          );
+                                                                                        }
+                                                                                      },
+                                                                                      child: Column(
+                                                                                        children: [
+                                                                                          Icon(
+                                                                                            Icons.upload_file,
+                                                                                            color: Colors.orangeAccent,
+                                                                                            size: 18,
+                                                                                          ),
+                                                                                          SizedBox(
+                                                                                            height: 3,
+                                                                                          ),
+                                                                                          Text(
+                                                                                            'Upload Here',
+                                                                                            style: TextStyle(
+                                                                                              color: Colors.orangeAccent,
+                                                                                              fontSize: 10,
+                                                                                              fontWeight: FontWeight.w500,
+                                                                                            ),
+                                                                                          ),
+                                                                                        ],
+                                                                                      ),
+                                                                                    ),
+                                                                                  )
+                                                                                : Row(
+                                                                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                                                    children: [
+                                                                                      GestureDetector(
+                                                                                        onTap: () => _viewFile(
+                                                                                          context,
+                                                                                          url,
+                                                                                        ),
+                                                                                        child: Row(
+                                                                                          mainAxisSize: MainAxisSize.min,
+                                                                                          children: [
+                                                                                            Icon(
+                                                                                              Icons.visibility_outlined,
+                                                                                              color: Colors.blueAccent,
+                                                                                              size: 18,
+                                                                                            ),
+                                                                                            SizedBox(
+                                                                                              width: 3,
+                                                                                            ),
+                                                                                            Text(
+                                                                                              'View',
+                                                                                              style: TextStyle(
+                                                                                                color: Colors.blueAccent,
+                                                                                                fontSize: 13,
+                                                                                                fontWeight: FontWeight.w500,
+                                                                                              ),
+                                                                                            ),
+                                                                                          ],
+                                                                                        ),
+                                                                                      ),
+                                                                                      SizedBox(
+                                                                                        width: 35,
+                                                                                      ),
+                                                                                      GestureDetector(
+                                                                                        onTap: () => _downloadFile(
+                                                                                          url,
+                                                                                        ),
+                                                                                        child: Row(
+                                                                                          mainAxisSize: MainAxisSize.min,
+                                                                                          children: [
+                                                                                            Icon(
+                                                                                              Icons.download_outlined,
+                                                                                              color: Colors.greenAccent,
+                                                                                              size: 18,
+                                                                                            ),
+                                                                                            SizedBox(
+                                                                                              width: 3,
+                                                                                            ),
+                                                                                            Text(
+                                                                                              'Download',
+                                                                                              style: TextStyle(
+                                                                                                color: Colors.greenAccent,
+                                                                                                fontSize: 13,
+                                                                                                fontWeight: FontWeight.w500,
+                                                                                              ),
+                                                                                            ),
+                                                                                          ],
+                                                                                        ),
+                                                                                      ),
+                                                                                    ],
+                                                                                  ))
+                                                                          // Receiver/Seller view - conditional based on accept/decline state
+                                                                          : _buildReceiverFileActions(
+                                                                              context,
+                                                                              msgItem,
+                                                                              url,
+                                                                            ),
+                                                                    ),
+                                                                  ],
                                                                 ),
-                                                              ],
-                                                            ),
-                                                          );
-                                                        }).toList(),
+                                                              );
+                                                            })
+                                                            .toList(),
                                                       ),
                                                     ],
                                                   ),
