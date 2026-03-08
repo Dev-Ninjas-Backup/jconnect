@@ -1,5 +1,6 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, must_be_immutable
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
@@ -37,6 +38,8 @@ class ChatDetailsScreen extends StatelessWidget {
   final addCustomServiceController = Get.put(AddCustomServiceController());
   late final controller = Get.find<MessagesController>();
   late final dynamic arguments = Get.arguments;
+  Timer? _autoRefreshTimer;
+  bool _isOnScreen = true;
 
   String _formatDateFromDateTime(DateTime dt) {
     const months = <String>[
@@ -589,6 +592,7 @@ class ChatDetailsScreen extends StatelessWidget {
 
   void _initializeAndLoadConversation() async {
     await _initializeSocketConnection();
+    _startAutoRefresh();
 
     await Future.delayed(Duration(milliseconds: 500));
 
@@ -681,6 +685,21 @@ class ChatDetailsScreen extends StatelessWidget {
     }
   }
 
+  void _startAutoRefresh() {
+    _autoRefreshTimer?.cancel();
+    _autoRefreshTimer = Timer.periodic(Duration(seconds: 10), (_) async {
+      if (_isOnScreen) {
+        await _refreshConversation();
+      }
+    });
+  }
+
+  void _stopAutoRefresh() {
+    _isOnScreen = false;
+    _autoRefreshTimer?.cancel();
+    _autoRefreshTimer = null;
+  }
+
   @override
   @override
   Widget build(BuildContext context) {
@@ -714,7 +733,10 @@ class ChatDetailsScreen extends StatelessWidget {
                   child: Row(
                     children: [
                       GestureDetector(
-                        onTap: () => Get.back(),
+                        onTap: () {
+                          _stopAutoRefresh();
+                          Get.back();
+                        },
                         child: Icon(Icons.arrow_back, color: Colors.white),
                       ),
                       SizedBox(width: 10),
@@ -741,10 +763,6 @@ class ChatDetailsScreen extends StatelessWidget {
                         ],
                       ),
                       Spacer(),
-                      // GestureDetector(
-                      //   onTap: controller.toggleSidebar,
-                      //   child: Icon(Icons.more_vert, color: Colors.white),
-                      // ),
                     ],
                   ),
                 ),
