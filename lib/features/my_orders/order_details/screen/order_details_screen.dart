@@ -149,9 +149,9 @@ class OrderDetailsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
 
-      body: Padding(
-        padding: EdgeInsets.only(right: 16, left: 16, top: 74),
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.only(right: 16, left: 16, top: 74, bottom: 60),
           child: Column(
             children: [
               CustomAppBar2(

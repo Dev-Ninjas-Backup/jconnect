@@ -64,10 +64,10 @@ class _ReviewPopupState extends State<ReviewPopup> {
                     });
                   },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
                     child: Icon(
                       Icons.star,
-                      size: 48,
+                      size: 40,
                       color: index < selectedRating
                           ? Colors.white
                           : Colors.white24,
