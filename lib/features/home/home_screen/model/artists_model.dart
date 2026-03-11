@@ -244,9 +244,10 @@ class ReviewModel {
 class ReviewerModel {
   final String? id;
   final String? fullName;
+  final String? username;
   final String? profilePhoto;
 
-  ReviewerModel({this.id, this.fullName, this.profilePhoto});
+  ReviewerModel({this.id, this.fullName, this.username, this.profilePhoto});
 
   factory ReviewerModel.fromJson(Map<String, dynamic>? json) {
     if (json == null) return ReviewerModel();
@@ -254,6 +255,7 @@ class ReviewerModel {
     return ReviewerModel(
       id: json['id'],
       fullName: json['full_name'],
+      username: json['username'],
       profilePhoto: json['profilePhoto'],
     );
   }
