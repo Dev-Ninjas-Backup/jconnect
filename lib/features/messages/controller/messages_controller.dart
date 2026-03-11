@@ -400,6 +400,13 @@ class MessagesController extends GetxController {
           print('📄 Received conversation list update');
           return;
         }
+
+        // ── Handle serviceRequestUpdated ──────────────────────────────────
+        // Detect: has serviceId + status flags but no senderId (not a message)
+        if (data.containsKey('serviceId') && !data.containsKey('senderId')) {
+          _handleServiceRequestUpdated(data as Map<String, dynamic>);
+          return;
+        }
       }
 
       // Handle single message
@@ -453,6 +460,51 @@ class MessagesController extends GetxController {
       print('❌ Error parsing incoming data: $e');
       print('📄 Raw data type: ${data.runtimeType}');
       print('📄 Raw data: $data');
+    }
+  }
+
+  /// Handle serviceRequestUpdated socket events — patch matching messages in-place.
+  void _handleServiceRequestUpdated(Map<String, dynamic> data) {
+    try {
+      final updatedServiceRequest = ServiceRequestInfo.fromJson(data);
+      final serviceId = data['serviceId']?.toString();
+      final serviceRequestId = updatedServiceRequest.id;
+
+      print(
+        '🔄 Handling serviceRequestUpdated: id=$serviceRequestId, serviceId=$serviceId, '
+        'isAccepted=${updatedServiceRequest.isAccepted}, isDeclined=${updatedServiceRequest.isDeclined}, isPaid=${updatedServiceRequest.isPaid}',
+      );
+
+      bool patched = false;
+
+      for (int i = 0; i < messages.length; i++) {
+        final msg = messages[i];
+
+        // Match by serviceRequestId or serviceId
+        final matchById =
+            serviceRequestId != null && msg.serviceRequest?.id == serviceRequestId;
+        final matchByServiceId =
+            serviceId != null && msg.serviceId == serviceId;
+
+        if (matchById || matchByServiceId) {
+          messages[i] = msg.copyWith(serviceRequest: updatedServiceRequest);
+          print('✅ Patched message[${msg.id}] serviceRequest in-place');
+          patched = true;
+        }
+      }
+
+      // Also update the cache so future reloads have the latest state
+      if (serviceId != null) {
+        _serviceRequestCache[serviceId] = updatedServiceRequest;
+      }
+
+      if (!patched) {
+        print(
+          '⚠️ serviceRequestUpdated: no matching message found for serviceId=$serviceId / srId=$serviceRequestId',
+        );
+      }
+    } catch (e) {
+      print('❌ Error handling serviceRequestUpdated: $e');
     }
   }
 

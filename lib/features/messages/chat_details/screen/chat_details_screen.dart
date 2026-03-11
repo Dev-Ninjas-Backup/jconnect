@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, must_be_immutable
+// ignore_for_file: avoid_print, must_be_immutable, unused_field, prefer_final_fields
 
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -298,36 +298,73 @@ class ChatDetailsScreen extends StatelessWidget {
       if (image == null) return;
 
       EasyLoading.show(
-        status: 'Uploading...',
+        status: 'Uploading to S3...',
+        maskType: EasyLoadingMaskType.black,
+      );
+
+      // ── Step 1: upload image to S3 via the generic file-upload endpoint ──
+      final uploadRequest = http.MultipartRequest(
+        'POST',
+        Uri.parse(Endpoint.fileUpload),
+      );
+      uploadRequest.files.add(
+        await http.MultipartFile.fromPath('file', image.path),
+      );
+
+      final uploadResponse = await uploadRequest.send();
+      final uploadBody = await uploadResponse.stream.bytesToString();
+
+      if (uploadResponse.statusCode != 200 && uploadResponse.statusCode != 201) {
+        EasyLoading.dismiss();
+        EasyLoading.showError(
+          'Upload failed: ${uploadResponse.statusCode}\n$uploadBody',
+          duration: const Duration(seconds: 3),
+        );
+        return;
+      }
+
+      final fileUrl = (jsonDecode(uploadBody) as Map<String, dynamic>)['file'] as String?;
+      if (fileUrl == null || fileUrl.isEmpty) {
+        EasyLoading.dismiss();
+        EasyLoading.showError(
+          'Could not get file URL from server',
+          duration: const Duration(seconds: 2),
+        );
+        return;
+      }
+
+      // ── Step 2: PATCH service request with the S3 URL as JSON ────────────
+      EasyLoading.show(
+        status: 'Saving...',
         maskType: EasyLoadingMaskType.black,
       );
 
       final prefHelper = Get.find<SharedPreferencesHelperController>();
       final token = await prefHelper.getAccessRowToken();
 
-      final request = http.MultipartRequest(
-        'PATCH',
+      final patchResponse = await http.patch(
         Uri.parse(Endpoint.uploadServiceRequestFiles(serviceRequestId)),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': '*/*',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'uploadedFileUrl': [fileUrl],
+        }),
       );
-      request.headers['Authorization'] = 'Bearer $token';
-      request.headers['Accept'] = '*/*';
 
-      request.files.add(await http.MultipartFile.fromPath('files', image.path));
-
-      final response = await request.send();
       EasyLoading.dismiss();
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (patchResponse.statusCode == 200 || patchResponse.statusCode == 201) {
         EasyLoading.showSuccess(
           'File uploaded successfully',
           duration: const Duration(seconds: 2),
         );
-        // Refresh the conversation to show updated data
         await _refreshConversation();
       } else {
-        final body = await response.stream.bytesToString();
         EasyLoading.showError(
-          'Upload failed: ${response.statusCode}\n$body',
+          'Save failed: ${patchResponse.statusCode}\n${patchResponse.body}',
           duration: const Duration(seconds: 3),
         );
       }
@@ -592,7 +629,7 @@ class ChatDetailsScreen extends StatelessWidget {
 
   void _initializeAndLoadConversation() async {
     await _initializeSocketConnection();
-    _startAutoRefresh();
+   // _startAutoRefresh();
 
     await Future.delayed(Duration(milliseconds: 500));
 
@@ -685,20 +722,20 @@ class ChatDetailsScreen extends StatelessWidget {
     }
   }
 
-  void _startAutoRefresh() {
-    _autoRefreshTimer?.cancel();
-    _autoRefreshTimer = Timer.periodic(Duration(seconds: 10), (_) async {
-      if (_isOnScreen) {
-        await _refreshConversation();
-      }
-    });
-  }
+  // void _startAutoRefresh() {
+  //   _autoRefreshTimer?.cancel();
+  //   _autoRefreshTimer = Timer.periodic(Duration(seconds: 10), (_) async {
+  //     if (_isOnScreen) {
+  //       await _refreshConversation();
+  //     }
+  //   });
+  // }
 
-  void _stopAutoRefresh() {
-    _isOnScreen = false;
-    _autoRefreshTimer?.cancel();
-    _autoRefreshTimer = null;
-  }
+  // void _stopAutoRefresh() {
+  //   _isOnScreen = false;
+  //   _autoRefreshTimer?.cancel();
+  //   _autoRefreshTimer = null;
+  // }
 
   @override
   @override
@@ -734,7 +771,7 @@ class ChatDetailsScreen extends StatelessWidget {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          _stopAutoRefresh();
+                      //    _stopAutoRefresh();
                           Get.back();
                         },
                         child: Icon(Icons.arrow_back, color: Colors.white),
@@ -821,10 +858,43 @@ class ChatDetailsScreen extends StatelessWidget {
                                     ? CrossAxisAlignment.end
                                     : CrossAxisAlignment.start,
                                 children: [
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                                   // Service info card (if message has service)
                                   if (msgItem.serviceId != null &&
                                       msgItem.service != null)
-                                    ConstrainedBox(
+
+
+
+
+
+                             ConstrainedBox(
+
+
+
+                                    
+
+
+
+
+
+
                                       constraints: BoxConstraints(
                                         maxWidth:
                                             MediaQuery.of(context).size.width *
@@ -1438,6 +1508,14 @@ class ChatDetailsScreen extends StatelessWidget {
                                         ),
                                       ),
                                     ),
+
+
+
+
+
+
+
+
                                   // Regular message - only show if content is not empty
                                   if (msgItem.content.trim().isNotEmpty)
                                     Container(
