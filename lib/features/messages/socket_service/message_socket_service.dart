@@ -50,6 +50,17 @@ class MessageSocketService {
       debugPrint('⚠️ Socket connect error: $err');
     });
 
+       socket!.on('serviceRequestUpdated', (data) {
+      debugPrint('📩 Service request updated: $data');
+      onNewMessage(data);
+    });
+
+
+       socket!.on('serviceRequestFilesUpdated', (data) {
+      debugPrint('📩 Service request files updated: $data');
+      onNewMessage(data);
+    });
+
     ///  Incoming private message
     socket!.on('private:new_message', (data) {
       debugPrint('📩 Private new message received: $data');
