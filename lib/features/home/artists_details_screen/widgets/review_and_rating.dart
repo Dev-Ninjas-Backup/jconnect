@@ -36,25 +36,27 @@ class ReviewAndRating extends StatelessWidget {
                       item.reviewer?.profilePhoto ?? "",
                       height: 40.w,
                       width: 40.w,
-                      errorBuilder: (context, error, stackTrace) =>
-                          Icon(Icons.broken_image, size: 40,color: Colors.white,),
+                      errorBuilder: (context, error, stackTrace) => Icon(
+                        Icons.broken_image,
+                        size: 40,
+                        color: Colors.white,
+                      ),
                     ),
                     Expanded(
                       child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           //sonic+ rating
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                item.reviewer?.fullName ?? 'Unknown',
+                                item.reviewer?.username ?? 'Unknown',
                                 style: getTextStyle(
                                   fontweight: FontWeight.w500,
                                 ),
                               ),
                               Row(
-                              
                                 children: [
                                   Icon(
                                     Icons.star,

@@ -352,7 +352,7 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
 
           SizedBox(height: 40.h),
           Text(
-            "About ${artist.fullName}",
+            "About ${artist.userName}",
             style: getTextStyle(
               fontsize: sp(18),
               fontweight: FontWeight.w500,

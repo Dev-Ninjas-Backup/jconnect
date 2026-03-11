@@ -150,7 +150,7 @@ class OrderDetailsScreen extends StatelessWidget {
       backgroundColor: AppColors.backGroundColor,
 
       body: Padding(
-        padding: EdgeInsets.symmetric(vertical: 74, horizontal: 16),
+        padding: EdgeInsets.only(right: 16, left: 16, top: 74),
         child: SingleChildScrollView(
           child: Column(
             children: [

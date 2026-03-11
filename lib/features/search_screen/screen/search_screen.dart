@@ -24,28 +24,31 @@ class SearchScreen extends StatelessWidget {
           init: ArtistsController(), // created ONCE
           builder: (controller) {
             return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 74.h),
-              child: Column(
-                children: [
-                  CustomTextfield(
-                    controller: controller.searchTextController,
-                    hintText: "Search artists or influencers…",
-                    prefixIcon: Icon(
-                      Icons.search,
-                      size: sp(20),
-                      color: AppColors.secondaryTextColor,
+              padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 74.h),
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  children: [
+                    CustomTextfield(
+                      controller: controller.searchTextController,
+                      hintText: "Search artists or influencers…",
+                      prefixIcon: Icon(
+                        Icons.search,
+                        size: sp(20),
+                        color: AppColors.secondaryTextColor,
+                      ),
+                      onChanged: (value) {
+                        if (value.trim().isEmpty) {
+                          controller.searchArtistItems.clear();
+                        } else {
+                          controller.searchArtistByName(value);
+                        }
+                      },
                     ),
-                    onChanged: (value) {
-                      if (value.trim().isEmpty) {
-                        controller.searchArtistItems.clear();
-                      } else {
-                        controller.searchArtistByName(value);
-                      }
-                    },
-                  ),
-                  SizedBox(height: 40.h),
-                  ArtistsItem(controller: controller),
-                ],
+                    SizedBox(height: 40.h),
+                    ArtistsItem(controller: controller),
+                  ],
+                ),
               ),
             );
           },

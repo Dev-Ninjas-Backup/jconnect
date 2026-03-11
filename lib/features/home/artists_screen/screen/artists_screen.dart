@@ -17,42 +17,44 @@ class ArtistsScreen extends StatelessWidget {
     var controller = Get.put(ArtistsController());
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 74.h),
-        child: Column(
-          children: [
-            CustomAppBar2(
-              title: "Users",
-              // actionIconUrl: Iconpath.notificationIcon,
-              //  actionOnTap: () {},
-              leadingIconUrl: Iconpath.backIcon,
-              onLeadingTap: () {
-                Get.back();
-              },
-            ),
-            SizedBox(height: 30.h),
-            CustomTextfield(
-              controller: controller.searchTextController,
-              hintText: "Search artists or influencers…",
-              prefixIcon: Icon(
-                Icons.search,
-                size: sp(20),
-                color: AppColors.secondaryTextColor,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 74.h),
+          child: Column(
+            children: [
+              CustomAppBar2(
+                title: "Users",
+                // actionIconUrl: Iconpath.notificationIcon,
+                //  actionOnTap: () {},
+                leadingIconUrl: Iconpath.backIcon,
+                onLeadingTap: () {
+                  Get.back();
+                },
               ),
+              SizedBox(height: 30.h),
+              CustomTextfield(
+                controller: controller.searchTextController,
+                hintText: "Search artists or influencers…",
+                prefixIcon: Icon(
+                  Icons.search,
+                  size: sp(20),
+                  color: AppColors.secondaryTextColor,
+                ),
 
-              onChanged: (value) {
-                if (value.trim().isEmpty) {
-                  controller.searchArtistItems.clear();
-                } else {
-                  controller.searchArtistByName(value);
-                }
-              },
-            ),
-            SizedBox(height: 30.h),
-            ArtistsItemListTab(controller: controller),
-            SizedBox(height: 40.h),
-            ArtistsItem(controller: controller),
-          ],
+                onChanged: (value) {
+                  if (value.trim().isEmpty) {
+                    controller.searchArtistItems.clear();
+                  } else {
+                    controller.searchArtistByName(value);
+                  }
+                },
+              ),
+              SizedBox(height: 30.h),
+              ArtistsItemListTab(controller: controller),
+              SizedBox(height: 40.h),
+              ArtistsItem(controller: controller),
+            ],
+          ),
         ),
       ),
     );
