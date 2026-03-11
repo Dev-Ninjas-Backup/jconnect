@@ -46,6 +46,11 @@ class NotificationScreen extends StatelessWidget {
             final AppNotification notification =
                 controller.notifications[index];
 
+            if (notification.title == "New Message" ||
+                notification.title.startsWith("New Service: ")) {
+              return const SizedBox.shrink();
+            }
+
             return Container(
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(14),
