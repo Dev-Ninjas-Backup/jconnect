@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "837643959794-7kr4286l138e8553kinb1gcpl1l66mar.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jconnectApp",
+            "certificate_hash": "ad637f7f1302ffefd658b15e4a303fc10ef859aa"
+          }
+        },
+        {
           "client_id": "837643959794-b1sjtpdmo54vo4u1b74q29ehqm454cp5.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
