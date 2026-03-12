@@ -1897,10 +1897,13 @@ void showAddServiceSheet(
                               // doesn't embed serviceRequest in the send-
                               // message response for custom services.
                               if (srData != null) {
-                                messagesController.applyServiceRequest(
-                                  serviceIdStr,
-                                  ServiceRequestInfo.fromJson(srData),
-                                );
+                                final srId = srData['id']?.toString() ?? '';
+                                if (srId.isNotEmpty) {
+                                  messagesController.applyServiceRequest(
+                                    srId,
+                                    ServiceRequestInfo.fromJson(srData),
+                                  );
+                                }
                               }
 
                               messagesController.sendMessage(

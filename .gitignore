@@ -46,3 +46,4 @@ app.*.map.json
 # Secrets
 lib/secrets/stripe_key.dart
 .gitignore
+temp_interactive_push.bat
