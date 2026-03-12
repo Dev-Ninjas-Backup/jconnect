@@ -20,7 +20,9 @@ class LoginController extends GetxController {
     SharedPreferencesHelperController(),
   );
 
-  final FcmNotificationController fcmNotificationController = Get.put(FcmNotificationController());
+  final FcmNotificationController fcmNotificationController = Get.put(
+    FcmNotificationController(),
+  );
 
   // Google Sign-In 7.2.0+ is now a singleton - use GoogleSignIn.instance
   // Must call initialize() once before using any methods
@@ -216,7 +218,7 @@ class LoginController extends GetxController {
           "provider": "GOOGLE",
           "username": fullName.isNotEmpty
               ? fullName
-              : firebaseUser.displayName ?? "",
+              : firebaseUser.displayName?.trim() ?? "",
         },
         headers: {"Content-Type": "application/json"},
       );
@@ -326,7 +328,7 @@ class LoginController extends GetxController {
       print('DEBUG: Firebase ID Token: $idToken');
 
       // 7️⃣ Get username from Firebase user
-      final userName = firebaseUser.displayName ?? '';
+      final userName = firebaseUser.displayName?.trim() ?? '';
 
       print('DEBUG: Username: $userName');
 
@@ -400,5 +402,4 @@ class LoginController extends GetxController {
       EasyLoading.showError('Google login failed: $e');
     }
   }
-
 }
