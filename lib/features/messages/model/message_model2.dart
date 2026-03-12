@@ -3,22 +3,17 @@ class ChatListResponse {
   final String? message;
   final List<ChatItem>? data;
 
-  ChatListResponse({
-    this.success,
-    this.message,
-    this.data,
-  });
+  ChatListResponse({this.success, this.message, this.data});
 
   factory ChatListResponse.fromJson(Map<String, dynamic> json) {
     return ChatListResponse(
       success: json['success'] as bool?,
       message: json['message'] as String?,
-      data: (json['data'] as List?)
-          ?.map((e) => ChatItem.fromJson(e))
-          .toList(),
+      data: (json['data'] as List?)?.map((e) => ChatItem.fromJson(e)).toList(),
     );
   }
 }
+
 class ChatItem {
   final String? type;
   final String? chatId;
@@ -48,22 +43,21 @@ class ChatItem {
     );
   }
 }
+
 class ChatParticipant {
   final String? id;
   final String? profilePhoto;
   final String? fullName;
+  final String? username;
 
-  ChatParticipant({
-    this.id,
-    this.profilePhoto,
-    this.fullName,
-  });
+  ChatParticipant({this.id, this.profilePhoto, this.fullName, this.username});
 
   factory ChatParticipant.fromJson(Map<String, dynamic> json) {
     return ChatParticipant(
       id: json['id'] as String?,
       profilePhoto: json['profilePhoto'] as String?,
       fullName: json['full_name'] as String?,
+      username: json['username'] as String?,
     );
   }
 
@@ -71,18 +65,14 @@ class ChatParticipant {
   String get displayName => fullName ?? 'Unknown User';
   String get avatar => profilePhoto ?? '';
 }
+
 class LastMessage {
   final String? id;
   final String? content;
   final String? createdAt;
   final MessageSender? sender;
 
-  LastMessage({
-    this.id,
-    this.content,
-    this.createdAt,
-    this.sender,
-  });
+  LastMessage({this.id, this.content, this.createdAt, this.sender});
 
   factory LastMessage.fromJson(Map<String, dynamic> json) {
     return LastMessage(
@@ -98,16 +88,13 @@ class LastMessage {
   /// UI Safe
   String get messagePreview => content ?? '';
 }
+
 class MessageSender {
   final String? id;
   final String? profilePhoto;
   final String? fullName;
 
-  MessageSender({
-    this.id,
-    this.profilePhoto,
-    this.fullName,
-  });
+  MessageSender({this.id, this.profilePhoto, this.fullName});
 
   factory MessageSender.fromJson(Map<String, dynamic> json) {
     return MessageSender(

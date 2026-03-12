@@ -20,7 +20,9 @@ class LoginController extends GetxController {
     SharedPreferencesHelperController(),
   );
 
-  final FcmNotificationController fcmNotificationController = Get.put(FcmNotificationController());
+  final FcmNotificationController fcmNotificationController = Get.put(
+    FcmNotificationController(),
+  );
 
   // Google Sign-In 7.2.0+ is now a singleton - use GoogleSignIn.instance
   // Must call initialize() once before using any methods
@@ -411,5 +413,4 @@ class LoginController extends GetxController {
       EasyLoading.showError('Google login failed: $e');
     }
   }
-
 }

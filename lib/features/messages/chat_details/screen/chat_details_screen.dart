@@ -314,7 +314,8 @@ class ChatDetailsScreen extends StatelessWidget {
       final uploadResponse = await uploadRequest.send();
       final uploadBody = await uploadResponse.stream.bytesToString();
 
-      if (uploadResponse.statusCode != 200 && uploadResponse.statusCode != 201) {
+      if (uploadResponse.statusCode != 200 &&
+          uploadResponse.statusCode != 201) {
         EasyLoading.dismiss();
         EasyLoading.showError(
           'Upload failed: ${uploadResponse.statusCode}\n$uploadBody',
@@ -323,7 +324,8 @@ class ChatDetailsScreen extends StatelessWidget {
         return;
       }
 
-      final fileUrl = (jsonDecode(uploadBody) as Map<String, dynamic>)['file'] as String?;
+      final fileUrl =
+          (jsonDecode(uploadBody) as Map<String, dynamic>)['file'] as String?;
       if (fileUrl == null || fileUrl.isEmpty) {
         EasyLoading.dismiss();
         EasyLoading.showError(
@@ -629,7 +631,7 @@ class ChatDetailsScreen extends StatelessWidget {
 
   void _initializeAndLoadConversation() async {
     await _initializeSocketConnection();
-   // _startAutoRefresh();
+    // _startAutoRefresh();
 
     await Future.delayed(Duration(milliseconds: 500));
 
@@ -771,7 +773,7 @@ class ChatDetailsScreen extends StatelessWidget {
                     children: [
                       GestureDetector(
                         onTap: () {
-                      //    _stopAutoRefresh();
+                          //    _stopAutoRefresh();
                           Get.back();
                         },
                         child: Icon(Icons.arrow_back, color: Colors.white),
@@ -787,7 +789,7 @@ class ChatDetailsScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            chatParticipant?.fullName ?? '',
+                            chatParticipant?.username ?? '',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -858,43 +860,10 @@ class ChatDetailsScreen extends StatelessWidget {
                                     ? CrossAxisAlignment.end
                                     : CrossAxisAlignment.start,
                                 children: [
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                                   // Service info card (if message has service)
                                   if (msgItem.serviceId != null &&
                                       msgItem.service != null)
-
-
-
-
-
-                             ConstrainedBox(
-
-
-
-                                    
-
-
-
-
-
-
+                                    ConstrainedBox(
                                       constraints: BoxConstraints(
                                         maxWidth:
                                             MediaQuery.of(context).size.width *
@@ -1508,13 +1477,6 @@ class ChatDetailsScreen extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-
-
-
-
-
-
-
 
                                   // Regular message - only show if content is not empty
                                   if (msgItem.content.trim().isNotEmpty)
