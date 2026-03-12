@@ -2,4 +2,5 @@
 <resources>
     <!-- FCM default notification accent color -->
     <color name="notification_color">#FF6200EE</color>
+	<color name="ic_launcher_background">#000000</color>
 </resources>
