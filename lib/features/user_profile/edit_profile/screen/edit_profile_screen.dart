@@ -44,13 +44,7 @@ class EditProfileScreen extends StatelessWidget {
                           children: [
                             _buildProfileImage(),
                             SizedBox(height: 25.h),
-                            Text('Full Name', style: getTextStyle()),
-                            SizedBox(height: 6.h),
-                            CustomTextfield(
-                              hintText: 'Full Name',
-                              controller: controller.fullNameController,
-                            ),
-                            SizedBox(height: 14.h),
+
                             Text('Bio', style: getTextStyle()),
                             SizedBox(height: 6.h),
                             CustomTextfield(

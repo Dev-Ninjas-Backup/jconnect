@@ -11,7 +11,6 @@ class ProfileRepository {
   final _prefs = SharedPreferencesHelperController();
 
   Future<void> updateProfile({
-    required String fullName,
     required String phone,
     required String shortBio,
     required String location,
@@ -31,7 +30,6 @@ class ProfileRepository {
     // Headers
     request.headers['Authorization'] = token;
 
-    request.fields['full_name'] = fullName;
     request.fields['phone'] = phone;
     request.fields['short_bio'] = shortBio;
     request.fields['location'] = location;

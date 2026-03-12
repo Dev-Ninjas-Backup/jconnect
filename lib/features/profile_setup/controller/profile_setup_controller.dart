@@ -180,10 +180,7 @@ class SetUpProfileController extends GetxController {
           ? savedPhone
           : (profileController.user.value.phone ?? phoneController.text);
 
-      
-
       await profileRepository.updateProfile(
-        fullName: finalFullName,
         phone: finalPhone,
         shortBio: bioController.text.trim(),
         location: locationController.text.trim(),
