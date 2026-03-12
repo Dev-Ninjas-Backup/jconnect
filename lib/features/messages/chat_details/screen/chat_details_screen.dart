@@ -817,7 +817,7 @@ class ChatDetailsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'You started a chat with ${chatParticipant?.fullName ?? ''}',
+                      'You started a chat with ${chatParticipant?.username ?? ''}',
                       style: getTextStyle(
                         fontsize: 12,
                         fontweight: FontWeight.w400,

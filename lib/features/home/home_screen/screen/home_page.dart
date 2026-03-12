@@ -34,6 +34,7 @@ class HomePage extends StatelessWidget {
                   actionIconUrl: Iconpath.notificationIcon,
                   actionOnTap: () {
                     notificationController.markAllAsRead();
+                    Get.put(NotificationController());
                     Get.toNamed(AppRoute.notificationScreen);
                   },
                   badgeCount: notificationController.unreadCount.value,
