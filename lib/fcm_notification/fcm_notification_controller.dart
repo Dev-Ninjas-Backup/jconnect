@@ -116,6 +116,7 @@ class FcmNotificationController extends GetxController {
       final token = await messaging.getToken();
       if (token != null && token.isNotEmpty) {
         fcmToken.value = token;
+        print('getFres111111111111111hToken: $fcmToken');
         _log('getFreshToken OK: ${token.substring(0, 20)}...');
       } else {
         _log('getFreshToken returned null');
