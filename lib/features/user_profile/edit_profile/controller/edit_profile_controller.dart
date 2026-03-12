@@ -70,7 +70,6 @@ class EditProfileController extends GetxController {
   final profileRepository = ProfileRepository();
   final ImagePicker _picker = ImagePicker();
 
-  final fullNameController = TextEditingController();
   final bioController = TextEditingController();
   final phoneController = TextEditingController();
   final locationController = TextEditingController();
@@ -90,10 +89,6 @@ class EditProfileController extends GetxController {
       final profileController = Get.find<ProfileController>();
       final user = profileController.user.value;
 
-      // Parse full name
-      final fullName = user.fullName ?? user.name;
-      fullNameController.text = fullName;
-
       bioController.text = user.shortbio;
       phoneController.text = user.phone ?? '';
 
@@ -103,7 +98,7 @@ class EditProfileController extends GetxController {
       userNameController.text = user.username;
       if (user.hashtags.isNotEmpty) {
         hashTageController.text = user.hashtags
-            .map((tag) => tag.replaceFirst('#', '')) 
+            .map((tag) => tag.replaceFirst('#', ''))
             .join(', ');
       }
 
@@ -225,7 +220,7 @@ class EditProfileController extends GetxController {
         }
       }
 
-        // Process hashtags
+      // Process hashtags
 
       List<String> hashtagsList = [];
       if (hashTageController.text.trim().isNotEmpty) {
@@ -233,14 +228,11 @@ class EditProfileController extends GetxController {
             .split(',')
             .map((tag) => tag.trim())
             .where((tag) => tag.isNotEmpty)
-            .map(
-              (tag) => tag.startsWith('#') ? tag : '#$tag',
-            ) 
+            .map((tag) => tag.startsWith('#') ? tag : '#$tag')
             .toList();
       }
 
       await profileRepository.updateProfile(
-        fullName: fullNameController.text.trim(),
         phone: phoneController.text.trim(),
         shortBio: bioController.text.trim(),
         location: locationController.text.trim(),
@@ -265,7 +257,6 @@ class EditProfileController extends GetxController {
 
   @override
   void onClose() {
-    fullNameController.dispose();
     bioController.dispose();
     phoneController.dispose();
 
