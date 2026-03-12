@@ -25,13 +25,11 @@ class MessagesController extends GetxController {
     ),
   );
 
-  /// Cache of serviceRequestId → ServiceRequestInfo so details survive conversation reloads.
-  /// Keyed by serviceRequestId (not serviceId) so each request is independent.
+  /// Cache of serviceId → ServiceRequestInfo so details survive conversation reloads.
   final Map<String, ServiceRequestInfo> _serviceRequestCache = {};
 
-  void applyServiceRequest(String serviceRequestId, ServiceRequestInfo info) {
-    if (serviceRequestId.isEmpty) return;
-    _serviceRequestCache[serviceRequestId] = info;
+  void applyServiceRequest(String serviceId, ServiceRequestInfo info) {
+    _serviceRequestCache[serviceId] = info;
     _patchMessagesWithCache();
   }
 
@@ -54,11 +52,10 @@ class MessagesController extends GetxController {
     if (_serviceRequestCache.isEmpty) return;
     for (int i = 0; i < messages.length; i++) {
       final msg = messages[i];
-      // Match strictly by the message's embedded serviceRequest.id.
-      // This ensures each message is only updated by its own service request.
-      final srId = msg.serviceRequest?.id;
-      if (srId != null && _serviceRequestCache.containsKey(srId)) {
-        messages[i] = msg.copyWith(serviceRequest: _serviceRequestCache[srId]);
+      if (msg.serviceId != null &&
+          _serviceRequestCache.containsKey(msg.serviceId) &&
+          msg.serviceRequest == null) {
+        messages[i] = msg.copyWith(serviceRequest: _serviceRequestCache[msg.serviceId]);
       }
     }
   }
@@ -466,46 +463,44 @@ class MessagesController extends GetxController {
     }
   }
 
-  /// Handle serviceRequestUpdated socket events — patch only the specific message
-  /// whose serviceRequestId matches. Never match by serviceId alone, as multiple
-  /// service requests can share the same serviceId.
+  /// Handle serviceRequestUpdated socket events — patch matching messages in-place.
   void _handleServiceRequestUpdated(Map<String, dynamic> data) {
     try {
       final updatedServiceRequest = ServiceRequestInfo.fromJson(data);
+      final serviceId = data['serviceId']?.toString();
       final serviceRequestId = updatedServiceRequest.id;
 
       print(
-        '🔄 Handling serviceRequestUpdated: srId=$serviceRequestId, '
+        '🔄 Handling serviceRequestUpdated: id=$serviceRequestId, serviceId=$serviceId, '
         'isAccepted=${updatedServiceRequest.isAccepted}, isDeclined=${updatedServiceRequest.isDeclined}, isPaid=${updatedServiceRequest.isPaid}',
       );
-
-      if (serviceRequestId == null || serviceRequestId.isEmpty) {
-        print('⚠️ serviceRequestUpdated: missing serviceRequestId — ignoring');
-        return;
-      }
 
       bool patched = false;
 
       for (int i = 0; i < messages.length; i++) {
         final msg = messages[i];
 
-        // Match ONLY by the specific serviceRequestId — never by serviceId,
-        // because multiple distinct service requests can share the same serviceId.
-        final matchById = msg.serviceRequest?.id == serviceRequestId;
+        // Match by serviceRequestId or serviceId
+        final matchById =
+            serviceRequestId != null && msg.serviceRequest?.id == serviceRequestId;
+        final matchByServiceId =
+            serviceId != null && msg.serviceId == serviceId;
 
-        if (matchById) {
+        if (matchById || matchByServiceId) {
           messages[i] = msg.copyWith(serviceRequest: updatedServiceRequest);
-          print('✅ Patched message[${msg.id}] serviceRequest in-place (srId=$serviceRequestId)');
+          print('✅ Patched message[${msg.id}] serviceRequest in-place');
           patched = true;
         }
       }
 
-      // Update cache keyed by serviceRequestId (not serviceId)
-      _serviceRequestCache[serviceRequestId] = updatedServiceRequest;
+      // Also update the cache so future reloads have the latest state
+      if (serviceId != null) {
+        _serviceRequestCache[serviceId] = updatedServiceRequest;
+      }
 
       if (!patched) {
         print(
-          '⚠️ serviceRequestUpdated: no matching message found for srId=$serviceRequestId',
+          '⚠️ serviceRequestUpdated: no matching message found for serviceId=$serviceId / srId=$serviceRequestId',
         );
       }
     } catch (e) {

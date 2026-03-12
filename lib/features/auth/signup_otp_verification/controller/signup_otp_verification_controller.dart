@@ -95,7 +95,7 @@ class SignupOtpVerificationController extends GetxController {
       Future.delayed(Duration(seconds: 2), () async {
         final email = await pref.getSavedEmail();
         final password = await pref.getSavedPassword();
-        final fcmToken = await Get.find<FcmNotificationController>().getFreshToken();
+        final fcmToken = await FcmNotificationController().fcmToken.value;
 
         await loginController.performLoginAfterVerification(
           email.toString().trim(),

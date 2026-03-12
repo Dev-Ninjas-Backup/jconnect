@@ -14,27 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "837643959794-1qi56h69b8fh7vvv3abk9b70ti489s53.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.jconnectApp",
-            "certificate_hash": "2aaf60d2a2bc60ae9bf617d4dd2fe94c4154c84a"
-          }
-        },
-        {
           "client_id": "837643959794-23kmv6acdhtov3st2552bb309b6c7h22.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.jconnectApp",
             "certificate_hash": "103276efb61b3881cb92ac04bc3554aec1596396"
-          }
-        },
-        {
-          "client_id": "837643959794-68t2aff86c4rfii2kqo5ef2l9rgtaq0u.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.jconnectApp",
-            "certificate_hash": "b12ac95874458162dd356e26b7a2b9b675fede4a"
           }
         },
         {
@@ -59,14 +43,6 @@
           "android_info": {
             "package_name": "com.jconnectApp",
             "certificate_hash": "d24d6f25bfe674b26a29278072e6e06597ee1aa4"
-          }
-        },
-        {
-          "client_id": "837643959794-hee5hb7umgjhl5mlff3ufe60m9l2red3.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.jconnectApp",
-            "certificate_hash": "db926fb8ae07abd5c65386a72e49a5fc1799fb01"
           }
         },
         {

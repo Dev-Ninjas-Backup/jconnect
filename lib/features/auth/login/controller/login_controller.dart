@@ -64,9 +64,7 @@ class LoginController extends GetxController {
       final response = await authRepository.login(
         email: email,
         password: password,
-        // getFreshToken() always calls FirebaseMessaging.getToken() directly,
-        // so it works even if the cached value hasn't populated yet (release mode).
-        fcmToken: await fcmNotificationController.getFreshToken(),
+        fcmToken: await fcmNotificationController.fcmToken.value,
       );
 
       isLoading.value = false;
@@ -85,15 +83,6 @@ class LoginController extends GetxController {
 
       if (token.isNotEmpty) {
         EasyLoading.showSuccess('Login successful!');
-
-        // Sync FCM token AFTER auth token is saved — guarantees backend has the
-        // correct FCM token for this device, even in release mode.
-        try {
-          final freshFcmToken = await fcmNotificationController.getFreshToken();
-          if (freshFcmToken.isNotEmpty) {
-            await fcmNotificationController.syncTokenWithBackend(freshFcmToken);
-          }
-        } catch (_) {}
 
         Future.delayed(Duration(seconds: 1), () async {
           await Get.offAllNamed(AppRoute.navBarScreen);
@@ -139,14 +128,6 @@ class LoginController extends GetxController {
 
       if (token.isNotEmpty) {
         //   EasyLoading.showSuccess('Login successful!');
-
-        // Sync FCM token after auth token is saved
-        try {
-          final freshFcmToken = await fcmNotificationController.getFreshToken();
-          if (freshFcmToken.isNotEmpty) {
-            await fcmNotificationController.syncTokenWithBackend(freshFcmToken);
-          }
-        } catch (_) {}
 
         Future.delayed(Duration(seconds: 1), () {
           Get.toNamed(AppRoute.profileSetupScreen);
@@ -238,12 +219,6 @@ class LoginController extends GetxController {
           userName: user['name'] ?? '',
           phoneNumber: user['phone'] ?? '',
         );
-
-        // Sync FCM token now that auth token is saved
-        final freshFcmToken = await fcmNotificationController.getFreshToken();
-        if (freshFcmToken.isNotEmpty) {
-          await fcmNotificationController.syncTokenWithBackend(freshFcmToken);
-        }
 
         EasyLoading.showSuccess('Login successful!');
 
@@ -371,12 +346,6 @@ class LoginController extends GetxController {
         );
 
         print('DEBUG: Token and user info saved successfully');
-
-        // Sync FCM token now that auth token is saved
-        final freshFcmToken = await fcmNotificationController.getFreshToken();
-        if (freshFcmToken.isNotEmpty) {
-          await fcmNotificationController.syncTokenWithBackend(freshFcmToken);
-        }
 
         EasyLoading.showSuccess('Login successful!');
         Future.delayed(Duration(seconds: 1), () async {
