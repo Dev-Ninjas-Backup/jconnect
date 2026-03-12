@@ -174,7 +174,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                     child: Row(
                                       children: [
                                         Text(
-                                          msg.participant.fullName ?? '',
+                                          msg.participant.username ?? '',
                                           style: getTextStyle(
                                             color: Colors.white,
                                           ),
