@@ -31,12 +31,14 @@ class OrderCard extends StatelessWidget {
         statusColor = Colors.grey;
     }
 
-    final bgColor = order.type == 'Given'
-        ? const Color(0xFF242629)
-        : const Color(0xFF1E1E20);
-    final borderColor = order.type == 'Given'
-        ? Colors.blueAccent.withValues(alpha: 0.3)
-        : Colors.greenAccent.withValues(alpha: 0.3);
+    // 'Received' = from my_service_orders API (you are the seller)
+    // 'Purchased' = from my-orders API (you are the buyer)
+    final bgColor = order.type == 'Received'
+        ? const Color(0xFF1A1A2E) // deep blue tint for service orders
+        : const Color(0xFF0D2A1B); // deep green tint for paid orders
+    final borderColor = order.type == 'Received'
+        ? Colors.blueAccent.withValues(alpha: 0.4)
+        : Colors.greenAccent.withValues(alpha: 0.4);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
