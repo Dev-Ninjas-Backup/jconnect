@@ -202,21 +202,27 @@ class LoginController extends GetxController {
       // 4️⃣ Firebase ID token
       final idToken = await firebaseUser.getIdToken(true);
 
+      print("fcm1: $idToken");
+
       debugPrint('DEBUG: Firebase User => $firebaseUser');
       // debugPrint('DEBUG: Firebase ID Token => $idToken');
       debugPrint('Firebase ID Token => $idToken', wrapWidth: 2048);
 
       // print('......... $idToken');
 
-      // 5️⃣ Get username from Firebase user
+      // 5️⃣ Get FCM token
+      final fcmToken = await fcmNotificationController.getFreshToken();
+
+      // 6️⃣ Get username from Firebase user
       final response = await GetConnect().post(
-        'https://api.theconnectapp.net/auth/firebase-login',
+        '${Endpoint.baseUrl}/auth/firebase-login',
         {
           "idToken": idToken,
           "provider": "GOOGLE",
           "username": fullName.isNotEmpty
-              ? fullName
+              ? fullName.trim()
               : firebaseUser.displayName ?? "",
+          "fcmToken": fcmToken,
         },
         headers: {"Content-Type": "application/json"},
       );
@@ -326,15 +332,20 @@ class LoginController extends GetxController {
       print('DEBUG: Firebase ID Token: $idToken');
 
       // 7️⃣ Get username from Firebase user
-      final userName = firebaseUser.displayName ?? '';
+      final userName = firebaseUser.displayName?.trim() ?? '';
 
       print('DEBUG: Username: $userName');
 
-      // 8️⃣ Prepare request body
+      // 8️⃣ Get FCM token
+      final fcmToken = await fcmNotificationController.getFreshToken();
+
+
+      // 9️⃣ Prepare request body
       final requestBody = {
         "idToken": idToken,
         "provider": "google",
         "username": userName,
+        "fcmToken": fcmToken,
       };
 
       print('DEBUG: Request URL: ${Endpoint.firebaseGoogleLogin}');
