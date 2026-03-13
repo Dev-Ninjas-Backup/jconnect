@@ -145,7 +145,14 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
                 child: GestureDetector(
                   onTap: () {
-                    Get.to(() => ChatDetailsScreen(), arguments: msg);
+                    Get.to(
+                      () => ChatDetailsScreen(),
+                      arguments: {
+                        'chatItem': msg,
+                        'recipientId': msg.participant?.id ?? '',
+                        'isNewConversation': false,
+                      },
+                    );
                   },
 
                   child: Container(

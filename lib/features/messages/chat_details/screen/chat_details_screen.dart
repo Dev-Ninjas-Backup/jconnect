@@ -751,13 +751,16 @@ class ChatDetailsScreen extends StatelessWidget {
     // Get participant info from arguments
     dynamic chatParticipant;
     String recipientId = '';
+    String senderUsername = '';
 
     if (arguments is Map) {
       chatParticipant = arguments['chatItem']?.participant;
       recipientId = arguments['recipientId'] ?? '';
+      senderUsername = arguments['senderUsername'] ?? '';
     } else {
       chatParticipant = arguments?.participant;
       recipientId = chatParticipant?.id ?? '';
+      senderUsername = arguments?.senderUsername ?? '';
     }
 
     return Scaffold(
@@ -789,7 +792,9 @@ class ChatDetailsScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            chatParticipant?.username ?? '',
+                            senderUsername.isNotEmpty
+                                ? senderUsername
+                                : (chatParticipant?.username ?? ''),
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -817,7 +822,7 @@ class ChatDetailsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'You started a chat with ${chatParticipant?.fullName ?? ''}',
+                      'You started a chat with ${senderUsername.isNotEmpty ? senderUsername : (chatParticipant?.username ?? '')}',
                       style: getTextStyle(
                         fontsize: 12,
                         fontweight: FontWeight.w400,

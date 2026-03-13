@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, unused_local_variable
 
+import 'package:flutter/foundation.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
@@ -32,6 +33,12 @@ class NotificationController extends GetxController {
     loadNotifications();
   }
 
+  @override
+  void onClose() {
+    disconnectSocket();
+    super.onClose();
+  }
+
   void connectSocket(String token) {
     _socketService.connect(token: token, onNotification: _handleNotification);
   }
@@ -42,12 +49,9 @@ class NotificationController extends GetxController {
         Map<String, dynamic>.from(data),
       );
 
-      // 🔥 PREVENT DUPLICATE SOCKET + HTTP
-      final exists = notifications.any((n) => n.id == notification.id);
-
-      if (!exists) {
-        notifications.insert(0, notification);
-      }
+      // Add all notifications without duplicate checking
+      notifications.insert(0, notification);
+      debugPrint('✅ Notification added: ${notification.title}');
     } catch (e) {
       print('❌ Notification parse error: $e');
     }

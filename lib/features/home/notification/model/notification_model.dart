@@ -41,15 +41,17 @@
 class AppUser {
   final String? id;
   final String? full_name;
+  final String? username;
   final String? profilePhoto;
 
-  AppUser({this.id, this.full_name, this.profilePhoto});
+  AppUser({this.id, this.full_name, this.username, this.profilePhoto});
 
   factory AppUser.fromJson(Map<String, dynamic> json) {
     print('👤 AppUser JSON: $json');
     return AppUser(
       id: json['id'] as String?,
       full_name: json['full_name'] as String?,
+      username: json['username'] as String? ?? json['userName'] as String?,
       profilePhoto: json['profilePhoto'] as String?,
     );
   }

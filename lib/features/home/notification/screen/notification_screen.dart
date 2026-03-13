@@ -94,68 +94,86 @@ class NotificationScreen extends StatelessWidget {
                             ),
                             notification.title == "New Inquiry Received"
                                 ? GestureDetector(
-                                onTap: 
-                                (){
-                                  final messagesController =
-                                    Get.find<MessagesController>();
-                                  final artistId = notification.currentUser?.id;
+                                    onTap: () {
+                                      final messagesController =
+                                          Get.find<MessagesController>();
+                                      final artistId =
+                                          notification.currentUser?.id;
 
-                                  if (artistId == null) {
-                                    Get.snackbar('Error', 'Sender information not available');
-                                    return;
-                                  }
+                                      if (artistId == null) {
+                                        Get.snackbar(
+                                          'Error',
+                                          'Sender information not available',
+                                        );
+                                        return;
+                                      }
 
-                                  final existingChat = messagesController.allChats
-                                      .firstWhereOrNull(
-                                        (chat) => chat.participant?.id == artistId,
-                                      );
+                                      final existingChat = messagesController
+                                          .allChats
+                                          .firstWhereOrNull(
+                                            (chat) =>
+                                                chat.participant?.id ==
+                                                artistId,
+                                          );
 
-                                  if (existingChat != null &&
-                                      existingChat.chatId != null) {
-                                    Get.toNamed(
-                                      AppRoute.chatDetailsScreen,
-                                      arguments: {
-                                        'chatItem': existingChat,
-                                        'recipientId': artistId,
-                                        'isNewConversation': false,
-                                      },
-                                    );
-                                  } else {
-                                    final chatItem = ChatItem(
-                                      type: 'private',
-                                      chatId: null,
-                                      participant: ChatParticipant(
-                                        id: artistId,
-                                        fullName: notification.currentUser?.full_name ?? 'User',
-                                        profilePhoto: notification.currentUser?.profilePhoto,
-                                      ),
-                                    );
-                                    Get.toNamed(
-                                      AppRoute.chatDetailsScreen,
-                                      arguments: {
-                                        'chatItem': chatItem,
-                                        'recipientId': artistId,
-                                        'isNewConversation': true,
-                                      },
-                                    );
-                                  }
-                                }
-                                
-                                
-                                
-        
-                                
-                                
-                                
-                                
-                                
-                                ,
-                                  child: Icon(
+                                      if (existingChat != null &&
+                                          existingChat.chatId != null) {
+                                        Get.toNamed(
+                                          AppRoute.chatDetailsScreen,
+                                          arguments: {
+                                            'chatItem': existingChat,
+                                            'recipientId': artistId,
+                                            'isNewConversation': false,
+                                            'senderUsername':
+                                                notification
+                                                    .currentUser
+                                                    ?.username ??
+                                                notification
+                                                    .currentUser
+                                                    ?.full_name ??
+                                                'User',
+                                          },
+                                        );
+                                      } else {
+                                        final chatItem = ChatItem(
+                                          type: 'private',
+                                          chatId: null,
+                                          participant: ChatParticipant(
+                                            id: artistId,
+                                            fullName:
+                                                notification
+                                                    .currentUser
+                                                    ?.full_name ??
+                                                'User',
+                                            profilePhoto: notification
+                                                .currentUser
+                                                ?.profilePhoto,
+                                          ),
+                                        );
+                                        Get.toNamed(
+                                          AppRoute.chatDetailsScreen,
+                                          arguments: {
+                                            'chatItem': chatItem,
+                                            'recipientId': artistId,
+                                            'isNewConversation': true,
+                                            'senderUsername':
+                                                notification
+                                                    .currentUser
+                                                    ?.username ??
+                                                notification
+                                                    .currentUser
+                                                    ?.full_name ??
+                                                'User',
+                                          },
+                                        );
+                                      }
+                                    },
+                                    child: Icon(
                                       Icons.message,
                                       color: Colors.greenAccent,
                                       size: 24,
                                     ),
-                                )
+                                  )
                                 : SizedBox.shrink(),
                           ],
                         ),
