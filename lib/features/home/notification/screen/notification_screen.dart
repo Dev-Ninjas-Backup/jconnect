@@ -1,5 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/service/network_service/network_client.dart';
+import 'package:jconnect/features/home/artists_details_screen/controller/artists_details_controller.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
 import 'package:jconnect/features/messages/model/message_model2.dart';
 import 'package:jconnect/routes/approute.dart';
@@ -51,149 +54,178 @@ class NotificationScreen extends StatelessWidget {
               return const SizedBox.shrink();
             }
 
-            return Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    // ignore: deprecated_member_use
-                    color: Colors.black.withOpacity(.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.blue.shade50,
-                    child: Icon(
-                      Icons.notifications,
-                      color: Colors.blue.shade700,
+            return GestureDetector(
+              onTap: () async {
+                if (notification.title.contains("Service")) {
+                  final artistId =
+                      notification.userId ?? notification.creatorId;
+
+                  if (artistId == null) {
+                    Get.snackbar('Error', 'Creator information not available');
+                    return;
+                  }
+
+                  final artistsDetailsController = Get.put(
+                    ArtistsDetailsController(
+                      networkClient: NetworkClient(
+                        onUnAuthorize: () {
+                          if (kDebugMode) print("unauthorized");
+                        },
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              notification.title,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
+                  );
+
+                  await artistsDetailsController.fetchArtistById(artistId);
+                  Get.toNamed(
+                    AppRoute.artistsDetailsPage,
+                    parameters: {'id': artistId},
+                  );
+                }
+              },
+
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.blue.shade50,
+                      child: Icon(
+                        Icons.notifications,
+                        color: Colors.blue.shade700,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                notification.title,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
                               ),
-                            ),
-                            notification.title == "New Inquiry Received"
-                                ? GestureDetector(
-                                    onTap: () {
-                                      final messagesController =
-                                          Get.find<MessagesController>();
-                                      final artistId =
-                                          notification.currentUser?.id;
+                              notification.title == "New Inquiry Received"
+                                  ? GestureDetector(
+                                      onTap: () {
+                                        final messagesController =
+                                            Get.find<MessagesController>();
+                                        final artistId =
+                                            notification.currentUser?.id;
 
-                                      if (artistId == null) {
-                                        Get.snackbar(
-                                          'Error',
-                                          'Sender information not available',
-                                        );
-                                        return;
-                                      }
-
-                                      final existingChat = messagesController
-                                          .allChats
-                                          .firstWhereOrNull(
-                                            (chat) =>
-                                                chat.participant?.id ==
-                                                artistId,
+                                        if (artistId == null) {
+                                          Get.snackbar(
+                                            'Error',
+                                            'Sender information not available',
                                           );
+                                          return;
+                                        }
 
-                                      if (existingChat != null &&
-                                          existingChat.chatId != null) {
-                                        Get.toNamed(
-                                          AppRoute.chatDetailsScreen,
-                                          arguments: {
-                                            'chatItem': existingChat,
-                                            'recipientId': artistId,
-                                            'isNewConversation': false,
-                                            'senderUsername':
-                                                notification
-                                                    .currentUser
-                                                    ?.username ??
-                                                notification
-                                                    .currentUser
-                                                    ?.full_name ??
-                                                'User',
-                                          },
-                                        );
-                                      } else {
-                                        final chatItem = ChatItem(
-                                          type: 'private',
-                                          chatId: null,
-                                          participant: ChatParticipant(
-                                            id: artistId,
-                                            fullName:
-                                                notification
-                                                    .currentUser
-                                                    ?.full_name ??
-                                                'User',
-                                            profilePhoto: notification
-                                                .currentUser
-                                                ?.profilePhoto,
-                                          ),
-                                        );
-                                        Get.toNamed(
-                                          AppRoute.chatDetailsScreen,
-                                          arguments: {
-                                            'chatItem': chatItem,
-                                            'recipientId': artistId,
-                                            'isNewConversation': true,
-                                            'senderUsername':
-                                                notification
-                                                    .currentUser
-                                                    ?.username ??
-                                                notification
-                                                    .currentUser
-                                                    ?.full_name ??
-                                                'User',
-                                          },
-                                        );
-                                      }
-                                    },
-                                    child: Icon(
-                                      Icons.message,
-                                      color: Colors.greenAccent,
-                                      size: 24,
-                                    ),
-                                  )
-                                : SizedBox.shrink(),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          notification.message,
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _formatDate(notification.createdAt),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade600,
+                                        final existingChat = messagesController
+                                            .allChats
+                                            .firstWhereOrNull(
+                                              (chat) =>
+                                                  chat.participant?.id ==
+                                                  artistId,
+                                            );
+
+                                        if (existingChat != null &&
+                                            existingChat.chatId != null) {
+                                          Get.toNamed(
+                                            AppRoute.chatDetailsScreen,
+                                            arguments: {
+                                              'chatItem': existingChat,
+                                              'recipientId': artistId,
+                                              'isNewConversation': false,
+                                              'senderUsername':
+                                                  notification
+                                                      .currentUser
+                                                      ?.username ??
+                                                  notification
+                                                      .currentUser
+                                                      ?.full_name ??
+                                                  'User',
+                                            },
+                                          );
+                                        } else {
+                                          final chatItem = ChatItem(
+                                            type: 'private',
+                                            chatId: null,
+                                            participant: ChatParticipant(
+                                              id: artistId,
+                                              fullName:
+                                                  notification
+                                                      .currentUser
+                                                      ?.full_name ??
+                                                  'User',
+                                              profilePhoto: notification
+                                                  .currentUser
+                                                  ?.profilePhoto,
+                                            ),
+                                          );
+                                          Get.toNamed(
+                                            AppRoute.chatDetailsScreen,
+                                            arguments: {
+                                              'chatItem': chatItem,
+                                              'recipientId': artistId,
+                                              'isNewConversation': true,
+                                              'senderUsername':
+                                                  notification
+                                                      .currentUser
+                                                      ?.username ??
+                                                  notification
+                                                      .currentUser
+                                                      ?.full_name ??
+                                                  'User',
+                                            },
+                                          );
+                                        }
+                                      },
+                                      child: Icon(
+                                        Icons.message,
+                                        color: Colors.greenAccent,
+                                        size: 24,
+                                      ),
+                                    )
+                                  : SizedBox.shrink(),
+                            ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 6),
+                          Text(
+                            notification.message,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _formatDate(notification.createdAt),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },
