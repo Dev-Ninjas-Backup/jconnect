@@ -175,7 +175,7 @@ class ProfileScreen extends StatelessWidget {
 
           SizedBox(height: 25),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildStat('${user.totaldeals}', 'Total Deals'),
               _buildStat('\$${user.earnings.toStringAsFixed(2)}', 'Earnings'),
@@ -189,14 +189,14 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildStat(String value, String label) {
     return Container(
-      width: 110,
+      width: 105,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: AppColors.backGroundColor,
         border: Border.all(color: Colors.grey.shade700),
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10),
+        padding: EdgeInsets.symmetric(vertical: 10,),
         child: Column(
           children: [
             Text(

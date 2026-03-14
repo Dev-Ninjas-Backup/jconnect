@@ -31,16 +31,18 @@ class ArtistsSocialPostList extends StatelessWidget {
 
       body: Padding(
         padding: EdgeInsetsGeometry.symmetric(horizontal: 14, vertical: 60),
-        child: Column(
-          children: [
-            CustomAppBar2(
-              title: "Social Post List",
-              leadingIconUrl: Iconpath.backIcon,
-              onLeadingTap: Get.back,
-            ),
-            SizedBox(height: 34.h),
-            SocialPost(controller: controller),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              CustomAppBar2(
+                title: "Social Post List",
+                leadingIconUrl: Iconpath.backIcon,
+                onLeadingTap: Get.back,
+              ),
+              SizedBox(height: 34.h),
+              SocialPost(controller: controller),
+            ],
+          ),
         ),
       ),
     );
