@@ -10,12 +10,15 @@ import '../controller/notification_controller.dart';
 import '../model/notification_model.dart';
 
 class NotificationScreen extends StatelessWidget {
-  NotificationScreen({super.key});
+   NotificationScreen({super.key});
 
-  final NotificationController controller = Get.find<NotificationController>();
+  final NotificationController controller = Get.find();
 
   @override
   Widget build(BuildContext context) {
+    // Refresh notifications when screen opens
+    controller.refreshNotifications();
+    
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -34,12 +37,7 @@ class NotificationScreen extends StatelessWidget {
       ),
       body: Obx(() {
         if (controller.notifications.isEmpty) {
-          return const Center(
-            child: Text(
-              'No notifications yet',
-              style: TextStyle(fontSize: 16, color: Colors.white),
-            ),
-          );
+          return Center(child: const CircularProgressIndicator(color: Colors.white,));
         }
 
         return ListView.builder(
