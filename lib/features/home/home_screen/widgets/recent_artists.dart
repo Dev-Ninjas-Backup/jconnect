@@ -309,7 +309,7 @@ class ArtistsYouKnow extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
               child: CustomPrimaryButton2(
                 fontSize: sp(10),
-                buttonText: "Inquire",
+                buttonText: "Inquiry",
                 buttonHeight: 25,
                 onTap: () {
                   controller.sendInquiry(userID: artist.id);

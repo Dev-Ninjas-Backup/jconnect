@@ -99,22 +99,36 @@ class ArtistsController extends GetxController {
     }
   }
 
-  Future<void> sendInquiry({required String userID}) async {
+  Future<bool> sendInquiry({required String userID}) async {
     final url = Uri.parse("${Endpoint.baseUrl}/users/$userID/inquiry");
 
     try {
-      await http.get(
+      final response = await http.get(
         url,
         headers: {
           "Authorization":
-              "Bearer ${sharedPreferencesHelperController.getAccessRowToken()}",
+              await sharedPreferencesHelperController.getAccessToken() != null
+              ? "${await sharedPreferencesHelperController.getAccessToken()}"
+              : "",
           "Accept": "application/json",
         },
       );
 
-      // No response handling needed
+      if (response.statusCode == 200 ||
+          response.statusCode == 201 ||
+          response.statusCode == 202) {
+        print("Inquiry Success");
+        EasyLoading.showSuccess("Inquiry sent successfully!");
+        return true;
+      } else {
+        EasyLoading.showError("Failed to send inquiry. Please try again.");
+        print("Inquiry Failed: ${response.statusCode}${response.body}");
+        return false;
+      }
     } catch (e) {
       print("Inquire API hit error: $e");
+      EasyLoading.showError("Error: ${e.toString()}");
+      return false;
     }
   }
 
