@@ -11,6 +11,7 @@ import 'package:jconnect/features/messages/controller/messages_controller.dart';
 import 'package:jconnect/features/home/notification/screen/notification_screen.dart';
 import 'package:jconnect/features/messages/chat_details/screen/chat_details_screen.dart';
 import 'package:jconnect/firebase_options.dart';
+import 'package:jconnect/routes/approute.dart';
 
 const String _channelId = 'high_importance_channel';
 const String _channelName = 'High Importance Notifications';
@@ -103,6 +104,8 @@ Future<void> _showLocalNotification({
 
 // ─── CONTROLLER ───────────────────────────────────────────────────────
 class FcmNotificationController extends GetxController {
+  var openedFromNotification = false.obs;
+
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   var fcmToken = ''.obs;
@@ -335,6 +338,8 @@ class FcmNotificationController extends GetxController {
   }
 
   void _handleLocalNotificationTap(String? payload) {
+    openedFromNotification.value = true;
+
     _log('🔔 Local notification tapped: payload=$payload');
     if (payload == null || payload.isEmpty) {
       _log('❌ Local notification tap: payload is null/empty');
@@ -354,6 +359,8 @@ class FcmNotificationController extends GetxController {
   }
 
   void _handleNotificationTap(RemoteMessage message) {
+    openedFromNotification.value = true;
+
     _log('🔔 FCM notification tapped: messageId=${message.messageId}');
     _log('📋 Notification data: ${message.data}');
     _log('📋 Notification title: ${message.notification?.title}');
@@ -397,19 +404,23 @@ class FcmNotificationController extends GetxController {
       if (type == 'service') {
         _log('➡️ Routing to notification screen (service)');
         // Use Get.to() to navigate on top of current screen without replacing stack
-        await Get.to(
-          () => NotificationScreen(),
-          transition: Transition.rightToLeft,
-        );
+        Get.offAllNamed(AppRoute.navBarScreen);
+
+        Future.delayed(const Duration(milliseconds: 100), () {
+          Get.to(() => NotificationScreen());
+        });
+
         return;
       }
 
       if (type == 'inquiry') {
         _log('➡️ Routing to notification screen (inquiry)');
-        await Get.to(
-          () => NotificationScreen(),
-          transition: Transition.rightToLeft,
-        );
+        Get.offAllNamed(AppRoute.navBarScreen);
+
+        Future.delayed(const Duration(milliseconds: 100), () {
+          Get.to(() => NotificationScreen());
+        });
+
         return;
       }
 
@@ -438,10 +449,11 @@ class FcmNotificationController extends GetxController {
 
         if (isServiceRequestMessage) {
           _log('➡️ Routing to notification screen (Service Request Message)');
-          await Get.to(
-            () => NotificationScreen(),
-            transition: Transition.rightToLeft,
-          );
+          Get.offAllNamed(AppRoute.navBarScreen);
+
+          Future.delayed(const Duration(milliseconds: 100), () {
+            Get.to(() => NotificationScreen());
+          });
         } else {
           // Regular chat messages go to chat details
           _log('➡️ Routing to message/chat details');
@@ -537,7 +549,10 @@ class FcmNotificationController extends GetxController {
     return '';
   }
 
-  Future<void> _openMessageDetails(Map<String, dynamic> data, {String? title}) async {
+  Future<void> _openMessageDetails(
+    Map<String, dynamic> data, {
+    String? title,
+  }) async {
     _log('💬 _openMessageDetails called');
 
     final chatId = _firstNonEmpty(data, const [
@@ -616,16 +631,30 @@ class FcmNotificationController extends GetxController {
       '   Arguments: chatId=$chatId, recipientId=$recipientId, isNew=${(chatId == null || chatId.isEmpty)}, senderUsername=$username',
     );
     try {
-      await Get.to(
-        () => ChatDetailsScreen(),
-        arguments: {
-          'chatItem': chatItem,
-          'recipientId': recipientId ?? '',
-          'isNewConversation': (chatId == null || chatId.isEmpty),
-          'senderUsername': username ?? title ?? 'User',
-        },
-        transition: Transition.rightToLeft,
-      );
+      Get.offAllNamed(AppRoute.navBarScreen);
+
+      Future.delayed(const Duration(milliseconds: 100), () {
+        Get.to(
+          () => ChatDetailsScreen(),
+          arguments: {
+            'chatItem': chatItem,
+            'recipientId': recipientId ?? '',
+            'isNewConversation': (chatId == null || chatId.isEmpty),
+            'senderUsername': username ?? title ?? 'User',
+          },
+        );
+      });
+
+      // await Get.offAll(
+      //   () => ChatDetailsScreen(),
+      //   arguments: {
+      //     'chatItem': chatItem,
+      //     'recipientId': recipientId ?? '',
+      //     'isNewConversation': (chatId == null || chatId.isEmpty),
+      //     'senderUsername': username ?? title ?? 'User',
+      //   },
+      // //  transition: Transition.rightToLeft,
+      // );
       _log('   ✅ Successfully navigated to ChatDetailsScreen');
     } catch (e) {
       _log('   ❌ Error navigating to chatDetailsScreen: $e');
