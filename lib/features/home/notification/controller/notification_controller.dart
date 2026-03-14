@@ -30,13 +30,20 @@ class NotificationController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadNotifications();
+    refreshNotifications();
   }
 
   @override
   void onClose() {
     disconnectSocket();
     super.onClose();
+  }
+
+  /// Refresh notifications - clears and reloads
+  Future<void> refreshNotifications() async {
+    notifications.clear();
+    unreadCount.value = 0;
+    await loadNotifications();
   }
 
   void connectSocket(String token) {
