@@ -65,6 +65,8 @@ class AppNotification {
   final DateTime createdAt;
   final Map<String, dynamic>? meta;
   final AppUser? currentUser;
+  final String? userId; // userId from metadata
+  final String? creatorId; // creatorId from metadata
 
   AppNotification({
     this.id,
@@ -74,6 +76,8 @@ class AppNotification {
     required this.createdAt,
     this.meta,
     this.currentUser,
+    this.userId,
+    this.creatorId,
   });
 
   factory AppNotification.fromJson(Map<String, dynamic> json) {
@@ -83,6 +87,10 @@ class AppNotification {
 
     print('📱 Notification JSON metadata: $metadata');
     print('📱 Current User Data: $currentUserData');
+
+    // Extract userId or creatorId from metadata
+    final String? extractedUserId = metadata?['userId'] as String?;
+    final String? extractedCreatorId = metadata?['creatorId'] as String?;
 
     return AppNotification(
       id: json['id'] as String?,
@@ -94,6 +102,8 @@ class AppNotification {
       currentUser: currentUserData != null
           ? AppUser.fromJson(currentUserData as Map<String, dynamic>)
           : null,
+      userId: extractedUserId,
+      creatorId: extractedCreatorId,
     );
   }
 }
