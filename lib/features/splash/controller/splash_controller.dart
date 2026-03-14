@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/home/notification/controller/notification_controller.dart';
@@ -43,6 +44,12 @@ class SplashController extends GetxController {
     final loginStatus = await pref.checkLogin();
 
     if (loginStatus == true && token != null) {
+      // Use off() instead of offAllNamed() to preserve notification navigation
+      Get.off(
+        () => const SizedBox.shrink(), // dummy widget
+        transition: Transition.noTransition,
+      );
+      await Future.delayed(const Duration(milliseconds: 50));
       Get.offAllNamed(AppRoute.navBarScreen);
 
       // Delay to avoid lifecycle disconnect
