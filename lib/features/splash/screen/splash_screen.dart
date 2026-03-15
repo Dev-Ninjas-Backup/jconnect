@@ -18,7 +18,7 @@ class SplashScreen extends StatelessWidget {
     const grayColor = Color(0xFFD5D5D5);
 
     return Scaffold(
-      backgroundColor: AppColors.backGroundColor,
+      backgroundColor: Colors.black,
       body: Stack(
         alignment: Alignment.center,
         children: [
@@ -29,7 +29,7 @@ class SplashScreen extends StatelessWidget {
               width: 300.w,
               fit: BoxFit.contain,
               repeat: true,
-              animate: true
+              animate: true,
             ),
           ),
 
