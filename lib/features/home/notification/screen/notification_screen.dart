@@ -10,14 +10,13 @@ import '../controller/notification_controller.dart';
 import '../model/notification_model.dart';
 
 class NotificationScreen extends StatelessWidget {
-   NotificationScreen({super.key});
-
-  final NotificationController controller = Get.find();
+  const NotificationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Refresh notifications when screen opens
-    controller.refreshNotifications();
+    final NotificationController controller = Get.find();
+    // Trigger lazy load when screen opens
+    controller.ensureNotificationsLoaded();
     
     return Scaffold(
       backgroundColor: Colors.black,
@@ -36,8 +35,17 @@ class NotificationScreen extends StatelessWidget {
         ),
       ),
       body: Obx(() {
-        if (controller.notifications.isEmpty) {
+        if (controller.isLoading.value) {
           return Center(child: const CircularProgressIndicator(color: Colors.white,));
+        }
+        
+        if (controller.notifications.isEmpty) {
+          return const Center(
+            child: Text(
+              'No notifications',
+              style: TextStyle(color: Colors.white),
+            ),
+          );
         }
 
         return ListView.builder(
@@ -59,7 +67,7 @@ class NotificationScreen extends StatelessWidget {
                       notification.userId ?? notification.creatorId;
 
                   if (artistId == null) {
-                    Get.snackbar('Error', 'Creator information not available');
+                  //  Get.snackbar('Error', 'Creator information not available');
                     return;
                   }
 

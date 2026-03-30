@@ -73,7 +73,7 @@ class NotificationSocketService {
       _isConnecting = false;
       _reconnectTimer?.cancel();
       _reconnectTimer = null;
-      _startHealthCheck();
+   //   _startHealthCheck();
     });
 
     socket!.onDisconnect((_) {
@@ -126,22 +126,22 @@ class NotificationSocketService {
     });
   }
 
-  void _startHealthCheck() {
-    _healthCheckTimer?.cancel();
-    _healthCheckTimer = Timer.periodic(
-      Duration(seconds: _healthCheckInterval),
-      (_) {
-        if (socket?.connected ?? false) {
-          debugPrint('💓 Socket health check - Connected');
-        } else {
-          debugPrint(
-            '⚠️ Socket health check - Disconnected, attempting to reconnect',
-          );
-          _scheduleReconnect();
-        }
-      },
-    );
-  }
+  // void _startHealthCheck() {
+  //   _healthCheckTimer?.cancel();
+  //   _healthCheckTimer = Timer.periodic(
+  //     Duration(seconds: _healthCheckInterval),
+  //     (_) {
+  //       if (socket?.connected ?? false) {
+  //         debugPrint('💓 Socket health check - Connected');
+  //       } else {
+  //         debugPrint(
+  //           '⚠️ Socket health check - Disconnected, attempting to reconnect',
+  //         );
+  //         _scheduleReconnect();
+  //       }
+  //     },
+  //   );
+  // }
 
   void _stopHealthCheck() {
     _healthCheckTimer?.cancel();
