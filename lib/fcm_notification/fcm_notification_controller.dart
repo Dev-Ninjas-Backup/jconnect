@@ -155,6 +155,20 @@ class FcmNotificationController extends GetxController {
     print('╚════════════════════════════════════╝');
   }
 
+  /// Helper to convert AuthorizationStatus to readable text
+  String _getAuthStatusText(AuthorizationStatus status) {
+    switch (status) {
+      case AuthorizationStatus.authorized:
+        return 'AUTHORIZED ✅';
+      case AuthorizationStatus.denied:
+        return 'DENIED ❌';
+      case AuthorizationStatus.notDetermined:
+        return 'NOT_DETERMINED ⏳';
+      case AuthorizationStatus.provisional:
+        return 'PROVISIONAL ⚠️';
+    }
+  }
+
   /// Syncs FCM token with the backend. Call after login succeeds.
   Future<void> syncTokenWithBackend(String token) async {
     if (token.isEmpty) {
@@ -218,14 +232,16 @@ class FcmNotificationController extends GetxController {
       _log('Step 3 WARN: onTokenRefresh failed: $e');
     }
 
-    // ── Step 4: Request permission (Android 13+ shows dialog) ──────────
+    // ── Step 4: Request permission (Android 13+ shows dialog, iOS too) ────
     try {
       final settings = await messaging.requestPermission(
         alert: true,
         badge: true,
         sound: true,
+        provisional: false, // Explicit permission, not provisional for iOS
       );
       _log('Step 4 OK: permission = ${settings.authorizationStatus}');
+      _log('   iOS AuthStatus: ${_getAuthStatusText(settings.authorizationStatus)}');
     } catch (e) {
       _log('Step 4 WARN: requestPermission failed: $e');
     }
@@ -257,33 +273,26 @@ class FcmNotificationController extends GetxController {
     }
 
     // ── Step 6: Foreground message listener ─────────────────────────────
+    // NOTE: iOS automatically shows foreground notifications via
+    // setForegroundNotificationPresentationOptions(). Android requires
+    // manual display, so we show it here for Android only.
     try {
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         _log('FG message received: id=${message.messageId}');
-        try {
-          final notification = message.notification;
-          if (notification != null) {
-            // Has notification payload — show it
-            _showLocalNotification(
-              title: notification.title ?? '',
-              body: notification.body ?? '',
-              payload: message.data.isNotEmpty
-                  ? jsonEncode(message.data)
-                  : null,
-            );
-          } else if (message.data.isNotEmpty) {
-            // Data-only payload — extract title/body from data
-            _showLocalNotification(
-              title:
-                  message.data['title'] ??
-                  message.data['heading'] ??
-                  'New notification',
-              body: message.data['body'] ?? message.data['message'] ?? '',
-              payload: jsonEncode(message.data),
-            );
-          }
-        } catch (e) {
-          _log('FG message display error: $e');
+        if (message.notification != null) {
+          _log('   Title: ${message.notification?.title}');
+          _log('   Body: ${message.notification?.body}');
+          
+          // Android: Manually show foreground notification
+          // (iOS handles it via setForegroundNotificationPresentationOptions)
+          _showLocalNotification(
+            title: message.notification?.title ?? 'New Message',
+            body: message.notification?.body ?? '',
+            payload: jsonEncode(message.data),
+          );
+        }
+        if (message.data.isNotEmpty) {
+          _log('   Data: ${message.data}');
         }
       });
       _log('Step 6 OK: foreground listener registered');
@@ -331,15 +340,33 @@ class FcmNotificationController extends GetxController {
         >()
         ?.createNotificationChannel(channel);
 
-    await flutterLocalNotificationsPlugin
+    // iOS: Request notification permissions
+    final iosPlugin = flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
           IOSFlutterLocalNotificationsPlugin
-        >()
-        ?.requestPermissions(alert: true, badge: true, sound: true);
+        >();
+    
+    await iosPlugin?.requestPermissions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    // iOS: Set presentation options for foreground notifications
+    // This is CRITICAL for iOS — without this, foreground notifications won't show
+    await messaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
 
     const InitializationSettings initSettings = InitializationSettings(
       android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-      iOS: DarwinInitializationSettings(),
+      iOS: DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      ),
     );
 
     await flutterLocalNotificationsPlugin.initialize(
@@ -474,8 +501,13 @@ class FcmNotificationController extends GetxController {
         }
         return;
       }
+        Get.offAllNamed(AppRoute.navBarScreen);
 
-      _log('⚠️ Unknown notification type: $type, no routing performed');
+        Future.delayed(const Duration(milliseconds: 100), () {
+          Get.to(() => NotificationScreen());
+        });
+
+        return;
     });
   }
 

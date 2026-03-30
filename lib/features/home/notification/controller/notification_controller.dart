@@ -46,6 +46,13 @@ class NotificationController extends GetxController {
     await loadNotifications();
   }
 
+  /// Load notifications only if empty (used when opening notification screen)
+  Future<void> ensureNotificationsLoaded() async {
+    if (notifications.isEmpty && !isLoading.value) {
+      await loadNotifications();
+    }
+  }
+
   void connectSocket(String token) {
     _socketService.connect(token: token, onNotification: _handleNotification);
   }
