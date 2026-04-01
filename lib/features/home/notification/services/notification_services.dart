@@ -1,4 +1,6 @@
 // ignore: library_prefixes
+// ignore_for_file: unused_field
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -30,7 +32,7 @@ class NotificationSocketService {
   }) {
     // Don't reconnect if already connecting or connected
     if (_isConnecting || (socket?.connected ?? false)) {
-      debugPrint('❌ Socket already connecting or connected');
+      debugPrint(' Socket already connecting or connected');
       return;
     }
 
@@ -77,28 +79,28 @@ class NotificationSocketService {
     });
 
     socket!.onDisconnect((_) {
-      debugPrint('❌ Notification socket disconnected');
+      debugPrint('Notification socket disconnected');
       _isConnecting = false;
       _stopHealthCheck();
-      _scheduleReconnect();
+   //   _scheduleReconnect();
     });
 
     socket!.onConnectError((err) {
       debugPrint('⚠️ Socket connect error: $err');
       _isConnecting = false;
       _stopHealthCheck();
-      _scheduleReconnect();
+   //   _scheduleReconnect();
     });
 
     socket!.on('error', (data) {
       debugPrint('❌ Socket error event: $data');
-      _scheduleReconnect();
+ //     _scheduleReconnect();
     });
 
     socket!.on('connect_error', (error) {
       debugPrint('❌ Socket connection error: $error');
       _stopHealthCheck();
-      _scheduleReconnect();
+    //  _scheduleReconnect();
     });
 
     /// Backend emits notifications
@@ -115,16 +117,16 @@ class NotificationSocketService {
     socket!.connect();
   }
 
-  void _scheduleReconnect() {
-    _reconnectTimer?.cancel();
-    _reconnectTimer = Timer(Duration(seconds: _reconnectDelay), () {
-      if (!_isConnecting && (_token != null)) {
-        debugPrint('🔄 Attempting to reconnect notification socket...');
-        _isConnecting = true;
-        _createSocketConnection();
-      }
-    });
-  }
+  // void _scheduleReconnect() {
+  //   _reconnectTimer?.cancel();
+  //   _reconnectTimer = Timer(Duration(seconds: _reconnectDelay), () {
+  //     if (!_isConnecting && (_token != null)) {
+  //     //  debugPrint('🔄 Attempting to reconnect notification socket...');
+  //       _isConnecting = true;
+  //       _createSocketConnection();
+  //     }
+  //   });
+  // }
 
   // void _startHealthCheck() {
   //   _healthCheckTimer?.cancel();
