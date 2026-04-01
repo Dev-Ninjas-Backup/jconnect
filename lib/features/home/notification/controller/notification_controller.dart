@@ -1,8 +1,8 @@
 // ignore_for_file: avoid_print, unused_local_variable
 
 import 'package:flutter/foundation.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:get/get.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/home/notification/model/notification_model.dart';
 import 'package:jconnect/features/home/notification/services/notification_service_rest.dart';
@@ -53,7 +53,18 @@ class NotificationController extends GetxController {
     }
   }
 
+  /// Force refresh notifications (e.g., when coming from FCM notification tap)
+  /// This always reloads, regardless of current state
+  Future<void> forceRefreshNotifications() async {
+    if (!isLoading.value) {
+      notifications.clear();
+      await loadNotifications();
+    }
+  }
+
   void connectSocket(String token) {
+    // Disconnect any existing socket before connecting new one
+   // disconnectSocket();
     _socketService.connect(token: token, onNotification: _handleNotification);
   }
 
@@ -92,10 +103,27 @@ class NotificationController extends GetxController {
           '🔔 Notification $i: ID=${notificationList[i].id}, CurrentUser=${notificationList[i].currentUser?.id}',
         );
       }
+
+      // Connect socket for real-time notifications if not already connected
+      _connectSocketIfNeeded();
     } catch (e) {
       print("❌ Error fetching notifications: $e");
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  /// Connect socket for real-time notifications
+  Future<void> _connectSocketIfNeeded() async {
+    try {
+      // Get access token from SharedPreferencesHelperController
+      final prefs = Get.find<SharedPreferencesHelperController>();
+      final token = await prefs.getAccessToken();
+      if (token != null && token.isNotEmpty) {
+        connectSocket(token);
+      }
+    } catch (e) {
+      print('⚠️ Could not connect socket: $e');
     }
   }
 

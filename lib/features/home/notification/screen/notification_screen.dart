@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,8 +17,9 @@ class NotificationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final NotificationController controller = Get.find();
-    // Trigger lazy load when screen opens
-    controller.ensureNotificationsLoaded();
+    
+    // Force refresh notifications using GetX (controller guards against rapid API calls)
+    controller.forceRefreshNotifications();
     
     return Scaffold(
       backgroundColor: Colors.black,
