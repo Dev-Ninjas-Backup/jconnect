@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_primary_button_2.dart';
 import 'package:jconnect/features/payment/model/payment_model.dart';
 import 'package:jconnect/features/payment/payment_service.dart';
 
@@ -94,7 +95,11 @@ class PaymentController extends GetxController {
     try {
       isLoading.value = true;
 
-      final paymentMethodId = await _collectCardAndCreatePaymentMethod(context);
+      final paymentMethodId = await Navigator.of(context).push<String?>(
+        MaterialPageRoute(
+          builder: (_) => const AddCardScreen(),
+        ),
+      );
 
       if (paymentMethodId == null) return;
 
@@ -127,7 +132,7 @@ Future<String?> _collectCardAndCreatePaymentMethod(BuildContext context) async {
   await showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: Colors.transparent, // 🔥 IMPORTANT
+    backgroundColor: Colors.transparent,
     builder: (_) {
       return Container(
         decoration: BoxDecoration(
@@ -139,7 +144,7 @@ Future<String?> _collectCardAndCreatePaymentMethod(BuildContext context) async {
           child: _CardEntrySheet(
             onCreated: (id) {
               paymentMethodId = id;
-              Get.back();
+              Navigator.of(context).pop();
             },
           ),
         ),
@@ -148,6 +153,67 @@ Future<String?> _collectCardAndCreatePaymentMethod(BuildContext context) async {
   );
 
   return paymentMethodId;
+}
+
+class AddCardScreen extends StatefulWidget {
+  const AddCardScreen({Key? key}) : super(key: key);
+
+  @override
+  State<AddCardScreen> createState() => _AddCardScreenState();
+}
+
+class _AddCardScreenState extends State<AddCardScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        leading: const BackButton(color: Colors.white),
+        title: const Text(
+          'Add Payment Card',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
+        elevation: 0,
+      ),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 24),
+                Text(
+                  'Enter your card details',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Your payment information is secure and encrypted',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white70,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                _CardEntrySheet(
+                  onCreated: (id) {
+                    Navigator.of(context).pop(id);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _CardEntrySheet extends StatefulWidget {
@@ -168,25 +234,14 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const SizedBox(height: 8),
-
-        Text(
-          'Enter card details',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black,
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
         CardFormField(
           style: CardFormStyle(
-            backgroundColor: Colors.white,
+          borderColor: Colors.blueAccent,
+            borderWidth: 2,
+            backgroundColor: const Color.fromARGB(255, 0, 0, 0),
             textColor: Colors.black,
-            placeholderColor: Colors.black,
-            borderRadius: 8,
+            placeholderColor: Colors.grey.shade400,
+            borderRadius: 12,
             cursorColor: Theme.of(context).primaryColor,
             textErrorColor: Colors.red,
           ),
@@ -194,25 +249,36 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
             setState(() => _card = card);
           },
         ),
-
-        //const SizedBox(height: 10),
+        const SizedBox(height: 32),
         Padding(
           padding: const EdgeInsets.only(bottom: 16),
           child: _loading
-              ? const CircularProgressIndicator()
-              : SizedBox(
-                  //width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _card?.complete == true
-                        ? () async {
-                            await _createPaymentMethod();
-                          }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(14),
-                    ),
-                    child: const Text('Use Card'),
+              ? Container(
+                  width: double.infinity,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade700,
+                    borderRadius: BorderRadius.circular(12),
                   ),
+                  child: const Center(
+                    child: SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    ),
+                  ),
+                )
+              : CustomPrimaryButton2(
+                  buttonText: 'Add Card',
+                  onTap: _card?.complete == true
+                      ? () async {
+                          await _createPaymentMethod();
+                        }
+                      : () {},
+                  buttonHeight: 56,
                 ),
         ),
       ],
