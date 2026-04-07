@@ -28,6 +28,7 @@ Future<void> main() async {
   configEasyLoading();
 
   runApp(const MyApp());
+  
 }
 
 void configEasyLoading() {
