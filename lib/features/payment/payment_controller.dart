@@ -236,10 +236,10 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
       children: [
         CardFormField(
           style: CardFormStyle(
-          borderColor: Colors.blueAccent,
-            borderWidth: 2,
-            backgroundColor: const Color.fromARGB(255, 0, 0, 0),
-            textColor: Colors.black,
+         // borderColor: Colors.blueAccent,
+         //   borderWidth: 2,
+            backgroundColor: Colors.blueGrey.shade900,
+            textColor: Colors.white,
             placeholderColor: Colors.grey.shade400,
             borderRadius: 12,
             cursorColor: Theme.of(context).primaryColor,
