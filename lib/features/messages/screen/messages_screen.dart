@@ -176,20 +176,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Expanded(
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          msg.participant.username ?? '',
-                                          style: getTextStyle(
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        SizedBox(width: 8.w),
-                                        // no deal tags for LastMessage
-                                      ],
-                                    ),
+                                  Text(
+                                    msg.participant.username ?? '',
+                                    style: getTextStyle(color: Colors.white),
                                   ),
                                   Text(
                                     _formatDateTime(msg.lastMessage?.createdAt),
