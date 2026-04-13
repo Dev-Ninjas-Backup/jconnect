@@ -28,17 +28,17 @@ class EarningsSection extends StatelessWidget {
               // Added .value to display the number correctly
               _buildRow(
                 'Total Earnings',
-                '\$${controller.totalEarnings.value}',
+                '\$${(controller.totalEarnings.value as num).toStringAsFixed(2)}',
               ),
               Divider(color: AppColors.secondaryTextColor),
               _buildRow(
                 'Pending Clearance',
-                '\$${controller.pendingClearance.value}',
+                '\$${(controller.pendingClearance.value as num).toStringAsFixed(2)}',
               ),
               Divider(color: AppColors.secondaryTextColor),
               _buildRow(
                 'Available to Withdraw',
-                '\$${controller.availableToWithdraw.value}',
+                '\$${(controller.availableToWithdraw.value as num).toStringAsFixed(2)}',
               ),
               SizedBox(height: 16.h),
               CustomPrimaryButton(
