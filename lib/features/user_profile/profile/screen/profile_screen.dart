@@ -196,14 +196,14 @@ class ProfileScreen extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade700),
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10,),
+        padding: EdgeInsets.symmetric(vertical: 10),
         child: Column(
           children: [
             Text(
               value,
               style: getTextStyle(
                 color: Colors.white,
-                fontsize: 20,
+                fontsize: 16,
                 fontweight: FontWeight.bold,
               ),
             ),
