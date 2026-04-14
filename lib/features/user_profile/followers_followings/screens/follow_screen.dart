@@ -25,23 +25,28 @@ class FollowScreen extends StatelessWidget {
               color: AppColors.primaryTextColor,
             ),
           ),
-          bottom: TabBar(
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white54,
-            indicatorColor: Colors.white,
-            indicatorSize: TabBarIndicatorSize.tab,
-            textScaler: const TextScaler.linear(1.25),
-            onTap: (index) {
-              if (index == 0) {
-                controller.loadFollowers();
-              } else {
-                controller.loadFollowings();
-              }
-            },
-            tabs: const [
-              Tab(text: "Followers"),
-              Tab(text: "Followings"),
-            ],
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(50),
+            child: Obx(
+              () => TabBar(
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.white54,
+                indicatorColor: Colors.white,
+                indicatorSize: TabBarIndicatorSize.tab,
+                textScaler: const TextScaler.linear(1.25),
+                onTap: (index) {
+                  if (index == 0) {
+                    controller.loadFollowers();
+                  } else {
+                    controller.loadFollowings();
+                  }
+                },
+                tabs: [
+                  Tab(text: controller.followerCount == 0 ? "Followers" : "Followers (${controller.followerCount})"),
+                  Tab(text: controller.followingCount == 0 ? "Followings" : "Followings (${controller.followingCount})"),
+                ],
+              ),
+            ),
           ),
         ),
         body: Obx(() {
@@ -69,20 +74,19 @@ class FollowScreen extends StatelessWidget {
                     : Column(
                         children: controller.followers.map((user) {
                           return ListTile(
+                            leading: user.profilePhoto != null
+                                ? CircleAvatar(
+                                    backgroundImage: NetworkImage(user.profilePhoto!),
+                                  )
+                                : CircleAvatar(
+                                    child: Text(user.username[0].toUpperCase()),
+                                  ),
                             title: Text(
-                              user.fullName,
+                              user.username,
                               style: getTextStyle(
                                 fontsize: sp(16),
                                 fontweight: FontWeight.w500,
                                 color: AppColors.primaryTextColor,
-                              ),
-                            ),
-                            subtitle: Text(
-                              user.email,
-                              style: getTextStyle(
-                                fontsize: sp(12),
-                                fontweight: FontWeight.w400,
-                                color: AppColors.secondaryTextColor,
                               ),
                             ),
                           );
@@ -109,20 +113,19 @@ class FollowScreen extends StatelessWidget {
                     : Column(
                         children: controller.followings.map((user) {
                           return ListTile(
+                            leading: user.profilePhoto != null
+                                ? CircleAvatar(
+                                    backgroundImage: NetworkImage(user.profilePhoto!),
+                                  )
+                                : CircleAvatar(
+                                    child: Text(user.username[0].toUpperCase()),
+                                  ),
                             title: Text(
-                              user.fullName,
+                              user.username,
                               style: getTextStyle(
                                 fontsize: sp(16),
                                 fontweight: FontWeight.w500,
                                 color: AppColors.primaryTextColor,
-                              ),
-                            ),
-                            subtitle: Text(
-                              user.email,
-                              style: getTextStyle(
-                                fontsize: sp(12),
-                                fontweight: FontWeight.w400,
-                                color: AppColors.secondaryTextColor,
                               ),
                             ),
                           );

@@ -1,18 +1,22 @@
 class FollowModel {
   final String id;
-  final String email;
-  final String fullName;
+  final String username;
+  final String? profilePhoto;
 
-  FollowModel({required this.id, required this.email, required this.fullName});
+  FollowModel({
+    required this.id,
+    required this.username,
+    this.profilePhoto,
+  });
 
   factory FollowModel.fromJson(Map<String, dynamic> json) {
     return FollowModel(
       id: json['id']?.toString() ?? '',
-      email: json['email']?.toString() ?? '',
-      fullName: json['full_name']?.toString() ?? '',
+      username: json['username']?.toString() ?? '',
+      profilePhoto: json['profilePhoto'] as String?,
     );
   }
 
   @override
-  String toString() => 'FollowModel(id: $id, name: $fullName, email: $email)';
+  String toString() => 'FollowModel(id: $id, username: $username)';
 }

@@ -11,6 +11,9 @@ class FollowController extends GetxController {
   var followers = <FollowModel>[].obs;
   var followings = <FollowModel>[].obs;
 
+  int get followerCount => followers.length;
+  int get followingCount => followings.length;
+
   void loadFollowers() async {
     try {
       isLoading.value = true;
