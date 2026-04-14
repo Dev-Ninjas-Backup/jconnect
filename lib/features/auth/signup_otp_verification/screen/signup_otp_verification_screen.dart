@@ -92,7 +92,7 @@ class SignupOtpVerificationScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.text,
             ),
 
             SizedBox(height: 30),

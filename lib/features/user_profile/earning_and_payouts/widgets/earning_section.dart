@@ -108,7 +108,7 @@ class EarningsSection extends StatelessWidget {
               SizedBox(height: 8.h),
               TextField(
                 controller: amountController,
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.text,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: AppColors.secondaryTextColor,
