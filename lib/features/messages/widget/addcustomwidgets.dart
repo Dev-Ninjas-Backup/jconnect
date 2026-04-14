@@ -67,7 +67,7 @@ class CustomServiceFormWidget extends StatelessWidget {
             controller.priceController,
             "Price/promotion",
             "Enter Price",
-            keyboardType: TextInputType.number,
+            keyboardType: TextInputType.text,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             prefixText: '\$ ',
           ),

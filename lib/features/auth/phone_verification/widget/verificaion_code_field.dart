@@ -21,7 +21,7 @@ class VerificaionCodeField extends StatelessWidget {
               fontSize: 22,
               fontWeight: FontWeight.bold,
             ),
-            keyboardType: TextInputType.number,
+            keyboardType: TextInputType.text,
             maxLength: 1,
             decoration: InputDecoration(
               counterText: '',
