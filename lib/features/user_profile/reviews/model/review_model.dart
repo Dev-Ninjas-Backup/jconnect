@@ -18,7 +18,7 @@ class ReviewModel {
   factory ReviewModel.fromJson(Map<String, dynamic> json) {
     return ReviewModel(
       reviewerId: json['reviewerId'],
-      username: json['reviewer']?['full_name'] ?? 'Unknown',
+      username: json['reviewer']?['username'] ?? 'Unknown',
       rating: (json['rating'] as num).toDouble(),
       description: json['reviewText'] ?? '',
       avatarUrl: Imagepath.profileImage, // placeholder, updated later
