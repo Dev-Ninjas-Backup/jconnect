@@ -9,20 +9,16 @@ class UserTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(
-        user.fullName,
+        user.username,
         style: const TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
       ),
-      subtitle: Text(
-        user.email,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
+      subtitle: Image.network(
+        user.profilePhoto ?? '',
+        fit: BoxFit.cover,
       ),
     );
   }
