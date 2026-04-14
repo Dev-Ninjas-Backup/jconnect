@@ -190,6 +190,7 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildStat(String value, String label) {
     return Container(
       width: 105,
+      height: 80,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: AppColors.backGroundColor,
@@ -201,6 +202,7 @@ class ProfileScreen extends StatelessWidget {
           children: [
             Text(
               value,
+              overflow: TextOverflow.ellipsis,
               style: getTextStyle(
                 color: Colors.white,
                 fontsize: 16,
@@ -210,6 +212,7 @@ class ProfileScreen extends StatelessWidget {
             SizedBox(height: 8),
             Text(
               label,
+              overflow: TextOverflow.ellipsis,
               style: getTextStyle(
                 color: AppColors.secondaryTextColor,
                 fontsize: 16,

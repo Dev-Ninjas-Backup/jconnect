@@ -12,72 +12,72 @@ class ReviewWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<ReviewController>();
 
-    return Obx(() => Row(
-          children: [
-            Expanded(
-              child: Container(
-                height: 100.h,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.secondaryTextColor),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(12.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        controller.totalReviews.toString(),
-                        style: getTextStyle(
-                          fontsize: 20,
-                          fontweight: FontWeight.w500,
-                        ),
+    return Obx(
+      () => Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.secondaryTextColor),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(12.0),
+                child: Column(
+                  children: [
+                    Text(
+                      controller.totalReviews.toString(),
+                      style: getTextStyle(
+                        fontsize: 16,
+                        fontweight: FontWeight.w500,
                       ),
-                      SizedBox(height: 12),
-                      Text(
-                        'Total Reviews',
-                        style: getTextStyle(
-                          color: AppColors.secondaryTextColor,
-                          fontsize: 16,
-                        ),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Total Reviews',
+                      style: getTextStyle(
+                        color: AppColors.secondaryTextColor,
+                        fontsize: 16,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            SizedBox(width: 28.w),
-            Expanded(
-              child: Container(
-                height: 100.h,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.secondaryTextColor),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(12.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        '${controller.averageRating.value}/5',
-                        style: getTextStyle(
-                          fontsize: 20,
-                          fontweight: FontWeight.w500,
-                        ),
+          ),
+          SizedBox(width: 28.w),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.secondaryTextColor),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(12.0),
+                child: Column(
+                  children: [
+                    Text(
+                      '${controller.averageRating.value}/5',
+                      style: getTextStyle(
+                        fontsize: 16,
+                        fontweight: FontWeight.w500,
                       ),
-                      SizedBox(height: 12),
-                      Text(
-                        'Average Rating',
-                        style: getTextStyle(
-                          color: AppColors.secondaryTextColor,
-                          fontsize: 16,
-                        ),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Average Rating',
+                      style: getTextStyle(
+                        color: AppColors.secondaryTextColor,
+                        fontsize: 16,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
   }
 }
