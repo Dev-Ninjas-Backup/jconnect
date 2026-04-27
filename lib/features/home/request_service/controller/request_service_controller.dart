@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:jconnect/core/endpoint.dart';
@@ -18,8 +18,8 @@ class RequestServiceController extends GetxController {
   final captionTextController = TextEditingController();
   final specialNoteController = TextEditingController();
 
-  final ImagePicker _picker = ImagePicker();
-  Rx<File?> selectedImage = Rx<File?>(null);
+  Rx<File?> selectedFile = Rx<File?>(null);
+  Rx<String?> selectedFileName = Rx<String?>(null);
   Rx<DateTime?> promotionDate = Rx<DateTime?>(null);
 
   final String apiUrl = Endpoint.serviceRequest;
@@ -29,18 +29,28 @@ class RequestServiceController extends GetxController {
     return DateFormat("MM/dd/yyyy • hh:mm a").format(promotionDate.value!);
   }
 
-  /// Pick image from gallery
-  Future<void> pickImageFromGallery() async {
+  /// Pick file (supports multiple file types)
+  Future<void> pickFile() async {
     try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-      if (image != null) selectedImage.value = File(image.path);
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['mp3', 'mp4', 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'mov', 'avi', 'flv', 'wav', 'aac'],
+      );
+
+      if (result != null && result.files.single.path != null) {
+        selectedFile.value = File(result.files.single.path!);
+        selectedFileName.value = result.files.single.name;
+      }
     } catch (e) {
-      EasyLoading.showError("Failed to pick image: $e");
+      EasyLoading.showError("Failed to pick file: $e");
     }
   }
 
-  /// Clear selected image
-  void clearImage() => selectedImage.value = null;
+  /// Clear selected file
+  void clearFile() {
+    selectedFile.value = null;
+    selectedFileName.value = null;
+  }
 
   /// Pick promotion date
   Future<void> pickPromotionDate(BuildContext context) async {
@@ -95,8 +105,8 @@ class RequestServiceController extends GetxController {
       }
 
       // Optional file
-      if (selectedImage.value != null) {
-        request.files.add(await http.MultipartFile.fromPath('files', selectedImage.value!.path));
+      if (selectedFile.value != null) {
+        request.files.add(await http.MultipartFile.fromPath('files', selectedFile.value!.path));
       }
 
       final response = await request.send();
@@ -124,7 +134,7 @@ class RequestServiceController extends GetxController {
   void clearForm() {
     captionTextController.clear();
     specialNoteController.clear();
-    clearImage();
+    clearFile();
     promotionDate.value = null;
   }
 }

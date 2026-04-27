@@ -16,6 +16,43 @@ class CustomizeYourOrder extends StatelessWidget {
 
   final RequestServiceController controller;
 
+  /// Get file extension
+  String _getFileExtension(String fileName) {
+    return fileName.split('.').last.toUpperCase();
+  }
+
+  /// Check if file is image
+  bool _isImageFile(String fileName) {
+    final ext = fileName.split('.').last.toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'gif'].contains(ext);
+  }
+
+  /// Check if file is video
+  bool _isVideoFile(String fileName) {
+    final ext = fileName.split('.').last.toLowerCase();
+    return ['mp4', 'mov', 'avi', 'flv'].contains(ext);
+  }
+
+  /// Check if file is audio
+  bool _isAudioFile(String fileName) {
+    final ext = fileName.split('.').last.toLowerCase();
+    return ['mp3', 'wav', 'aac'].contains(ext);
+  }
+
+  /// Get file icon based on type
+  IconData _getFileIcon(String fileName) {
+    if (_isImageFile(fileName)) {
+      return Icons.image;
+    } else if (_isVideoFile(fileName)) {
+      return Icons.video_library;
+    } else if (_isAudioFile(fileName)) {
+      return Icons.audio_file;
+    } else if (fileName.toLowerCase().endsWith('pdf')) {
+      return Icons.picture_as_pdf;
+    }
+    return Icons.insert_drive_file;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -26,12 +63,14 @@ class CustomizeYourOrder extends StatelessWidget {
           style: getTextStyle(fontsize: sp(12), fontweight: FontWeight.w500),
         ),
         SizedBox(height: 12.h),
+
+
         Obx(
           () => Center(
             child: GestureDetector(
               onTap: () {
-                if (controller.selectedImage.value == null) {
-                  controller.pickImageFromGallery();
+                if (controller.selectedFile.value == null) {
+                  controller.pickFile();
                 }
               },
               child: DottedBorder(
@@ -43,7 +82,7 @@ class CustomizeYourOrder extends StatelessWidget {
                 ),
                 child: Padding(
                   padding: EdgeInsets.all(12),
-                  child: controller.selectedImage.value == null
+                  child: controller.selectedFile.value == null
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -54,7 +93,7 @@ class CustomizeYourOrder extends StatelessWidget {
                             ),
                             SizedBox(height: 8.h),
                             Text(
-                              "Upload track, visual, or promo asset\nMP3, MP4, JPG, PNG up to 50MB",
+                              "Upload track, visual, or promo asset\nMP3, MP4, JPG, PNG, PDF up to 50MB",
                               textAlign: TextAlign.center,
                               style: getTextStyle(
                                 fontsize: sp(12),
@@ -67,20 +106,64 @@ class CustomizeYourOrder extends StatelessWidget {
                         )
                       : Stack(
                           children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(6.r),
-                              child: Image.file(
-                                controller.selectedImage.value!,
-                                height: 140.h,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
+                            Container(
+                              width: double.infinity,
+                              height: 140.h,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(6.r),
+                                color: AppColors.primaryTextColor.withValues(alpha: 0.05),
                               ),
+                              child: _isImageFile(controller.selectedFileName.value ?? '')
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(6.r),
+                                      child: Image.file(
+                                        controller.selectedFile.value!,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  : Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          _getFileIcon(controller.selectedFileName.value ?? ''),
+                                          size: 48.sp,
+                                          color: AppColors.primaryTextColor.withValues(alpha: 0.6),
+                                        ),
+                                        SizedBox(height: 8.h),
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 12.w),
+                                          child: Column(
+                                            children: [
+                                              Text(
+                                                controller.selectedFileName.value ?? 'File',
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                textAlign: TextAlign.center,
+                                                style: getTextStyle(
+                                                  fontsize: sp(12),
+                                                  fontweight: FontWeight.w500,
+                                                  color: AppColors.primaryTextColor,
+                                                ),
+                                              ),
+                                              SizedBox(height: 4.h),
+                                              Text(
+                                                _getFileExtension(controller.selectedFileName.value ?? ''),
+                                                style: getTextStyle(
+                                                  fontsize: sp(10),
+                                                  color: AppColors.primaryTextColor.withValues(alpha: 0.5),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                             ),
                             Positioned(
                               top: 6,
                               right: 6,
                               child: GestureDetector(
-                                onTap: controller.clearImage,
+                                onTap: controller.clearFile,
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: Colors.black.withOpacity(.6),
