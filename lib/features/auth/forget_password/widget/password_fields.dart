@@ -23,7 +23,7 @@ class PasswordFields extends StatelessWidget {
         IntlPhoneField(
           style: getTextStyle(color: AppColors.primaryTextColor),
           dropdownTextStyle: getTextStyle(color: AppColors.primaryTextColor),
-          keyboardType: TextInputType.phone,
+          keyboardType: TextInputType.text,
           decoration: InputDecoration(
             prefixIcon: Padding(padding: EdgeInsets.all(10.0)),
             hintText: 'Enter your phone number',

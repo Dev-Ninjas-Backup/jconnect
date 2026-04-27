@@ -244,10 +244,12 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
             borderRadius: 12,
             cursorColor: Theme.of(context).primaryColor,
             textErrorColor: Colors.red,
+            
           ),
           onCardChanged: (card) {
             setState(() => _card = card);
           },
+          
         ),
         const SizedBox(height: 32),
         Padding(

@@ -57,7 +57,7 @@ class EditProfileScreen extends StatelessWidget {
                             CustomTextfield(
                               hintText: 'Phone Number',
                               controller: controller.phoneController,
-                              keyboardType: TextInputType.phone,
+                              keyboardType: TextInputType.text,
                             ),
 
                             // extra fields

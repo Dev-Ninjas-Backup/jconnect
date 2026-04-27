@@ -5,6 +5,9 @@ import 'package:jconnect/features/my_orders/order_details/model/order_timeline_s
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:video_player/video_player.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:photo_view/photo_view.dart';
 import 'dart:io';
 
 class OrderTimelineWidget extends StatelessWidget {
@@ -45,6 +48,169 @@ class OrderTimelineWidget extends StatelessWidget {
     }
   }
 
+  bool _isImageFile(String url) {
+    final ext = url.split('.').last.split('?').first.toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].contains(ext);
+  }
+
+  bool _isVideoFile(String url) {
+    final ext = url.split('.').last.split('?').first.toLowerCase();
+    return ['mp4', 'mov', 'avi', 'flv', 'mkv', 'webm'].contains(ext);
+  }
+
+  bool _isAudioFile(String url) {
+    final ext = url.split('.').last.split('?').first.toLowerCase();
+    return ['mp3', 'wav', 'aac', 'm4a', 'flac'].contains(ext);
+  }
+
+  bool _isPdfFile(String url) {
+    final ext = url.split('.').last.split('?').first.toLowerCase();
+    return ext == 'pdf';
+  }
+
+  Future<void> _downloadFile(String url) async {
+    try {
+      EasyLoading.show(status: 'Downloading...');
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final dir = await getDownloadsDirectory();
+        if (dir == null) {
+          EasyLoading.showError('Downloads directory not found');
+          return;
+        }
+        final fileName =
+            'attachment_${DateTime.now().millisecondsSinceEpoch}.${_getFileExtension(url)}';
+        final filePath = '${dir.path}/$fileName';
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+        EasyLoading.dismiss();
+        EasyLoading.showSuccess('Downloaded to: $fileName');
+      } else {
+        EasyLoading.showError('Download failed');
+      }
+    } catch (e) {
+      EasyLoading.showError('Error: $e');
+    }
+  }
+
+  Future<void> _showAudioPlayerDialog(BuildContext context, String url) async {
+    final fileName = url.split('/').last.split('?').first;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.backGroundColor,
+        title: Row(
+          children: [
+            Icon(Icons.audio_file, color: AppColors.redColor),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                fileName,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: getTextStyle(
+                  color: AppColors.primaryTextColor,
+                  fontweight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Audio file - tap Download to save',
+          style: getTextStyle(color: AppColors.secondaryTextColor),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Close',
+              style: getTextStyle(color: AppColors.redColor),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _downloadFile(url);
+            },
+            child: Text(
+              'Download',
+              style: getTextStyle(color: AppColors.redColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showPdfViewDialog(BuildContext context, String url) async {
+    final fileName = url.split('/').last.split('?').first;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.backGroundColor,
+        title: Row(
+          children: [
+            Icon(Icons.picture_as_pdf, color: AppColors.redColor),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                fileName,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: getTextStyle(
+                  color: AppColors.primaryTextColor,
+                  fontweight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'PDF document - open in browser or download',
+          style: getTextStyle(color: AppColors.secondaryTextColor),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: getTextStyle(color: AppColors.redColor),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              try {
+                if (await canLaunchUrl(Uri.parse(url))) {
+                  await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                } else {
+                  _downloadFile(url);
+                }
+              } catch (e) {
+                _downloadFile(url);
+              }
+            },
+            child: Text(
+              'Open',
+              style: getTextStyle(color: AppColors.redColor),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _downloadFile(url);
+            },
+            child: Text(
+              'Download',
+              style: getTextStyle(color: AppColors.redColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _viewAttachment(BuildContext context) async {
     if (proofUrl.isEmpty) {
       EasyLoading.showError('No attachment available');
@@ -54,85 +220,95 @@ class OrderTimelineWidget extends StatelessWidget {
     try {
       final url = proofUrl.last;
 
-      // Show dialog with image preview
-      showDialog(
-        context: context,
-        builder: (context) => Dialog(
-          backgroundColor: AppColors.backGroundColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: AppColors.secondaryTextColor),
-          ),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 400, maxHeight: 500),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Attachment Preview',
-                        style: getTextStyle(
-                          color: AppColors.primaryTextColor,
-                          fontweight: FontWeight.w600,
-                          fontsize: 16,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Icon(
-                          Icons.close,
-                          color: AppColors.secondaryTextColor,
-                        ),
-                      ),
-                    ],
+      if (_isImageFile(url)) {
+        // Show image with PhotoView for zoom
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.black,
+                leading: IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+              backgroundColor: Colors.black,
+              body: PhotoView(
+                imageProvider: NetworkImage(url),
+                loadingBuilder: (context, event) => Center(
+                  child: CircularProgressIndicator(
+                    value: event == null
+                        ? 0
+                        : event.cumulativeBytesLoaded / (event.expectedTotalBytes ?? 1),
+                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.redColor),
                   ),
                 ),
-                Divider(
-                  color: AppColors.secondaryTextColor.withValues(alpha: 0.3),
-                ),
+              ),
+            ),
+          ),
+        );
+      } else if (_isVideoFile(url)) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => _VideoViewerScreen(videoUrl: url),
+          ),
+        );
+      } else if (_isAudioFile(url)) {
+        _showAudioPlayerDialog(context, url);
+      } else if (_isPdfFile(url)) {
+        _showPdfViewDialog(context, url);
+      } else {
+        // Generic file viewer
+        final fileName = url.split('/').last.split('?').first;
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: AppColors.backGroundColor,
+            title: Row(
+              children: [
+                Icon(Icons.insert_drive_file, color: AppColors.redColor),
+                SizedBox(width: 8),
                 Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Image.network(
-                      url,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Center(
-                          child: Text(
-                            'Failed to load image',
-                            style: getTextStyle(
-                              color: AppColors.secondaryTextColor,
-                              fontsize: 14,
-                            ),
-                          ),
-                        );
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                : null,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              AppColors.redColor,
-                            ),
-                          ),
-                        );
-                      },
+                  child: Text(
+                    fileName,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: getTextStyle(
+                      color: AppColors.primaryTextColor,
+                      fontweight: FontWeight.w600,
                     ),
                   ),
                 ),
               ],
             ),
+            content: Text(
+              'File attachment - tap Download to save',
+              style: getTextStyle(color: AppColors.secondaryTextColor),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'Close',
+                  style: getTextStyle(color: AppColors.redColor),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _downloadFile(url);
+                },
+                child: Text(
+                  'Download',
+                  style: getTextStyle(color: AppColors.redColor),
+                ),
+              ),
+            ],
           ),
-        ),
-      );
+        );
+      }
     } catch (e) {
       EasyLoading.showError('Error: $e');
     }
@@ -173,14 +349,15 @@ class OrderTimelineWidget extends StatelessWidget {
   }
 
   String _getFileExtension(String url) {
-    if (url.contains('.jpg')) return 'jpg';
-    if (url.contains('.jpeg')) return 'jpeg';
-    if (url.contains('.png')) return 'png';
-    if (url.contains('.pdf')) return 'pdf';
-    if (url.contains('.gif')) return 'gif';
-    if (url.contains('.mp4')) return 'mp4';
-    if (url.contains('.webp')) return 'webp';
-    return 'jpg';
+    try {
+      final ext = url.split('.').last.split('?').first.toLowerCase();
+      if (['jpg', 'jpeg', 'png', 'pdf', 'gif', 'mp4', 'webp', 'mp3', 'wav', 'aac', 'mov', 'avi', 'flv', 'mkv', 'webm', 'bmp', 'm4a', 'flac'].contains(ext)) {
+        return ext;
+      }
+      return 'bin';
+    } catch (_) {
+      return 'bin';
+    }
   }
 
   @override
@@ -306,6 +483,107 @@ class OrderTimelineWidget extends StatelessWidget {
             ],
           );
         }),
+      ),
+    );
+  }
+}
+
+class _VideoViewerScreen extends StatefulWidget {
+  final String videoUrl;
+
+  const _VideoViewerScreen({
+    Key? key,
+    required this.videoUrl,
+  }) : super(key: key);
+
+  @override
+  State<_VideoViewerScreen> createState() => _VideoViewerScreenState();
+}
+
+class _VideoViewerScreenState extends State<_VideoViewerScreen> {
+  late VideoPlayerController _controller;
+  late Future<void> _initializeVideoPlayerFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+    _initializeVideoPlayerFuture = _controller.initialize();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: Icon(Icons.close),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      backgroundColor: Colors.black,
+      body: FutureBuilder<void>(
+        future: _initializeVideoPlayerFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  child: VideoPlayer(_controller),
+                ),
+                FloatingActionButton(
+                  backgroundColor: AppColors.redColor,
+                  onPressed: () {
+                    setState(() {
+                      if (_controller.value.isPlaying) {
+                        _controller.pause();
+                      } else {
+                        _controller.play();
+                      }
+                    });
+                  },
+                  child: Icon(
+                    _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: VideoProgressIndicator(
+                    _controller,
+                    allowScrubbing: true,
+                    colors: VideoProgressColors(
+                      playedColor: AppColors.redColor,
+                      bufferedColor: Colors.grey,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Error loading video',
+                style: getTextStyle(color: AppColors.secondaryTextColor),
+              ),
+            );
+          } else {
+            return Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.redColor),
+              ),
+            );
+          }
+        },
       ),
     );
   }

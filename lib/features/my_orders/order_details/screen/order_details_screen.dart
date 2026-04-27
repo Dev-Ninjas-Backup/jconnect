@@ -10,7 +10,7 @@ import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'dart:io';
 
-import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/my_orders/controller/my_order_controller.dart';
 import 'package:jconnect/features/my_orders/order_details/controller/order_details_controller.dart';
@@ -22,21 +22,26 @@ import 'package:intl/intl.dart';
 class OrderDetailsScreen extends StatelessWidget {
   const OrderDetailsScreen({super.key});
 
-  /// Pick an image and show confirmation dialog with preview before uploading
+  /// Pick any file type and show confirmation dialog before uploading
   Future<void> _pickAndConfirmProofUpload(
     BuildContext context,
     OrderDetailsController controller,
     MyOrdersController orderController,
   ) async {
-    final picker = ImagePicker();
+    Future<void> _selectFile() async {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['mp3', 'mp4', 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'mov', 'avi', 'flv', 'wav', 'aac'],
+      );
+      
+      if (result == null || result.files.single.path == null) return;
 
-    Future<void> _selectImage() async {
-      final picked = await picker.pickImage(source: ImageSource.gallery);
-      if (picked == null) return;
+      final file = File(result.files.single.path!);
+      final fileName = result.files.single.name;
+      final ext = fileName.split('.').last.toLowerCase();
+      final isImage = ['jpg', 'jpeg', 'png', 'gif'].contains(ext);
 
-      final file = File(picked.path);
-
-      // Show confirmation dialog with image preview
+      // Show confirmation dialog
       if (!context.mounted) return;
       showDialog(
         context: context,
@@ -61,16 +66,55 @@ class OrderDetailsScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 16),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxHeight: 280,
-                        maxWidth: 300,
+                  // Show image preview or file icon
+                  if (isImage)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: 280,
+                          maxWidth: 300,
+                        ),
+                        child: Image.file(file, fit: BoxFit.contain),
                       ),
-                      child: Image.file(file, fit: BoxFit.contain),
+                    )
+                  else
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: AppColors.backGroundColor,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.secondaryTextColor),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(
+                            _getFileIcon(ext),
+                            size: 64,
+                            color: AppColors.primaryTextColor.withValues(alpha: 0.6),
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            fileName,
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: getTextStyle(
+                              color: AppColors.primaryTextColor,
+                              fontsize: 12,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            '${ext.toUpperCase()} • ${(file.lengthSync() / 1024 / 1024).toStringAsFixed(2)} MB',
+                            style: getTextStyle(
+                              color: AppColors.secondaryTextColor,
+                              fontsize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
                   SizedBox(height: 20),
                   Text(
                     'Are you sure you want to upload this proof?',
@@ -88,7 +132,7 @@ class OrderDetailsScreen extends StatelessWidget {
                           onPressed: () {
                             Navigator.pop(dialogContext); // Close dialog
                             // Offer to reselect
-                            _selectImage(); // Recursively call to pick again
+                            _selectFile(); // Recursively call to pick again
                           },
                           child: Text(
                             'Reselect',
@@ -133,7 +177,19 @@ class OrderDetailsScreen extends StatelessWidget {
     }
 
     // Start the selection process
-    await _selectImage();
+    await _selectFile();
+  }
+
+  /// Get file icon based on extension
+  IconData _getFileIcon(String ext) {
+    if (['mp3', 'wav', 'aac'].contains(ext)) {
+      return Icons.audio_file;
+    } else if (['mp4', 'mov', 'avi', 'flv'].contains(ext)) {
+      return Icons.video_library;
+    } else if (ext == 'pdf') {
+      return Icons.picture_as_pdf;
+    }
+    return Icons.insert_drive_file;
   }
 
   @override
