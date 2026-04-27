@@ -18,6 +18,7 @@ import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/common/constants/app_colors.dart';
+
 import '../../../../core/common/style/global_text_style.dart';
 import '../../../../core/common/widgets/gradient_border_container.dart';
 
