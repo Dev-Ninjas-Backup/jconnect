@@ -12,6 +12,7 @@ import 'package:jconnect/features/messages/controller/custom_service_controller.
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
 import 'package:jconnect/features/messages/model/chat_conversation_model.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:jconnect/features/messages/widget/addcustomwidgets.dart';
 import 'package:jconnect/features/payment/payment_screen.dart';
 import 'dart:io';
@@ -23,6 +24,8 @@ import 'package:jconnect/core/endpoint.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:video_player/video_player.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChatDetailsScreen extends StatelessWidget {
   ChatDetailsScreen({super.key});
@@ -292,23 +295,26 @@ class ChatDetailsScreen extends StatelessWidget {
 
   Future<void> _uploadReplacementFile(String serviceRequestId) async {
     try {
-      final XFile? image = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['mp3', 'mp4', 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'mov', 'avi', 'flv', 'wav', 'aac'],
       );
-      if (image == null) return;
+      if (result == null || result.files.single.path == null) return;
+
+      final filePath = result.files.single.path!;
 
       EasyLoading.show(
         status: 'Uploading to S3...',
         maskType: EasyLoadingMaskType.black,
       );
 
-      // ── Step 1: upload image to S3 via the generic file-upload endpoint ──
+      // ── Step 1: upload file to S3 via the generic file-upload endpoint ──
       final uploadRequest = http.MultipartRequest(
         'POST',
         Uri.parse(Endpoint.fileUpload),
       );
       uploadRequest.files.add(
-        await http.MultipartFile.fromPath('file', image.path),
+        await http.MultipartFile.fromPath('file', filePath),
       );
 
       final uploadResponse = await uploadRequest.send();
@@ -370,8 +376,10 @@ class ChatDetailsScreen extends StatelessWidget {
           duration: const Duration(seconds: 3),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       EasyLoading.dismiss();
+      print('Error uploading file: $e');
+      print('Stack trace: $stackTrace');
       EasyLoading.showError(
         'Error uploading file: $e',
         duration: const Duration(seconds: 2),
@@ -464,8 +472,12 @@ class ChatDetailsScreen extends StatelessWidget {
   void _viewFile(BuildContext context, String url) {
     final ext = url.split('.').last.split('?').first.toLowerCase();
     final isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].contains(ext);
+    final isVideo = ['mp4', 'mov', 'avi', 'flv', 'mkv', 'webm'].contains(ext);
+    final isAudio = ['mp3', 'wav', 'aac', 'm4a', 'flac'].contains(ext);
+    final isPdf = ext == 'pdf';
 
     if (isImage) {
+      // Show image preview with PhotoView
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => Scaffold(
@@ -474,7 +486,7 @@ class ChatDetailsScreen extends StatelessWidget {
               backgroundColor: Colors.black,
               iconTheme: const IconThemeData(color: Colors.white),
               title: const Text(
-                'View File',
+                'View Image',
                 style: TextStyle(color: Colors.white),
               ),
             ),
@@ -496,18 +508,32 @@ class ChatDetailsScreen extends StatelessWidget {
           ),
         ),
       );
+    } else if (isVideo) {
+      // Show video player
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => _VideoViewerScreen(videoUrl: url),
+        ),
+      );
+    } else if (isAudio) {
+      // Show audio player dialog
+      _showAudioPlayerDialog(context, url);
+    } else if (isPdf) {
+      // Open PDF in browser or show download dialog
+      _showPdfViewDialog(context, url);
     } else {
+      // For other file types, show download dialog
       showDialog(
         context: context,
         builder: (dialogContext) => AlertDialog(
           backgroundColor: Colors.grey[900],
           title: const Text(
-            'Preview Not Available',
+            'Open File',
             style: TextStyle(color: Colors.white),
           ),
-          content: const Text(
-            'This file type cannot be previewed. Please download it to view.',
-            style: TextStyle(color: Colors.white70),
+          content: Text(
+            'File type ($ext) cannot be previewed. Download to view?',
+            style: const TextStyle(color: Colors.white70),
           ),
           actions: [
             TextButton(
@@ -531,6 +557,120 @@ class ChatDetailsScreen extends StatelessWidget {
         ),
       );
     }
+  }
+
+  void _showAudioPlayerDialog(BuildContext context, String url) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: const Text(
+          'Audio Player',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.audio_file, color: Colors.blueAccent, size: 48),
+            const SizedBox(height: 16),
+            const Text(
+              'Audio file ready to play',
+              style: TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              url.split('/').last.split('?').first,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white54, fontSize: 12),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text(
+              'Close',
+              style: TextStyle(color: Colors.white54),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              _downloadFile(url);
+            },
+            child: const Text(
+              'Download',
+              style: TextStyle(color: Colors.greenAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPdfViewDialog(BuildContext context, String url) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: const Text(
+          'PDF File',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.picture_as_pdf, color: Colors.redAccent, size: 48),
+            const SizedBox(height: 16),
+            const Text(
+              'PDF file detected',
+              style: TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              url.split('/').last.split('?').first,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white54, fontSize: 12),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white54),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              if (await canLaunchUrl(Uri.parse(url))) {
+                await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+              } else {
+                _downloadFile(url);
+              }
+            },
+            child: const Text(
+              'Open',
+              style: TextStyle(color: Colors.blueAccent),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              _downloadFile(url);
+            },
+            child: const Text(
+              'Download',
+              style: TextStyle(color: Colors.greenAccent),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _downloadFile(String fileUrl) async {
@@ -1925,4 +2065,117 @@ void showAddServiceSheet(
     ),
     isScrollControlled: true,
   );
+}
+
+/// Video player screen for viewing video files
+class _VideoViewerScreen extends StatefulWidget {
+  final String videoUrl;
+
+  const _VideoViewerScreen({required this.videoUrl});
+
+  @override
+  State<_VideoViewerScreen> createState() => _VideoViewerScreenState();
+}
+
+class _VideoViewerScreenState extends State<_VideoViewerScreen> {
+  late VideoPlayerController _controller;
+  late Future<void> _initializeVideoPlayerFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+    _initializeVideoPlayerFuture = _controller.initialize();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
+          'Watch Video',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      body: FutureBuilder<void>(
+        future: _initializeVideoPlayerFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Error loading video: ${snapshot.error}',
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              );
+            }
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AspectRatio(
+                    aspectRatio: _controller.value.aspectRatio,
+                    child: VideoPlayer(_controller),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FloatingActionButton(
+                        onPressed: () {
+                          setState(() {
+                            if (_controller.value.isPlaying) {
+                              _controller.pause();
+                            } else {
+                              _controller.play();
+                            }
+                          });
+                        },
+                        backgroundColor: Colors.blueAccent,
+                        child: Icon(
+                          _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: VideoProgressIndicator(
+                          _controller,
+                          allowScrubbing: true,
+                          colors: const VideoProgressColors(
+                            playedColor: Colors.blueAccent,
+                            bufferedColor: Colors.grey,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      FloatingActionButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        backgroundColor: Colors.redAccent,
+                        child: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            );
+          }
+        },
+      ),
+    );
+  }
 }
