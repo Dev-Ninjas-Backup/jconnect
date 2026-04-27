@@ -1,0 +1,99 @@
+// ignore_for_file: avoid_print
+
+import 'dart:async';
+import 'package:get/get.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
+import 'package:jconnect/fcm_notification/fcm_notification_controller.dart';
+import 'package:jconnect/features/home/notification/controller/notification_controller.dart';
+import 'package:jconnect/features/messages/controller/messages_controller.dart';
+import 'package:jconnect/routes/approute.dart';
+
+class SplashController extends GetxController {
+  final pref = Get.put(SharedPreferencesHelperController());
+  final notificationController = Get.find<NotificationController>();
+  final fcmController = Get.find<FcmNotificationController>();
+
+  final messageController = Get.find<MessagesController>();
+
+  var progressIndex = 0.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _startTimer();
+  }
+
+  void _startTimer() {
+    Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (progressIndex.value < 2) {
+        progressIndex.value++;
+      } else {
+        timer.cancel();
+        await _checkLoginStatus();
+      }
+    });
+  }
+
+
+
+Future<void> _checkLoginStatus() async {
+  final tokenRow = await pref.getAccessRowToken();
+  final token = await pref.getAccessToken();
+  final userId = await pref.getUserId();
+
+  final loginStatus = await pref.checkLogin();
+
+  if (loginStatus == true && token != null) {
+
+    if (!fcmController.openedFromNotification.value) {
+      Get.offAllNamed(AppRoute.navBarScreen);
+    }
+
+    Future.delayed(const Duration(milliseconds: 300), () {
+      notificationController.connectSocket(tokenRow ?? "");
+      messageController.connectSocket(
+        token: tokenRow ?? "",
+        userId: userId ?? "",
+      );
+    });
+
+  } else {
+    Get.offAllNamed(AppRoute.onboardingScreen);
+  }
+}
+
+  // Future<void> _checkLoginStatus() async {
+  //   final tokenRow = await pref.getAccessRowToken();
+  //   final token = await pref.getAccessToken();
+  //   final userId = await pref.getUserId();
+
+  //   print("==================$tokenRow ===========");
+  //   print(" ==================$token ===========");
+  //   print(" =========user id=========$userId ===========");
+
+  //   final loginStatus = await pref.checkLogin();
+
+  //   if (loginStatus == true && token != null) {
+  //     // Use off() instead of offAllNamed() to preserve notification navigation
+  //     Get.off(
+  //       () => const SizedBox.shrink(), // dummy widget
+  //       //  transition: Transition.noTransition,
+  //     );
+  //     await Future.delayed(const Duration(milliseconds: 50));
+  //     if (!fcmController.openedFromNotification.value) {
+  //       Get.offAllNamed(AppRoute.navBarScreen);
+  //     }
+
+  //     // Delay to avoid lifecycle disconnect
+  //     Future.delayed(const Duration(milliseconds: 300), () {
+  //       notificationController.connectSocket(tokenRow ?? " ");
+  //       messageController.connectSocket(
+  //         token: tokenRow ?? " ",
+  //         userId: userId ?? " ",
+  //       );
+  //     });
+  //   } else {
+  //     Get.offAllNamed(AppRoute.onboardingScreen);
+  //   }
+  // }
+}

@@ -1,0 +1,90 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jconnect/core/common/constants/app_colors.dart';
+import 'package:jconnect/core/common/style/global_text_style.dart';
+
+class CustomAppBar2 extends StatelessWidget {
+  final String title;
+  final String? actionIconUrl;
+  final VoidCallback? actionOnTap;
+  final String? leadingIconUrl;
+  final VoidCallback? onLeadingTap;
+  final int badgeCount;
+
+  const CustomAppBar2({
+    required this.title,
+    this.actionIconUrl,
+    this.actionOnTap,
+    this.leadingIconUrl,
+    this.onLeadingTap,
+    this.badgeCount = 0,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      spacing: 10.w,
+      children: [
+        GestureDetector(
+          onTap: onLeadingTap,
+          child: leadingIconUrl != null
+              ? Image.asset(leadingIconUrl!, height: 36.h, width: 36.w)
+              : SizedBox(height: 36.h,width: 36.w,),
+        ),
+
+        // Title
+        Expanded(
+          child: Center(
+            child: Text(
+              title,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: getTextStyle(
+                fontsize: sp(20),
+                fontweight: FontWeight.w600,
+                color: AppColors.primaryTextColor,
+              ),
+            ),
+          ),
+        ),
+
+        // Action Icon
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            GestureDetector(
+              onTap: actionOnTap,
+              child: actionIconUrl != null
+                  ? Image.asset(actionIconUrl!, height: 36.h, width: 36.w)
+                  : SizedBox(height: 36.h,width: 36.w,),
+            ),
+            if (badgeCount > 0)
+              Positioned(
+                right: -6,
+                top: -6,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  constraints: BoxConstraints(minWidth: 18.w, minHeight: 18.h),
+                  child: Text(
+                    badgeCount > 99 ? '99+' : badgeCount.toString(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
