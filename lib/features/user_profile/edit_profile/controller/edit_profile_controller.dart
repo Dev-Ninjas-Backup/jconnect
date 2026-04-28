@@ -77,7 +77,7 @@ class EditProfileController extends GetxController {
   final userNameController = TextEditingController();
 
   final RxList<Map<String, dynamic>> socialLinks = <Map<String, dynamic>>[].obs;
-  final RxList<String> highlightsPaths = <String>[].obs;
+  final RxList<Map<String, dynamic>> highlightsPaths = <Map<String, dynamic>>[].obs;
 
   @override
   void onInit() {
@@ -103,7 +103,18 @@ class EditProfileController extends GetxController {
             .join(', ');
       }
 
+      // Load existing highlights if available
+      if (user.highlights != null && user.highlights!.isNotEmpty) {
+        for (var highlight in user.highlights!) {
+          highlightsPaths.add({
+            'path': highlight,
+            'fromApi': true, // Mark as from API (S3 URL)
+          });
+        }
+      }
+
       print("User data loaded: $user");
+      print("Loaded ${highlightsPaths.length} highlights");
 
       // Initialize social links with API data
       _initializeSocialLinks();
@@ -182,7 +193,10 @@ class EditProfileController extends GetxController {
     final picked = await _picker.pickImage(source: ImageSource.gallery);
     if (picked != null) {
       if (highlightsPaths.length < 10) {
-        highlightsPaths.add(picked.path);
+        highlightsPaths.add({
+          'path': picked.path,
+          'fromApi': false, // Mark as local file
+        });
       } else {
         EasyLoading.showError('Maximum 10 highlights allowed');
       }
@@ -193,7 +207,10 @@ class EditProfileController extends GetxController {
     final picked = await _picker.pickVideo(source: ImageSource.gallery);
     if (picked != null) {
       if (highlightsPaths.length < 10) {
-        highlightsPaths.add(picked.path);
+        highlightsPaths.add({
+          'path': picked.path,
+          'fromApi': false, // Mark as local file
+        });
       } else {
         EasyLoading.showError('Maximum 10 highlights allowed');
       }
@@ -248,7 +265,6 @@ class EditProfileController extends GetxController {
       }
 
       // Process hashtags
-
       List<String> hashtagsList = [];
       if (hashTageController.text.trim().isNotEmpty) {
         hashtagsList = hashTageController.text
@@ -259,6 +275,23 @@ class EditProfileController extends GetxController {
             .toList();
       }
 
+      // Extract existing API highlights (S3 URLs) to preserve them
+      final List<String> existingHighlights = highlightsPaths
+          .where((h) => h['fromApi'] == true)
+          .map((h) => h['path'] as String)
+          .toList();
+
+      // Extract local file paths for upload (only new highlights, not API ones)
+      final List<String> localHighlightPaths = highlightsPaths
+          .where((h) => h['fromApi'] != true)
+          .map((h) => h['path'] as String)
+          .toList();
+
+      print('DEBUG CONTROLLER: Total highlights: ${highlightsPaths.length}');
+      print('DEBUG CONTROLLER: Existing highlights: ${existingHighlights.length}');
+      print('DEBUG CONTROLLER: New local highlights: ${localHighlightPaths.length}');
+      print('DEBUG CONTROLLER: All highlights: ${highlightsPaths.map((h) => '${h['path']}, fromApi: ${h['fromApi']}').toList()}');
+
       await profileRepository.updateProfile(
         phone: phoneController.text.trim(),
         shortBio: bioController.text.trim(),
@@ -267,7 +300,8 @@ class EditProfileController extends GetxController {
         hashtags: hashtagsList,
         imagePath: imagePath.value.isNotEmpty ? imagePath.value : null,
         socialProfiles: socialProfiles,
-        highlightsPaths: highlightsPaths,
+        highlightsPaths: localHighlightPaths,
+        existingHighlightUrls: existingHighlights,
       );
 
       EasyLoading.showSuccess('Profile updated successfully');
