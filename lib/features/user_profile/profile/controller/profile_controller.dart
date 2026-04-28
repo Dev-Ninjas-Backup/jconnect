@@ -91,6 +91,23 @@ class ProfileController extends GetxController {
           .toList();
     }
 
+    // Extract highlights from API response
+    List<String>? highlights;
+    final highlightsData = json['profile']?['highlights'] ?? json['highlights'];
+    if (highlightsData != null) {
+      highlights = (highlightsData as List?)
+          ?.map((h) {
+            // If highlight is an object with fileLink property
+            if (h is Map) {
+              return h['fileLink']?.toString() ?? h.toString();
+            }
+            // If highlight is just a string URL
+            return h.toString();
+          })
+          .where((h) => h.isNotEmpty && !h.contains('null'))
+          .toList();
+    }
+
     user.value = ProfileModel(
       name: name,
       imageUrl: imageUrl,
@@ -105,6 +122,7 @@ class ProfileController extends GetxController {
       phone: phone,
       socialProfiles: socialProfiles,
       email: email,
+      highlights: highlights,
     );
   }
 

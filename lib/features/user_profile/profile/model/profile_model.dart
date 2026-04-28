@@ -12,6 +12,7 @@ class ProfileModel {
   final String? phone;
   final String?email;
   final List<SocialProfileModel>? socialProfiles;
+  final List<String>? highlights;
 
   ProfileModel({
     required this.name,
@@ -27,6 +28,7 @@ class ProfileModel {
     this.phone,
     this.email,
     this.socialProfiles,
+    this.highlights,
   });
   
 }
