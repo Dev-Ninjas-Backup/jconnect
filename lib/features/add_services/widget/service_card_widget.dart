@@ -79,7 +79,7 @@ class ServiceCardWidget extends StatelessWidget {
   void _showEditSheet(BuildContext context, AddServiceController controller) {
     Get.bottomSheet(
       StatefulBuilder(
-        builder: (context, setState) {
+        builder: (bottomSheetContext, setState) {
           return Container(
             padding: const EdgeInsets.all(20),
             decoration: const BoxDecoration(
@@ -100,8 +100,13 @@ class ServiceCardWidget extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
-                          controller.clearForm();
-                          Get.back();
+                          try {
+                            controller.clearForm();
+                            Navigator.of(bottomSheetContext).pop();
+                          } catch (e) {
+                            print('Error on cancel: $e');
+                            Navigator.of(bottomSheetContext).pop();
+                          }
                         },
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Colors.white24),
@@ -118,12 +123,20 @@ class ServiceCardWidget extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed:
-                            // controller.isSaveEnabled.value
-                            () async {
-                              await controller.saveService();
-                              Get.back();
-                            },
+                        onPressed: () async {
+                          try {
+                            await controller.saveService();
+                            print("save service called");
+                            if (bottomSheetContext.mounted) {
+                              Navigator.of(bottomSheetContext).pop();
+                            }
+                          } catch (e) {
+                            print('Error on save: $e');
+                            if (bottomSheetContext.mounted) {
+                              Navigator.of(bottomSheetContext).pop();
+                            }
+                          }
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
                               //controller.isSaveEnabled.value

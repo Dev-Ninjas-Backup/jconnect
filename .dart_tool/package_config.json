@@ -38,6 +38,12 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "audio_session",
+      "rootUri": "file:///Users/saklain/.pub-cache/hosted/pub.dev/audio_session-0.1.25",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "boolean_selector",
       "rootUri": "file:///Users/saklain/.pub-cache/hosted/pub.dev/boolean_selector-2.1.2",
       "packageUri": "lib/",
@@ -536,6 +542,24 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "just_audio",
+      "rootUri": "file:///Users/saklain/.pub-cache/hosted/pub.dev/just_audio-0.9.46",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "just_audio_platform_interface",
+      "rootUri": "file:///Users/saklain/.pub-cache/hosted/pub.dev/just_audio_platform_interface-4.6.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
+      "name": "just_audio_web",
+      "rootUri": "file:///Users/saklain/.pub-cache/hosted/pub.dev/just_audio_web-0.4.16",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
       "name": "leak_tracker",
       "rootUri": "file:///Users/saklain/.pub-cache/hosted/pub.dev/leak_tracker-11.0.2",
       "packageUri": "lib/",
@@ -740,6 +764,12 @@
       "languageVersion": "3.6"
     },
     {
+      "name": "rxdart",
+      "rootUri": "file:///Users/saklain/.pub-cache/hosted/pub.dev/rxdart-0.28.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "share_plus",
       "rootUri": "file:///Users/saklain/.pub-cache/hosted/pub.dev/share_plus-12.0.1",
       "packageUri": "lib/",
@@ -894,6 +924,12 @@
       "rootUri": "file:///Users/saklain/.pub-cache/hosted/pub.dev/stripe_platform_interface-12.1.1",
       "packageUri": "lib/",
       "languageVersion": "3.8"
+    },
+    {
+      "name": "synchronized",
+      "rootUri": "file:///Users/saklain/.pub-cache/hosted/pub.dev/synchronized-3.4.0+1",
+      "packageUri": "lib/",
+      "languageVersion": "3.11"
     },
     {
       "name": "term_glyph",
