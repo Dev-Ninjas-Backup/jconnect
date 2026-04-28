@@ -45,14 +45,17 @@ class SocialPost extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     // SizedBox(width: 12.w),
-                    Text(
-                      item.serviceName,
-                      style: getTextStyle(
-                        fontsize: sp(16),
-                        fontweight: FontWeight.w500,
+                    Expanded(
+                      child: Text(
+                        item.serviceName,
+                        style: getTextStyle(
+                          fontsize: sp(16),
+                          fontweight: FontWeight.w500,
+                        ),
                       ),
                     ),
                     Image.network(

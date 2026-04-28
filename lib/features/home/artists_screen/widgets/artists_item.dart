@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:video_player/video_player.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button_2.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
@@ -159,36 +161,120 @@ class ArtistsItem extends StatelessWidget {
                 topLeft: Radius.circular(10.r),
                 topRight: Radius.circular(10.r),
               ),
-              child:
+              child: Stack(
+                children: [
                   artist.profilePhoto != null &&
-                      artist.profilePhoto!.trim().isNotEmpty
-                  ? Image.network(
-                      artist.profilePhoto!,
-                      height: 185.h,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Center(
-                        child: Padding(
-                          padding: EdgeInsets.only(top: 8),
-                          child: Icon(
-                            Icons.broken_image,
-                            size: 80,
-                            color: Colors.white,
+                          artist.profilePhoto!.trim().isNotEmpty
+                      ? Image.network(
+                          artist.profilePhoto!,
+                          height: 185.h,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 8),
+                              child: Icon(
+                                Icons.broken_image,
+                                size: 80,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        )
+                      : SizedBox(
+                          height: 185.h,
+                          width: double.infinity,
+                          child: Center(
+                            child: Icon(
+                              Icons.broken_image,
+                              size: 100.h,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                  : SizedBox(
-                      height: 185.h,
-                      width: double.infinity,
-                      child: Center(
-                        child: Icon(
-                          Icons.broken_image,
-                          size: 100.h,
-                          color: Colors.white,
+                  if (artist.highlights.isNotEmpty)
+                    Positioned(
+                      left: 8.w,
+                      right: 8.w,
+                      bottom: 8.h,
+                      child: SizedBox(
+                        height: 42.h,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: artist.highlights.length,
+                          separatorBuilder: (_, __) => SizedBox(width: 6.w),
+                          itemBuilder: (context, index) {
+                            final highlight = artist.highlights[index];
+                            return GestureDetector(
+                              onTap: () =>
+                                  _showHighlightPreview(context, highlight),
+                              child: Container(
+                                width: 42.w,
+                                height: 42.w,
+                                padding: EdgeInsets.all(2.w),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: AppColors.redColor,
+                                ),
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    ClipOval(
+                                      child: highlight.isVideo
+                                          ? Container(
+                                              color: Colors.black54,
+                                              child: Icon(
+                                                Icons.play_circle_fill,
+                                                size: 22.sp,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          : Image.network(
+                                              highlight.url,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (_, __, ___) =>
+                                                  Container(
+                                                    color: Colors.white
+                                                        .withOpacity(0.15),
+                                                    child: Icon(
+                                                      Icons.broken_image,
+                                                      size: 18.sp,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                            ),
+                                    ),
+                                    if (highlight.isVideo)
+                                      Align(
+                                        alignment: Alignment.bottomRight,
+                                        child: Container(
+                                          width: 14.w,
+                                          height: 14.w,
+                                          decoration: BoxDecoration(
+                                            color: Colors.black87,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 1,
+                                            ),
+                                          ),
+                                          child: Icon(
+                                            Icons.play_arrow,
+                                            size: 10.sp,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
+                ],
+              ),
             ),
 
             SizedBox(height: 12.h),
@@ -344,6 +430,204 @@ class ArtistsItem extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showHighlightPreview(BuildContext context, HighlightMedia highlight) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black87,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.black,
+        insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16.r),
+          child: SizedBox(
+            width: double.infinity,
+            height: 420.h,
+            child: highlight.isVideo
+                ? _HighlightVideoPreview(url: highlight.url)
+                : Stack(
+                    children: [
+                      PhotoView(
+                        imageProvider: NetworkImage(highlight.url),
+                        backgroundDecoration: const BoxDecoration(
+                          color: Colors.black,
+                        ),
+                        errorBuilder: (_, __, ___) => Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 72.sp,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 12.h,
+                        right: 12.w,
+                        child: _PreviewCloseButton(),
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HighlightVideoPreview extends StatefulWidget {
+  final String url;
+
+  const _HighlightVideoPreview({required this.url});
+
+  @override
+  State<_HighlightVideoPreview> createState() => _HighlightVideoPreviewState();
+}
+
+class _HighlightVideoPreviewState extends State<_HighlightVideoPreview> {
+  late final VideoPlayerController _controller;
+  bool _isReady = false;
+  bool _hasError = false;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url));
+    _initializeVideo();
+  }
+
+  Future<void> _initializeVideo() async {
+    try {
+      await _controller.initialize();
+      if (!mounted) return;
+      setState(() {
+        _isReady = true;
+      });
+      await _controller.play();
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _hasError = true;
+        _errorMessage = error.toString();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Container(
+            color: Colors.black,
+            child: _hasError
+                ? Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 72.sp,
+                          color: Colors.white,
+                        ),
+                        SizedBox(height: 12.h),
+                        Text(
+                          'Unable to play this video',
+                          textAlign: TextAlign.center,
+                          style: getTextStyle(
+                            fontsize: sp(16),
+                            color: Colors.white,
+                          ),
+                        ),
+                        if (_errorMessage != null) ...[
+                          SizedBox(height: 8.h),
+                          Text(
+                            _errorMessage!,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: getTextStyle(
+                              fontsize: sp(10),
+                              color: AppColors.secondaryTextColor,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  )
+                : !_isReady
+                    ? const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      )
+                    : Center(
+                        child: AspectRatio(
+                          aspectRatio: _controller.value.aspectRatio,
+                          child: VideoPlayer(_controller),
+                        ),
+                      ),
+          ),
+        ),
+        if (_isReady)
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () {
+                if (_controller.value.isPlaying) {
+                  _controller.pause();
+                } else {
+                  _controller.play();
+                }
+                setState(() {});
+              },
+              child: Center(
+                child: AnimatedOpacity(
+                  opacity: _controller.value.isPlaying ? 0 : 1,
+                  duration: const Duration(milliseconds: 200),
+                  child: Container(
+                    width: 56.w,
+                    height: 56.w,
+                    decoration: BoxDecoration(
+                      color: Colors.black54,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.play_arrow,
+                      size: 34.sp,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        Positioned(top: 12.h, right: 12.w, child: _PreviewCloseButton()),
+      ],
+    );
+  }
+}
+
+class _PreviewCloseButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pop(),
+      child: Container(
+        width: 34.w,
+        height: 34.w,
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(Icons.close, size: 18.sp, color: Colors.white),
       ),
     );
   }

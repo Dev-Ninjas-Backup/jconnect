@@ -197,7 +197,7 @@ class ProfileScreen extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade700),
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10),
+        padding: EdgeInsets.symmetric(vertical: 5),
         child: Column(
           children: [
             Text(
@@ -241,11 +241,19 @@ void _showAddServiceSheet(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ServiceFormWidget(
-                controller,
-                // onChanged: (_) => checkFields()
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      ServiceFormWidget(
+                        controller,
+                        // onChanged: (_) => checkFields()
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
