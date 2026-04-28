@@ -277,8 +277,10 @@ class EditProfileScreen extends StatelessWidget {
                                       ),
                                       itemCount: controller.highlightsPaths.length,
                                       itemBuilder: (context, index) {
-                                        final path =
+                                        final highlight =
                                             controller.highlightsPaths[index];
+                                        final path = highlight['path'] as String;
+                                        final fromApi = highlight['fromApi'] as bool? ?? false;
                                         final isVideo = ['mp4', 'mov', 'avi', 'mkv']
                                             .contains(
                                                 path.split('.').last.toLowerCase());
@@ -306,10 +308,23 @@ class EditProfileScreen extends StatelessWidget {
                                                         ),
                                                       ),
                                                     )
-                                                  : Image.file(
-                                                      File(path),
-                                                      fit: BoxFit.cover,
-                                                    ),
+                                                  : (fromApi
+                                                      ? Image.network(
+                                                          path,
+                                                          fit: BoxFit.cover,
+                                                          errorBuilder: (context, error, stackTrace) {
+                                                            return Center(
+                                                              child: Icon(
+                                                                Icons.image_not_supported,
+                                                                color: AppColors.secondaryTextColor,
+                                                              ),
+                                                            );
+                                                          },
+                                                        )
+                                                      : Image.file(
+                                                          File(path),
+                                                          fit: BoxFit.cover,
+                                                        )),
                                             ),
                                             Positioned(
                                               top: 4,
