@@ -639,43 +639,73 @@ class ChatDetailsScreen extends StatelessWidget {
         maskType: EasyLoadingMaskType.black,
       );
 
-      final Directory? downloadDir = await getDownloadsDirectory();
-      if (downloadDir == null) {
+      // Step 1: Download the file
+      final response = await http.get(Uri.parse(fileUrl));
+      if (response.statusCode != 200 && response.statusCode != 201) {
         EasyLoading.dismiss();
         EasyLoading.showError(
-          'Downloads directory not available',
-          duration: Duration(seconds: 2),
+          'Download failed: ${response.statusCode}',
+          duration: const Duration(seconds: 2),
         );
         return;
       }
 
-      final String fileName = fileUrl.split('/').last;
-      final String filePath = '${downloadDir.path}/$fileName';
+      // Step 2: Extract file name and type
+      final String fileName = fileUrl.split('/').last.split('?').first;
 
-      final response = await http.get(Uri.parse(fileUrl));
+      // Step 3: Save to temporary directory first
+      final tempDir = await getTemporaryDirectory();
+      final File tempFile = File('${tempDir.path}/$fileName');
+      await tempFile.writeAsBytes(response.bodyBytes);
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final File file = File(filePath);
-        await file.writeAsBytes(response.bodyBytes);
+      EasyLoading.dismiss();
 
-        EasyLoading.dismiss();
-        EasyLoading.showSuccess(
-          'Downloaded to:\n$filePath',
-          duration: Duration(seconds: 3),
-        );
-      } else {
-        EasyLoading.dismiss();
-        EasyLoading.showError(
-          'Download failed: ${response.statusCode}',
-          duration: Duration(seconds: 2),
+      // Step 4: Show file info
+      final fileSizeInMB = (response.bodyBytes.length / (1024 * 1024)).toStringAsFixed(2);
+      print('✅ File downloaded successfully');
+      print('📁 File name: $fileName');
+      print('📊 File size: $fileSizeInMB MB');
+      print('📱 Temp path: ${tempFile.path}');
+
+      // Step 5: Show success message and open share sheet immediately
+      EasyLoading.showSuccess(
+        '📥 Tap to save to Files',
+        duration: const Duration(seconds: 2),
+      );
+
+      // Step 6: Open iOS Share Sheet to save to Files app
+      await Future.delayed(const Duration(milliseconds: 500));
+      _openShareSheet(tempFile, fileName);
+    } catch (e) {
+      EasyLoading.dismiss();
+      print('❌ Download error: $e');
+      EasyLoading.showError(
+        'Error downloading: $e',
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
+  Future<void> _openShareSheet(File file, String fileName) async {
+    try {
+      final result = await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          text: 'Downloaded file: $fileName',
+        ),
+      );
+
+      print('📤 Share sheet result: $result');
+
+      // File remains in temp storage, user can save to Files app
+      if (Platform.isIOS) {
+        EasyLoading.showInfo(
+          '✅ File available to save',
+          duration: const Duration(seconds: 1),
         );
       }
     } catch (e) {
-      EasyLoading.dismiss();
-      EasyLoading.showError(
-        'Error downloading file: $e',
-        duration: Duration(seconds: 2),
-      );
+      print('Share sheet error: $e');
     }
   }
 

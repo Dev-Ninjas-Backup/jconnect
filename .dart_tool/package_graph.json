@@ -5,7 +5,7 @@
   "packages": [
     {
       "name": "jconnect",
-      "version": "1.0.0+7",
+      "version": "1.0.0+10",
       "dependencies": [
         "build_runner",
         "cupertino_icons",
