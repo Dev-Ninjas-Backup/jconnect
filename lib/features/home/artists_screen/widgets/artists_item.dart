@@ -282,43 +282,16 @@ class ArtistsItem extends StatelessWidget {
             /// Name + price
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      artist.userName.trim().isEmpty
-                          ? "Unknown User"
-                          : artist.userName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: getTextStyle(
-                        fontsize: sp(16),
-                        fontweight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
-                      vertical: 4.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(4.r),
-                      border: Border.all(
-                        width: 0.25,
-                        color: AppColors.secondaryTextColor,
-                      ),
-                    ),
-                    child: Text(
-                      "From \$${servicePrice.toStringAsFixed(2)}",
-                      style: getTextStyle(
-                        fontsize: sp(8),
-                        color: AppColors.secondaryTextColor,
-                      ),
-                    ),
-                  ),
-                ],
+              child: Text(
+                artist.userName.trim().isEmpty
+                    ? "Unknown User"
+                    : artist.userName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: getTextStyle(
+                  fontsize: sp(13),
+                  fontweight: FontWeight.w500,
+                ),
               ),
             ),
 
@@ -349,12 +322,39 @@ class ArtistsItem extends StatelessWidget {
             const SizedBox(height: 8),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Text(
-                "Services",
-                style: getTextStyle(
-                  fontsize: sp(10),
-                  color: AppColors.secondaryTextColor,
-                ),
+              child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Services",
+                    style: getTextStyle(
+                      fontsize: sp(10),
+                      color: AppColors.secondaryTextColor,
+                    ),
+                  ),
+
+                                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 4.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(4.r),
+                      border: Border.all(
+                        width: 0.25,
+                        color: AppColors.secondaryTextColor,
+                      ),
+                    ),
+                    child: Text(
+                      "From \$${servicePrice.toStringAsFixed(2)}",
+                      style: getTextStyle(
+                        fontsize: sp(8),
+                        color: AppColors.secondaryTextColor,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 
