@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:jconnect/core/endpoint.dart';
@@ -43,6 +44,28 @@ class RequestServiceController extends GetxController {
       }
     } catch (e) {
       EasyLoading.showError("Failed to pick file: $e");
+    }
+  }
+
+  /// Capture image or video from camera
+  Future<void> pickFromCamera({bool video = false}) async {
+    try {
+      final picker = ImagePicker();
+      if (video) {
+        final XFile? xfile = await picker.pickVideo(source: ImageSource.camera);
+        if (xfile != null) {
+          selectedFile.value = File(xfile.path);
+          selectedFileName.value = xfile.name;
+        }
+      } else {
+        final XFile? xfile = await picker.pickImage(source: ImageSource.camera, imageQuality: 85);
+        if (xfile != null) {
+          selectedFile.value = File(xfile.path);
+          selectedFileName.value = xfile.name;
+        }
+      }
+    } catch (e) {
+      EasyLoading.showError("Failed to capture media: $e");
     }
   }
 
