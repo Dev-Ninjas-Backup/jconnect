@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, must_be_immutable, unused_field, prefer_final_fields
+// ignore_for_file: deprecated_member_use, avoid_print, must_be_immutable, unused_field, prefer_final_fields
 
 import 'dart:async';
 import 'package:flutter/material.dart';
