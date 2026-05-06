@@ -492,7 +492,7 @@ class RequestServiceScreen extends StatelessWidget {
 
               SizedBox(height: 12),
               Text(
-                "Your payment is protected until the service is completed. Da Connect ensures both sides confirm delivery before funds are released.",
+                "Your payment is protected until the service is completed. Da'Connect ensures both sides confirm delivery before funds are released.",
                 textAlign: TextAlign.center,
                 style: getTextStyle(
                   fontsize: sp(10),

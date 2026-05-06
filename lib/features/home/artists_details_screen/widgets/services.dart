@@ -24,11 +24,31 @@ class Services extends StatelessWidget {
       }
     }).toList();
 
+    if (visibleServices.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 24.h),
+        child: Center(
+          child: Column(
+            children: [
+            SizedBox(height: 100.h,),
+              Text(
+                "No Services Available",
+                style: getTextStyle(
+                  fontsize: sp(14),
+                  fontweight: FontWeight.w500,
+                  color: AppColors.primaryTextColor.withValues(alpha: .7),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return ListView.builder(
       padding: EdgeInsets.zero,
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
-      //itemCount: controller.serviceListItem.length,
       itemCount: visibleServices.length,
       itemBuilder: (_, index) {
         var item = visibleServices[index];
