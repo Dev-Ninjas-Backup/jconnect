@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>This app requires microphone access to record audio for videos and voice messages.</string>
+	<string>Da'Connect uses the microphone to record audio when users capture videos or send voice messages inside the app.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -47,11 +47,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>This app uses the camera to capture images and enable required app features.</string>
+	<string>Da'Connect uses the camera to allow users to take photos or videos when customizing services, social posts, or updating their profile within the app.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>This app needs permission to save images to your photo library.</string>
+	<string>Da'Connect needs permission to save photos or videos generated in the app to your device's photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app needs access to the photo library to select and upload images.</string>
+	<string>Da'Connect needs access to your photo library so you can choose photos or videos to upload for your profile, services, and social posts.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
