@@ -99,6 +99,30 @@ class CustomizeYourOrder extends StatelessWidget {
                             },
                           ),
                           ListTile(
+                            leading: Icon(Icons.photo,size: 20,color: AppColors.primaryTextColor,),
+                            title: Text('Choose Photo', style: getTextStyle(color: AppColors.primaryTextColor),),
+                            onTap: () {
+                              Get.back();
+                              controller.pickFromGallery(video: false);
+                            },
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.videocam,color: AppColors.primaryTextColor,),
+                            title: Text('Choose Video', style: getTextStyle(color: AppColors.primaryTextColor),),
+                            onTap: () {
+                              Get.back();
+                              controller.pickFromGallery(video: true);
+                            },
+                          ),
+
+
+
+
+
+
+
+                          
+                          ListTile(
                             leading: Icon(Icons.close,color: AppColors.primaryTextColor,),
                             title: Text('Cancel', style: getTextStyle(color: AppColors.primaryTextColor),),
                             onTap: () => Get.back(),

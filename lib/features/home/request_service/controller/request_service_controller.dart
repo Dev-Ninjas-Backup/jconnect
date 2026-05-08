@@ -69,6 +69,28 @@ class RequestServiceController extends GetxController {
     }
   }
 
+  /// Pick image or video from gallery/photos
+  Future<void> pickFromGallery({bool video = false}) async {
+    try {
+      final picker = ImagePicker();
+      if (video) {
+        final XFile? xfile = await picker.pickVideo(source: ImageSource.gallery);
+        if (xfile != null) {
+          selectedFile.value = File(xfile.path);
+          selectedFileName.value = xfile.name;
+        }
+      } else {
+        final XFile? xfile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+        if (xfile != null) {
+          selectedFile.value = File(xfile.path);
+          selectedFileName.value = xfile.name;
+        }
+      }
+    } catch (e) {
+      EasyLoading.showError("Failed to pick media: $e");
+    }
+  }
+
   /// Clear selected file
   void clearFile() {
     selectedFile.value = null;
