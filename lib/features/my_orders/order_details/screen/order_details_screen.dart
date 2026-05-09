@@ -11,6 +11,7 @@ import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/my_orders/controller/my_order_controller.dart';
 import 'package:jconnect/features/my_orders/order_details/controller/order_details_controller.dart';
@@ -28,20 +29,12 @@ class OrderDetailsScreen extends StatelessWidget {
     OrderDetailsController controller,
     MyOrdersController orderController,
   ) async {
-    Future<void> _selectFile() async {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['mp3', 'mp4', 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'mov', 'avi', 'flv', 'wav', 'aac'],
-      );
-      
-      if (result == null || result.files.single.path == null) return;
+    final picker = ImagePicker();
 
-      final file = File(result.files.single.path!);
-      final fileName = result.files.single.name;
+    Future<void> _showConfirm(File file, String fileName) async {
       final ext = fileName.split('.').last.toLowerCase();
       final isImage = ['jpg', 'jpeg', 'png', 'gif'].contains(ext);
 
-      // Show confirmation dialog
       if (!context.mounted) return;
       showDialog(
         context: context,
@@ -66,15 +59,11 @@ class OrderDetailsScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 16),
-                  // Show image preview or file icon
                   if (isImage)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: 280,
-                          maxWidth: 300,
-                        ),
+                        constraints: BoxConstraints(maxHeight: 280, maxWidth: 300),
                         child: Image.file(file, fit: BoxFit.contain),
                       ),
                     )
@@ -130,12 +119,10 @@ class OrderDetailsScreen extends StatelessWidget {
                       Expanded(
                         child: TextButton(
                           onPressed: () {
-                            Navigator.pop(dialogContext); // Close dialog
-                            // Offer to reselect
-                            _selectFile(); // Recursively call to pick again
+                            Navigator.pop(dialogContext);
                           },
                           child: Text(
-                            'Reselect',
+                            'Cancel',
                             style: getTextStyle(
                               color: AppColors.redColor,
                               fontweight: FontWeight.w600,
@@ -147,8 +134,7 @@ class OrderDetailsScreen extends StatelessWidget {
                       Expanded(
                         child: TextButton(
                           onPressed: () async {
-                            Navigator.pop(dialogContext); // Close dialog
-                            // Proceed with upload
+                            Navigator.pop(dialogContext);
                             final success = await controller.uploadProof(file);
                             if (success) {
                               Get.snackbar('Success', 'Proof uploaded');
@@ -176,8 +162,76 @@ class OrderDetailsScreen extends StatelessWidget {
       );
     }
 
-    // Start the selection process
-    await _selectFile();
+    // Show bottom sheet with selection options
+    if (!context.mounted) return;
+    Get.bottomSheet(
+      SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: Icon(Icons.camera_alt, color: AppColors.primaryTextColor),
+              title: Text('Take Photo', style: getTextStyle(color: AppColors.primaryTextColor)),
+              onTap: () async {
+                Get.back();
+                final XFile? xfile = await picker.pickImage(source: ImageSource.camera, imageQuality: 85);
+                if (xfile == null) return;
+                await _showConfirm(File(xfile.path), xfile.name);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.videocam, color: AppColors.primaryTextColor),
+              title: Text('Record Video', style: getTextStyle(color: AppColors.primaryTextColor)),
+              onTap: () async {
+                Get.back();
+                final XFile? xfile = await picker.pickVideo(source: ImageSource.camera);
+                if (xfile == null) return;
+                await _showConfirm(File(xfile.path), xfile.name);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.photo_library, color: AppColors.primaryTextColor),
+              title: Text('Choose File', style: getTextStyle(color: AppColors.primaryTextColor)),
+              onTap: () async {
+                Get.back();
+                final result = await FilePicker.platform.pickFiles(
+                  type: FileType.custom,
+                  allowedExtensions: ['mp3', 'mp4', 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'mov', 'avi', 'flv', 'wav', 'aac'],
+                );
+                if (result == null || result.files.single.path == null) return;
+                final file = File(result.files.single.path!);
+                await _showConfirm(file, result.files.single.name);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.photo, size: 20, color: AppColors.primaryTextColor),
+              title: Text('Choose Photo', style: getTextStyle(color: AppColors.primaryTextColor)),
+              onTap: () async {
+                Get.back();
+                final XFile? xfile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+                if (xfile == null) return;
+                await _showConfirm(File(xfile.path), xfile.name);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.videocam, color: AppColors.primaryTextColor),
+              title: Text('Choose Video', style: getTextStyle(color: AppColors.primaryTextColor)),
+              onTap: () async {
+                Get.back();
+                final XFile? xfile = await picker.pickVideo(source: ImageSource.gallery);
+                if (xfile == null) return;
+                await _showConfirm(File(xfile.path), xfile.name);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.close, color: AppColors.primaryTextColor),
+              title: Text('Cancel', style: getTextStyle(color: AppColors.primaryTextColor)),
+              onTap: () => Get.back(),
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: AppColors.backGroundColor,
+    );
   }
 
   /// Get file icon based on extension
