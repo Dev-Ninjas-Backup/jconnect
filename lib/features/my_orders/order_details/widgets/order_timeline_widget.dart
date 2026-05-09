@@ -11,6 +11,7 @@ import 'package:video_player/video_player.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:photo_view/photo_view.dart';
 import 'dart:io';
+import 'package:just_audio/just_audio.dart';
 
 class OrderTimelineWidget extends StatelessWidget {
   final List<OrderTimelineStep> timeline;
@@ -96,52 +97,10 @@ class OrderTimelineWidget extends StatelessWidget {
   }
 
   Future<void> _showAudioPlayerDialog(BuildContext context, String url) async {
-    final fileName = url.split('/').last.split('?').first;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.backGroundColor,
-        title: Row(
-          children: [
-            Icon(Icons.audio_file, color: AppColors.redColor),
-            SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                fileName,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: getTextStyle(
-                  color: AppColors.primaryTextColor,
-                  fontweight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          'Audio file - tap Download to save',
-          style: getTextStyle(color: AppColors.secondaryTextColor),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Close',
-              style: getTextStyle(color: AppColors.redColor),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _downloadFile(url);
-            },
-            child: Text(
-              'Download',
-              style: getTextStyle(color: AppColors.redColor),
-            ),
-          ),
-        ],
-      ),
+    // Open a full-screen audio player for better UX
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => _AudioPlayerScreen(audioUrl: url)),
     );
   }
 
@@ -500,6 +459,136 @@ class _VideoViewerScreen extends StatefulWidget {
 
   @override
   State<_VideoViewerScreen> createState() => _VideoViewerScreenState();
+}
+
+/// Audio player screen for viewing audio files with direct playback
+class _AudioPlayerScreen extends StatefulWidget {
+  final String audioUrl;
+
+  const _AudioPlayerScreen({Key? key, required this.audioUrl}) : super(key: key);
+
+  @override
+  State<_AudioPlayerScreen> createState() => _AudioPlayerScreenState();
+}
+
+class _AudioPlayerScreenState extends State<_AudioPlayerScreen> {
+  late AudioPlayer _audioPlayer;
+  late Future<void> _initializeAudioFuture;
+  Duration _duration = Duration.zero;
+  Duration _position = Duration.zero;
+  bool _isPlaying = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _audioPlayer = AudioPlayer();
+    _initializeAudioFuture = _audioPlayer.setUrl(widget.audioUrl).then((_) async {
+      final d = _audioPlayer.duration;
+      if (d != null) setState(() => _duration = d);
+    });
+
+    _audioPlayer.playerStateStream.listen((state) {
+      setState(() {
+        _isPlaying = state.playing;
+      });
+    });
+
+    _audioPlayer.positionStream.listen((pos) {
+      setState(() {
+        _position = pos;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final minutes = twoDigits(duration.inMinutes.remainder(60));
+    final seconds = twoDigits(duration.inSeconds.remainder(60));
+    return '$minutes:$seconds';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final fileName = widget.audioUrl.split('/').last.split('?').first;
+    return Scaffold(
+      backgroundColor: Colors.black87,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(
+          fileName,
+          style: const TextStyle(color: Colors.white),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+      body: FutureBuilder<void>(
+        future: _initializeAudioFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Error loading audio',
+                  style: getTextStyle(color: AppColors.secondaryTextColor),
+                ),
+              );
+            }
+
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.audiotrack, size: 72, color: AppColors.redColor),
+                  SizedBox(height: 20),
+                  Text(fileName, style: getTextStyle(color: AppColors.primaryTextColor)),
+                  SizedBox(height: 20),
+                  Slider(
+                    value: _position.inMilliseconds.toDouble().clamp(0, _duration.inMilliseconds.toDouble()),
+                    max: _duration.inMilliseconds.toDouble().clamp(1, double.infinity),
+                    onChanged: (v) async {
+                      final pos = Duration(milliseconds: v.toInt());
+                      await _audioPlayer.seek(pos);
+                    },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(_formatDuration(_position), style: getTextStyle(color: AppColors.secondaryTextColor)),
+                        Text(_formatDuration(_duration), style: getTextStyle(color: AppColors.secondaryTextColor)),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  FloatingActionButton(
+                    backgroundColor: AppColors.redColor,
+                    onPressed: () async {
+                      if (_isPlaying) {
+                        await _audioPlayer.pause();
+                      } else {
+                        await _audioPlayer.play();
+                      }
+                    },
+                    child: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            return const Center(child: CircularProgressIndicator());
+          }
+        },
+      ),
+    );
+  }
 }
 
 class _VideoViewerScreenState extends State<_VideoViewerScreen> {
