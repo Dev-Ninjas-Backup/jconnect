@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
+import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/features/messages/chat_details/screen/chat_details_screen.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
 
@@ -46,28 +47,31 @@ class _MessagesScreenState extends State<MessagesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
-      appBar: AppBar(
-        title: Text('Messages', style: getTextStyle(fontsize: 24.sp)),
-        backgroundColor: AppColors.backGroundColor,
-        elevation: 0,
-      ),
-      body: Column(
-        children: [
-          SizedBox(height: 10.h),
-
-          SizedBox(height: 16.h),
-          Expanded(
-            child: Obx(
-              () => ListView.builder(
-                itemCount: controller.allChats.length,
-                itemBuilder: (_, idx) {
-                  final chat = controller.allChats[idx];
-                  return buildSwipeItem(context, chat, idx);
-                },
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(18),
+              child: CustomAppBar2(
+                title: "MESSAGES",
+                leadingIconUrl: Iconpath.backIcon,
+                onLeadingTap: () => Get.back(),
               ),
             ),
-          ),
-        ],
+            SizedBox(height: 16.h),
+            Expanded(
+              child: Obx(
+                () => ListView.builder(
+                  itemCount: controller.allChats.length,
+                  itemBuilder: (_, idx) {
+                    final chat = controller.allChats[idx];
+                    return buildSwipeItem(context, chat, idx);
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
