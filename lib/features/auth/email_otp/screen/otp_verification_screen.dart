@@ -17,7 +17,7 @@ class OtpVerificationScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
-      appBar: CustomAppBar(title: 'Forgot Password'),
+       appBar: CustomAppBar(title: 'Forgot Password'),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 32),
         child: Column(

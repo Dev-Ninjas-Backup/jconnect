@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
+import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
-import 'package:jconnect/core/common/widgets/custom_appbar.dart';
+import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/core/common/constants/custom_textfield.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/features/user_profile/edit_profile/controller/edit_profile_controller.dart';
@@ -25,7 +26,14 @@ class EditProfileScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            CustomAppBar(title: 'Edit Profile'),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 18.w,vertical: 10.h),
+              child: CustomAppBar2(
+                title: 'Edit Profile',
+                leadingIconUrl: Iconpath.backIcon,
+                onLeadingTap: () => Get.back(),
+              ),
+            ),
             Expanded(
               child: Obx(
                 () => controller.isLoading.value
@@ -251,7 +259,7 @@ class EditProfileScreen extends StatelessWidget {
                             ),
 
                             SizedBox(height: 30.h),
-                            
+
                             // Highlights Section
                             Text(
                               'Highlights:',
@@ -262,7 +270,7 @@ class EditProfileScreen extends StatelessWidget {
                               ),
                             ),
                             SizedBox(height: 15.h),
-                            
+
                             // Highlights Grid
                             Obx(
                               () => controller.highlightsPaths.isNotEmpty
@@ -271,20 +279,33 @@ class EditProfileScreen extends StatelessWidget {
                                       physics: NeverScrollableScrollPhysics(),
                                       gridDelegate:
                                           SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 3,
-                                        crossAxisSpacing: 10.w,
-                                        mainAxisSpacing: 10.h,
-                                      ),
-                                      itemCount: controller.highlightsPaths.length,
+                                            crossAxisCount: 3,
+                                            crossAxisSpacing: 10.w,
+                                            mainAxisSpacing: 10.h,
+                                          ),
+                                      itemCount:
+                                          controller.highlightsPaths.length,
                                       itemBuilder: (context, index) {
                                         final highlight =
                                             controller.highlightsPaths[index];
-                                        final path = highlight['path'] as String;
-                                        final fromApi = highlight['fromApi'] as bool? ?? false;
-                                        final isVideo = ['mp4', 'mov', 'avi', 'mkv']
-                                            .contains(
-                                                path.split('.').last.toLowerCase());
-                                        
+                                        final path =
+                                            highlight['path'] as String;
+                                        final fromApi =
+                                            highlight['fromApi'] as bool? ??
+                                            false;
+                                        final isVideo =
+                                            [
+                                              'mp4',
+                                              'mov',
+                                              'avi',
+                                              'mkv',
+                                            ].contains(
+                                              path
+                                                  .split('.')
+                                                  .last
+                                                  .toLowerCase(),
+                                            );
+
                                         return Stack(
                                           children: [
                                             Container(
@@ -309,22 +330,29 @@ class EditProfileScreen extends StatelessWidget {
                                                       ),
                                                     )
                                                   : (fromApi
-                                                      ? Image.network(
-                                                          path,
-                                                          fit: BoxFit.cover,
-                                                          errorBuilder: (context, error, stackTrace) {
-                                                            return Center(
-                                                              child: Icon(
-                                                                Icons.image_not_supported,
-                                                                color: AppColors.secondaryTextColor,
-                                                              ),
-                                                            );
-                                                          },
-                                                        )
-                                                      : Image.file(
-                                                          File(path),
-                                                          fit: BoxFit.cover,
-                                                        )),
+                                                        ? Image.network(
+                                                            path,
+                                                            fit: BoxFit.cover,
+                                                            errorBuilder:
+                                                                (
+                                                                  context,
+                                                                  error,
+                                                                  stackTrace,
+                                                                ) {
+                                                                  return Center(
+                                                                    child: Icon(
+                                                                      Icons
+                                                                          .image_not_supported,
+                                                                      color: AppColors
+                                                                          .secondaryTextColor,
+                                                                    ),
+                                                                  );
+                                                                },
+                                                          )
+                                                        : Image.file(
+                                                            File(path),
+                                                            fit: BoxFit.cover,
+                                                          )),
                                             ),
                                             Positioned(
                                               top: 4,
@@ -370,16 +398,23 @@ class EditProfileScreen extends StatelessWidget {
                                     ),
                             ),
                             SizedBox(height: 15.h),
-                            
+
                             // Add Highlights Buttons
                             Row(
                               children: [
                                 Expanded(
                                   child: ElevatedButton.icon(
-                                    onPressed:
-                                        controller.pickHighlightImage,
-                                    icon: Icon(Icons.image, color: AppColors.primaryTextColor),
-                                    label: Text('Add Image',style: getTextStyle(color: AppColors.primaryTextColor),),
+                                    onPressed: controller.pickHighlightImage,
+                                    icon: Icon(
+                                      Icons.image,
+                                      color: AppColors.primaryTextColor,
+                                    ),
+                                    label: Text(
+                                      'Add Image',
+                                      style: getTextStyle(
+                                        color: AppColors.primaryTextColor,
+                                      ),
+                                    ),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: AppColors.redColor,
                                       padding: EdgeInsets.symmetric(
@@ -391,10 +426,17 @@ class EditProfileScreen extends StatelessWidget {
                                 SizedBox(width: 10.w),
                                 Expanded(
                                   child: ElevatedButton.icon(
-                                    onPressed:
-                                        controller.pickHighlightVideo,
-                                    icon: Icon(Icons.videocam,color: AppColors.primaryTextColor,),
-                                    label: Text('Add Video',style: getTextStyle(color: AppColors.primaryTextColor),),
+                                    onPressed: controller.pickHighlightVideo,
+                                    icon: Icon(
+                                      Icons.videocam,
+                                      color: AppColors.primaryTextColor,
+                                    ),
+                                    label: Text(
+                                      'Add Video',
+                                      style: getTextStyle(
+                                        color: AppColors.primaryTextColor,
+                                      ),
+                                    ),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: AppColors.redColor,
                                       padding: EdgeInsets.symmetric(
