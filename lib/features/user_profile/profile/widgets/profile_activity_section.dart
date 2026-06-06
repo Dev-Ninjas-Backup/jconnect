@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/route_manager.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
@@ -35,7 +36,7 @@ class ProfileActivitySection extends StatelessWidget {
         'onTap': () => {Get.to(MessagesScreen())},
       },
       {
-        'icon': Icons.request_page_outlined,
+        'icon': Icons.people_outline_rounded,
         'label': 'Followers & Followings',
         'onTap': () => Get.toNamed(AppRoute.followScreen),
       },
@@ -45,10 +46,10 @@ class ProfileActivitySection extends StatelessWidget {
         'onTap': () => {Get.toNamed(AppRoute.reviewScreen)},
       },
       {
-        'icon': Icons.build_circle_outlined,
-        'label': 'My Services',
+        'icon': Icons.bar_chart_rounded,
+        'label': 'Repost Performance',
         'onTap': () {
-          Get.toNamed(AppRoute.addServiceScreen);
+          // Navigate to repost performance
         },
       },
     ];
@@ -58,9 +59,9 @@ class ProfileActivitySection extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.backGroundColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.secondaryTextColor),
+        border: Border.all(color: Colors.grey.shade800),
       ),
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -72,12 +73,13 @@ class ProfileActivitySection extends StatelessWidget {
               fontsize: 16,
             ),
           ),
-          SizedBox(height: 12),
+          SizedBox(height: 8.h),
           ...items.map(
             (item) => _buildActivityItem(
               icon: item['icon'] as IconData,
               label: item['label'] as String,
               onTap: item['onTap'] as VoidCallback,
+              isLast: item == items.last,
             ),
           ),
         ],
@@ -89,20 +91,26 @@ class ProfileActivitySection extends StatelessWidget {
     required IconData icon,
     required String label,
     required VoidCallback onTap,
+    bool isLast = false,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 4.w),
         decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: AppColors.secondaryTextColor, width: 0.8),
-          ),
+          border: isLast
+              ? null
+              : Border(
+                  bottom: BorderSide(
+                    color: Colors.grey.shade800,
+                    width: 0.5,
+                  ),
+                ),
         ),
         child: Row(
           children: [
-            Icon(icon, color: AppColors.primaryTextColor, size: 22),
-            SizedBox(width: 12),
+            Icon(icon, color: AppColors.primaryTextColor, size: 22.sp),
+            SizedBox(width: 12.w),
             Expanded(
               child: Text(
                 label,
@@ -116,7 +124,7 @@ class ProfileActivitySection extends StatelessWidget {
             Icon(
               Icons.arrow_forward_ios_rounded,
               color: AppColors.secondaryTextColor,
-              size: 16,
+              size: 16.sp,
             ),
           ],
         ),
