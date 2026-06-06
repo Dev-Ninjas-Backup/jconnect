@@ -27,6 +27,7 @@ class ArtistsDetailsController extends GetxController {
   var artistsDetails = Rxn<ArtistsModel>();
 
   var socialPosts = <ServiceModel>[].obs;
+  var reposts = <ServiceModel>[].obs;
   var services = <ServiceModel>[].obs;
 
   final RxString selectSocialOrService = "social".obs;
@@ -87,6 +88,9 @@ class ArtistsDetailsController extends GetxController {
     services.value = artistsDetails.value!.services
         .where((s) => s.serviceType == "SERVICE")
         .toList();
+    reposts.value = artistsDetails.value!.services
+        .where((s) => s.serviceType == "REPOST")
+        .toList();
   }
 
   Future<void> checkFollowStatus(String artistId) async {
@@ -131,7 +135,6 @@ class ArtistsDetailsController extends GetxController {
 
       final token = await pref.getAccessToken();
       final isCurrentlyFollowing = followingUsers[followingId] ?? false;
-
 
       final response = await http.post(
         Uri.parse('${Endpoint.baseUrl}/follow-function/follow'),
