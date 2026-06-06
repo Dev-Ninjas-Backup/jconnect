@@ -50,3 +50,4 @@ app.*.map.json
 # Secrets
 lib/secrets/stripe_key.dart
 temp_interactive_push.bat
+branch_structure.json
