@@ -6,144 +6,6 @@ import 'package:jconnect/features/home/artists_details_screen/controller/artists
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/constants/iconpath.dart';
 import '../../../../core/common/style/global_text_style.dart';
-import '../../../../core/common/widgets/custom_app_bar2.dart';
-
-// class ArtistsDetailsUpperSection extends StatelessWidget {
-//   final ArtistsDetailsController controller;
-//   const ArtistsDetailsUpperSection({super.key, required this.controller});
-//   String getSocialIcon(String platform) {
-//     switch (platform.toLowerCase()) {
-//       case 'facebook':
-//         return Iconpath.facebook;
-//       case 'instagram':
-//         return Iconpath.instagram;
-//       case 'tiktok':
-//         return Iconpath.tiktok;
-//       case 'youtube':
-//         return Iconpath.youtube;
-//       default:
-//         return Iconpath.defaultSocial;
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         CustomAppBar2(
-//           title: "Artist Details",
-//           leadingIconUrl: Iconpath.backIcon,
-//           onLeadingTap: () {
-//             Get.back();
-//           },
-//         ),
-//         SizedBox(height: 34.h),
-
-//         Center(
-//           child: Column(
-//             children: [
-//               Image.network(
-//                 controller.artistsDetails.value?.profilePhoto.toString() ?? " ",
-//                 height: 130.w,
-//                 width: 130.w,
-//                 errorBuilder: (context, error, stackTrace) =>
-//                     Icon(Icons.broken_image, size: 130, color: Colors.white),
-//               ),
-//               SizedBox(height: 12.h),
-//               Text(
-//                 controller.artistsDetails.value!.fullName,
-//                 style: getTextStyle(
-//                   fontsize: sp(24),
-//                   fontweight: FontWeight.w600,
-//                 ),
-//               ),
-//               SizedBox(height: 8.h),
-//               Text(
-//                 controller.artistsDetails.value!.email,
-//                 style: getTextStyle(
-//                   fontsize: sp(10),
-//                   fontweight: FontWeight.w400,
-//                   color: AppColors.primaryTextColor.withValues(alpha: .7),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-
-//         SizedBox(height: 30.h),
-//         Row(
-//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//           spacing: 24.w,
-//           children: [
-//             Expanded(
-//               child: CustomSecondaryButton(buttonText: "Message", onTap: () {}),
-//             ),
-//             Expanded(
-//               child: CustomPrimaryButton(
-//                 buttonText: "Request Service",
-//                 onTap: () {
-//                   Get.toNamed(AppRoute.getRequestServiceScreen());
-//                 },
-//                 fontSize: 14,
-//               ),
-//             ),
-//           ],
-//         ),
-//         SizedBox(height: 40.h),
-//         Text(
-//           "Social Links:",
-//           style: getTextStyle(
-//             fontsize: sp(18),
-//             fontweight: FontWeight.w500,
-//             color: AppColors.primaryTextColor.withValues(alpha: .7),
-//           ),
-//         ),
-//         SizedBox(height: 24.h),
-//         Row(
-//           children: List.generate(
-//             controller.artistsDetails.value!.profile!.socialProfiles.length,
-//             (index) {
-//               final iconPath = getSocialIcon(
-//                 controller
-//                         .artistsDetails
-//                         .value!
-//                         .profile!
-//                         .socialProfiles[index]
-//                         .platformName ??
-//                     " ",
-//               );
-
-//               return Padding(
-//                 padding: EdgeInsets.only(right: 34.w),
-//                 child: Image.asset(iconPath, height: 24.w, width: 24.w),
-//               );
-//             },
-//           ),
-//         ),
-
-//         SizedBox(height: 40.h),
-//         Text(
-//           "About  ${controller.artistsDetails.value!.fullName.toString()}",
-//           style: getTextStyle(
-//             fontsize: sp(18),
-//             fontweight: FontWeight.w500,
-//             color: AppColors.primaryTextColor.withValues(alpha: .7),
-//           ),
-//         ),
-//         SizedBox(height: 10.h),
-//         Text(
-//           controller.artistsDetails.value?.profile?.shortBio ??
-//               "No bio available",
-//           style: getTextStyle(
-//             fontsize: sp(12),
-//             color: AppColors.primaryTextColor.withValues(alpha: .5),
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
 
 class ArtistsDetailsUpperSection extends StatelessWidget {
   final ArtistsDetailsController controller;
@@ -177,7 +39,6 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
     return Obx(() {
       final artist = controller.artistsDetails.value;
 
-      // ⛔ Loading state (prevents crash)
       if (artist == null) {
         return const Center(child: CircularProgressIndicator());
       }
@@ -187,46 +48,128 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CustomAppBar2(
-            title: "User Details",
-            leadingIconUrl: Iconpath.backIcon,
-            onLeadingTap: Get.back,
+          // Back button
+          GestureDetector(
+            onTap: () => Get.back(),
+            child: Container(
+              width: 36.w,
+              height: 36.w,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.grey.shade700,
+                  width: 1,
+                ),
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
+                  size: 18.sp,
+                ),
+              ),
+            ),
           ),
-          SizedBox(height: 34.h),
+          SizedBox(height: 20.h),
 
+          // Profile photo centered
           Center(
             child: Column(
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadiusGeometry.circular(100.r),
-                  child: Image.network(
-                    artist.profilePhoto ?? '',
-                    height: 130.h,
-                    width: 130.w,
-                    fit: BoxFit.cover,
-
-                    errorBuilder: (_, __, ___) => ClipRRect(
-                      borderRadius: BorderRadiusGeometry.circular(100.r),
-                      child: const Icon(
-                        Icons.broken_image,
-                        size: 130,
-                        color: Colors.white,
+                Container(
+                  width: 120.w,
+                  height: 120.w,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.grey.shade700,
+                      width: 2,
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(60.r),
+                    child: Image.network(
+                      artist.profilePhoto ?? '',
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: Colors.grey.shade900,
+                        child: Icon(
+                          Icons.person,
+                          size: 60.sp,
+                          color: Colors.white38,
+                        ),
                       ),
                     ),
                   ),
                 ),
+                SizedBox(height: 14.h),
 
-                SizedBox(height: 12.h),
-                Text(
-                  artist.userName.trim().isEmpty
-                      ? "Unknown User"
-                      : artist.userName,
-                  style: getTextStyle(
-                    fontsize: sp(24),
-                    fontweight: FontWeight.w600,
-                  ),
+                // Username with verified badge
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      artist.userName.trim().isEmpty
+                          ? "Unknown User"
+                          : artist.userName,
+                      style: getTextStyle(
+                        fontsize: 22,
+                        fontweight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                    if (artist.isVerified) ...[
+                      SizedBox(width: 6.w),
+                      Container(
+                        width: 20.w,
+                        height: 20.w,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.redColor,
+                        ),
+                        child: Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 14.sp,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: 6.h),
+
+                // Rating row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.star,
+                      color: AppColors.redColor,
+                      size: 16.sp,
+                    ),
+                    SizedBox(width: 4.w),
+                    Text(
+                      '${artist.averageRating}',
+                      style: getTextStyle(
+                        fontsize: 14,
+                        fontweight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 4.w),
+                    Text(
+                      '(${artist.reviewsReceived.length} review${artist.reviewsReceived.length != 1 ? 's' : ''})',
+                      style: getTextStyle(
+                        fontsize: 12,
+                        fontweight: FontWeight.w400,
+                        color: AppColors.secondaryTextColor,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 14.h),
+
+                // Followers + Follow button
                 Obx(() {
                   final isOwnProfile = controller.isOwnProfile(artist.id);
                   final isFollowing =
@@ -235,11 +178,10 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                   if (isOwnProfile) {
                     return Text(
                       "Your Own Profile",
-
                       style: getTextStyle(
-                        fontsize: sp(12),
+                        fontsize: 12,
                         fontweight: FontWeight.w400,
-                        color: AppColors.primaryTextColor.withValues(alpha: .5),
+                        color: AppColors.secondaryTextColor,
                       ),
                     );
                   }
@@ -250,20 +192,18 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                       Text(
                         '${artist.followerCount} Followers',
                         style: getTextStyle(
-                          fontsize: sp(12),
+                          fontsize: 14,
                           fontweight: FontWeight.w500,
-                          color: AppColors.primaryTextColor.withValues(
-                            alpha: .7,
-                          ),
+                          color: AppColors.secondaryTextColor,
                         ),
                       ),
                       SizedBox(width: 16.w),
-                      Opacity(
-                        opacity: isFollowing ? 1.0 : 0.5,
+                      SizedBox(
+                        width: 100.w,
                         child: CustomPrimaryButton(
-                          buttonHeight: 4,
-                          buttonWidth: 12,
+                          buttonHeight: 36,
                           buttonText: isFollowing ? 'Following' : 'Follow',
+                          fontSize: sp(13),
                           onTap: () {
                             controller.followUser(artist.id);
                           },
@@ -272,50 +212,22 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                     ],
                   );
                 }),
-                // Text(
-                //   artist.email,
-                //   style: getTextStyle(
-                //     fontsize: sp(18),
-                //     fontweight: FontWeight.w400,
-                //     color: AppColors.primaryTextColor.withValues(alpha: .7),
-                //   ),
-                // ),
               ],
             ),
           ),
 
-          // SizedBox(height: 30.h),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   spacing: 24.w,
-          //   children: [
-          //     Expanded(
-          //       child: CustomSecondaryButton(
-          //         buttonText: "Message",
-          //         onTap: () {},
-          //       ),
-          //     ),
-          //     Expanded(
-          //       child: CustomPrimaryButton(
-          //         buttonText: "Request Service",
-          //         onTap: () {
-          //      //     Get.toNamed(AppRoute.getRequestServiceScreen());
-          //         },
-          //         fontSize: 14,
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          SizedBox(height: 40.h),
+          SizedBox(height: 28.h),
+
+          // Social Links section
           Text(
-            "Social Links:",
+            'Social Links',
             style: getTextStyle(
-              fontsize: sp(18),
-              fontweight: FontWeight.w500,
-              color: AppColors.primaryTextColor.withValues(alpha: .7),
+              fontsize: 16,
+              fontweight: FontWeight.w600,
+              color: AppColors.primaryTextColor,
             ),
           ),
-          SizedBox(height: 24.h),
+          SizedBox(height: 12.h),
 
           if (socialProfiles.isNotEmpty)
             SingleChildScrollView(
@@ -327,7 +239,7 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                   );
 
                   return Padding(
-                    padding: EdgeInsets.only(right: 34.w),
+                    padding: EdgeInsets.only(right: 16.w),
                     child: GestureDetector(
                       onTap: () {
                         final url = socialProfiles[index].platformLink;
@@ -335,51 +247,71 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                           controller.launchURL(url);
                         }
                       },
-                      child: Image.asset(iconPath, height: 24.w, width: 24.w),
+                      child: Container(
+                        width: 36.w,
+                        height: 36.w,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.r),
+                          border: Border.all(
+                            color: Colors.grey.shade700,
+                            width: 1,
+                          ),
+                        ),
+                        child: Center(
+                          child: Image.asset(
+                            iconPath,
+                            height: 22.w,
+                            width: 22.w,
+                          ),
+                        ),
+                      ),
                     ),
                   );
                 }),
               ),
             )
-          else if (socialProfiles.isEmpty)
+          else
             Text(
               "No social profiles available",
               style: getTextStyle(
-                fontsize: sp(12),
-                color: AppColors.primaryTextColor.withValues(alpha: .5),
+                fontsize: 12,
+                color: AppColors.secondaryTextColor,
               ),
             ),
 
-          SizedBox(height: 40.h),
+          SizedBox(height: 28.h),
+
+          // About section
           Text(
-            "About ${artist.userName}",
+            'About ${artist.userName}',
             style: getTextStyle(
-              fontsize: sp(18),
-              fontweight: FontWeight.w500,
-              color: AppColors.primaryTextColor.withValues(alpha: .7),
+              fontsize: 16,
+              fontweight: FontWeight.w600,
+              color: AppColors.primaryTextColor,
             ),
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 8.h),
           Text(
             artist.profile?.shortBio ?? "No bio available",
             style: getTextStyle(
-              fontsize: sp(12),
-              color: AppColors.primaryTextColor.withValues(alpha: .5),
+              fontsize: 13,
+              color: AppColors.secondaryTextColor,
             ),
           ),
-          SizedBox(height: 40.h),
 
+          SizedBox(height: 28.h),
+
+          // Hash Tags section
           Text(
             'Hash Tags',
             style: getTextStyle(
-              fontsize: sp(18),
-              fontweight: FontWeight.w500,
-              color: AppColors.primaryTextColor.withValues(alpha: .7),
+              fontsize: 16,
+              fontweight: FontWeight.w600,
+              color: AppColors.primaryTextColor,
             ),
           ),
           SizedBox(height: 12.h),
 
-          // Display hashtags
           if (artist.hashTags.isNotEmpty)
             Wrap(
               spacing: 8.w,
@@ -387,21 +319,21 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
               children: artist.hashTags.map<Widget>((tag) {
                 return Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 6.h,
+                    horizontal: 14.w,
+                    vertical: 8.h,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryTextColor.withValues(alpha: 0.2),
+                    color: Colors.grey.shade900,
                     borderRadius: BorderRadius.circular(20.r),
                     border: Border.all(
-                      color: AppColors.primaryTextColor.withValues(alpha: 0.5),
+                      color: Colors.grey.shade700,
                       width: 1,
                     ),
                   ),
                   child: Text(
                     tag,
                     style: getTextStyle(
-                      fontsize: sp(12),
+                      fontsize: 12,
                       fontweight: FontWeight.w500,
                       color: AppColors.primaryTextColor,
                     ),
@@ -413,8 +345,8 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
             Text(
               "No hashtags available",
               style: getTextStyle(
-                fontsize: sp(12),
-                color: AppColors.primaryTextColor.withValues(alpha: .5),
+                fontsize: 12,
+                color: AppColors.secondaryTextColor,
               ),
             ),
         ],

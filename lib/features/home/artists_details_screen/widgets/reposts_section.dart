@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/routes/approute.dart';
-
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/style/global_text_style.dart';
 import '../controller/artists_details_controller.dart';
 
-class SocialPost extends StatelessWidget {
-  SocialPost({super.key, required this.controller});
+/// Reposts tab — shows social posts with "Buy Repost" buttons.
+/// This mirrors the SocialPost widget but uses repost-specific labels
+/// matching the Figma design.
+class RepostsSection extends StatelessWidget {
+  const RepostsSection({super.key, required this.controller});
 
   final ArtistsDetailsController controller;
-  final SharedPreferencesHelperController pref =
-      Get.find<SharedPreferencesHelperController>();
 
   @override
   Widget build(BuildContext context) {
-    // Only show social posts that are not custom (isCustom == false)
-    final visiblePosts = controller.socialPosts.where((p) {
+    final visiblePosts = controller.reposts.where((p) {
       try {
         return p.isCustom == false;
       } catch (_) {
@@ -31,7 +29,7 @@ class SocialPost extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 40.h),
         child: Center(
           child: Text(
-            "No Social Posts Available",
+            "No Reposts Available",
             style: getTextStyle(
               fontsize: 14,
               fontweight: FontWeight.w500,
@@ -58,37 +56,62 @@ class SocialPost extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.backGroundColor,
                 borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(
-                  color: Colors.grey.shade800,
-                  width: 1,
-                ),
+                border: Border.all(color: Colors.grey.shade800, width: 1),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Social platform icon
-                  Container(
-                    width: 48.w,
-                    height: 48.w,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.grey.shade700,
-                        width: 1,
-                      ),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(24.r),
-                      child: Image.network(
-                        item.socialLogoForSocialService.toString(),
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Icon(
-                          Icons.photo_library_outlined,
-                          size: 24.sp,
-                          color: Colors.white54,
+                  // Social platform icon with small + badge
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: 48.w,
+                        height: 48.w,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.grey.shade700,
+                            width: 1,
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(24.r),
+                          child: Image.network(
+                            item.socialLogoForSocialService.toString(),
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Icon(
+                              Icons.repeat_rounded,
+                              size: 24.sp,
+                              color: Colors.white54,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      Positioned(
+                        bottom: -2,
+                        right: -2,
+                        child: Container(
+                          width: 18.w,
+                          height: 18.w,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.backGroundColor,
+                            border: Border.all(
+                              color: Colors.grey.shade700,
+                              width: 1,
+                            ),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.add,
+                              size: 12.sp,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(width: 12.w),
 
@@ -97,18 +120,64 @@ class SocialPost extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          item.serviceName,
-                          style: getTextStyle(
-                            fontsize: 15,
-                            fontweight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
+                        // Title row with price tag
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                item.serviceName,
+                                style: getTextStyle(
+                                  fontsize: 15,
+                                  fontweight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            // Price tag badge
+                            if (index == 0)
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8.w,
+                                  vertical: 3.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.redColor.withValues(
+                                    alpha: 0.2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(4.r),
+                                  border: Border.all(
+                                    color: AppColors.redColor.withValues(
+                                      alpha: 0.5,
+                                    ),
+                                    width: 0.5,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      '🔥 ',
+                                      style: TextStyle(fontSize: 10.sp),
+                                    ),
+                                    Text(
+                                      '\$${item.price.toStringAsFixed(0)} REPOST',
+                                      style: getTextStyle(
+                                        fontsize: 9,
+                                        fontweight: FontWeight.w700,
+                                        color: AppColors.redColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
                         ),
                         SizedBox(height: 4.h),
                         Text(
-                          item.description,
-                          maxLines: 2,
+                          item.description.isNotEmpty
+                              ? item.description
+                              : '24 Hour Duration',
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: getTextStyle(
                             fontsize: 11,
@@ -139,7 +208,7 @@ class SocialPost extends StatelessWidget {
                   ),
                   SizedBox(width: 8.w),
 
-                  // Price + Buy button column
+                  // Price + Buy Repost button
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -171,7 +240,7 @@ class SocialPost extends StatelessWidget {
                                 },
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
-                                    horizontal: 14.w,
+                                    horizontal: 12.w,
                                     vertical: 6.h,
                                   ),
                                   decoration: BoxDecoration(
@@ -187,7 +256,7 @@ class SocialPost extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(6.r),
                                   ),
                                   child: Text(
-                                    'Buy Post',
+                                    'Buy Repost',
                                     style: getTextStyle(
                                       fontsize: 11,
                                       fontweight: FontWeight.w600,
@@ -205,7 +274,7 @@ class SocialPost extends StatelessWidget {
           },
         ),
 
-        // View all link
+        // View all repost options link
         if (visiblePosts.length > 3)
           Padding(
             padding: EdgeInsets.only(top: 8.h),
@@ -213,7 +282,7 @@ class SocialPost extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'View all post options (${visiblePosts.length})',
+                  'View all repost options (${visiblePosts.length})',
                   style: getTextStyle(
                     fontsize: 13,
                     fontweight: FontWeight.w500,
