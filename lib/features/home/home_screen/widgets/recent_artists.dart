@@ -71,7 +71,7 @@ class ArtistsYouKnow extends StatelessWidget {
                     controller.recentArtistsList[leftIndex],
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 3),
                 if (rightIndex < controller.recentArtistsList.length)
                   Expanded(
                     child: _buildArtistCard(
@@ -297,7 +297,7 @@ class ArtistsYouKnow extends StatelessWidget {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10.w),
               child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     "Services",
@@ -307,11 +307,7 @@ class ArtistsYouKnow extends StatelessWidget {
                     ),
                   ),
 
-
-
-
-
-          Container(
+                  Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 8.w,
                       vertical: 4.h,
@@ -332,7 +328,6 @@ class ArtistsYouKnow extends StatelessWidget {
                       ),
                     ),
                   ),
-
                 ],
               ),
             ),
@@ -373,6 +368,72 @@ class ArtistsYouKnow extends StatelessWidget {
                 buttonHeight: 25,
               ),
             ),
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+              child: GradientBorderContainer(
+                padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 8.h),
+                // decoration: BoxDecoration(
+                //   color: Colors.white.withOpacity(0.05),
+                //   borderRadius: BorderRadius.circular(4.r),
+                // ),
+                borderRadius: 4.r,
+                borderWidth: 1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.repeat,
+                          size: sp(10),
+                          color: Colors.deepOrange.withValues(alpha: 0.5),
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          "Reposts",
+                          style: getTextStyle(
+                            fontsize: sp(8),
+                            color: AppColors.primaryTextColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 3.w,
+                        vertical: 2.h,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Color.fromARGB(255, 96, 0, 15),
+                            Color.fromARGB(255, 187, 2, 36),
+                            Color.fromARGB(255, 96, 0, 15),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: [0.01, 0.5, 1.1],
+                        ),
+                        borderRadius: BorderRadius.circular(2.r),
+                      ),
+                      child: Text(
+                        "Buy",
+                        style: getTextStyle(
+                          fontsize: sp(8),
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      "From \$${servicePrice.toStringAsFixed(2)}",
+                      style: getTextStyle(fontsize: sp(8), color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
               child: CustomPrimaryButton2(
