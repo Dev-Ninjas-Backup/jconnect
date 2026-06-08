@@ -32,42 +32,44 @@ class CustomBuyButton extends StatelessWidget {
           borderRadius: 4.r,
           borderWidth: 1,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(
-                    iconData,
-                    size: sp(10),
-                    color:
-                        iConColor ?? Colors.deepOrange.withValues(alpha: .910),
-                  ),
-                  SizedBox(width: 4.w),
-                  Text(
-                    buttonText,
-                    style: getTextStyle(
-                      fontsize: sp(8.5),
-                      color: AppColors.primaryTextColor,
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(
+                      iconData,
+                      size: sp(12),
+                      color:
+                          iConColor ??
+                          Colors.deepOrange.withValues(alpha: .910),
                     ),
-                  ),
-                ],
+                    SizedBox(width: 4.w),
+                    Text(
+                      buttonText,
+                      style: getTextStyle(
+                        fontsize: sp(9),
+                        color: AppColors.primaryTextColor,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               SizedBox(width: 4.w),
+
               Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: 2.5.w,
                   vertical: 1.5.h,
                 ),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     colors: [
-                      Color.fromARGB(255, 96, 0, 15),
-                      Color.fromARGB(255, 187, 2, 36),
-                      Color.fromARGB(255, 96, 0, 15),
+                      Color(0xFF60000F),
+                      Color(0xFFBB0224),
+                      Color(0xFF60000F),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    stops: [0.01, 0.5, 1.1],
                   ),
                   borderRadius: BorderRadius.circular(2.r),
                 ),
@@ -78,17 +80,75 @@ class CustomBuyButton extends StatelessWidget {
               ),
               SizedBox(width: 4.w),
 
-              Flexible(
+              Expanded(
                 child: Text(
                   "From \$${priceText.toStringAsFixed(2)}",
                   style: getTextStyle(fontsize: sp(8.5), color: Colors.white),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
                   textAlign: TextAlign.right,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
+
+          //  Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: [
+          //     Row(
+          //       children: [
+          //         Icon(
+          //           iconData,
+          //           size: sp(10),
+          //           color:
+          //               iConColor ?? Colors.deepOrange.withValues(alpha: .910),
+          //         ),
+          //         SizedBox(width: 4.w),
+          //         Text(
+          //           buttonText,
+          //           style: getTextStyle(
+          //             fontsize: sp(8.5),
+          //             color: AppColors.primaryTextColor,
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //     SizedBox(width: 4.w),
+          //     Container(
+          //       padding: EdgeInsets.symmetric(
+          //         horizontal: 2.5.w,
+          //         vertical: 1.5.h,
+          //       ),
+          //       decoration: BoxDecoration(
+          //         gradient: LinearGradient(
+          //           colors: [
+          //             Color.fromARGB(255, 96, 0, 15),
+          //             Color.fromARGB(255, 187, 2, 36),
+          //             Color.fromARGB(255, 96, 0, 15),
+          //           ],
+          //           begin: Alignment.topLeft,
+          //           end: Alignment.bottomRight,
+          //           stops: [0.01, 0.5, 1.1],
+          //         ),
+          //         borderRadius: BorderRadius.circular(2.r),
+          //       ),
+          //       child: Text(
+          //         "Buy",
+          //         style: getTextStyle(fontsize: sp(8.5), color: Colors.white),
+          //       ),
+          //     ),
+          //     SizedBox(width: 4.w),
+
+          //     Flexible(
+          //       child: Text(
+          //         "From \$${priceText.toStringAsFixed(2)}",
+          //         style: getTextStyle(fontsize: sp(8.5), color: Colors.white),
+          //         overflow: TextOverflow.ellipsis,
+          //         maxLines: 1,
+          //         textAlign: TextAlign.right,
+          //       ),
+          //     ),
+          //   ],
+          // ),
         ),
       ),
     );

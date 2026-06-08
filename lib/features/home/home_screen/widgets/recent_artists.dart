@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:video_player/video_player.dart';
 //import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
@@ -63,7 +64,7 @@ class ArtistsYouKnow extends StatelessWidget {
           final rightIndex = leftIndex + 1;
 
           return Padding(
-            padding: EdgeInsets.only(bottom: 15.h),
+            padding: EdgeInsets.only(bottom: 8.h),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -72,7 +73,7 @@ class ArtistsYouKnow extends StatelessWidget {
                     controller.recentArtistsList[leftIndex],
                   ),
                 ),
-                SizedBox(width: 4.w),
+                SizedBox(width: 8.w),
                 if (rightIndex < controller.recentArtistsList.length)
                   Expanded(
                     child: _buildArtistCard(
@@ -146,12 +147,15 @@ class ArtistsYouKnow extends StatelessWidget {
                           width: double.infinity,
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) => Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 8),
-                              child: Icon(
-                                Icons.broken_image,
-                                size: 80,
-                                color: Colors.white,
+                            child: SizedBox(
+                              height: 185.h,
+                              width: double.infinity,
+                              child: Center(
+                                child: Image.asset(
+                                  Imagepath.daconnectProfile,
+
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                           ),
@@ -160,10 +164,10 @@ class ArtistsYouKnow extends StatelessWidget {
                           height: 185.h,
                           width: double.infinity,
                           child: Center(
-                            child: Icon(
-                              Icons.broken_image,
-                              size: 100.h,
-                              color: Colors.white,
+                            child: Image.asset(
+                              Imagepath.daconnectProfile,
+
+                              fit: BoxFit.cover,
                             ),
                           ),
                         ),
@@ -296,7 +300,6 @@ class ArtistsYouKnow extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10.w),
               child: Text(
@@ -312,11 +315,10 @@ class ArtistsYouKnow extends StatelessWidget {
 
             SizedBox(height: 8.h),
 
-
             CustomBuyButton(
               onTap: () {},
               buttonText: 'Reposts',
-              priceText: servicePrice,
+              priceText: 66,
               iconData: Icons.repeat,
             ),
 
@@ -334,7 +336,7 @@ class ArtistsYouKnow extends StatelessWidget {
                 await detailsCtrl.fetchArtistById(artist.id);
                 Get.to(() => ArtistsSocialPostList());
               },
-              buttonText: 'Social P',
+              buttonText: 'Social P.',
               priceText: 6027577443554120.00,
               iconData: Icons.campaign,
               iConColor: Colors.blueAccent.withValues(alpha: .910),
@@ -359,17 +361,41 @@ class ArtistsYouKnow extends StatelessWidget {
               iConColor: Colors.white.withValues(alpha: .910),
             ),
 
-
-
             /// Message button
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+              padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
               child: CustomPrimaryButton2(
                 fontSize: sp(10),
                 buttonText: "Inquiry",
                 buttonHeight: 25,
                 onTap: () {
                   controller.sendInquiry(userID: artist.id);
+                },
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(
+                left: 5.w,
+                right: 5.w,
+                top: 5.h,
+                bottom: 10.h,
+              ),
+              child: CustomPrimaryButton2(
+                fontSize: sp(10),
+                buttonText: "View Profile",
+                buttonHeight: 25,
+                onTap: () {
+                  final artistsDetailsController = Get.put(
+                    ArtistsDetailsController(
+                      networkClient: NetworkClient(
+                        onUnAuthorize: () {
+                          if (kDebugMode) print("unauthorized");
+                        },
+                      ),
+                    ),
+                  );
+                  artistsDetailsController.fetchArtistById(artist.id);
+                  Get.toNamed(AppRoute.artistsDetailsPage);
                 },
               ),
             ),

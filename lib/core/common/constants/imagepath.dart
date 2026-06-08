@@ -7,5 +7,8 @@ class Imagepath {
   static String lockImage = 'assets/images/lock_image.png';
   static String profileImage = 'assets/images/profile_image.png';
   static String illustration = "assets/images/Illustration.png";
+ 
+ static String daconnectProfile = 'assets/images/daconnect_profile.png';
+ 
   static String appleLogo = 'assets/images/apple.png';
 }
