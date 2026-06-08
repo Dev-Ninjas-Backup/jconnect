@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
-import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button_2.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/add_services/controller/add_services_controller.dart';
