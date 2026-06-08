@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/style/global_text_style.dart';
-import '../../../../core/common/widgets/gradient_border_container.dart';
 import '../controller/artists_details_controller.dart';
 
 class ReviewAndRating extends StatelessWidget {
@@ -13,96 +12,123 @@ class ReviewAndRating extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ListView.builder(
-          padding: EdgeInsets.zero,
-          physics: NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemCount:
-              controller.artistsDetails.value?.reviewsReceived.length ?? 0,
-          itemBuilder: (_, index) {
-            var item = controller.artistsDetails.value!.reviewsReceived[index];
-            return Padding(
-              padding: EdgeInsets.only(bottom: 14.h),
-              child: GradientBorderContainer(
-                borderRadius: 9.r,
-                borderWidth: .75,
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-                child: Row(
-                  spacing: 8.w,
-                  children: [
-                    Image.network(
-                      item.reviewer?.profilePhoto ?? "",
-                      height: 40.w,
-                      width: 40.w,
-                      errorBuilder: (context, error, stackTrace) => Icon(
-                        Icons.broken_image,
-                        size: 40,
-                        color: Colors.white,
-                      ),
+    final reviews =
+        controller.artistsDetails.value?.reviewsReceived ?? [];
+
+    if (reviews.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 20.h),
+        child: Center(
+          child: Text(
+            'No reviews yet',
+            style: getTextStyle(
+              fontsize: 13,
+              color: AppColors.secondaryTextColor,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: EdgeInsets.zero,
+      physics: NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: reviews.length,
+      itemBuilder: (_, index) {
+        var item = reviews[index];
+        return Container(
+          margin: EdgeInsets.only(bottom: 12.h),
+          padding: EdgeInsets.all(14.w),
+          decoration: BoxDecoration(
+            color: AppColors.backGroundColor,
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(
+              color: Colors.grey.shade800,
+              width: 1,
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Reviewer avatar
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20.r),
+                child: Image.network(
+                  item.reviewer?.profilePhoto ?? "",
+                  height: 40.w,
+                  width: 40.w,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    height: 40.w,
+                    width: 40.w,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey.shade800,
                     ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          //sonic+ rating
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                item.reviewer?.username ?? 'Unknown',
-                                style: getTextStyle(
-                                  fontweight: FontWeight.w500,
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.star,
-                                    color: AppColors.primaryTextColor,
-                                    size: sp(14),
-                                  ),
-                                  SizedBox(width: 6.w),
-                                  Text(
-                                    (item.rating ?? 0).toString(),
-                                    style: getTextStyle(
-                                      fontsize: sp(12),
-                                      fontweight: FontWeight.w500,
-                                      color: AppColors.primaryTextColor
-                                          .withValues(alpha: .70),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                    child: Icon(
+                      Icons.person,
+                      size: 22.sp,
+                      color: Colors.white38,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+
+              // Review content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Username + rating
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          item.reviewer?.username ?? 'Unknown',
+                          style: getTextStyle(
+                            fontsize: 14,
+                            fontweight: FontWeight.w600,
+                            color: Colors.white,
                           ),
-                          Text(
-                            item.reviewText ?? "No review text",
-                            style: getTextStyle(
-                              fontsize: sp(10),
-                              color: AppColors.primaryTextColor.withValues(
-                                alpha: .5,
+                        ),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.star,
+                              color: AppColors.redColor,
+                              size: 14.sp,
+                            ),
+                            SizedBox(width: 4.w),
+                            Text(
+                              (item.rating ?? 0).toString(),
+                              style: getTextStyle(
+                                fontsize: 13,
+                                fontweight: FontWeight.w600,
+                                color: Colors.white,
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 4.h),
+                    // Review text
+                    Text(
+                      item.reviewText ?? "No review text",
+                      style: getTextStyle(
+                        fontsize: 12,
+                        color: AppColors.secondaryTextColor,
                       ),
                     ),
                   ],
                 ),
               ),
-            );
-          },
-        ),
-        // TextButton(
-        //   onPressed: () {},
-        //   child: Text(
-        //     "View more",
-        //     style: getTextStyle(fontsize: sp(12), fontweight: FontWeight.w500),
-        //   ),
-        // ),
-      ],
+            ],
+          ),
+        );
+      },
     );
   }
 }

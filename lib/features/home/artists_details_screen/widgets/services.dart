@@ -4,8 +4,6 @@ import 'package:get/get.dart';
 import 'package:jconnect/routes/approute.dart';
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/style/global_text_style.dart';
-import '../../../../core/common/widgets/custom_primary_button.dart';
-import '../../../../core/common/widgets/gradient_border_container.dart';
 import '../controller/artists_details_controller.dart';
 
 class Services extends StatelessWidget {
@@ -26,133 +24,156 @@ class Services extends StatelessWidget {
 
     if (visibleServices.isEmpty) {
       return Padding(
-        padding: EdgeInsets.symmetric(vertical: 24.h),
+        padding: EdgeInsets.symmetric(vertical: 40.h),
         child: Center(
-          child: Column(
-            children: [
-            SizedBox(height: 100.h,),
-              Text(
-                "No Services Available",
-                style: getTextStyle(
-                  fontsize: sp(14),
-                  fontweight: FontWeight.w500,
-                  color: AppColors.primaryTextColor.withValues(alpha: .7),
-                ),
-              ),
-            ],
+          child: Text(
+            "No Services Available",
+            style: getTextStyle(
+              fontsize: 14,
+              fontweight: FontWeight.w500,
+              color: AppColors.secondaryTextColor,
+            ),
           ),
         ),
       );
     }
 
-    return ListView.builder(
-      padding: EdgeInsets.zero,
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: visibleServices.length,
-      itemBuilder: (_, index) {
-        var item = visibleServices[index];
-        return Padding(
-          padding: EdgeInsets.only(bottom: 20.h),
-          child: GradientBorderContainer(
-            borderRadius: 6.r,
-            borderWidth: .5,
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(width: 12.w),
-                Text(
-                  item.serviceName,
-                  style: getTextStyle(
-                    fontsize: sp(16),
-                    fontweight: FontWeight.w500,
-                  ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListView.builder(
+          padding: EdgeInsets.zero,
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount:
+              visibleServices.length > 3 ? 3 : visibleServices.length,
+          itemBuilder: (_, index) {
+            var item = visibleServices[index];
+            return Container(
+              margin: EdgeInsets.only(bottom: 12.h),
+              padding: EdgeInsets.all(14.w),
+              decoration: BoxDecoration(
+                color: AppColors.backGroundColor,
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: Colors.grey.shade800,
+                  width: 1,
                 ),
-                SizedBox(height: 6.h),
-                Text(
-                  item.description,
-                  style: getTextStyle(
-                    fontsize: sp(10),
-                    fontweight: FontWeight.w400,
-                    color: AppColors.primaryTextColor.withValues(alpha: .5),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.serviceName,
+                    style: getTextStyle(
+                      fontsize: 15,
+                      fontweight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                SizedBox(height: 8.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-
-                  children: [
-                    Expanded(
-                      child: Text(
-                        "\$ ${item.price.toStringAsFixed(0)}/promotion",
+                  SizedBox(height: 6.h),
+                  Text(
+                    item.description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: getTextStyle(
+                      fontsize: 11,
+                      fontweight: FontWeight.w400,
+                      color: AppColors.secondaryTextColor,
+                    ),
+                  ),
+                  SizedBox(height: 10.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        '\$${item.price.toStringAsFixed(2)}',
                         style: getTextStyle(
-                          fontsize: sp(12),
-                          fontweight: FontWeight.w400,
-                          color: AppColors.primaryTextColor.withValues(
-                            alpha: .7,
-                          ),
+                          fontsize: 16,
+                          fontweight: FontWeight.w700,
+                          color: Colors.white,
                         ),
                       ),
-                    ),
+                      Obx(() {
+                        final artistId =
+                            controller.artistsDetails.value?.id;
+                        final userId = controller.userId.value;
 
-                    Obx(() {
-                      final artistId = controller.artistsDetails.value?.id;
-                      final userId = controller.userId.value;
+                        if (artistId == null || userId == null) {
+                          return const SizedBox();
+                        }
 
-                      if (artistId == null || userId == null) {
-                        return const SizedBox();
-                      }
+                        return artistId == userId
+                            ? const SizedBox()
+                            : GestureDetector(
+                                onTap: () {
+                                  Get.toNamed(
+                                    AppRoute.getRequestServiceScreen(),
+                                    arguments: item,
+                                  );
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 14.w,
+                                    vertical: 6.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Color.fromARGB(255, 96, 0, 15),
+                                        Color.fromARGB(255, 187, 2, 36),
+                                        Color.fromARGB(255, 96, 0, 15),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius:
+                                        BorderRadius.circular(6.r),
+                                  ),
+                                  child: Text(
+                                    'Request Service',
+                                    style: getTextStyle(
+                                      fontsize: 11,
+                                      fontweight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              );
+                      }),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
 
-                      return artistId == userId
-                          ? const SizedBox()
-                          : CustomPrimaryButton(
-                              buttonHeight: 10.h,
-                              buttonWidth: 75.w,
-                              buttonText: "Request Service",
-                              onTap: () {
-                                Get.toNamed(
-                                  AppRoute.getRequestServiceScreen(),
-                                  arguments: item,
-                                );
-                              },
-                            );
-                    }),
-
-                    // CustomPrimaryButton(
-                    //   buttonHeight: 10.h,
-                    //   buttonWidth: 109.w,
-
-                    //   buttonText: "Request Service",
-                    //   fontSize: sp(10),
-                    //   onTap: () {
-                    //     // Create a service with artist ID
-                    //     final serviceWithArtist = ServiceModel(
-                    //       id: item.id,
-                    //       serviceName: item.serviceName,
-                    //       serviceType: item.serviceType,
-                    //       description: item.description,
-                    //       price: item.price,
-                    //       currency: item.currency,
-                    //       isPost: item.isPost,
-                    //       isCustom: item.isCustom,
-                    //       creatorId: controller.artistsDetails.value?.id,
-                    //       creator: null,
-                    //     );
-                    //     Get.toNamed(
-                    //       AppRoute.getRequestServiceScreen(),
-                    //       arguments: serviceWithArtist,
-                    //     );
-                    //   },
-                    // ),
-                  ],
+        // View all services link
+        if (visibleServices.length > 3)
+          Padding(
+            padding: EdgeInsets.only(top: 8.h),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'View all service options (${visibleServices.length})',
+                  style: getTextStyle(
+                    fontsize: 13,
+                    fontweight: FontWeight.w500,
+                    color: AppColors.redColor,
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: AppColors.redColor,
+                  size: 14.sp,
                 ),
               ],
             ),
           ),
-        );
-      },
+      ],
     );
   }
 }
