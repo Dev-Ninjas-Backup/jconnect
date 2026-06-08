@@ -21,6 +21,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/style/global_text_style.dart';
+import '../../../../core/common/widgets/custom_buy_button.dart';
 import '../../../../core/common/widgets/gradient_border_container.dart';
 
 class ArtistsYouKnow extends StatelessWidget {
@@ -62,7 +63,7 @@ class ArtistsYouKnow extends StatelessWidget {
           final rightIndex = leftIndex + 1;
 
           return Padding(
-            padding: EdgeInsets.only(bottom: 15),
+            padding: EdgeInsets.only(bottom: 15.h),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -71,7 +72,7 @@ class ArtistsYouKnow extends StatelessWidget {
                     controller.recentArtistsList[leftIndex],
                   ),
                 ),
-                const SizedBox(width: 3),
+                SizedBox(width: 4.w),
                 if (rightIndex < controller.recentArtistsList.length)
                   Expanded(
                     child: _buildArtistCard(
@@ -294,45 +295,8 @@ class ArtistsYouKnow extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Services",
-                    style: getTextStyle(
-                      fontsize: sp(10),
-                      color: AppColors.secondaryTextColor,
-                    ),
-                  ),
 
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
-                      vertical: 4.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(4.r),
-                      border: Border.all(
-                        width: 0.25,
-                        color: AppColors.secondaryTextColor,
-                      ),
-                    ),
-                    child: Text(
-                      "From \$${servicePrice.toStringAsFixed(2)}",
-                      style: getTextStyle(
-                        fontsize: sp(8),
-                        color: AppColors.secondaryTextColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
-            SizedBox(height: 6.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10.w),
               child: Text(
@@ -347,114 +311,55 @@ class ArtistsYouKnow extends StatelessWidget {
             ),
 
             SizedBox(height: 8.h),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-              child: CustomPrimaryButton2(
-                buttonText: "Buy A Service",
-                onTap: () async {
-                  final detailsCtrl = Get.put(
-                    ArtistsDetailsController(
-                      networkClient: NetworkClient(
-                        onUnAuthorize: () {
-                          if (kDebugMode) print("unauthorized");
-                        },
-                      ),
-                    ),
-                  );
-                  await detailsCtrl.fetchArtistById(artist.id);
-                  Get.to(() => ArtistsServiceList());
-                },
-                fontSize: sp(10),
-                buttonHeight: 25,
-              ),
+
+
+            CustomBuyButton(
+              onTap: () {},
+              buttonText: 'Reposts',
+              priceText: servicePrice,
+              iconData: Icons.repeat,
             ),
 
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-              child: GradientBorderContainer(
-                padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 8.h),
-                // decoration: BoxDecoration(
-                //   color: Colors.white.withOpacity(0.05),
-                //   borderRadius: BorderRadius.circular(4.r),
-                // ),
-                borderRadius: 4.r,
-                borderWidth: 1,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.repeat,
-                          size: sp(10),
-                          color: Colors.deepOrange.withValues(alpha: 0.5),
-                        ),
-                        SizedBox(width: 4.w),
-                        Text(
-                          "Reposts",
-                          style: getTextStyle(
-                            fontsize: sp(8),
-                            color: AppColors.primaryTextColor,
-                          ),
-                        ),
-                      ],
+            CustomBuyButton(
+              onTap: () async {
+                final detailsCtrl = Get.put(
+                  ArtistsDetailsController(
+                    networkClient: NetworkClient(
+                      onUnAuthorize: () {
+                        if (kDebugMode) print("unauthorized");
+                      },
                     ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 3.w,
-                        vertical: 2.h,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Color.fromARGB(255, 96, 0, 15),
-                            Color.fromARGB(255, 187, 2, 36),
-                            Color.fromARGB(255, 96, 0, 15),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          stops: [0.01, 0.5, 1.1],
-                        ),
-                        borderRadius: BorderRadius.circular(2.r),
-                      ),
-                      child: Text(
-                        "Buy",
-                        style: getTextStyle(
-                          fontsize: sp(8),
-                          color: Colors.white,
-                        ),
-                      ),
+                  ),
+                );
+                await detailsCtrl.fetchArtistById(artist.id);
+                Get.to(() => ArtistsSocialPostList());
+              },
+              buttonText: 'Social P',
+              priceText: 6027577443554120.00,
+              iconData: Icons.campaign,
+              iConColor: Colors.blueAccent.withValues(alpha: .910),
+            ),
+            CustomBuyButton(
+              onTap: () async {
+                final detailsCtrl = Get.put(
+                  ArtistsDetailsController(
+                    networkClient: NetworkClient(
+                      onUnAuthorize: () {
+                        if (kDebugMode) print("unauthorized");
+                      },
                     ),
-                    Text(
-                      "From \$${servicePrice.toStringAsFixed(2)}",
-                      style: getTextStyle(fontsize: sp(8), color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+                await detailsCtrl.fetchArtistById(artist.id);
+                Get.to(() => ArtistsServiceList());
+              },
+              buttonText: 'Services',
+              priceText: servicePrice,
+              iconData: Icons.design_services,
+              iConColor: Colors.white.withValues(alpha: .910),
             ),
 
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-              child: CustomPrimaryButton2(
-                buttonText: "Buy A Social Post",
-                onTap: () async {
-                  final detailsCtrl = Get.put(
-                    ArtistsDetailsController(
-                      networkClient: NetworkClient(
-                        onUnAuthorize: () {
-                          if (kDebugMode) print("unauthorized");
-                        },
-                      ),
-                    ),
-                  );
-                  await detailsCtrl.fetchArtistById(artist.id);
-                  Get.to(() => ArtistsSocialPostList());
-                },
-                fontSize: sp(10),
-                buttonHeight: 25,
-              ),
-            ),
+
 
             /// Message button
             Padding(
