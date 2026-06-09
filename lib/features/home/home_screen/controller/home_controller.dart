@@ -33,6 +33,7 @@ class HomeController extends GetxController {
   var isLoading = false.obs;
   var isError = false.obs;
   var errorMessage = ''.obs;
+  final selectedCategoryIndex = 0.obs;
 
   // Your list of artists
   var recentArtistsList = <ArtistsModel>[].obs;
@@ -75,6 +76,10 @@ class HomeController extends GetxController {
         ontap: () {},
       ),
     ]);
+  }
+
+  void selectCategory(int index) {
+    selectedCategoryIndex.value = index;
   }
 
   Future<void> fetchRecentArtists() async {
@@ -206,11 +211,41 @@ class HomeController extends GetxController {
       await Future.delayed(const Duration(milliseconds: 500));
 
       var mockData = [
-        SpotlightModel(name: "iamkayla", followers: "45K", platform: Icons.facebook, avatarUrl: Imagepath.profileImage, isVerified: true),
-        SpotlightModel(name: "jayshotit", followers: "38K", platform: Icons.tiktok, avatarUrl: Imagepath.profileImage, isVerified: null),
-        SpotlightModel(name: "theyluvniya", followers: null, platform: Icons.tiktok, avatarUrl: Imagepath.profileImage, isVerified: true),
-        SpotlightModel(name: null, followers: "17K", platform: Icons.tiktok, avatarUrl: Imagepath.profileImage, isVerified: false),
-        SpotlightModel(name: "prodbyluke", followers: "31K", platform: Icons.facebook, avatarUrl: Imagepath.profileImage, isVerified: true),
+        SpotlightModel(
+          name: "iamkayla",
+          followers: "45K",
+          platform: Icons.facebook,
+          avatarUrl: Imagepath.profileImage,
+          isVerified: true,
+        ),
+        SpotlightModel(
+          name: "jayshotit",
+          followers: "38K",
+          platform: Icons.tiktok,
+          avatarUrl: Imagepath.profileImage,
+          isVerified: null,
+        ),
+        SpotlightModel(
+          name: "theyluvniya",
+          followers: null,
+          platform: Icons.tiktok,
+          avatarUrl: Imagepath.profileImage,
+          isVerified: true,
+        ),
+        SpotlightModel(
+          name: null,
+          followers: "17K",
+          platform: Icons.tiktok,
+          avatarUrl: Imagepath.profileImage,
+          isVerified: false,
+        ),
+        SpotlightModel(
+          name: "prodbyluke",
+          followers: "31K",
+          platform: Icons.facebook,
+          avatarUrl: Imagepath.profileImage,
+          isVerified: true,
+        ),
       ];
 
       spotlightList.assignAll(mockData);
@@ -218,5 +253,4 @@ class HomeController extends GetxController {
       isSpotlightLoading(false);
     }
   }
-
 }

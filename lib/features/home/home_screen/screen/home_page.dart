@@ -8,18 +8,19 @@ import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/features/home/home_screen/controller/home_controller.dart';
 import 'package:jconnect/features/home/notification/controller/notification_controller.dart';
 import '../../../../routes/approute.dart';
+import '../widgets/browse_by_category.dart';
 import '../widgets/recent_artists.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  HomePage({super.key});
+
+  final HomeController controller = Get.put(HomeController());
+  final NotificationController notificationController = Get.put(
+    NotificationController(),
+  );
+
   @override
   Widget build(BuildContext context) {
-    HomeController controller = Get.put(HomeController());
-    NotificationController notificationController = Get.put(
-      NotificationController(),
-    );
-    controller.refreshHomeData();
-
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
       body: SingleChildScrollView(
@@ -42,16 +43,16 @@ class HomePage extends StatelessWidget {
 
               SizedBox(height: 30.h),
 
-              //StartDeal(controller: controller),
-              //SizedBox(height: 30.h),
+              BrowseByCategorySection(controller: controller),
+              SizedBox(height: 24.h),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    //  "Artists You Know",
                     "Recent User",
                     style: getTextStyle(
-                      fontsize: sp(20),
+                      fontsize: sp(17),
                       fontweight: FontWeight.w500,
                       color: AppColors.primaryTextColor,
                     ),
