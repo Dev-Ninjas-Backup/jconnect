@@ -17,7 +17,7 @@ Widget repostSpotlight(HomeController controller) {
               Text(
                 "\$1 Repost Spotlight",
                 style: getTextStyle(
-                  fontsize: sp(20),
+                  fontsize: sp(17),
                   fontweight: FontWeight.w500,
                   color: AppColors.primaryTextColor,
                 ),
