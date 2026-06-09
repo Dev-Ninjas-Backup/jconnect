@@ -24,6 +24,7 @@ import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/style/global_text_style.dart';
 import '../../../../core/common/widgets/custom_buy_button.dart';
 import '../../../../core/common/widgets/gradient_border_container.dart';
+import 'repost_spotlight_w.dart';
 
 class ArtistsYouKnow extends StatelessWidget {
   final HomeController controller;
@@ -51,41 +52,52 @@ class ArtistsYouKnow extends StatelessWidget {
           ),
         );
       }
+      final rowCount = 2;
 
-      final rowCount = (controller.recentArtistsList.length + 1) ~/ 2;
+      // final rowCount = (controller.recentArtistsList.length + 1) ~/ 2;
 
-      return ListView.builder(
-        padding: EdgeInsets.zero,
-        shrinkWrap: true,
-        physics: const BouncingScrollPhysics(),
-        itemCount: rowCount,
-        itemBuilder: (context, rowIndex) {
-          final leftIndex = rowIndex * 2;
-          final rightIndex = leftIndex + 1;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListView.builder(
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: rowCount,
+            itemBuilder: (context, rowIndex) {
+              final leftIndex = rowIndex * 2;
+              final rightIndex = leftIndex + 1;
 
-          return Padding(
-            padding: EdgeInsets.only(bottom: 8.h),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: _buildArtistCard(
-                    controller.recentArtistsList[leftIndex],
-                  ),
-                ),
-                SizedBox(width: 8.w),
-                if (rightIndex < controller.recentArtistsList.length)
-                  Expanded(
-                    child: _buildArtistCard(
-                      controller.recentArtistsList[rightIndex],
+              return Padding(
+                padding: EdgeInsets.only(bottom: 8.h),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _buildArtistCard(
+                        controller.recentArtistsList[leftIndex],
+                      ),
                     ),
-                  )
-                else
-                  const Expanded(child: SizedBox()),
-              ],
-            ),
-          );
-        },
+                    SizedBox(width: 8.w),
+                    if (rightIndex < controller.recentArtistsList.length)
+                      Expanded(
+                        child: _buildArtistCard(
+                          controller.recentArtistsList[rightIndex],
+                        ),
+                      )
+                    else
+                      const Expanded(child: SizedBox()),
+                  ],
+                ),
+              );
+            },
+          ),
+          SizedBox(height: 18.h),
+          if (!controller.isSpotlightLoading.value &&
+              controller.spotlightList.isNotEmpty)
+            repostSpotlight(controller),
+        ],
       );
     });
   }
@@ -252,25 +264,102 @@ class ArtistsYouKnow extends StatelessWidget {
                         ),
                       ),
                     ),
+
+                  Positioned(
+                    left: 8.w,
+                    top: 12.h,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6.w,
+                        vertical: 2.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.70),
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.local_fire_department,
+                            size: 12.sp,
+                            color: AppColors.primaryTextColor,
+                          ),
+                          SizedBox(width: 2.w),
+                          Text(
+                            "\$1 Repost",
+                            style: getTextStyle(
+                              fontsize: sp(10),
+                              color: Colors.white,
+                              fontweight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  Positioned(
+                    left: 8.w,
+                    top: 35.h,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6.w,
+                        vertical: 2.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.yellow.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Text(
+                        "Available",
+                        style: getTextStyle(
+                          fontsize: sp(10),
+                          color: Colors.white,
+                          fontweight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
 
             SizedBox(height: 12.h),
 
-            /// Name + price
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Text(
-                artist.userName.trim().isEmpty
-                    ? "Unknown User"
-                    : artist.userName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: getTextStyle(
-                  fontsize: sp(13),
-                  fontweight: FontWeight.w500,
-                ),
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            artist.userName.trim().isEmpty
+                                ? "Unknown User"
+                                : artist.userName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: getTextStyle(
+                              fontsize: sp(13),
+                              fontweight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        if (artist.isVerified) ...[
+                          SizedBox(width: 4.w),
+                          Icon(
+                            Icons.verified,
+                            size: 14.sp,
+                            color: AppColors.redColor,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
 
