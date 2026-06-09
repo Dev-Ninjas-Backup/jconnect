@@ -1,15 +1,19 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/endpoint.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/home/home_screen/services/home_service.dart';
 import 'package:jconnect/features/home/home_screen/model/artists_model.dart';
 import 'package:jconnect/features/home/home_screen/model/start_deal_model.dart';
+
+import '../model/spotligt_model.dart';
 
 class HomeController extends GetxController {
   final HomeService service = HomeService(
@@ -44,6 +48,8 @@ class HomeController extends GetxController {
     fetchTopRatedArtistsMethod();
     //suggested for you
     fetchSuggestedArtistsMethod();
+    //spotlight section
+    fetchSpotlightData();
 
     super.onInit();
   }
@@ -188,4 +194,29 @@ class HomeController extends GetxController {
       return false;
     }
   }
+
+  //sptotlight section
+
+  var spotlightList = <SpotlightModel>[].obs;
+  var isSpotlightLoading = false.obs;
+
+  void fetchSpotlightData() async {
+    try {
+      isSpotlightLoading(true);
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      var mockData = [
+        SpotlightModel(name: "iamkayla", followers: "45K", platform: Icons.facebook, avatarUrl: Imagepath.profileImage, isVerified: true),
+        SpotlightModel(name: "jayshotit", followers: "38K", platform: Icons.tiktok, avatarUrl: Imagepath.profileImage, isVerified: null),
+        SpotlightModel(name: "theyluvniya", followers: null, platform: Icons.tiktok, avatarUrl: Imagepath.profileImage, isVerified: true),
+        SpotlightModel(name: null, followers: "17K", platform: Icons.tiktok, avatarUrl: Imagepath.profileImage, isVerified: false),
+        SpotlightModel(name: "prodbyluke", followers: "31K", platform: Icons.facebook, avatarUrl: Imagepath.profileImage, isVerified: true),
+      ];
+
+      spotlightList.assignAll(mockData);
+    } finally {
+      isSpotlightLoading(false);
+    }
+  }
+
 }

@@ -72,64 +72,6 @@ class HomePage extends StatelessWidget {
               ),
               SizedBox(height: 18.h),
               ArtistsYouKnow(controller: controller),
-              SizedBox(height: 40.h),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     Text(
-              //       "Top Rated Artists",
-              //       style: getTextStyle(
-              //         fontsize: sp(20),
-              //         fontweight: FontWeight.w500,
-              //         color: AppColors.primaryTextColor,
-              //       ),
-              //     ),
-              //     GestureDetector(
-              //       onTap: () {
-              //         Get.toNamed(AppRoute.getArtistsScreen());
-              //       },
-              //       child: Text(
-              //         "View all artists",
-              //         style: getTextStyle(
-              //           fontsize: sp(12),
-              //           color: AppColors.secondaryTextColor,
-              //         ),
-              //       ),
-              //     ),
-              //   ],
-              // ),
-
-              // SizedBox(height: 18.h),
-              // TopRatedArtists(controller: controller),
-
-              // SizedBox(height: 40.h),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     Text(
-              //       "Suggested for You",
-              //       style: getTextStyle(
-              //         fontsize: sp(20),
-              //         fontweight: FontWeight.w500,
-              //         color: AppColors.primaryTextColor,
-              //       ),
-              //     ),
-              //     GestureDetector(
-              //       onTap: () {
-              //         Get.toNamed(AppRoute.getArtistsScreen());
-              //       },
-              //       child: Text(
-              //         "View all artists",
-              //         style: getTextStyle(
-              //           fontsize: sp(12),
-              //           color: AppColors.secondaryTextColor,
-              //         ),
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              // SizedBox(height: 18.h),
-              // SuggestedForYou(controller: controller),
             ],
           ),
         ),
