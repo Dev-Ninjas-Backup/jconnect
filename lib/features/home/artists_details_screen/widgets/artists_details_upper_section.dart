@@ -199,7 +199,7 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                       ),
                       SizedBox(width: 16.w),
                       SizedBox(
-                        width: 100.w,
+                        width: 110.w,
                         child: CustomPrimaryButton(
                           buttonHeight: 36,
                           buttonText: isFollowing ? 'Following' : 'Follow',
