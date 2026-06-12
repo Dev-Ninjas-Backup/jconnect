@@ -5,6 +5,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/imagepath.dart';
+import 'package:jconnect/features/repost/screens/repost_screen.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:video_player/video_player.dart';
 //import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
@@ -405,7 +406,9 @@ class ArtistsYouKnow extends StatelessWidget {
             SizedBox(height: 8.h),
 
             CustomBuyButton(
-              onTap: () {},
+              onTap: () {
+                Get.to(RepostScreen());
+              },
               buttonText: 'Reposts',
               priceText: 66,
               iconData: Icons.repeat,
