@@ -9,6 +9,7 @@ import 'package:jconnect/features/auth/signup/screen/signup_screen.dart';
 import 'package:jconnect/features/auth/signup_otp_verification/screen/signup_otp_verification_screen.dart';
 import 'package:jconnect/features/bottom_navbar/screen/bottom_navbar_screen.dart';
 import 'package:jconnect/features/home/artists_details_screen/screen/artists_details_page.dart';
+import 'package:jconnect/features/repost/screens/repost_screen.dart';
 
 import 'package:jconnect/features/home/artists_screen/screen/artists_screen.dart';
 import 'package:jconnect/features/home/by_social_post/screen/buy_social_post.dart';
@@ -74,6 +75,7 @@ class AppRoute {
   static String notificationScreen = '/notificationScreen';
   static String chatDetailsScreen = '/chatDetailsScreen';
   static String followScreen = '/followScreen';
+  static String repostScreen = '/repostScreen';
 
   static String getSplashScreen() => splashScreen;
   static String getOnboardingScreen() => onboardingScreen;
@@ -109,6 +111,7 @@ class AppRoute {
   static String getNotificationScreen() => notificationScreen;
   static String getChatDetailsScreen() => chatDetailsScreen;
   static String getFollowScreen() => followScreen;
+  static String getRepostScreen() => repostScreen;
 
   static List<GetPage> routes = [
     GetPage(name: splashScreen, page: () => SplashScreen()),
@@ -149,5 +152,6 @@ class AppRoute {
     GetPage(name: notificationScreen, page: () => NotificationScreen()),
     GetPage(name: chatDetailsScreen, page: () => ChatDetailsScreen()),
     GetPage(name: followScreen, page: () => FollowScreen()),
+    GetPage(name: repostScreen, page: () =>  RepostScreen()),
   ];
 }
