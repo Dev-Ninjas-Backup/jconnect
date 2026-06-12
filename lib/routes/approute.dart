@@ -1,4 +1,4 @@
-import 'package:get/get_navigation/get_navigation.dart';
+import 'package:get/get.dart';
 import 'package:jconnect/features/add_services/screen/add_services_screen1.dart';
 import 'package:jconnect/features/auth/forget_password/screen/forget_password_screen.dart';
 import 'package:jconnect/features/auth/login/screen/login_screen.dart';
@@ -9,6 +9,8 @@ import 'package:jconnect/features/auth/signup/screen/signup_screen.dart';
 import 'package:jconnect/features/auth/signup_otp_verification/screen/signup_otp_verification_screen.dart';
 import 'package:jconnect/features/bottom_navbar/screen/bottom_navbar_screen.dart';
 import 'package:jconnect/features/home/artists_details_screen/screen/artists_details_page.dart';
+import 'package:jconnect/features/repost/repost_process_option/controller/repost_process_option_controller.dart';
+import 'package:jconnect/features/repost/repost_process_option/screens/repost_process_option_screen.dart';
 import 'package:jconnect/features/repost/repost_start/screens/repost_screen.dart';
 
 import 'package:jconnect/features/home/artists_screen/screen/artists_screen.dart';
@@ -76,6 +78,7 @@ class AppRoute {
   static String chatDetailsScreen = '/chatDetailsScreen';
   static String followScreen = '/followScreen';
   static String repostScreen = '/repostScreen';
+  static String repostProcessOption = '/repostProcessOption';
 
   static String getSplashScreen() => splashScreen;
   static String getOnboardingScreen() => onboardingScreen;
@@ -112,6 +115,7 @@ class AppRoute {
   static String getChatDetailsScreen() => chatDetailsScreen;
   static String getFollowScreen() => followScreen;
   static String getRepostScreen() => repostScreen;
+  static String getRepostProcessOption() => repostProcessOption;
 
   static List<GetPage> routes = [
     GetPage(name: splashScreen, page: () => SplashScreen()),
@@ -152,6 +156,15 @@ class AppRoute {
     GetPage(name: notificationScreen, page: () => NotificationScreen()),
     GetPage(name: chatDetailsScreen, page: () => ChatDetailsScreen()),
     GetPage(name: followScreen, page: () => FollowScreen()),
-    GetPage(name: repostScreen, page: () =>  RepostScreen()),
+    GetPage(name: repostScreen, page: () => RepostScreen()),
+    GetPage(
+      name: repostProcessOption,
+      page: () =>  RepostProcessOptionScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<RepostProcessOptionController>(
+          () => RepostProcessOptionController(),
+        );
+      }),
+    ),
   ];
 }
