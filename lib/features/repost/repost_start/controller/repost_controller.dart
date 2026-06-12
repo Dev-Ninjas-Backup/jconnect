@@ -1,17 +1,13 @@
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
-import 'package:jconnect/features/repost/model/repost_model.dart';
+import 'package:jconnect/features/repost/repost_start/model/repost_model.dart';
 
 class RepostController extends GetxController {
   final platforms = <RepostPlatform>[
     RepostPlatform(
       name: 'Instagram',
       iconPath: Iconpath.instagram,
-      repostTypes: const [
-        'Story Repost',
-        'Feed Repost',
-        'Reel Repost',
-      ],
+      repostTypes: const ['Story Repost', 'Feed Repost', 'Reel Repost'],
     ),
     RepostPlatform(
       name: 'TikTok',
@@ -35,13 +31,5 @@ class RepostController extends GetxController {
     ),
   ].obs;
 
-  final selectedPlatformIndex = 0.obs;
 
-  RepostPlatform get selectedPlatform => platforms[selectedPlatformIndex.value];
-
-  void selectPlatform(int index) {
-    if (index < 0 || index >= platforms.length) return;
-    selectedPlatformIndex.value = index;
-  }
 }
-
