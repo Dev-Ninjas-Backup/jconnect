@@ -7,13 +7,11 @@ import '../model/repost_model.dart';
 
 class RepostPlatformCard extends StatelessWidget {
   final RepostPlatform platform;
-  final bool isSelected;
   final VoidCallback onTap;
 
   const RepostPlatformCard({
     super.key,
     required this.platform,
-    required this.isSelected,
     required this.onTap,
   });
 
@@ -39,7 +37,9 @@ class RepostPlatformCard extends StatelessWidget {
                     height: 40.w,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.2),
+                      ),
                     ),
                     child: Center(
                       child: platform.iconPath != null
@@ -84,7 +84,7 @@ class RepostPlatformCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(999.r),
                           ),
                           child: Text(
-                            isSelected ? 'Spotlighted' : 'Supported',
+                            'Supported',
                             style: getTextStyle(
                               fontsize: 10,
                               fontweight: FontWeight.w600,

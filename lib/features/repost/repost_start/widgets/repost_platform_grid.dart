@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:jconnect/features/repost/controller/repost_controller.dart';
-import 'package:jconnect/features/repost/widgets/repost_platform_card.dart';
+import 'package:jconnect/features/repost/repost_start/controller/repost_controller.dart';
+import 'package:jconnect/features/repost/repost_start/widgets/repost_platform_card.dart';
 
 class RepostPlatformGrid extends StatelessWidget {
   const RepostPlatformGrid({super.key});
@@ -26,8 +26,8 @@ class RepostPlatformGrid extends StatelessWidget {
                 width: cardWidth,
                 child: RepostPlatformCard(
                   platform: controller.platforms[index],
-                  isSelected: controller.selectedPlatformIndex.value == index,
-                  onTap: () => controller.selectPlatform(index),
+
+                  onTap: () {},
                 ),
               ),
             ),

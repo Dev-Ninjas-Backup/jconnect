@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
-import 'package:jconnect/features/repost/controller/repost_controller.dart';
-import 'package:jconnect/features/repost/widgets/repost_platform_grid.dart';
+import 'package:jconnect/features/repost/repost_start/controller/repost_controller.dart' show RepostController;
+import 'package:jconnect/features/repost/repost_start/widgets/repost_platform_grid.dart';
 
 class RepostScreen extends StatelessWidget {
   RepostScreen({super.key});
