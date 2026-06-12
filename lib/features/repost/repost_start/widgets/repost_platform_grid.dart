@@ -26,8 +26,8 @@ class RepostPlatformGrid extends StatelessWidget {
                 width: cardWidth,
                 child: RepostPlatformCard(
                   platform: controller.platforms[index],
-
-                  onTap: () {},
+                  onTap: () =>
+                      controller.openPlatform(controller.platforms[index]),
                 ),
               ),
             ),
