@@ -5,6 +5,24 @@ class RepostProcessOptionController extends GetxController {
   final platform = Rxn<RepostPlatform>();
   final selectedOptionIndex = 0.obs;
 
+  final List<String> timeframes = [
+    '30 Minutes',
+    '1 Hour',
+    '2 Hours',
+    '6 Hours',
+    '12 Hours',
+    '24 Hours',
+  ];
+
+  // Default selection: 2 Hours (index 2)
+  final selectedIndex = 2.obs;
+
+  void selectTimeframe(int index) {
+    selectedIndex.value = index;
+  }
+
+  String get selectedTimeframe => timeframes[selectedIndex.value];
+
   RepostPlatform get currentPlatform {
     final value = platform.value;
     if (value == null) {
