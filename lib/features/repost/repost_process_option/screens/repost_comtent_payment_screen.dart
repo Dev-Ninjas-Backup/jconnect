@@ -6,6 +6,7 @@ import 'package:jconnect/core/common/constants/custom_textfield.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
+import 'package:jconnect/features/repost/repost_process_option/screens/set_complation_time.dart';
 
 class RepostContentPaymentScreen extends StatelessWidget {
   const RepostContentPaymentScreen({super.key});
@@ -47,27 +48,32 @@ class RepostContentPaymentScreen extends StatelessWidget {
                       const SizedBox(height: 20),
 
                       Center(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 18.w,
-                            vertical: 8.h,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.r),
-                            gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFF60000F),
-                                Color(0xFFBB0224),
-                                Color(0xFF60000F),
-                              ],
+                        child: GestureDetector(
+                          onTap: () {
+                            Get.to(SetCompletionTimeScreen());
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 18.w,
+                              vertical: 8.h,
                             ),
-                          ),
-                          child: Text(
-                            'Pay Now',
-                            style: getTextStyle(
-                              fontsize: 14,
-                              fontweight: FontWeight.w700,
-                              color: Colors.white,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.r),
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color(0xFF60000F),
+                                  Color(0xFFBB0224),
+                                  Color(0xFF60000F),
+                                ],
+                              ),
+                            ),
+                            child: Text(
+                              'Pay Now \$1',
+                              style: getTextStyle(
+                                fontsize: 14,
+                                fontweight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
