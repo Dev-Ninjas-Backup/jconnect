@@ -6,7 +6,7 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/messages/screen/messages_screen.dart';
 import 'package:jconnect/features/my_orders/screen/my_orders_screen.dart';
 import 'package:jconnect/features/user_profile/profile/controller/profile_controller.dart';
-import 'package:jconnect/features/user_profile/repost_status/screen/repost_status.dart';
+import 'package:jconnect/features/repost/repost_status/screen/repost_status.dart';
 import 'package:jconnect/routes/approute.dart';
 
 class ProfileActivitySection extends StatelessWidget {

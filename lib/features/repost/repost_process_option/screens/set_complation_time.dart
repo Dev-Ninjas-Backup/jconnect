@@ -7,7 +7,7 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/features/repost/repost_process_option/controller/repost_process_option_controller.dart';
-import 'package:jconnect/features/user_profile/repost_status/screen/repost_status.dart';
+import 'package:jconnect/features/repost/repost_status/screen/repost_status.dart';
 
 class SetCompletionTimeScreen extends StatelessWidget {
   const SetCompletionTimeScreen({super.key});

@@ -5,8 +5,8 @@ import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
-import 'package:jconnect/features/user_profile/repost_status/controller/repost_status_controller.dart';
-import 'package:jconnect/features/user_profile/repost_status/widgets/repost_status_card.dart';
+import 'package:jconnect/features/repost/repost_status/controller/repost_status_controller.dart';
+import 'package:jconnect/features/repost/repost_status/widgets/repost_status_card.dart';
 
 class RepostStatuScreen extends StatelessWidget {
   const RepostStatuScreen({super.key});

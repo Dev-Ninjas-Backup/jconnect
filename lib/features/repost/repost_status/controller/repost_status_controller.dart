@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:jconnect/features/user_profile/repost_status/model/repost_status_model.dart';
+import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
 
 enum RepostStatusType { pending, active, completed, cancelled }
 
