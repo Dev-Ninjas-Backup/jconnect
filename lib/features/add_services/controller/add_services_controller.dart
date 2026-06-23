@@ -63,7 +63,6 @@ class AddServiceController extends GetxController {
       );
     }
   }
-
   /// ADD OR UPDATE SERVICE
   Future<void> saveService() async {
     final priceValue = double.tryParse(priceController.text) ?? 0.00;
@@ -77,7 +76,7 @@ class AddServiceController extends GetxController {
 
       Map<String, dynamic> response;
 
-      final isSocial = selectedServiceType.value == 'SOCIAL_POST';
+      final isSocial = selectedServiceType.value == 'SOCIAL_POST' || selectedServiceType.value == 'REPOST';
 
       if (selectedServiceType.value == null) {
         EasyLoading.dismiss();

@@ -1,132 +1,36 @@
-import 'package:jconnect/core/common/widgets/artist_card.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/constants/app_colors.dart';
+import 'package:jconnect/core/common/constants/imagepath.dart';
+import 'package:jconnect/core/common/style/global_text_style.dart';
+import 'package:jconnect/core/common/widgets/custom_buy_button.dart';
+import 'package:jconnect/core/common/widgets/custom_primary_button_2.dart';
+import 'package:jconnect/core/common/widgets/gradient_border_container.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/home/artists_details_screen/controller/artists_details_controller.dart';
-import 'package:jconnect/features/home/artists_screen/controller/artists_controller.dart';
-import 'package:jconnect/features/home/home_screen/controller/home_controller.dart';
+import 'package:jconnect/features/home/artists_details_screen/screen/artists_service_list.dart';
+import 'package:jconnect/features/home/artists_details_screen/screen/artists_social_post_list.dart';
 import 'package:jconnect/features/home/home_screen/model/artists_model.dart';
-import '../../../../core/common/constants/app_colors.dart';
-import '../../../../core/common/style/global_text_style.dart';
+import 'package:jconnect/features/repost/repost_start/screens/repost_screen.dart';
+import 'package:jconnect/routes/approute.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:video_player/video_player.dart';
 
-// ignore: must_be_immutable
-class ArtistsItem extends StatelessWidget {
-  final ArtistsController controller;
-  ArtistsItem({required this.controller, super.key});
-  final HomeController homeController = Get.find<HomeController>();
-  var artistsDetailsController = Get.put(
-    ArtistsDetailsController(
-      networkClient: NetworkClient(
-        onUnAuthorize: () {
-          if (kDebugMode) {
-            print("unauthorized");
-          }
-        },
-      ),
-    ),
-  );
+class ArtistCard extends StatelessWidget {
+  final ArtistsModel artist;
+  final VoidCallback onInquiryTap;
 
-  // List<ArtistsModel> get currentList {
-  //   if (controller.searchArtistItems.isNotEmpty &&
-  //       controller.searchTextController.text.trim().isNotEmpty) {
-  //     return controller.searchArtistItems;
-  //   }
-
-  //   if (controller.selectArtistsItemIndex.value == 0) {
-  //     return controller.artistsItems;
-  //   }
-  //  else if (controller.selectArtistsItemIndex.value == 1) {
-  //     return homeController.recentArtistsList;
-  //   }
-
-  //  else if (controller.selectArtistsItemIndex.value == 2) {
-  //     return homeController.topRatedArtistsList;
-  //   }
-
-  //   return homeController.suggestedForYouList;
-  // }
+  const ArtistCard({
+    required this.artist,
+    required this.onInquiryTap,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      List<ArtistsModel> currentList;
-
-      //  Search first
-      if (controller.searchArtistItems.isNotEmpty &&
-          controller.searchTextController.text.trim().isNotEmpty) {
-        currentList = controller.searchArtistItems;
-      }
-      //  Tab index selection
-      else if (controller.selectArtistsItemIndex.value == 0) {
-        currentList = controller.artistsItems;
-      } else if (controller.selectArtistsItemIndex.value == 1) {
-        currentList = homeController.recentArtistsList;
-      } else if (controller.selectArtistsItemIndex.value == 2) {
-        currentList = homeController.topRatedArtistsList;
-      } else {
-        currentList = homeController.suggestedForYouList;
-      }
-
-      if (currentList.isEmpty) {
-        return Center(
-          child: Text(
-            "No artists found",
-            style: getTextStyle(
-              fontsize: sp(14),
-              color: AppColors.secondaryTextColor,
-            ),
-          ),
-        );
-      }
-
-      final rowCount = (currentList.length + 1) ~/ 2;
-
-      return ListView.builder(
-        padding: EdgeInsets.zero,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: rowCount,
-        itemBuilder: (context, rowIndex) {
-          final leftIndex = rowIndex * 2;
-          final rightIndex = leftIndex + 1;
-
-          return Padding(
-            padding: EdgeInsets.only(bottom: 15),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: ArtistCard(
-                    artist: currentList[leftIndex],
-                    onInquiryTap: () async {
-                      await controller.sendInquiry(userID: currentList[leftIndex].id);
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8),
-                if (rightIndex < currentList.length)
-                  Expanded(
-                    child: ArtistCard(
-                      artist: currentList[rightIndex],
-                      onInquiryTap: () async {
-                        await controller.sendInquiry(userID: currentList[rightIndex].id);
-                      },
-                    ),
-                  )
-                else
-                  const Expanded(child: SizedBox()),
-              ],
-            ),
-          );
-        },
-      );
-    });
-  }
-}
-
-  /*
-  Widget _buildArtistCard(ArtistsModel artist) {
     // Service info
     final firstService = artist.services.isNotEmpty
         ? artist.services.first
@@ -145,6 +49,15 @@ class ArtistsItem extends StatelessWidget {
 
     return GestureDetector(
       onTap: () async {
+        final artistsDetailsController = Get.put(
+          ArtistsDetailsController(
+            networkClient: NetworkClient(
+              onUnAuthorize: () {
+                if (kDebugMode) print("unauthorized");
+              },
+            ),
+          ),
+        );
         await artistsDetailsController.fetchArtistById(artist.id);
         Get.toNamed(AppRoute.artistsDetailsPage);
       },
@@ -174,12 +87,14 @@ class ArtistsItem extends StatelessWidget {
                           width: double.infinity,
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) => Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 8),
-                              child: Icon(
-                                Icons.broken_image,
-                                size: 80,
-                                color: Colors.white,
+                            child: SizedBox(
+                              height: 185.h,
+                              width: double.infinity,
+                              child: Center(
+                                child: Image.asset(
+                                  Imagepath.daconnectProfile,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                           ),
@@ -188,10 +103,9 @@ class ArtistsItem extends StatelessWidget {
                           height: 185.h,
                           width: double.infinity,
                           child: Center(
-                            child: Icon(
-                              Icons.broken_image,
-                              size: 100.h,
-                              color: Colors.white,
+                            child: Image.asset(
+                              Imagepath.daconnectProfile,
+                              fit: BoxFit.cover,
                             ),
                           ),
                         ),
@@ -276,25 +190,102 @@ class ArtistsItem extends StatelessWidget {
                         ),
                       ),
                     ),
+
+                  Positioned(
+                    left: 8.w,
+                    top: 12.h,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6.w,
+                        vertical: 2.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.70),
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.local_fire_department,
+                            size: 12.sp,
+                            color: AppColors.primaryTextColor,
+                          ),
+                          SizedBox(width: 2.w),
+                          Text(
+                            "\$1 Repost",
+                            style: getTextStyle(
+                              fontsize: sp(10),
+                              color: Colors.white,
+                              fontweight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  Positioned(
+                    left: 8.w,
+                    top: 35.h,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6.w,
+                        vertical: 2.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.yellow.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Text(
+                        "Available",
+                        style: getTextStyle(
+                          fontsize: sp(10),
+                          color: Colors.white,
+                          fontweight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
 
             SizedBox(height: 12.h),
 
-            /// Name + price
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Text(
-                artist.userName.trim().isEmpty
-                    ? "Unknown User"
-                    : artist.userName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: getTextStyle(
-                  fontsize: sp(13),
-                  fontweight: FontWeight.w500,
-                ),
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            artist.userName.trim().isEmpty
+                                ? "Unknown User"
+                                : artist.userName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: getTextStyle(
+                              fontsize: sp(13),
+                              fontweight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        if (artist.isVerified) ...[
+                          SizedBox(width: 4.w),
+                          Icon(
+                            Icons.verified,
+                            size: 14.sp,
+                            color: AppColors.redColor,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
 
@@ -323,45 +314,7 @@ class ArtistsItem extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Services",
-                    style: getTextStyle(
-                      fontsize: sp(10),
-                      color: AppColors.secondaryTextColor,
-                    ),
-                  ),
 
-                                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
-                      vertical: 4.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(4.r),
-                      border: Border.all(
-                        width: 0.25,
-                        color: AppColors.secondaryTextColor,
-                      ),
-                    ),
-                    child: Text(
-                      "From \$${servicePrice.toStringAsFixed(2)}",
-                      style: getTextStyle(
-                        fontsize: sp(8),
-                        color: AppColors.secondaryTextColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: 6.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10.w),
               child: Text(
@@ -376,58 +329,88 @@ class ArtistsItem extends StatelessWidget {
             ),
 
             SizedBox(height: 8.h),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-              child: CustomPrimaryButton2(
-                buttonText: "Buy A Service",
-                onTap: () async {
-                  final detailsCtrl = Get.put(
-                    ArtistsDetailsController(
-                      networkClient: NetworkClient(
-                        onUnAuthorize: () {
-                          if (kDebugMode) print("unauthorized");
-                        },
-                      ),
-                    ),
-                  );
-                  await detailsCtrl.fetchArtistById(artist.id);
-                  Get.to(() => ArtistsServiceList());
-                },
-                fontSize: sp(10),
-                buttonHeight: 25,
-              ),
+
+            CustomBuyButton(
+              onTap: () {
+                Get.to(RepostScreen());
+              },
+              buttonText: 'Reposts',
+              priceText: 66,
+              iconData: Icons.repeat,
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-              child: CustomPrimaryButton2(
-                buttonText: "Buy A Social Post",
-                onTap: () async {
-                  final detailsCtrl = Get.put(
-                    ArtistsDetailsController(
-                      networkClient: NetworkClient(
-                        onUnAuthorize: () {
-                          if (kDebugMode) print("unauthorized");
-                        },
-                      ),
+
+            CustomBuyButton(
+              onTap: () async {
+                final detailsCtrl = Get.put(
+                  ArtistsDetailsController(
+                    networkClient: NetworkClient(
+                      onUnAuthorize: () {
+                        if (kDebugMode) print("unauthorized");
+                      },
                     ),
-                  );
-                  await detailsCtrl.fetchArtistById(artist.id);
-                  Get.to(() => ArtistsSocialPostList());
-                },
-                fontSize: sp(10),
-                buttonHeight: 25,
-              ),
+                  ),
+                );
+                await detailsCtrl.fetchArtistById(artist.id);
+                Get.to(() => ArtistsSocialPostList());
+              },
+              buttonText: 'Social P.',
+              priceText: 6027577443554120.00,
+              iconData: Icons.campaign,
+              iConColor: Colors.blueAccent.withValues(alpha: .910),
+            ),
+            CustomBuyButton(
+              onTap: () async {
+                final detailsCtrl = Get.put(
+                  ArtistsDetailsController(
+                    networkClient: NetworkClient(
+                      onUnAuthorize: () {
+                        if (kDebugMode) print("unauthorized");
+                      },
+                    ),
+                  ),
+                );
+                await detailsCtrl.fetchArtistById(artist.id);
+                Get.to(() => ArtistsServiceList());
+              },
+              buttonText: 'Services',
+              priceText: servicePrice,
+              iconData: Icons.design_services,
+              iConColor: Colors.white.withValues(alpha: .910),
             ),
 
             /// Message button
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+              padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
               child: CustomPrimaryButton2(
                 fontSize: sp(10),
                 buttonText: "Inquiry",
                 buttonHeight: 25,
-                onTap: () async {
-                  await controller.sendInquiry(userID: artist.id);
+                onTap: onInquiryTap,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(
+                left: 5.w,
+                right: 5.w,
+                top: 5.h,
+                bottom: 10.h,
+              ),
+              child: CustomPrimaryButton2(
+                fontSize: sp(10),
+                buttonText: "View Profile",
+                buttonHeight: 25,
+                onTap: () {
+                  final artistsDetailsController = Get.put(
+                    ArtistsDetailsController(
+                      networkClient: NetworkClient(
+                        onUnAuthorize: () {
+                          if (kDebugMode) print("unauthorized");
+                        },
+                      ),
+                    ),
+                  );
+                  artistsDetailsController.fetchArtistById(artist.id);
+                  Get.toNamed(AppRoute.artistsDetailsPage);
                 },
               ),
             ),
@@ -635,4 +618,3 @@ class _PreviewCloseButton extends StatelessWidget {
     );
   }
 }
-*/
