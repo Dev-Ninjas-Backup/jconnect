@@ -7,6 +7,7 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/repost/repost_status/controller/repost_status_controller.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
 import 'package:jconnect/features/repost/repost_review_window/screen/repost_review_window_screen.dart';
+import 'package:jconnect/features/repost/seller_active_order_state/screen/request_details_screen.dart';
 
 class RepostStatusCard extends StatelessWidget {
   final RepostStatusItem item;
@@ -20,8 +21,6 @@ class RepostStatusCard extends StatelessWidget {
 
   Color _statusColor(RepostStatusType status) {
     switch (status) {
-      case RepostStatusType.pending:
-        return Colors.orange;
       case RepostStatusType.active:
         return Colors.blueAccent;
       case RepostStatusType.completed:
@@ -44,8 +43,14 @@ class RepostStatusCard extends StatelessWidget {
     final controller = Get.find<RepostStatusController>();
 
     return GestureDetector(
-      onTap: (isPaidTab && item.status == RepostStatusType.active)
-          ? () => Get.to(() => RepostReviewWindowScreen(item: item))
+      onTap: (item.status == RepostStatusType.active)
+          ? () {
+              if (isPaidTab) {
+                Get.to(() => RepostReviewWindowScreen(item: item));
+              } else {
+                Get.to(() => RequestDetailsScreen(item: item));
+              }
+            }
           : null,
       child: Container(
         margin: EdgeInsets.only(bottom: 12.h),
