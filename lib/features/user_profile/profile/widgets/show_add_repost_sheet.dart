@@ -246,16 +246,16 @@ void showAddRepostSheet(AddServiceController controller) {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        if (selectedPlatform == null) {
-                          Get.snackbar('Error', 'Please select a platform.');
-                          return;
-                        }
-                        if (selectedPostOption == null) {
-                          Get.snackbar('Error', 'Please select a post option.');
-                          return;
-                        }
-                        await controller.saveService();
-                        Get.back();
+                        // if (selectedPlatform == null) {
+                        //   Get.snackbar('Error', 'Please select a platform.');
+                        //   return;
+                        // }
+                        // if (selectedPostOption == null) {
+                        //   Get.snackbar('Error', 'Please select a post option.');
+                        //   return;
+                        // }
+                        // await controller.saveService();
+                        // Get.back();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.grey,

@@ -126,6 +126,7 @@ class SetCompletionTimeScreen extends StatelessWidget {
                       onTap: () {
                         Get.to(RepostStatuScreen());
 
+                        // ignore: avoid_print
                         print("timeframe:: ${controller.selectedTimeframe}");
                       },
                     ),
