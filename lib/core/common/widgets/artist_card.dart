@@ -65,7 +65,7 @@ class ArtistCard extends StatelessWidget {
         width: double.infinity,
         borderRadius: 10.r,
         borderWidth: 1,
-        gradientColors: [Colors.white, Colors.white.withOpacity(0.5)],
+        gradientColors: [Colors.white, Colors.white.withValues(alpha: 0.5)],
         padding: EdgeInsetsGeometry.zero,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -152,7 +152,7 @@ class ArtistCard extends StatelessWidget {
                                               errorBuilder: (_, __, ___) =>
                                                   Container(
                                                     color: Colors.white
-                                                        .withOpacity(0.15),
+                                                        .withValues(alpha: 0.15),
                                                     child: Icon(
                                                       Icons.broken_image,
                                                       size: 18.sp,
@@ -200,7 +200,7 @@ class ArtistCard extends StatelessWidget {
                         vertical: 2.h,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.70),
+                        color: Colors.red.withValues(alpha: 0.70),
                         borderRadius: BorderRadius.circular(6.r),
                       ),
                       child: Row(
@@ -234,7 +234,7 @@ class ArtistCard extends StatelessWidget {
                         vertical: 2.h,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.yellow.withOpacity(0.8),
+                        color: Colors.yellow.withValues(alpha: 0.8),
                         borderRadius: BorderRadius.circular(6.r),
                       ),
                       child: Text(
