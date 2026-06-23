@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
 
-enum RepostStatusType { pending, active, completed, cancelled }
+enum RepostStatusType {active, completed, cancelled }
 enum RepostTab { myRepost, paidRepost }
 
 class RepostStatusController extends GetxController {
@@ -36,7 +36,7 @@ class RepostStatusController extends GetxController {
       contentUrl: 'https://www.tiktok.com/@creator_x/video/1122334455/',
       sellerName: 'You',
       amount: 3.00,
-      status: RepostStatusType.pending,
+      status: RepostStatusType.active,
       createdAt: DateTime.now().subtract(const Duration(minutes: 30)),
       timeframe: '1 Hour',
     ),
@@ -73,8 +73,6 @@ class RepostStatusController extends GetxController {
 
   String statusLabel(RepostStatusType status) {
     switch (status) {
-      case RepostStatusType.pending:
-        return 'Pending';
       case RepostStatusType.active:
         return 'Active';
       case RepostStatusType.completed:

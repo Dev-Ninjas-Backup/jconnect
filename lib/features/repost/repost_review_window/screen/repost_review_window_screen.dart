@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
-import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
 import 'package:jconnect/features/repost/repost_review_window/controller/repost_review_window_controller.dart';
@@ -159,7 +158,14 @@ class RepostReviewWindowScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        _buildPlatformIcon(item.platform),
+                        Image.asset(
+                          controller.platformIconPath,
+                          height: 28.h,
+                          width: 28.w,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(Icons.share, color: Colors.white, size: 28.r);
+                          },
+                        ),
                         SizedBox(width: 12.w),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,7 +179,7 @@ class RepostReviewWindowScreen extends StatelessWidget {
                             ),
                             SizedBox(height: 2.h),
                             Text(
-                              _getOptionText(item.platform),
+                              controller.optionText,
                               style: getTextStyle(
                                 fontsize: 13,
                                 fontweight: FontWeight.w600,
@@ -261,46 +267,5 @@ class RepostReviewWindowScreen extends StatelessWidget {
     );
   }
 
-  String _getOptionText(String platform) {
-    if (platform.toLowerCase() == 'instagram') {
-      return 'Instagram Story Repost';
-    }
-    return '$platform Repost';
-  }
 
-  String _getPlatformIconPath(String platform) {
-    switch (platform.toLowerCase()) {
-      case 'instagram':
-        return Iconpath.instagram;
-      case 'facebook':
-        return Iconpath.facebook;
-      case 'tiktok':
-        return Iconpath.tiktok;
-      case 'youtube':
-        return Iconpath.youtube;
-      case 'linkedin':
-        return Iconpath.linkedIn;
-      case 'twitter':
-      case 'x':
-        return Iconpath.twitter;
-      case 'snapchat':
-        return Iconpath.snapChat;
-      case 'twitch':
-        return Iconpath.twitch;
-      default:
-        return Iconpath.defaultSocial;
-    }
-  }
-
-  Widget _buildPlatformIcon(String platform) {
-    final iconPath = _getPlatformIconPath(platform);
-    return Image.asset(
-      iconPath,
-      height: 28.h,
-      width: 28.w,
-      errorBuilder: (context, error, stackTrace) {
-        return Icon(Icons.share, color: Colors.white, size: 28.r);
-      },
-    );
-  }
 }
