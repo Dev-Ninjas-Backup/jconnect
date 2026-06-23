@@ -2,10 +2,10 @@ import 'package:get/get.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
 
 enum RepostStatusType { pending, active, completed, cancelled }
+enum RepostTab { myRepost, paidRepost }
 
 class RepostStatusController extends GetxController {
-  // 0 = My Repost Status, 1 = Paid Repost Status
-  final selectedTab = 0.obs;
+  final selectedTab = RepostTab.myRepost.obs;
   final isLoading = false.obs;
 
   // My repost status — I am the seller
@@ -66,10 +66,10 @@ class RepostStatusController extends GetxController {
     ),
   ].obs;
 
-  void selectTab(int index) => selectedTab.value = index;
+  void selectTab(RepostTab tab) => selectedTab.value = tab;
 
   List<RepostStatusItem> get currentList =>
-      selectedTab.value == 0 ? myReposts : paidReposts;
+      selectedTab.value == RepostTab.myRepost ? myReposts : paidReposts;
 
   String statusLabel(RepostStatusType status) {
     switch (status) {
