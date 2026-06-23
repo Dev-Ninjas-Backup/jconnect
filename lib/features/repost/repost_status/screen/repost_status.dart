@@ -41,7 +41,7 @@ class RepostStatuScreen extends StatelessWidget {
               Expanded(
                 child: Obx(() {
                   final list = controller.currentList;
-                  final isPaidTab = controller.selectedTab.value == 1;
+                  final isPaidTab = controller.selectedTab.value == RepostTab.paidRepost;
 
                   if (list.isEmpty) {
                     return _EmptyState(isPaidTab: isPaidTab);
@@ -73,8 +73,6 @@ class _RepostTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const tabs = ['My Repost', 'Paid Repost'];
-
     return Obx(() {
       return Container(
         padding: EdgeInsets.all(4.r),
@@ -83,11 +81,12 @@ class _RepostTabBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(10.r),
         ),
         child: Row(
-          children: List.generate(tabs.length, (index) {
-            final isSelected = controller.selectedTab.value == index;
+          children: RepostTab.values.map((tab) {
+            final isSelected = controller.selectedTab.value == tab;
+            final label = tab == RepostTab.myRepost ? 'My Repost' : 'Paid Repost';
             return Expanded(
               child: GestureDetector(
-                onTap: () => controller.selectTab(index),
+                onTap: () => controller.selectTab(tab),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   padding: EdgeInsets.symmetric(vertical: 10.h),
@@ -104,7 +103,7 @@ class _RepostTabBar extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Text(
-                    tabs[index],
+                    label,
                     textAlign: TextAlign.center,
                     style: getTextStyle(
                       fontsize: 13,
@@ -119,7 +118,7 @@ class _RepostTabBar extends StatelessWidget {
                 ),
               ),
             );
-          }),
+          }).toList(),
         ),
       );
     });
