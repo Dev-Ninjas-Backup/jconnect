@@ -4,8 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
-import 'package:jconnect/features/user_profile/repost_status/controller/repost_status_controller.dart';
-import 'package:jconnect/features/user_profile/repost_status/model/repost_status_model.dart';
+import 'package:jconnect/features/repost/repost_status/controller/repost_status_controller.dart';
+import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
 
 class RepostStatusCard extends StatelessWidget {
   final RepostStatusItem item;

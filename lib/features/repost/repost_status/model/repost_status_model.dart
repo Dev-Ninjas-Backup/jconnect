@@ -1,4 +1,4 @@
-import 'package:jconnect/features/user_profile/repost_status/controller/repost_status_controller.dart';
+import 'package:jconnect/features/repost/repost_status/controller/repost_status_controller.dart';
 
 class RepostStatusItem {
   final String id;
