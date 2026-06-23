@@ -8,6 +8,7 @@ import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/features/repost/repost_start/screens/repost_screen.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:video_player/video_player.dart';
+import 'package:jconnect/core/common/widgets/artist_card.dart';
 //import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button_2.dart';
 import 'package:jconnect/features/home/artists_details_screen/controller/artists_details_controller.dart';
@@ -76,15 +77,21 @@ class ArtistsYouKnow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: _buildArtistCard(
-                        controller.recentArtistsList[leftIndex],
+                      child: ArtistCard(
+                        artist: controller.recentArtistsList[leftIndex],
+                        onInquiryTap: () {
+                          controller.sendInquiry(userID: controller.recentArtistsList[leftIndex].id);
+                        },
                       ),
                     ),
                     SizedBox(width: 8.w),
                     if (rightIndex < controller.recentArtistsList.length)
                       Expanded(
-                        child: _buildArtistCard(
-                          controller.recentArtistsList[rightIndex],
+                        child: ArtistCard(
+                          artist: controller.recentArtistsList[rightIndex],
+                          onInquiryTap: () {
+                            controller.sendInquiry(userID: controller.recentArtistsList[rightIndex].id);
+                          },
                         ),
                       )
                     else
@@ -103,6 +110,7 @@ class ArtistsYouKnow extends StatelessWidget {
     });
   }
 
+  /*
   Widget _buildArtistCard(ArtistsModel artist) {
     // Service info
     final firstService = artist.services.isNotEmpty
@@ -538,8 +546,10 @@ class ArtistsYouKnow extends StatelessWidget {
       ),
     );
   }
+  */
 }
 
+/*
 class _HighlightVideoPreview extends StatefulWidget {
   final String url;
 
@@ -695,3 +705,4 @@ class _PreviewCloseButton extends StatelessWidget {
     );
   }
 }
+*/

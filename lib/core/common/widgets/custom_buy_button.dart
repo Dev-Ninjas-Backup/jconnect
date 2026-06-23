@@ -44,11 +44,15 @@ class CustomBuyButton extends StatelessWidget {
                           Colors.deepOrange.withValues(alpha: .910),
                     ),
                     SizedBox(width: 4.w),
-                    Text(
-                      buttonText,
-                      style: getTextStyle(
-                        fontsize: sp(9),
-                        color: AppColors.primaryTextColor,
+                    Expanded(
+                      child: Text(
+                        buttonText,
+                        style: getTextStyle(
+                          fontsize: sp(9),
+                          color: AppColors.primaryTextColor,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
