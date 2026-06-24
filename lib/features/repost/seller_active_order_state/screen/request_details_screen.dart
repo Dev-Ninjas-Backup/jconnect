@@ -85,7 +85,6 @@ class RequestDetailsScreen extends StatelessWidget {
 
               SizedBox(height: 16.h),
 
-              // ─── Time to Complete Section ─────────────────────────────
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(vertical: 24.h),
@@ -173,7 +172,6 @@ class RequestDetailsScreen extends StatelessWidget {
 
               const Spacer(),
 
-              // ─── Action Buttons ───────────────────────────────────────
               CustomPrimaryButton(
                 buttonText: 'Accept Request',
                 onTap: () => controller.acceptRequest(),
