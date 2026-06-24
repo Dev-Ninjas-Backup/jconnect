@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
+import 'package:jconnect/features/repost/seller_active_order_state/screen/seller_active_order_screen.dart';
 
 class RequestDetailsController extends GetxController {
   final RepostStatusItem item;
@@ -9,7 +10,7 @@ class RequestDetailsController extends GetxController {
 
   Timer? _timer;
   final remainingSeconds = 0.obs;
-  final totalSeconds = 7200.obs; // Default to 2 hours
+  final totalSeconds = 7200.obs;
 
   @override
   void onInit() {
@@ -108,11 +109,7 @@ class RequestDetailsController extends GetxController {
   }
 
   void acceptRequest() {
-    Get.snackbar(
-      'Accepted',
-      'You have accepted this repost request!',
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    Get.off(() => SellerActiveOrderScreen(item: item));
   }
 
   void rejectRequest() {
