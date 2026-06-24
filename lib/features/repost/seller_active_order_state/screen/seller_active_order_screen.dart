@@ -8,11 +8,10 @@ import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
 import 'package:jconnect/features/repost/seller_active_order_state/controller/request_details_controller.dart';
-
+import 'package:jconnect/features/repost/repost_proof_upload/screen/repost_proof_upload_screen.dart';
 class SellerActiveOrderScreen extends StatelessWidget {
   final RepostStatusItem item;
   const SellerActiveOrderScreen({required this.item, super.key});
-
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(
@@ -20,7 +19,6 @@ class SellerActiveOrderScreen extends StatelessWidget {
       tag: 'accepted',
     );
     final orderCode = 'OC${item.id.padLeft(6, '0')}';
-
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
       body: SafeArea(
@@ -34,7 +32,6 @@ class SellerActiveOrderScreen extends StatelessWidget {
                   leadingIconUrl: Iconpath.backIcon,
                   onLeadingTap: () => Get.back(),
                 ),
-
                 SizedBox(height: 80.h),
                 Center(
                   child: Padding(
@@ -123,7 +120,6 @@ class SellerActiveOrderScreen extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 20.h),
-
                           Text(
                             'Amount',
                             style: getTextStyle(
@@ -141,11 +137,9 @@ class SellerActiveOrderScreen extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 32.h),
-
-                          // View Details Action Button
                           CustomPrimaryButton(
                             buttonText: 'Submit Proof',
-                            onTap: () {},
+                            onTap: () => Get.to(() => RepostProofUploadScreen(item: item)),
                           ),
                         ],
                       ),
