@@ -6,7 +6,6 @@ import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/features/add_services/controller/add_services_controller.dart';
 import 'package:jconnect/features/add_services/widget/service_card_widget.dart';
 import 'package:jconnect/features/add_services/widget/service_form_widget.dart';
-import 'package:jconnect/routes/approute.dart';
 
 class AddServiceScreen extends StatelessWidget {
   const AddServiceScreen({super.key});
@@ -87,76 +86,76 @@ class AddServiceScreen extends StatelessWidget {
                               ),
                             const SizedBox(height: 16),
 
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                // Expanded(child: SizedBox()),
-                                Expanded(
-                                  child: ElevatedButton(
-                                    onPressed:
-                                        //controller.isSaveEnabled.value
-                                        () async {
-                                          await controller.saveService();
-                                        },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          //   controller.isSaveEnabled.value
-                                          // ? AppColors.redAccent
-                                          Colors.white70,
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 14,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                    child: const Text("Save"),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: () {
-                                      Get.toNamed(AppRoute.navBarScreen);
-                                    },
-                                    style: OutlinedButton.styleFrom(
-                                      side: const BorderSide(
-                                        color: Colors.white24,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      "Skip for Now",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            GestureDetector(
-                              onTap: () {
-                                controller.clearForm();
-                                showAddServiceSheet(context, controller);
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.add, color: Colors.white),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    "Add More Services",
-                                    style: getTextStyle(
-                                      color: Colors.white,
-                                      fontsize: 15,
-                                      fontweight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            // Row(
+                            //   mainAxisAlignment: MainAxisAlignment.center,
+                            //   children: [
+                            //     // Expanded(child: SizedBox()),
+                            //     Expanded(
+                            //       child: ElevatedButton(
+                            //         onPressed:
+                            //             //controller.isSaveEnabled.value
+                            //             () async {
+                            //               await controller.saveService();
+                            //             },
+                            //         style: ElevatedButton.styleFrom(
+                            //           backgroundColor:
+                            //               //   controller.isSaveEnabled.value
+                            //               // ? AppColors.redAccent
+                            //               Colors.white70,
+                            //           padding: const EdgeInsets.symmetric(
+                            //             vertical: 14,
+                            //           ),
+                            //           shape: RoundedRectangleBorder(
+                            //             borderRadius: BorderRadius.circular(10),
+                            //           ),
+                            //         ),
+                            //         child: const Text("Save"),
+                            //       ),
+                            //     ),
+                            //     const SizedBox(width: 12),
+                            //     Expanded(
+                            //       child: OutlinedButton(
+                            //         onPressed: () {
+                            //           Get.toNamed(AppRoute.navBarScreen);
+                            //         },
+                            //         style: OutlinedButton.styleFrom(
+                            //           side: const BorderSide(
+                            //             color: Colors.white24,
+                            //           ),
+                            //           shape: RoundedRectangleBorder(
+                            //             borderRadius: BorderRadius.circular(10),
+                            //           ),
+                            //         ),
+                            //         child: const Text(
+                            //           "Skip for Now",
+                            //           style: TextStyle(color: Colors.white),
+                            //         ),
+                            //       ),
+                            //     ),
+                            //   ],
+                            // ),
+                            // const SizedBox(height: 16),
+                            // GestureDetector(
+                            //   onTap: () {
+                            //     controller.clearForm();
+                            //     showAddServiceSheet(context, controller);
+                            //   },
+                            //   child: Row(
+                            //     mainAxisAlignment: MainAxisAlignment.center,
+                            //     children: [
+                            //       const Icon(Icons.add, color: Colors.white),
+                            //       const SizedBox(width: 6),
+                            //       Text(
+                            //         "Add More Services",
+                            //         style: getTextStyle(
+                            //           color: Colors.white,
+                            //           fontsize: 15,
+                            //           fontweight: FontWeight.w500,
+                            //         ),
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),

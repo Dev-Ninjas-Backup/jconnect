@@ -86,7 +86,7 @@ class ProfileListingsSection extends StatelessWidget {
             count: '6',
             isLast: true,
             onTap: () {
-              Get.toNamed(AppRoute.addServiceScreen);
+              Get.toNamed(AppRoute.repostListingsScreen);
             },
           ),
         ],
