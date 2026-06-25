@@ -146,7 +146,7 @@ void showAddRepostSheet(AddServiceController controller) {
                           ),
                         ),
                         decoration: InputDecoration(
-                          labelText: 'Post Option',
+                          labelText: 'Repost Type',
                           labelStyle: getTextStyle(
                             color: AppColors.secondaryTextColor,
                           ),
@@ -189,7 +189,8 @@ void showAddRepostSheet(AddServiceController controller) {
                       const SizedBox(height: 16),
                       // Price
                       TextField(
-                        controller: controller.priceController,
+                        controller: TextEditingController(text: "1.00"),
+                        readOnly: true,
                         style: getTextStyle(color: AppColors.primaryTextColor),
                         keyboardType: TextInputType.number,
                         inputFormatters: [
@@ -200,12 +201,8 @@ void showAddRepostSheet(AddServiceController controller) {
                           prefixStyle: getTextStyle(
                             color: AppColors.primaryTextColor,
                           ),
-                          labelText: 'Price/promotion',
+                          labelText: 'Price/Promotion',
                           labelStyle: getTextStyle(
-                            color: AppColors.secondaryTextColor,
-                          ),
-                          hintText: "Enter Price",
-                          hintStyle: getTextStyle(
                             color: AppColors.secondaryTextColor,
                           ),
                           enabledBorder: OutlineInputBorder(
@@ -215,7 +212,9 @@ void showAddRepostSheet(AddServiceController controller) {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.redColor),
+                            borderSide: BorderSide(
+                              color: AppColors.secondaryTextColor,
+                            ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),

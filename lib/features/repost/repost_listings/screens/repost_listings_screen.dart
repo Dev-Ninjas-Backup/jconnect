@@ -3,85 +3,16 @@ import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
+import 'package:jconnect/features/repost/repost_listings/controller/repost_listing_controller.dart';
+import 'package:jconnect/routes/approute.dart';
 
-class RepostListingsScreen extends StatefulWidget {
+class RepostListingsScreen extends StatelessWidget {
   const RepostListingsScreen({super.key});
 
   @override
-  State<RepostListingsScreen> createState() => _RepostListingsScreenState();
-}
-
-class _RepostListingsScreenState extends State<RepostListingsScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  final List<Map<String, dynamic>> _activeListings = [
-    {
-      'title': 'Instagram Story Repost',
-      'price': '\$1.00',
-      'icon': Iconpath.instagram,
-      'status': 'Active',
-    },
-    {
-      'title': 'Instagram Feed Repost',
-      'price': '\$1.00',
-      'icon': Iconpath.instagram,
-      'status': 'Active',
-    },
-    {
-      'title': 'Instagram Reel Repost',
-      'price': '\$1.00',
-      'icon': Iconpath.instagram,
-      'status': 'Active',
-    },
-    {
-      'title': 'TikTok Repost',
-      'price': '\$1.00',
-      'icon': Iconpath.tiktok,
-      'status': 'Active',
-    },
-    {
-      'title': 'TikTok Duet Repost',
-      'price': '\$1.00',
-      'icon': Iconpath.tiktok,
-      'status': 'Active',
-    },
-    {
-      'title': 'X (Twitter) Repost',
-      'price': '\$1.00',
-      'icon': Iconpath.twitter,
-      'status': 'Active',
-    },
-  ];
-
-  final List<Map<String, dynamic>> _inactiveListings = [
-    {
-      'title': 'YouTube Repost',
-      'price': '\$1.00',
-      'icon': Iconpath.youtube,
-      'status': 'Inactive',
-    },
-    {
-      'title': 'Facebook Repost',
-      'price': '\$1.00',
-      'icon': Iconpath.facebook,
-      'status': 'Inactive',
-    },
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final controller = Get.put(RepostListingController());
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -107,7 +38,7 @@ class _RepostListingsScreenState extends State<RepostListingsScreen> with Single
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: TabBar(
-                    controller: _tabController,
+                    controller: controller.tabController,
                     indicatorSize: TabBarIndicatorSize.tab,
                     dividerColor: Colors.transparent,
                     indicator: BoxDecoration(
@@ -121,8 +52,8 @@ class _RepostListingsScreenState extends State<RepostListingsScreen> with Single
                       fontweight: FontWeight.w500,
                     ),
                     tabs: [
-                      Tab(text: "Active (${_activeListings.length})"),
-                      Tab(text: "Inactive (${_inactiveListings.length})"),
+                      Tab(text: "Active (${controller.activeListings.length})"),
+                      Tab(text: "Inactive (${controller.inactiveListings.length})"),
                     ],
                   ),
                 ),
@@ -131,10 +62,10 @@ class _RepostListingsScreenState extends State<RepostListingsScreen> with Single
             const SizedBox(height: 20),
             Expanded(
               child: TabBarView(
-                controller: _tabController,
+                controller: controller.tabController,
                 children: [
-                  _buildListingsList(_activeListings),
-                  _buildListingsList(_inactiveListings),
+                  _buildListingsList(controller.activeListings),
+                  _buildListingsList(controller.inactiveListings),
                 ],
               ),
             ),
@@ -145,10 +76,10 @@ class _RepostListingsScreenState extends State<RepostListingsScreen> with Single
                 height: 55,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigate to add new listing or open bottom sheet
+                    Get.toNamed(AppRoute.createEditRepostListingScreen);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFB71C1C), // Deep red color
+                    backgroundColor: const Color(0xFFB71C1C),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
