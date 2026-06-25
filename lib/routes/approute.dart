@@ -14,6 +14,7 @@ import 'package:jconnect/features/repost/repost_process_option/controller/repost
 import 'package:jconnect/features/repost/repost_process_option/screens/repost_process_option_screen.dart';
 import 'package:jconnect/features/repost/repost_start/screens/repost_screen.dart';
 import 'package:jconnect/features/repost/repost_listings/screens/repost_listings_screen.dart';
+import 'package:jconnect/features/home/spotlight_screen/screen/all_spotlight_screen.dart';
 
 import 'package:jconnect/features/home/artists_screen/screen/artists_screen.dart';
 import 'package:jconnect/features/home/by_social_post/screen/buy_social_post.dart';
@@ -84,6 +85,9 @@ class AppRoute {
   static String repostListingsScreen = '/repostListingsScreen';
   static String createEditRepostListingScreen =
       '/createEditRepostListingScreen';
+  static String allSpotlightScreen = '/allSpotlightScreen';
+
+  static String getAllSpotlightScreen() => allSpotlightScreen;
 
   static String getSplashScreen() => splashScreen;
   static String getOnboardingScreen() => onboardingScreen;
@@ -181,6 +185,10 @@ class AppRoute {
     GetPage(
       name: createEditRepostListingScreen,
       page: () => CreateEditRepostListingScreen(),
+    ),
+    GetPage(
+      name: allSpotlightScreen,
+      page: () => const AllSpotlightScreen(),
     ),
   ];
 }
