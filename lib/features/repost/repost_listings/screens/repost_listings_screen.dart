@@ -155,8 +155,8 @@ class RepostListingsScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: isActive
-                      ? Colors.green.withOpacity(0.2)
-                      : Colors.grey.withOpacity(0.2),
+                      ? Colors.green.withValues(alpha: 0.2)
+                      : Colors.grey.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
