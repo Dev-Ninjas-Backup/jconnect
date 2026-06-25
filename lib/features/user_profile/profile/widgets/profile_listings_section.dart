@@ -25,31 +25,13 @@ class ProfileListingsSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header row with "My Listings" and "View All"
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'My Listings',
-                style: getTextStyle(
-                  color: AppColors.primaryTextColor,
-                  fontweight: FontWeight.bold,
-                  fontsize: 16,
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Get.toNamed(AppRoute.addServiceScreen);
-                },
-                child: Text(
-                  'View All',
-                  style: getTextStyle(
-                    color: AppColors.redColor,
-                    fontsize: 14,
-                    fontweight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
+          Text(
+            'My Listings',
+            style: getTextStyle(
+              color: AppColors.primaryTextColor,
+              fontweight: FontWeight.bold,
+              fontsize: 16,
+            ),
           ),
           SizedBox(height: 12.h),
 

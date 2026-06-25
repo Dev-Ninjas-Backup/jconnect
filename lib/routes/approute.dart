@@ -9,6 +9,7 @@ import 'package:jconnect/features/auth/signup/screen/signup_screen.dart';
 import 'package:jconnect/features/auth/signup_otp_verification/screen/signup_otp_verification_screen.dart';
 import 'package:jconnect/features/bottom_navbar/screen/bottom_navbar_screen.dart';
 import 'package:jconnect/features/home/artists_details_screen/screen/artists_details_page.dart';
+import 'package:jconnect/features/repost/create_edit_repost_listing/screen/create_edit_repost_listing_screen.dart';
 import 'package:jconnect/features/repost/repost_process_option/controller/repost_process_option_controller.dart';
 import 'package:jconnect/features/repost/repost_process_option/screens/repost_process_option_screen.dart';
 import 'package:jconnect/features/repost/repost_start/screens/repost_screen.dart';
@@ -81,6 +82,8 @@ class AppRoute {
   static String repostScreen = '/repostScreen';
   static String repostProcessOption = '/repostProcessOption';
   static String repostListingsScreen = '/repostListingsScreen';
+  static String createEditRepostListingScreen =
+      '/createEditRepostListingScreen';
 
   static String getSplashScreen() => splashScreen;
   static String getOnboardingScreen() => onboardingScreen;
@@ -119,6 +122,8 @@ class AppRoute {
   static String getRepostScreen() => repostScreen;
   static String getRepostProcessOption() => repostProcessOption;
   static String getRepostListingsScreen() => repostListingsScreen;
+  static String getCreateEditRepostListingScreen() =>
+      createEditRepostListingScreen;
 
   static List<GetPage> routes = [
     GetPage(name: splashScreen, page: () => SplashScreen()),
@@ -160,15 +165,22 @@ class AppRoute {
     GetPage(name: chatDetailsScreen, page: () => ChatDetailsScreen()),
     GetPage(name: followScreen, page: () => FollowScreen()),
     GetPage(name: repostScreen, page: () => RepostScreen()),
-    GetPage(name: repostListingsScreen, page: () => const RepostListingsScreen()),
+    GetPage(
+      name: repostListingsScreen,
+      page: () => const RepostListingsScreen(),
+    ),
     GetPage(
       name: repostProcessOption,
-      page: () =>  RepostProcessOptionScreen(),
+      page: () => RepostProcessOptionScreen(),
       binding: BindingsBuilder(() {
         Get.lazyPut<RepostProcessOptionController>(
           () => RepostProcessOptionController(),
         );
       }),
+    ),
+    GetPage(
+      name: createEditRepostListingScreen,
+      page: () => CreateEditRepostListingScreen(),
     ),
   ];
 }
