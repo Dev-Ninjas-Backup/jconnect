@@ -182,7 +182,7 @@ class RequestDetailsScreen extends StatelessWidget {
               OutlinedButton(
                 onPressed: () => controller.rejectRequest(),
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+                  side: BorderSide(color: Colors.white.withValues(alpha: 0.6)),
                   minimumSize: Size(double.infinity, 48.h),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.r),

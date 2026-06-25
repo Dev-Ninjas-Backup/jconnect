@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/features/home/artists_details_screen/controller/artists_details_controller.dart';
 import '../../../../core/common/constants/app_colors.dart';
@@ -49,26 +50,10 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Back button
-          GestureDetector(
-            onTap: () => Get.back(),
-            child: Container(
-              width: 36.w,
-              height: 36.w,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.grey.shade700,
-                  width: 1,
-                ),
-              ),
-              child: Center(
-                child: Icon(
-                  Icons.arrow_back,
-                  color: Colors.white,
-                  size: 18.sp,
-                ),
-              ),
-            ),
+          CustomAppBar2(
+            title: "",
+            onLeadingTap: () => Get.back(),
+            leadingIconUrl: Iconpath.backIcon,
           ),
           SizedBox(height: 20.h),
 
@@ -81,10 +66,7 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                   height: 120.w,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.grey.shade700,
-                      width: 2,
-                    ),
+                    border: Border.all(color: Colors.grey.shade700, width: 2),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(60.r),
@@ -142,11 +124,7 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.star,
-                      color: AppColors.redColor,
-                      size: 16.sp,
-                    ),
+                    Icon(Icons.star, color: AppColors.redColor, size: 16.sp),
                     SizedBox(width: 4.w),
                     Text(
                       '${artist.averageRating}',
@@ -325,10 +303,7 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.grey.shade900,
                     borderRadius: BorderRadius.circular(20.r),
-                    border: Border.all(
-                      color: Colors.grey.shade700,
-                      width: 1,
-                    ),
+                    border: Border.all(color: Colors.grey.shade700, width: 1),
                   ),
                   child: Text(
                     tag,
