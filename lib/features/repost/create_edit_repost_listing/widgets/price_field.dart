@@ -17,6 +17,7 @@ class PriceField extends StatelessWidget {
         border: Border.all(color: const Color(0xFF2C2C2C), width: 1),
       ),
       child: TextField(
+        readOnly: true,
         controller: controller,
         style: getTextStyle(
           fontsize: 16,

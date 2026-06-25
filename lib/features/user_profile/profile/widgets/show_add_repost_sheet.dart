@@ -4,13 +4,26 @@ import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/add_services/controller/add_services_controller.dart';
+import 'package:jconnect/features/repost/create_edit_repost_listing/widgets/dollar_program_card.dart';
 
 void showAddRepostSheet(AddServiceController controller) {
   controller.clearForm();
   controller.selectedServiceType.value = 'REPOST';
+  controller.priceController.text = "1.00";
 
   String? selectedPlatform;
   String? selectedPostOption;
+  bool acceptsDollarProgram = true;
+  String selectedTurnaround = 'Within 24 Hours';
+
+  final List<String> turnaroundOptions = [
+    'Within 30 Minutes',
+    'Within 1 Hour',
+    'Within 2 Hours',
+    'Within 6 Hours',
+    'Within 12 Hours',
+    'Within 24 Hours',
+  ];
 
   final Map<String, List<String>> platformOptions = {
     'Instagram': ['Story Repost', 'Feed Repost', 'Reel Repost'],
@@ -189,19 +202,19 @@ void showAddRepostSheet(AddServiceController controller) {
                       const SizedBox(height: 16),
                       // Price
                       TextField(
-                        controller: TextEditingController(text: "1.00"),
-                        readOnly: true,
+                        controller: controller.priceController,
+                        readOnly: acceptsDollarProgram,
                         style: getTextStyle(color: AppColors.primaryTextColor),
-                        keyboardType: TextInputType.number,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
+                          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
                         ],
                         decoration: InputDecoration(
                           prefixText: '\$ ',
                           prefixStyle: getTextStyle(
                             color: AppColors.primaryTextColor,
                           ),
-                          labelText: 'Price/Promotion',
+                          labelText: 'Price',
                           labelStyle: getTextStyle(
                             color: AppColors.secondaryTextColor,
                           ),
@@ -213,8 +226,106 @@ void showAddRepostSheet(AddServiceController controller) {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide(
+                              color: acceptsDollarProgram ? AppColors.secondaryTextColor : AppColors.redColor,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Accepts $1 Repost Program
+                      DollarProgramCard(
+                        isEnabled: acceptsDollarProgram,
+                        onChanged: (val) {
+                          setState(() {
+                            acceptsDollarProgram = val;
+                            if (val) {
+                              controller.priceController.text = "1.00";
+                            }
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Turnaround Time
+                      DropdownButtonFormField<String>(
+                        dropdownColor: AppColors.backGroundColor,
+                        initialValue: selectedTurnaround,
+                        decoration: InputDecoration(
+                          labelText: 'Turnaround Time (Default)',
+                          labelStyle: getTextStyle(
+                            color: AppColors.secondaryTextColor,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
                               color: AppColors.secondaryTextColor,
                             ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.redColor),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        items: turnaroundOptions
+                            .map(
+                              (t) => DropdownMenuItem<String>(
+                                value: t,
+                                child: Text(
+                                  t,
+                                  style: getTextStyle(
+                                    color: AppColors.primaryTextColor,
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (val) {
+                          setState(() {
+                            if (val != null) {
+                              selectedTurnaround = val;
+                            }
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Description (Optional)
+                      TextField(
+                        controller: controller.descriptionController,
+                        maxLines: 3,
+                        maxLength: 200,
+                        style: getTextStyle(color: AppColors.primaryTextColor),
+                        buildCounter: (context, {required currentLength, required isFocused, maxLength}) {
+                          return Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              '$currentLength/$maxLength',
+                              style: getTextStyle(
+                                color: AppColors.secondaryTextColor,
+                                fontsize: 12,
+                              ),
+                            ),
+                          );
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Description (Optional)',
+                          hintText: 'What buyers can expect...',
+                          hintStyle: getTextStyle(
+                            color: AppColors.secondaryTextColor,
+                          ),
+                          labelStyle: getTextStyle(
+                            color: AppColors.secondaryTextColor,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: AppColors.secondaryTextColor,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.redColor),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -244,26 +355,25 @@ void showAddRepostSheet(AddServiceController controller) {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () async {
-                        // if (selectedPlatform == null) {
-                        //   Get.snackbar('Error', 'Please select a platform.');
-                        //   return;
-                        // }
-                        // if (selectedPostOption == null) {
-                        //   Get.snackbar('Error', 'Please select a post option.');
-                        //   return;
-                        // }
-                        // await controller.saveService();
-                        // Get.back();
-                      },
+                      onPressed: (selectedPlatform == null || selectedPostOption == null)
+                          ? null
+                          : () async {
+                              await controller.saveService();
+                              Get.back();
+                            },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey,
+                        backgroundColor: (selectedPlatform == null || selectedPostOption == null)
+                            ? Colors.grey
+                            : AppColors.redColor,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text("Save"),
+                      child: const Text(
+                        "Save",
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                 ],
