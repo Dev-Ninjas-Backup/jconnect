@@ -3,7 +3,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/features/repost/buyer_review_post/model/buyer_review_post_model.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
-import 'package:jconnect/features/repost/buyer_review_post/widgets/release_funds_success_dialog.dart';
+import 'package:jconnect/features/repost/buyer_review_post/widgets/order_complete.dart';
 
 class BuyerReviewPostController extends GetxController {
   final RepostStatusItem item;
@@ -13,9 +13,12 @@ class BuyerReviewPostController extends GetxController {
     // Creating the review model with a default sample image representing a repost proof
     reviewModel = BuyerReviewPostModel(
       id: item.id,
-      proofImageUrl: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&q=80',
+      proofImageUrl:
+          'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&q=80',
       sellerName: item.sellerName,
-      submittedAt: item.createdAt.add(const Duration(minutes: 15)), // Mock submission time
+      submittedAt: item.createdAt.add(
+        const Duration(minutes: 15),
+      ), // Mock submission time
       amount: item.amount,
       originalItem: item,
     );
@@ -47,13 +50,7 @@ class BuyerReviewPostController extends GetxController {
     EasyLoading.dismiss();
     isProcessing.value = false;
 
-    Get.dialog(
-      ReleaseFundsSuccessDialog(
-        amount: reviewModel.amount,
-        sellerName: reviewModel.sellerName,
-      ),
-      barrierDismissible: false,
-    );
+    Get.to(OrderComplete(item: item));
   }
 
   Future<void> processRejection() async {
@@ -72,7 +69,7 @@ class BuyerReviewPostController extends GetxController {
       colorText: Colors.white,
       duration: const Duration(seconds: 3),
     );
-    
+
     // Go back to status page
     Future.delayed(const Duration(seconds: 1), () {
       Get.back(); // close the current screen
