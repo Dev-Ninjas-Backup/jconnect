@@ -25,7 +25,12 @@ class HomePage extends StatelessWidget {
       backgroundColor: AppColors.backGroundColor,
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 74.h),
+          padding: EdgeInsets.only(
+            left: 7.w,
+            right: 7.w,
+            top: 74.h,
+          //  bottom: 74.h,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

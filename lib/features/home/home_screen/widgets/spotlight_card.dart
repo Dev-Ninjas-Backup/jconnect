@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/home/home_screen/model/spotligt_model.dart';
+import 'package:jconnect/features/repost/repost_start/screens/repost_screen.dart';
 
 class SpotlightCard extends StatelessWidget {
   const SpotlightCard({
@@ -87,41 +89,46 @@ class SpotlightCard extends StatelessWidget {
           ),
           SizedBox(height: 6.h),
     
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 10.w,
-              vertical: 4.h,
-            ),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  Color(0xFF60000F),
-                  Color(0xFFBB0224),
-                  Color(0xFF60000F),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          GestureDetector(
+          onTap: () {
+             Get.to(RepostScreen());
+          },
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 10.w,
+                vertical: 4.h,
               ),
-              borderRadius: BorderRadius.circular(4.r),
-              border: Border.all(color: Colors.red.shade900, width: 1),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.local_fire_department,
-                  color: Colors.orange,
-                  size: 12.r,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFF60000F),
+                    Color(0xFFBB0224),
+                    Color(0xFF60000F),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                SizedBox(width: 2.w),
-                Text(
-                  "\$1 REPOST",
-                  style: getTextStyle(
-                    fontsize: sp(9),
-                    fontweight: FontWeight.bold,
-                    color: Colors.white,
+                borderRadius: BorderRadius.circular(4.r),
+                border: Border.all(color: Colors.red.shade900, width: 1),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.local_fire_department,
+                    color: Colors.orange,
+                    size: 12.r,
                   ),
-                ),
-              ],
+                  SizedBox(width: 2.w),
+                  Text(
+                    "\$1 REPOST",
+                    style: getTextStyle(
+                      fontsize: sp(9),
+                      fontweight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
