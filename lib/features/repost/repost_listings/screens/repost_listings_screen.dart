@@ -37,24 +37,26 @@ class RepostListingsScreen extends StatelessWidget {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
-                  child: TabBar(
-                    controller: controller.tabController,
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    dividerColor: Colors.transparent,
-                    indicator: BoxDecoration(
-                      color: const Color(0xFF2C2C2C),
-                      borderRadius: BorderRadius.circular(8),
+                  child: Obx(
+                    () => TabBar(
+                      controller: controller.tabController,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      dividerColor: Colors.transparent,
+                      indicator: BoxDecoration(
+                        color: const Color(0xFF2C2C2C),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      labelColor: Colors.white,
+                      unselectedLabelColor: Colors.grey,
+                      labelStyle: getTextStyle(
+                        fontsize: 16,
+                        fontweight: FontWeight.w500,
+                      ),
+                      tabs: [
+                        Tab(text: "Active (${controller.activeListings.length})"),
+                        Tab(text: "Inactive (${controller.inactiveListings.length})"),
+                      ],
                     ),
-                    labelColor: Colors.white,
-                    unselectedLabelColor: Colors.grey,
-                    labelStyle: getTextStyle(
-                      fontsize: 16,
-                      fontweight: FontWeight.w500,
-                    ),
-                    tabs: [
-                      Tab(text: "Active (${controller.activeListings.length})"),
-                      Tab(text: "Inactive (${controller.inactiveListings.length})"),
-                    ],
                   ),
                 ),
               ),
@@ -101,77 +103,117 @@ class RepostListingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildListingsList(List<Map<String, dynamic>> listings) {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      itemCount: listings.length,
-      itemBuilder: (context, index) {
-        final item = listings[index];
-        final isActive = item['status'] == 'Active';
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-            color: const Color(0xFF121212),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: const Color(0xFF2C2C2C),
-              width: 1,
-            ),
-          ),
-          child: Row(
-            children: [
-              Image.asset(
-                item['icon'],
-                width: 40,
-                height: 40,
+  Widget _buildListingsList(RxList<Map<String, dynamic>> listings) {
+    final controller = Get.find<RepostListingController>();
+    return Obx(
+      () => ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        itemCount: listings.length,
+        itemBuilder: (context, index) {
+          final item = listings[index];
+          final isActive = item['status'] == 'Active';
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF121212),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFF2C2C2C),
+                width: 1,
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            child: Row(
+              children: [
+                Image.asset(
+                  item['icon'],
+                  width: 40,
+                  height: 40,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item['title'],
+                        style: getTextStyle(
+                          color: Colors.white,
+                          fontsize: 16,
+                          fontweight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item['price'],
+                        style: getTextStyle(
+                          color: Colors.white,
+                          fontsize: 15,
+                          fontweight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      item['title'],
+                      item['status'],
                       style: getTextStyle(
-                        color: Colors.white,
-                        fontsize: 16,
+                        color: isActive ? Colors.green : Colors.grey,
+                        fontsize: 13,
                         fontweight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      item['price'],
-                      style: getTextStyle(
-                        color: Colors.white,
-                        fontsize: 15,
-                        fontweight: FontWeight.w400,
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () => controller.toggleStatus(item),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: 48,
+                        height: 26,
+                        padding: const EdgeInsets.all(3),
+                        alignment: isActive ? Alignment.centerRight : Alignment.centerLeft,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(13),
+                          color: isActive
+                              ? Colors.green.withValues(alpha: 0.15)
+                              : const Color(0xFF1E1E1E),
+                          border: Border.all(
+                            color: isActive
+                                ? Colors.green.withValues(alpha: 0.8)
+                                : const Color(0xFF3A3A3A),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 18,
+                          height: 18,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isActive ? Colors.green : Colors.grey,
+                            boxShadow: isActive
+                                ? [
+                                    BoxShadow(
+                                      color: Colors.green.withValues(alpha: 0.4),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 1),
+                                    )
+                                  ]
+                                : null,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: isActive
-                      ? Colors.green.withValues(alpha: 0.2)
-                      : Colors.grey.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  item['status'],
-                  style: getTextStyle(
-                    color: isActive ? Colors.green : Colors.grey,
-                    fontsize: 13,
-                    fontweight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

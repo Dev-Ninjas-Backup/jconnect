@@ -6,7 +6,7 @@ class RepostListingController extends GetxController
     with GetSingleTickerProviderStateMixin {
   late TabController tabController;
 
-  final List<Map<String, dynamic>> activeListings = [
+  final RxList<Map<String, dynamic>> activeListings = <Map<String, dynamic>>[
     {
       'title': 'Instagram Story Repost',
       'price': '\$1.00',
@@ -43,9 +43,9 @@ class RepostListingController extends GetxController
       'icon': Iconpath.twitter,
       'status': 'Active',
     },
-  ];
+  ].obs;
 
-  final List<Map<String, dynamic>> inactiveListings = [
+  final RxList<Map<String, dynamic>> inactiveListings = <Map<String, dynamic>>[
     {
       'title': 'YouTube Repost',
       'price': '\$1.00',
@@ -58,7 +58,19 @@ class RepostListingController extends GetxController
       'icon': Iconpath.facebook,
       'status': 'Inactive',
     },
-  ];
+  ].obs;
+
+  void toggleStatus(Map<String, dynamic> item) {
+    if (item['status'] == 'Active') {
+      activeListings.remove(item);
+      item['status'] = 'Inactive';
+      inactiveListings.add(item);
+    } else {
+      inactiveListings.remove(item);
+      item['status'] = 'Active';
+      activeListings.add(item);
+    }
+  }
 
   @override
   void onInit() {
