@@ -43,12 +43,20 @@ class CreateEditRepostListingController extends GetxController {
 
   final AddServiceRepository repository = AddServiceRepository();
 
+  String? editingListingId;
+  final RxBool isFetchingDetails = false.obs;
+
   @override
   void onInit() {
     super.onInit();
     descriptionController.addListener(() {
       descriptionLength.value = descriptionController.text.length;
     });
+
+    if (Get.arguments != null && Get.arguments is String) {
+      editingListingId = Get.arguments as String;
+      fetchListingDetails(editingListingId!);
+    }
   }
 
   @override
@@ -57,6 +65,56 @@ class CreateEditRepostListingController extends GetxController {
     platformFollowerController.dispose();
     descriptionController.dispose();
     super.onClose();
+  }
+
+  Future<void> fetchListingDetails(String id) async {
+    isFetchingDetails.value = true;
+    try {
+      final data = await repository.fetchRepostListingById(id);
+
+      final apiPlatform = data['platform'] as String?;
+      if (apiPlatform != null) {
+        String? displayPlatform;
+        for (var entry in platformApiMap.entries) {
+          if (entry.value == apiPlatform) {
+            displayPlatform = entry.key;
+            break;
+          }
+        }
+        if (displayPlatform != null) {
+          selectedPlatform.value = displayPlatform;
+        }
+      }
+
+      final apiTurnaround = data['defaultTurnaround'] as String?;
+      if (apiTurnaround != null) {
+        String? displayTurnaround;
+        for (var entry in turnaroundOptions.entries) {
+          if (entry.value == apiTurnaround) {
+            displayTurnaround = entry.key;
+            break;
+          }
+        }
+        if (displayTurnaround != null) {
+          selectedTurnaround.value = displayTurnaround;
+        }
+      }
+
+      priceController.text = (data['price'] ?? '').toString();
+      platformFollowerController.text = (data['followerCount'] ?? '').toString();
+      acceptsDollarProgram.value = data['isSpotlight'] ?? false;
+      descriptionController.text = data['description'] ?? '';
+
+    } catch (e) {
+      debugPrint('Error fetching listing details: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to fetch listing details: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isFetchingDetails.value = false;
+    }
   }
 
   void onPlatformChanged(String? value) {
@@ -118,26 +176,45 @@ class CreateEditRepostListingController extends GetxController {
     final description = descriptionController.text.trim();
 
     try {
-      EasyLoading.show(status: 'Saving repost...');
-
-      final response = await repository.createRepostListing(
-        platform: platformApi,
-        price: priceValue,
-        followerCount: followerCountValue,
-        description: description.isNotEmpty
-            ? description
-            : "I will repost your content on my platform",
-        defaultTurnaround: turnaroundApi,
-        isSpotlight: acceptsDollarProgram.value,
+      EasyLoading.show(
+        status: editingListingId != null ? 'Updating repost...' : 'Saving repost...',
       );
+
+      final dynamic response;
+      if (editingListingId != null) {
+        response = await repository.updateRepostListing(
+          id: editingListingId!,
+          platform: platformApi,
+          price: priceValue,
+          followerCount: followerCountValue,
+          description: description.isNotEmpty
+              ? description
+              : "I will repost your content on my platform",
+          defaultTurnaround: turnaroundApi,
+          isSpotlight: acceptsDollarProgram.value,
+        );
+      } else {
+        response = await repository.createRepostListing(
+          platform: platformApi,
+          price: priceValue,
+          followerCount: followerCountValue,
+          description: description.isNotEmpty
+              ? description
+              : "I will repost your content on my platform",
+          defaultTurnaround: turnaroundApi,
+          isSpotlight: acceptsDollarProgram.value,
+        );
+      }
 
       debugPrint("repost listing save response: $response");
       EasyLoading.dismiss();
-      
+
       Get.back();
       Get.snackbar(
         'Success',
-        'Repost listing saved successfully!',
+        editingListingId != null
+            ? 'Repost listing updated successfully!'
+            : 'Repost listing saved successfully!',
         snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {

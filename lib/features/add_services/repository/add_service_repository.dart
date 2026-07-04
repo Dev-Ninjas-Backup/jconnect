@@ -222,5 +222,64 @@ Future<Map<String, dynamic>> createService({
     }
     throw Exception(respStr);
   }
+
+  /// GET REPOST LISTING BY ID
+  Future<Map<String, dynamic>> fetchRepostListingById(String id) async {
+    final uri = Uri.parse(Endpoint.repostListingById(id));
+    final token = await pref.getAccessToken();
+
+    final response = await http.get(
+      uri,
+      headers: {
+        'Accept': 'application/json',
+        if (token != null) 'Authorization': token,
+      },
+    );
+
+    final respStr = response.body;
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(respStr);
+    }
+    throw Exception(respStr);
+  }
+
+  /// UPDATE REPOST LISTING
+  Future<Map<String, dynamic>> updateRepostListing({
+    required String id,
+    required String platform,
+    required int price,
+    required int followerCount,
+    required String description,
+    required String defaultTurnaround,
+    required bool isSpotlight,
+  }) async {
+    final uri = Uri.parse(Endpoint.repostListingById(id));
+    final token = await pref.getAccessToken();
+
+    final response = await http.patch(
+      uri,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        if (token != null) 'Authorization': token,
+      },
+      body: jsonEncode({
+        'platform': platform,
+        'price': price,
+        'followerCount': followerCount,
+        'description': description,
+        'defaultTurnaround': defaultTurnaround,
+        'isSpotlight': isSpotlight,
+      }),
+    );
+
+    final respStr = response.body;
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(respStr);
+    }
+    throw Exception(respStr);
+  }
 }
 
