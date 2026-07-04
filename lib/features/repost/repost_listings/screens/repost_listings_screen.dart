@@ -8,11 +8,9 @@ import 'package:jconnect/routes/approute.dart';
 
 class RepostListingsScreen extends StatelessWidget {
   const RepostListingsScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(RepostListingController());
-
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
