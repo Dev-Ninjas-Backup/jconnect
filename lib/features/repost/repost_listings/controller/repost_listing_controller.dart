@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/repost/repost_listings/model/repost_listing_model.dart';
 import 'package:jconnect/features/repost/repost_listings/service/repost_listing_service.dart';
@@ -56,34 +57,33 @@ class RepostListingController extends GetxController
     }
   }
 
-  void toggleStatus(RepostListingModel item) {
-    final updatedItem = RepostListingModel(
-      id: item.id,
-      sellerId: item.sellerId,
-      platform: item.platform,
-      price: item.price,
-      followerCount: item.followerCount,
-      description: item.description,
-      isActive: !item.isActive,
-      isPaused: item.isPaused,
-      isSpotlight: item.isSpotlight,
-      defaultTurnaround: item.defaultTurnaround,
-      totalPurchases: item.totalPurchases,
-      totalAccepts: item.totalAccepts,
-      totalProofs: item.totalProofs,
-      totalRedos: item.totalRedos,
-      totalAutoReleases: item.totalAutoReleases,
-      totalCompleted: item.totalCompleted,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-    );
+  Future<void> toggleStatus(RepostListingModel item) async {
+    try {
+      EasyLoading.show(status: item.isActive ? 'Deactivating...' : 'Activating...');
+      final updatedItem = await service.toggleActiveRepostListing(item.id, !item.isActive);
 
-    if (item.isActive) {
-      activeListings.remove(item);
-      inactiveListings.add(updatedItem);
-    } else {
-      inactiveListings.remove(item);
-      activeListings.add(updatedItem);
+      if (item.isActive) {
+        activeListings.remove(item);
+        inactiveListings.add(updatedItem);
+      } else {
+        inactiveListings.remove(item);
+        activeListings.add(updatedItem);
+      }
+
+      EasyLoading.dismiss();
+      Get.snackbar(
+        'Success',
+        updatedItem.isActive ? 'Listing activated successfully!' : 'Listing deactivated successfully!',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      EasyLoading.dismiss();
+      debugPrint('Error toggling active status: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to toggle active status: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 }
