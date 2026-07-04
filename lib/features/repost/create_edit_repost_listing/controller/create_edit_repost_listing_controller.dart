@@ -1,54 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:jconnect/features/add_services/repository/add_service_repository.dart';
 
 class CreateEditRepostListingController extends GetxController {
-  
-  final Map<String, List<String>> platformOptions = {
-    'Instagram': ['Story Repost', 'Feed Repost', 'Reel Repost'],
-    'Tiktok': ['Repost', 'Duet/Stitch Repost'],
-    'X': ['Repost', 'Quote Repost'],
-    'YouTube': ['Community Post Repost', 'Video Repost (Shorts)'],
-    'Facebook': ['Post Repost', 'Story Repost'],
-  };
-
   final Map<String, String> platformApiMap = {
-    'Instagram': 'INSTAGRAM',
-    'Tiktok': 'TIKTOK',
-    'X': 'TWITTER',
-    'YouTube': 'YOUTUBE',
-    'Facebook': 'FACEBOOK',
+    'Instagram Story Repost': 'INSTAGRAM_STORY',
+    'Instagram Feed Repost': 'INSTAGRAM_FEED',
+    'Instagram Reel Repost': 'INSTAGRAM_REEL',
+    'Tiktok Repost': 'TIKTOK',
+    'Tiktok Duet/Stitch Repost': 'TIKTOK_DUET',
+    'X Repost': 'TWITTER',
+    'X Quote Repost': 'TWITTER_QUOTE',
+    'YouTube Community Post Repost': 'YOUTUBE_COMMUNITY_POST',
+    'YouTube Video Repost (Shorts)': 'YOUTUBE_SHORTS',
+    'Facebook Post Repost': 'FACEBOOK_POST',
+    'Facebook Story Repost': 'FACEBOOK_STORY',
   };
 
-  final List<String> turnaroundOptions = [
-    'Within 30 Minutes',
-    'Within 1 Hour',
-    'Within 2 Hours',
-    'Within 6 Hours',
-    'Within 12 Hours',
-    'Within 24 Hours',
-  ];
+  final Map<String, String> turnaroundOptions = {
+    'Within 20 Minutes': "TWENTY_MINUTES",
+    'Within 1 Hour': "ONE_HOUR",
+    'Within 2 Hours': "TWO_HOURS",
+    'Within 6 Hours': "SIX_HOURS",
+    'Within 12 Hours': "TWELVE_HOURS",
+    'Within 24 Hours': "TWENTY_FOUR_HOURS",
+  };
 
-  final RxString selectedPlatform = 'Instagram'.obs;
-  final RxString selectedRepostType = 'Story Repost'.obs;
+  final RxString selectedPlatform = 'Instagram Story Repost'.obs;
   final RxString selectedTurnaround = 'Within 24 Hours'.obs;
   final RxBool acceptsDollarProgram = true.obs;
-
-  
 
   final TextEditingController priceController = TextEditingController(
     text: '1.00',
   );
+  final TextEditingController platformFollowerController =
+      TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
 
   final RxInt descriptionLength = 0.obs;
   static const int maxDescriptionLength = 200;
 
-  
+  final AddServiceRepository repository = AddServiceRepository();
 
-  List<String> get repostTypesForSelectedPlatform =>
-      platformOptions[selectedPlatform.value] ?? [];
-
-  
   @override
   void onInit() {
     super.onInit();
@@ -60,6 +54,7 @@ class CreateEditRepostListingController extends GetxController {
   @override
   void onClose() {
     priceController.dispose();
+    platformFollowerController.dispose();
     descriptionController.dispose();
     super.onClose();
   }
@@ -67,15 +62,6 @@ class CreateEditRepostListingController extends GetxController {
   void onPlatformChanged(String? value) {
     if (value == null) return;
     selectedPlatform.value = value;
-    final types = platformOptions[value];
-    if (types != null && types.isNotEmpty) {
-      selectedRepostType.value = types.first;
-    }
-  }
-
-  void onRepostTypeChanged(String? value) {
-    if (value == null) return;
-    selectedRepostType.value = value;
   }
 
   void onTurnaroundChanged(String? value) {
@@ -87,17 +73,81 @@ class CreateEditRepostListingController extends GetxController {
     acceptsDollarProgram.value = value;
   }
 
-  void onSave() {
+  Future<void> onSave() async {
     final platformApi = platformApiMap[selectedPlatform.value];
+    if (platformApi == null) {
+      Get.snackbar(
+        'Error',
+        'Please select a social platform.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
 
-    debugPrint(
-      'Save: platform=$platformApi, '
-      'repostType=${selectedRepostType.value}, '
-      'price=${priceController.text}, '
-      'turnaround=${selectedTurnaround.value}, '
-      'acceptsDollar=${acceptsDollarProgram.value}, '
-      'description=${descriptionController.text}',
-    );
-    Get.back();
+    final turnaroundApi = turnaroundOptions[selectedTurnaround.value];
+    if (turnaroundApi == null) {
+      Get.snackbar(
+        'Error',
+        'Please select a turnaround time.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    final double? parsedPrice = double.tryParse(priceController.text);
+    final int? priceValue = parsedPrice?.round();
+    if (priceValue == null) {
+      Get.snackbar(
+        'Error',
+        'Please enter a valid price.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    final int? followerCountValue = int.tryParse(platformFollowerController.text);
+    if (followerCountValue == null) {
+      Get.snackbar(
+        'Error',
+        'Please enter a valid follower count.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    final description = descriptionController.text.trim();
+
+    try {
+      EasyLoading.show(status: 'Saving repost...');
+
+      final response = await repository.createRepostListing(
+        platform: platformApi,
+        price: priceValue,
+        followerCount: followerCountValue,
+        description: description.isNotEmpty
+            ? description
+            : "I will repost your content on my platform",
+        defaultTurnaround: turnaroundApi,
+        isSpotlight: acceptsDollarProgram.value,
+      );
+
+      debugPrint("repost listing save response: $response");
+      EasyLoading.dismiss();
+      
+      Get.back();
+      Get.snackbar(
+        'Success',
+        'Repost listing saved successfully!',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      EasyLoading.dismiss();
+      debugPrint('Error saving repost listing: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to save repost listing: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 }

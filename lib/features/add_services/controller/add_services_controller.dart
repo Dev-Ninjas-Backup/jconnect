@@ -10,8 +10,12 @@ class AddServiceController extends GetxController {
   final serviceNameController = TextEditingController();
   final descriptionController = TextEditingController();
   final priceController = TextEditingController();
+  final followerCountController = TextEditingController();
+  final repostPrice = TextEditingController();
+  final isSpotlight = RxnBool();
   final RxnString selectedServiceType = RxnString();
   final RxnString selectedSocialPlatform = RxnString();
+  final RxnString selectedTurnaround = RxnString();
 
   var services = <Map<String, dynamic>>[].obs;
 
@@ -30,6 +34,8 @@ class AddServiceController extends GetxController {
     serviceNameController.dispose();
     descriptionController.dispose();
     priceController.dispose();
+    followerCountController.dispose();
+    repostPrice.dispose();
     super.onClose();
   }
 
@@ -63,6 +69,7 @@ class AddServiceController extends GetxController {
       );
     }
   }
+
   /// ADD OR UPDATE SERVICE
   Future<void> saveService() async {
     final priceValue = double.tryParse(priceController.text) ?? 0.00;
@@ -76,7 +83,7 @@ class AddServiceController extends GetxController {
 
       Map<String, dynamic> response;
 
-      final isSocial = selectedServiceType.value == 'SOCIAL_POST' || selectedServiceType.value == 'REPOST';
+      final isSocial = selectedServiceType.value == 'SOCIAL_POST';
 
       if (selectedServiceType.value == null) {
         EasyLoading.dismiss();
@@ -153,6 +160,69 @@ class AddServiceController extends GetxController {
     }
   }
 
+  Future<bool> saveRepost() async {
+    if (selectedSocialPlatform.value == null) {
+      Get.snackbar(
+        'Error',
+        'Please select a social platform.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    }
+
+    final priceValue = int.tryParse(repostPrice.text);
+    if (priceValue == null) {
+      Get.snackbar(
+        'Error',
+        'Please enter a valid price.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    }
+
+    final followerCountValue = int.tryParse(followerCountController.text);
+    if (followerCountValue == null) {
+      Get.snackbar(
+        'Error',
+        'Please enter a valid follower count.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    }
+
+    final turnaround = selectedTurnaround.value ?? 'TWENTY_FOUR_HOURS';
+    final description = descriptionController.text.trim();
+
+    try {
+      EasyLoading.show(status: 'Saving repost...');
+
+      final response = await repository.createRepostListing(
+        platform: selectedSocialPlatform.value!,
+        price: priceValue,
+        followerCount: followerCountValue,
+        description: description.isNotEmpty
+            ? description
+            : "I will repost your content on my platform",
+        defaultTurnaround: turnaround,
+        isSpotlight: isSpotlight.value ?? false,
+      );
+
+      print("repost listing save response: $response");
+      EasyLoading.dismiss();
+      clearForm();
+      return true;
+    } catch (e) {
+      EasyLoading.dismiss();
+      print('Error saving repost listing: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to save repost listing: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    }
+  }
+
   /// DELETE SERVICE
   Future<void> deleteService(int index) async {
     final removedService = services[index];
@@ -207,8 +277,12 @@ class AddServiceController extends GetxController {
     serviceNameController.clear();
     descriptionController.clear();
     priceController.clear();
+    followerCountController.clear();
+    repostPrice.clear();
+    isSpotlight.value = null;
     selectedServiceType.value = null;
     selectedSocialPlatform.value = null;
+    selectedTurnaround.value = 'TWENTY_FOUR_HOURS';
     isSocialService.value = false;
     selectedLogoPath.value = '';
     editingIndex.value = null;
@@ -231,9 +305,11 @@ class AddServiceController extends GetxController {
   void onSocialPlatformChanged(String? value) {
     selectedSocialPlatform.value = value;
     if (value != null) {
-      selectedLogoPath.value = SocialServiceType.values
-          .firstWhere((e) => e.name == value)
-          .assetPath;
+      final matchingType = SocialServiceType.values.firstWhere(
+        (e) => value.startsWith(e.name),
+        orElse: () => SocialServiceType.INSTAGRAM,
+      );
+      selectedLogoPath.value = matchingType.assetPath;
     } else {
       selectedLogoPath.value = '';
     }

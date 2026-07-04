@@ -9,45 +9,38 @@ import 'package:jconnect/features/repost/create_edit_repost_listing/widgets/doll
 void showAddRepostSheet(AddServiceController controller) {
   controller.clearForm();
   controller.selectedServiceType.value = 'REPOST';
-  controller.priceController.text = "1.00";
-
+  controller.repostPrice.text = "1";
+  controller.isSpotlight.value = true;
+  controller.selectedTurnaround.value = 'TWENTY_FOUR_HOURS';
   String? selectedPlatform;
-  String? selectedPostOption;
-  bool acceptsDollarProgram = true;
-  String selectedTurnaround = 'Within 24 Hours';
+  String selectedTurnaround = 'TWENTY_FOUR_HOURS';
 
-  final List<String> turnaroundOptions = [
-    'Within 30 Minutes',
-    'Within 1 Hour',
-    'Within 2 Hours',
-    'Within 6 Hours',
-    'Within 12 Hours',
-    'Within 24 Hours',
-  ];
-
-  final Map<String, List<String>> platformOptions = {
-    'Instagram': ['Story Repost', 'Feed Repost', 'Reel Repost'],
-    'Tiktok': ['Repost', 'Duet/Stitch Repost'],
-    'X': ['Repost', 'Quote Repost'],
-    'YouTube': ['Community Post Repost', 'Video Repost (Shorts)'],
-    'Facebook': ['Post Repost', 'Story Repost'],
+  final Map<String, String> turnaroundOptions = {
+    'Within 20 Minutes': "TWENTY_MINUTES",
+    'Within 1 Hour': "ONE_HOUR",
+    'Within 2 Hours': "TWO_HOURS",
+    'Within 6 Hours': "SIX_HOURS",
+    'Within 12 Hours': "TWELVE_HOURS",
+    'Within 24 Hours': "TWENTY_FOUR_HOURS",
   };
 
   final Map<String, String> platformApiMap = {
-    'Instagram': 'INSTAGRAM',
-    'Tiktok': 'TIKTOK',
-    'X': 'TWITTER',
-    'YouTube': 'YOUTUBE',
-    'Facebook': 'FACEBOOK',
+    'Instagram Story Repost': 'INSTAGRAM_STORY',
+    'Instagram Feed Repost': 'INSTAGRAM_FEED',
+    'Instagram Reel Repost': 'INSTAGRAM_REEL',
+    'Tiktok Repost': 'TIKTOK',
+    'Tiktok Duet/Stitch Repost': 'TIKTOK_DUET',
+    'X Repost': 'TWITTER',
+    'X Quote Repost': 'TWITTER_QUOTE',
+    'YouTube Community Post Repost': 'YOUTUBE_COMMUNITY_POST',
+    'YouTube Video Repost (Shorts)': 'YOUTUBE_SHORTS',
+    'Facebook Post Repost': 'FACEBOOK_POST',
+    'Facebook Story Repost': 'FACEBOOK_STORY',
   };
 
   Get.bottomSheet(
     StatefulBuilder(
       builder: (context, setState) {
-        final options = selectedPlatform != null
-            ? platformOptions[selectedPlatform] ?? []
-            : [];
-
         return Container(
           padding: const EdgeInsets.all(20),
           decoration: const BoxDecoration(
@@ -119,7 +112,7 @@ void showAddRepostSheet(AddServiceController controller) {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        items: platformOptions.keys
+                        items: platformApiMap.keys
                             .map(
                               (p) => DropdownMenuItem<String>(
                                 value: p,
@@ -135,11 +128,12 @@ void showAddRepostSheet(AddServiceController controller) {
                         onChanged: (val) {
                           setState(() {
                             selectedPlatform = val;
-                            selectedPostOption = null;
                             if (val != null) {
+                              controller.serviceNameController.text = val;
                               final apiPlatform = platformApiMap[val];
                               controller.onSocialPlatformChanged(apiPlatform);
                             } else {
+                              controller.serviceNameController.clear();
                               controller.selectedSocialPlatform.value = null;
                               controller.selectedLogoPath.value = '';
                             }
@@ -147,67 +141,13 @@ void showAddRepostSheet(AddServiceController controller) {
                         },
                       ),
                       const SizedBox(height: 16),
-
-                      // Post Option Dropdown
-                      DropdownButtonFormField<String>(
-                        dropdownColor: AppColors.backGroundColor,
-                        initialValue: selectedPostOption,
-                        disabledHint: Text(
-                          "Select a platform first",
-                          style: getTextStyle(
-                            color: AppColors.secondaryTextColor,
-                          ),
-                        ),
-                        decoration: InputDecoration(
-                          labelText: 'Repost Type',
-                          labelStyle: getTextStyle(
-                            color: AppColors.secondaryTextColor,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: AppColors.secondaryTextColor,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.redColor),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        items: options
-                            .map(
-                              (opt) => DropdownMenuItem<String>(
-                                value: opt,
-                                child: Text(
-                                  opt,
-                                  style: getTextStyle(
-                                    color: AppColors.primaryTextColor,
-                                  ),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: selectedPlatform == null
-                            ? null
-                            : (val) {
-                                setState(() {
-                                  selectedPostOption = val;
-                                  if (val != null && selectedPlatform != null) {
-                                    controller.serviceNameController.text =
-                                        "$selectedPlatform $val";
-                                  }
-                                });
-                              },
-                      ),
-                      const SizedBox(height: 16),
                       // Price
                       TextField(
-                        controller: controller.priceController,
-                        readOnly: acceptsDollarProgram,
+                        controller: controller.repostPrice,
                         style: getTextStyle(color: AppColors.primaryTextColor),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        readOnly: true,
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                          FilteringTextInputFormatter.digitsOnly,
                         ],
                         decoration: InputDecoration(
                           prefixText: '\$ ',
@@ -225,9 +165,33 @@ void showAddRepostSheet(AddServiceController controller) {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.redColor),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      TextField(
+                        controller: controller.followerCountController,
+                        style: getTextStyle(color: AppColors.primaryTextColor),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        decoration: InputDecoration(
+                          labelText: 'Platform Follower Count',
+                          labelStyle: getTextStyle(
+                            color: AppColors.secondaryTextColor,
+                          ),
+                          enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: acceptsDollarProgram ? AppColors.secondaryTextColor : AppColors.redColor,
+                              color: AppColors.secondaryTextColor,
                             ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.redColor),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -236,13 +200,10 @@ void showAddRepostSheet(AddServiceController controller) {
 
                       // Accepts $1 Repost Program
                       DollarProgramCard(
-                        isEnabled: acceptsDollarProgram,
+                        isEnabled: controller.isSpotlight.value ?? true,
                         onChanged: (val) {
                           setState(() {
-                            acceptsDollarProgram = val;
-                            if (val) {
-                              controller.priceController.text = "1.00";
-                            }
+                            controller.isSpotlight.value = val;
                           });
                         },
                       ),
@@ -268,12 +229,12 @@ void showAddRepostSheet(AddServiceController controller) {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        items: turnaroundOptions
+                        items: turnaroundOptions.entries
                             .map(
-                              (t) => DropdownMenuItem<String>(
-                                value: t,
+                              (entry) => DropdownMenuItem<String>(
+                                value: entry.value,
                                 child: Text(
-                                  t,
+                                  entry.key,
                                   style: getTextStyle(
                                     color: AppColors.primaryTextColor,
                                   ),
@@ -285,6 +246,7 @@ void showAddRepostSheet(AddServiceController controller) {
                           setState(() {
                             if (val != null) {
                               selectedTurnaround = val;
+                              controller.selectedTurnaround.value = val;
                             }
                           });
                         },
@@ -297,18 +259,24 @@ void showAddRepostSheet(AddServiceController controller) {
                         maxLines: 3,
                         maxLength: 200,
                         style: getTextStyle(color: AppColors.primaryTextColor),
-                        buildCounter: (context, {required currentLength, required isFocused, maxLength}) {
-                          return Align(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              '$currentLength/$maxLength',
-                              style: getTextStyle(
-                                color: AppColors.secondaryTextColor,
-                                fontsize: 12,
-                              ),
-                            ),
-                          );
-                        },
+                        buildCounter:
+                            (
+                              context, {
+                              required currentLength,
+                              required isFocused,
+                              maxLength,
+                            }) {
+                              return Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  '$currentLength/$maxLength',
+                                  style: getTextStyle(
+                                    color: AppColors.secondaryTextColor,
+                                    fontsize: 12,
+                                  ),
+                                ),
+                              );
+                            },
                         decoration: InputDecoration(
                           labelText: 'Description (Optional)',
                           hintText: 'What buyers can expect...',
@@ -355,14 +323,22 @@ void showAddRepostSheet(AddServiceController controller) {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: (selectedPlatform == null || selectedPostOption == null)
+                      onPressed: (selectedPlatform == null)
                           ? null
                           : () async {
-                              await controller.saveService();
-                              Get.back();
+                              controller.selectedServiceType.value = "REPOST";
+                              final success = await controller.saveRepost();
+                              if (success) {
+                                Get.back();
+                                Get.snackbar(
+                                  'Success',
+                                  'Repost listing saved successfully!',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                );
+                              }
                             },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: (selectedPlatform == null || selectedPostOption == null)
+                        backgroundColor: (selectedPlatform == null)
                             ? Colors.grey
                             : AppColors.redColor,
                         padding: const EdgeInsets.symmetric(vertical: 14),

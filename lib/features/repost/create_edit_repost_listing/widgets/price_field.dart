@@ -5,7 +5,8 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 
 class PriceField extends StatelessWidget {
   final TextEditingController controller;
-  const PriceField({super.key, required this.controller});
+  final bool? priceController;
+  const PriceField({super.key, required this.controller, this.priceController});
 
   @override
   Widget build(BuildContext context) {
@@ -17,15 +18,15 @@ class PriceField extends StatelessWidget {
         border: Border.all(color: const Color(0xFF2C2C2C), width: 1),
       ),
       child: TextField(
-        readOnly: true,
+        readOnly: priceController ?? true,
         controller: controller,
         style: getTextStyle(
           fontsize: 16,
           fontweight: FontWeight.w500,
           color: AppColors.primaryTextColor,
         ),
-        decoration: const InputDecoration(
-          prefixText: '\$ ',
+        decoration: InputDecoration(
+          prefixText: priceController ?? true ? '\$ ' : null,
           border: InputBorder.none,
           isDense: true,
           contentPadding: EdgeInsets.zero,

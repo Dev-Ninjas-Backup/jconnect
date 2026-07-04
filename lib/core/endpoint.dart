@@ -1,6 +1,6 @@
 class Endpoint {
   static const String baseUrl = 'https://api.theconnectapp.net';
-//  static const String baseUrl = "http://10.10.10.2:5050";
+  //  static const String baseUrl = "http://10.10.10.2:5050";
 
   // Auth endpoints
   static const String register = '$baseUrl/auth/register';
@@ -83,4 +83,6 @@ class Endpoint {
       "$baseUrl/private-chat/$id/is-declined?isDeclined=false&isAccepted=true";
   static String declineServiceRequest(String id) =>
       "$baseUrl/private-chat/$id/is-declined?isDeclined=true&isAccepted=false";
+  static String repostListing = "$baseUrl/repost-listings";
+  
 }

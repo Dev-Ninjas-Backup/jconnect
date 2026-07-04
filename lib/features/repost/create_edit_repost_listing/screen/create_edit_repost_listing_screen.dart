@@ -64,18 +64,8 @@ class CreateEditRepostListingScreen extends StatelessWidget {
                       SizedBox(height: 8.h),
                       DropdownField<String>(
                         value: c.selectedPlatform.value,
-                        items: c.platformOptions.keys.toList(),
+                        items: c.platformApiMap.keys.toList(),
                         onChanged: c.onPlatformChanged,
-                      ),
-                      SizedBox(height: 20.h),
-
-                      // Repost Type
-                      SectionLabel(label: 'Repost Type'),
-                      SizedBox(height: 8.h),
-                      DropdownField<String>(
-                        value: c.selectedRepostType.value,
-                        items: c.repostTypesForSelectedPlatform,
-                        onChanged: c.onRepostTypeChanged,
                       ),
                       SizedBox(height: 20.h),
 
@@ -94,6 +84,13 @@ class CreateEditRepostListingScreen extends StatelessWidget {
                         textAlign: TextAlign.left,
                       ),
                       SizedBox(height: 16.h),
+                      SectionLabel(label: 'Platform Follower Count'),
+                      SizedBox(height: 8.h),
+                      PriceField(
+                        controller: c.platformFollowerController,
+                        priceController: false,
+                      ),
+                      SizedBox(height: 16.h),
 
                       // Dollar program toggle
                       DollarProgramCard(
@@ -107,7 +104,7 @@ class CreateEditRepostListingScreen extends StatelessWidget {
                       SizedBox(height: 8.h),
                       DropdownField<String>(
                         value: c.selectedTurnaround.value,
-                        items: c.turnaroundOptions,
+                        items: c.turnaroundOptions.keys.toList(),
                         onChanged: c.onTurnaroundChanged,
                       ),
                       SizedBox(height: 20.h),
