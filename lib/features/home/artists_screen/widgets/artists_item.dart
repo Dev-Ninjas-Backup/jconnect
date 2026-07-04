@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/home/artists_details_screen/controller/artists_details_controller.dart';
 import 'package:jconnect/features/home/artists_screen/controller/artists_controller.dart';
-import 'package:jconnect/features/home/home_screen/controller/home_controller.dart';
 import 'package:jconnect/features/home/home_screen/model/artists_model.dart';
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/style/global_text_style.dart';
@@ -14,7 +13,6 @@ import '../../../../core/common/style/global_text_style.dart';
 class ArtistsItem extends StatelessWidget {
   final ArtistsController controller;
   ArtistsItem({required this.controller, super.key});
-  final HomeController homeController = Get.find<HomeController>();
   var artistsDetailsController = Get.put(
     ArtistsDetailsController(
       networkClient: NetworkClient(
@@ -61,12 +59,26 @@ class ArtistsItem extends StatelessWidget {
       else if (controller.selectArtistsItemIndex.value == 0) {
         currentList = controller.artistsItems;
       } else if (controller.selectArtistsItemIndex.value == 1) {
-        currentList = homeController.recentArtistsList;
+        currentList = controller.recentArtistsList;
       } else if (controller.selectArtistsItemIndex.value == 2) {
-        currentList = homeController.topRatedArtistsList;
+        currentList = controller.topRatedArtistsList;
       } else {
-        currentList = homeController.suggestedForYouList;
+        currentList = controller.suggestedForYouList;
       }
+
+      // Filter by category
+      final categoryType = controller.selectedCategoryIndex.value == 0
+          ? "SOCIAL_POST"
+          : controller.selectedCategoryIndex.value == 1
+              ? "REPOST"
+              : "SERVICE";
+
+      currentList = currentList.where((artist) {
+        if (categoryType == "REPOST" && artist.repostPrice > 0) {
+          return true;
+        }
+        return artist.services.any((s) => s.serviceType == categoryType);
+      }).toList();
 
       if (currentList.isEmpty) {
         return Center(

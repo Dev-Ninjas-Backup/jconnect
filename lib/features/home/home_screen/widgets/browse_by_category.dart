@@ -4,10 +4,8 @@ import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 
-import '../controller/home_controller.dart';
-
 class BrowseByCategorySection extends StatelessWidget {
-  final HomeController controller;
+  final dynamic controller;
 
   const BrowseByCategorySection({required this.controller, super.key});
 

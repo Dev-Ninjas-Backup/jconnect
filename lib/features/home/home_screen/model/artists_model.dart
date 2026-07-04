@@ -37,6 +37,8 @@ class ArtistsModel {
   final List<String> hashTags;
   final List<HighlightMedia> highlights;
   final double repostPrice;
+  final bool repostBadge;
+  final bool availability;
 
   const ArtistsModel({
     required this.id,
@@ -68,6 +70,8 @@ class ArtistsModel {
     required this.hashTags,
     required this.highlights,
     this.repostPrice = 0.0,
+    this.repostBadge = false,
+    this.availability = false,
   });
 
   factory ArtistsModel.fromJson(Map<String, dynamic> json) {
@@ -133,6 +137,8 @@ class ArtistsModel {
           .where((item) => item.url.trim().isNotEmpty)
           .toList(),
       repostPrice: repostPriceVal,
+      repostBadge: json['repostBadge'] ?? false,
+      availability: json['availability'] ?? false,
     );
   }
 }
