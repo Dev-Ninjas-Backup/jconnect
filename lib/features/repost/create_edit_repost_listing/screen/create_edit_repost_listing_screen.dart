@@ -56,9 +56,20 @@ class CreateEditRepostListingScreen extends StatelessWidget {
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
                 child: Obx(
-                  () => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                  () {
+                    if (c.isFetchingDetails.value) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 100),
+                          child: CircularProgressIndicator(
+                            color: Color(0xFFB71C1C),
+                          ),
+                        ),
+                      );
+                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                       // Platform
                       SectionLabel(label: 'Platform'),
                       SizedBox(height: 8.h),
@@ -121,8 +132,8 @@ class CreateEditRepostListingScreen extends StatelessWidget {
                       SizedBox(height: 20.h),
                       CustomPrimaryButton(buttonText: 'Save', onTap: c.onSave),
                     ],
-                  ),
-                ),
+                  );
+                }),
               ),
             ),
           ],

@@ -83,6 +83,7 @@ class Endpoint {
       "$baseUrl/private-chat/$id/is-declined?isDeclined=false&isAccepted=true";
   static String declineServiceRequest(String id) =>
       "$baseUrl/private-chat/$id/is-declined?isDeclined=true&isAccepted=false";
-  static String repostListing = "$baseUrl/repost-listings";
-  static String myRepostListing = "$baseUrl/repost-listings/my-listings";
+  static const String repostListing = "$baseUrl/repost-listings";
+  static const String myRepostListing = "$baseUrl/repost-listings/my-listings";
+  static String repostListingById(String id) => "$baseUrl/repost-listings/$id";
 }

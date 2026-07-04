@@ -134,21 +134,29 @@ class RepostListingsScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             final item = listings[index];
             final isActive = item.isActive;
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF121212),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFF2C2C2C),
-                  width: 1,
+            return GestureDetector(
+              onTap: () async {
+                await Get.toNamed(
+                  AppRoute.createEditRepostListingScreen,
+                  arguments: item.id,
+                );
+                controller.fetchListings();
+              },
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF121212),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFF2C2C2C),
+                    width: 1,
+                  ),
                 ),
-              ),
-              child: Row(
-                children: [
-                  Image.asset(
-                    item.platformIcon,
+                child: Row(
+                  children: [
+                    Image.asset(
+                      item.platformIcon,
                     width: 40,
                     height: 40,
                     errorBuilder: (context, error, stackTrace) => Image.asset(
@@ -238,8 +246,9 @@ class RepostListingsScreen extends StatelessWidget {
                   ),
                 ],
               ),
-            );
-          },
+            ),
+          );
+        },
         );
       },
     );
