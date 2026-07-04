@@ -24,4 +24,24 @@ class RepostListingService {
       throw "Something went wrong while fetching repost listings: $e";
     }
   }
+
+  Future<RepostListingModel> toggleActiveRepostListing(String id, bool isActive) async {
+    final String url = Endpoint.toggleActiveRepost(id);
+
+    try {
+      final response = await client.patchRequest(
+        url: url,
+        body: {'isActive': isActive},
+      );
+
+      if (response.isSuccess &&
+          (response.statusCode == 200 || response.statusCode == 201)) {
+        return RepostListingModel.fromJson(response.responseData!);
+      } else {
+        throw response.errorMessage ?? "Failed to toggle active status";
+      }
+    } catch (e) {
+      throw "Something went wrong while toggling active status: $e";
+    }
+  }
 }
