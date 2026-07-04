@@ -22,6 +22,9 @@ class ProfileController extends GetxController {
     totaldeals: 0,
     earnings: 0.0,
     rating: 0.0,
+    socialPost: 0,
+    service: 0,
+    repost: 0,
   ).obs;
 
   // RATES SECTION
@@ -75,6 +78,10 @@ class ProfileController extends GetxController {
         existing.earnings;
     final rating =
         (json['stats']?['avgRating'] as num?)?.toDouble() ?? existing.rating;
+    final socialPost =
+        json['counts']?['socialPost'] as int? ?? existing.socialPost;
+    final service = json['counts']?['service'] as int? ?? existing.service;
+    final repost = json['counts']?['repost'] as int? ?? existing.repost;
 
     // Extract social profiles - try multiple possible keys
     List<SocialProfileModel>? socialProfiles;
@@ -118,6 +125,9 @@ class ProfileController extends GetxController {
       totaldeals: totaldeals,
       earnings: earnings,
       rating: rating,
+      socialPost: socialPost,
+      service: service,
+      repost: repost,
       //fullName: fullName,
       phone: phone,
       socialProfiles: socialProfiles,

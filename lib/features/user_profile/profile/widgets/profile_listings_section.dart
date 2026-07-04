@@ -41,7 +41,7 @@ class ProfileListingsSection extends StatelessWidget {
             iconBgColor: const Color(0xFF2D1A1A),
             iconColor: AppColors.redColor,
             label: 'Services',
-            count: '5',
+            count: controller.user.value.service.toString(),
             onTap: () {
               Get.toNamed(AppRoute.addServiceScreen);
             },
@@ -53,7 +53,7 @@ class ProfileListingsSection extends StatelessWidget {
             iconBgColor: const Color(0xFF1A2D1A),
             iconColor: const Color(0xFF4CAF50),
             label: 'Social Posts',
-            count: '8',
+            count: controller.user.value.socialPost.toString(),
             onTap: () {
               Get.toNamed(AppRoute.addServiceScreen);
             },
@@ -65,7 +65,7 @@ class ProfileListingsSection extends StatelessWidget {
             iconBgColor: const Color(0xFF2D1A2A),
             iconColor: const Color(0xFFE91E63),
             label: 'Reposts',
-            count: '6',
+            count: controller.user.value.repost.toString(),
             isLast: true,
             onTap: () {
               Get.toNamed(AppRoute.repostListingsScreen);
