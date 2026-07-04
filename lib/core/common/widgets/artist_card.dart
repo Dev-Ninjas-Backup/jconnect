@@ -346,7 +346,7 @@ class ArtistCard extends StatelessWidget {
                 Get.to(RepostScreen());
               },
               buttonText: 'Reposts',
-              priceText: 66,
+              priceText: artist.repostPrice,
               iconData: Icons.repeat,
             ),
 
