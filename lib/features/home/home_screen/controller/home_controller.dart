@@ -43,8 +43,8 @@ class HomeController extends GetxController {
   void onInit() {
     //start deal list
     startDealListItem();
-    // artists list
-    fetchRecentArtists();
+    // artists list (initial category is SOCIAL_POST corresponding to index 0)
+    fetchRecentArtists(category: "SOCIAL_POST");
     //feature artists list
     fetchTopRatedArtistsMethod();
     //suggested for you
@@ -80,18 +80,23 @@ class HomeController extends GetxController {
 
   void selectCategory(int index) {
     selectedCategoryIndex.value = index;
+    String category = "";
+    if (index == 0) category = "SOCIAL_POST";
+    if (index == 1) category = "REPOST";
+    if (index == 2) category = "SERVICE";
+    fetchRecentArtists(category: category);
   }
 
-  Future<void> fetchRecentArtists() async {
+  Future<void> fetchRecentArtists({String? category}) async {
     isLoading(true);
     isError(false);
     errorMessage('');
 
     try {
-      final artists = await service.fetchRecentArtist();
+      final artists = await service.fetchRecentArtist(category: category);
 
       recentArtistsList.assignAll(artists);
-      debugPrint("Recent artists loaded: ${artists.length}");
+      debugPrint("Recent artists loaded: ${artists.length} for category: $category");
     } catch (e) {
       isError(true);
       errorMessage(e.toString());
@@ -158,8 +163,13 @@ class HomeController extends GetxController {
     try {
       isLoading(true);
 
+      String category = "";
+      if (selectedCategoryIndex.value == 0) category = "SOCIAL_POST";
+      if (selectedCategoryIndex.value == 1) category = "REPOST";
+      if (selectedCategoryIndex.value == 2) category = "SERVICE";
+
       await Future.wait([
-        fetchRecentArtists(),
+        fetchRecentArtists(category: category),
         fetchTopRatedArtistsMethod(),
         fetchSuggestedArtistsMethod(),
       ]);
