@@ -38,7 +38,16 @@ class ArtistCard extends StatelessWidget {
     final serviceDesc = firstService?.description.trim().isNotEmpty == true
         ? firstService!.description
         : "No service description available";
-    final servicePrice = (firstService?.price ?? 0).toDouble();
+
+    final firstSocialPost = artist.services.firstWhereOrNull(
+      (s) => s.serviceType == "SOCIAL_POST",
+    );
+    final socialPostPrice = (firstSocialPost?.price ?? 0).toDouble();
+
+    final firstServiceP = artist.services.firstWhereOrNull(
+      (s) => s.serviceType == "SERVICE",
+    );
+    final servicePrice = (firstServiceP?.price ?? 0).toDouble();
 
     // Rating
     final reviews = artist.reviewsReceived;
@@ -152,7 +161,9 @@ class ArtistCard extends StatelessWidget {
                                               errorBuilder: (_, __, ___) =>
                                                   Container(
                                                     color: Colors.white
-                                                        .withValues(alpha: 0.15),
+                                                        .withValues(
+                                                          alpha: 0.15,
+                                                        ),
                                                     child: Icon(
                                                       Icons.broken_image,
                                                       size: 18.sp,
@@ -354,7 +365,7 @@ class ArtistCard extends StatelessWidget {
                 Get.to(() => ArtistsSocialPostList());
               },
               buttonText: 'Social P.',
-              priceText: 6027577443554120.00,
+              priceText: socialPostPrice,
               iconData: Icons.campaign,
               iConColor: Colors.blueAccent.withValues(alpha: .910),
             ),
@@ -552,15 +563,15 @@ class _HighlightVideoPreviewState extends State<_HighlightVideoPreview> {
                     ),
                   )
                 : !_isReady
-                    ? const Center(
-                        child: CircularProgressIndicator(color: Colors.white),
-                      )
-                    : Center(
-                        child: AspectRatio(
-                          aspectRatio: _controller.value.aspectRatio,
-                          child: VideoPlayer(_controller),
-                        ),
-                      ),
+                ? const Center(
+                    child: CircularProgressIndicator(color: Colors.white),
+                  )
+                : Center(
+                    child: AspectRatio(
+                      aspectRatio: _controller.value.aspectRatio,
+                      child: VideoPlayer(_controller),
+                    ),
+                  ),
           ),
         ),
         if (_isReady)

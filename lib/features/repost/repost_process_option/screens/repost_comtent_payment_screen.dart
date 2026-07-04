@@ -15,75 +15,78 @@ class RepostContentPaymentScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
       body: SafeArea(
-        child: Column(
-          children: [
-            CustomAppBar2(
-              title: 'Content & Payment',
-              leadingIconUrl: Iconpath.backIcon,
-              onLeadingTap: () {
-                Get.back();
-              },
-            ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: [
+              CustomAppBar2(
+                title: 'Content & Payment',
+                leadingIconUrl: Iconpath.backIcon,
+                onLeadingTap: () {
+                  Get.back();
+                },
+              ),
 
-            Expanded(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Share Link",
-                        style: getTextStyle(
-                          color: AppColors.primaryTextColor,
-                          fontsize: 14,
+              Expanded(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Share Link",
+                          style: getTextStyle(
+                            color: AppColors.primaryTextColor,
+                            fontsize: 14,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      CustomTextfield(
-                        hintText: "Enter your Share Link",
-                        controller: TextEditingController(),
-                      ),
-                      const SizedBox(height: 20),
+                        const SizedBox(height: 6),
+                        CustomTextfield(
+                          hintText: "Enter your Share Link",
+                          controller: TextEditingController(),
+                        ),
+                        const SizedBox(height: 20),
 
-                      Center(
-                        child: GestureDetector(
-                          onTap: () {
-                            Get.to(SetCompletionTimeScreen());
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 18.w,
-                              vertical: 8.h,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.r),
-                              gradient: const LinearGradient(
-                                colors: [
-                                  Color(0xFF60000F),
-                                  Color(0xFFBB0224),
-                                  Color(0xFF60000F),
-                                ],
+                        Center(
+                          child: GestureDetector(
+                            onTap: () {
+                              Get.to(SetCompletionTimeScreen());
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 18.w,
+                                vertical: 8.h,
                               ),
-                            ),
-                            child: Text(
-                              'Pay Now \$1',
-                              style: getTextStyle(
-                                fontsize: 14,
-                                fontweight: FontWeight.w700,
-                                color: Colors.white,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10.r),
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF60000F),
+                                    Color(0xFFBB0224),
+                                    Color(0xFF60000F),
+                                  ],
+                                ),
+                              ),
+                              child: Text(
+                                'Pay Now \$1',
+                                style: getTextStyle(
+                                  fontsize: 14,
+                                  fontweight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
