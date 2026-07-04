@@ -86,4 +86,5 @@ class Endpoint {
   static const String repostListing = "$baseUrl/repost-listings";
   static const String myRepostListing = "$baseUrl/repost-listings/my-listings";
   static String repostListingById(String id) => "$baseUrl/repost-listings/$id";
+  static const String repostSpotlight = "$baseUrl/repost-listings/spotlight";
 }

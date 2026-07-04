@@ -8,6 +8,7 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/features/home/artists_screen/controller/artists_controller.dart';
 import 'package:jconnect/features/home/artists_screen/widgets/artists_item.dart';
+import 'package:jconnect/features/home/home_screen/widgets/browse_by_category.dart';
 import '../widgets/artists_item_list_tab.dart';
 
 class ArtistsScreen extends StatelessWidget {
@@ -19,7 +20,7 @@ class ArtistsScreen extends StatelessWidget {
       backgroundColor: AppColors.backGroundColor,
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 74.h),
+          padding: EdgeInsets.only(left: 7.w, right: 7.w, top: 74.h),
           child: Column(
             children: [
               CustomAppBar2(
@@ -49,6 +50,8 @@ class ArtistsScreen extends StatelessWidget {
                   }
                 },
               ),
+              SizedBox(height: 20.h),
+              BrowseByCategorySection(controller: controller),
               SizedBox(height: 30.h),
               ArtistsItemListTab(controller: controller),
               SizedBox(height: 40.h),

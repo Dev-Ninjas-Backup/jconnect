@@ -24,7 +24,7 @@ class SearchScreen extends StatelessWidget {
           init: ArtistsController(), // created ONCE
           builder: (controller) {
             return Padding(
-              padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 74.h),
+              padding: EdgeInsets.only(left: 7.w, right: 7.w, top: 74.h),
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Column(

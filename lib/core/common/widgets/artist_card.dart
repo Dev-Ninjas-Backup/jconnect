@@ -202,62 +202,64 @@ class ArtistCard extends StatelessWidget {
                       ),
                     ),
 
-                  Positioned(
-                    left: 8.w,
-                    top: 12.h,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 6.w,
-                        vertical: 2.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withValues(alpha: 0.70),
-                        borderRadius: BorderRadius.circular(6.r),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.local_fire_department,
-                            size: 12.sp,
-                            color: AppColors.primaryTextColor,
-                          ),
-                          SizedBox(width: 2.w),
-                          Text(
-                            "\$1 Repost",
-                            style: getTextStyle(
-                              fontsize: sp(10),
-                              color: Colors.white,
-                              fontweight: FontWeight.w500,
+                  if (artist.repostBadge)
+                    Positioned(
+                      left: 8.w,
+                      top: 12.h,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 6.w,
+                          vertical: 2.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.70),
+                          borderRadius: BorderRadius.circular(6.r),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.local_fire_department,
+                              size: 12.sp,
+                              color: AppColors.primaryTextColor,
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  Positioned(
-                    left: 8.w,
-                    top: 35.h,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 6.w,
-                        vertical: 2.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.yellow.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(6.r),
-                      ),
-                      child: Text(
-                        "Available",
-                        style: getTextStyle(
-                          fontsize: sp(10),
-                          color: Colors.white,
-                          fontweight: FontWeight.w500,
+                            SizedBox(width: 2.w),
+                            Text(
+                              "\$1 Repost",
+                              style: getTextStyle(
+                                fontsize: sp(10),
+                                color: Colors.white,
+                                fontweight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ),
+
+                  if (artist.availability)
+                    Positioned(
+                      left: 8.w,
+                      top: artist.repostBadge ? 35.h : 12.h,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 6.w,
+                          vertical: 2.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.yellow.withValues(alpha: 0.8),
+                          borderRadius: BorderRadius.circular(6.r),
+                        ),
+                        child: Text(
+                          "Available",
+                          style: getTextStyle(
+                            fontsize: sp(10),
+                            color: Colors.white,
+                            fontweight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

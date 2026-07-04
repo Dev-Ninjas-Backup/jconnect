@@ -40,10 +40,100 @@ class ArtistsController extends GetxController {
     'Top Rated',
     'Suggested',
   ].obs;
+
+  final selectedCategoryIndex = 0.obs;
+  var recentArtistsList = <ArtistsModel>[].obs;
+  final topRatedArtistsList = <ArtistsModel>[].obs;
+  final suggestedForYouList = <ArtistsModel>[].obs;
+
   @override
   void onInit() {
     fetchAllArtistsMethod();
+    fetchRecentArtists(category: "SOCIAL_POST");
+    fetchTopRatedArtistsMethod();
+    fetchSuggestedArtistsMethod();
     super.onInit();
+  }
+
+  void selectCategory(int index) {
+    selectedCategoryIndex.value = index;
+    String category = "";
+    if (index == 0) category = "SOCIAL_POST";
+    if (index == 1) category = "REPOST";
+    if (index == 2) category = "SERVICE";
+    fetchRecentArtists(category: category);
+  }
+
+  Future<void> fetchRecentArtists({String? category}) async {
+    isLoading(true);
+    isError(false);
+    errorMessage('');
+
+    try {
+      final artists = await service.fetchRecentArtist(category: category);
+
+      recentArtistsList.assignAll(artists);
+      debugPrint("Recent artists loaded: ${artists.length} for category: $category");
+    } catch (e) {
+      isError(true);
+      errorMessage(e.toString());
+
+      debugPrint("Error in ArtistsController: $e");
+
+      EasyLoading.showError(
+        "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
+      );
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  Future<void> fetchTopRatedArtistsMethod() async {
+    isLoading(true);
+    isError(false);
+    errorMessage('');
+
+    try {
+      final artists = await service.fetchTopRatedArtist();
+
+      topRatedArtistsList.assignAll(artists);
+      debugPrint("Toprated artists loaded: ${artists.length}");
+    } catch (e) {
+      isError(true);
+      errorMessage(e.toString());
+
+      debugPrint("Error in ArtistsController: $e");
+
+      EasyLoading.showError(
+        "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
+      );
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  Future<void> fetchSuggestedArtistsMethod() async {
+    isLoading(true);
+    isError(false);
+    errorMessage('');
+
+    try {
+      final artists = await service.fetchSuggestedArtist();
+
+      suggestedForYouList.assignAll(artists);
+      debugPrint("Suggested artists loaded: ${artists.length}");
+    } catch (e) {
+      isError(true);
+      errorMessage(e.toString());
+
+      debugPrint("Error in ArtistsController: $e");
+
+      EasyLoading.showError(
+        "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
+      );
+    } finally {
+      isLoading(false);
+    }
   }
 
   Future<void> fetchAllArtistsMethod() async {
