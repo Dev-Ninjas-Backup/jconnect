@@ -36,6 +36,7 @@ class ArtistsModel {
 
   final List<String> hashTags;
   final List<HighlightMedia> highlights;
+  final double repostPrice;
 
   const ArtistsModel({
     required this.id,
@@ -66,10 +67,29 @@ class ArtistsModel {
     required this.followerCount,
     required this.hashTags,
     required this.highlights,
+    this.repostPrice = 0.0,
   });
 
   factory ArtistsModel.fromJson(Map<String, dynamic> json) {
     DateTime? parseDate(String? v) => v == null ? null : DateTime.tryParse(v);
+
+    final servicesList = (json['services'] as List? ?? [])
+        .map((e) => ServiceModel.fromJson(e))
+        .toList();
+
+    final pricing = json['pricing'] as Map<String, dynamic>?;
+    final repostList = json['repostListings'] as List? ?? [];
+    double repostPriceVal = 0.0;
+    if (pricing != null && pricing['repost'] != null) {
+      repostPriceVal = (pricing['repost'] ?? 0.0).toDouble();
+    } else if (repostList.isNotEmpty) {
+      repostPriceVal = (repostList.first['price'] ?? 0.0).toDouble();
+    } else {
+      final repostServices = servicesList.where((s) => s.serviceType == "REPOST");
+      if (repostServices.isNotEmpty) {
+        repostPriceVal = repostServices.first.price;
+      }
+    }
 
     return ArtistsModel(
       id: json['id'],
@@ -93,9 +113,7 @@ class ArtistsModel {
       role: json['role'] ?? '',
       validationType: json['validation_type'] ?? '',
       customerIdStripe: json['customerIdStripe'],
-      services: (json['services'] as List? ?? [])
-          .map((e) => ServiceModel.fromJson(e))
-          .toList(),
+      services: servicesList,
       profile: json['profile'] != null
           ? ProfileModel.fromJson(json['profile'])
           : null,
@@ -114,6 +132,7 @@ class ArtistsModel {
           .map((item) => HighlightMedia.fromJson(item))
           .where((item) => item.url.trim().isNotEmpty)
           .toList(),
+      repostPrice: repostPriceVal,
     );
   }
 }
