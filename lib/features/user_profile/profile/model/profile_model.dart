@@ -3,14 +3,17 @@ class ProfileModel {
   final String imageUrl;
   final String shortbio;
   final String location;
-  final List<String> hashtags; 
+  final List<String> hashtags;
   final String username;
   final int totaldeals;
   final double earnings;
   final double rating;
+  final int socialPost;
+  final int service;
+  final int repost;
   final String? fullName;
   final String? phone;
-  final String?email;
+  final String? email;
   final List<SocialProfileModel>? socialProfiles;
   final List<String>? highlights;
 
@@ -24,13 +27,15 @@ class ProfileModel {
     required this.totaldeals,
     required this.earnings,
     required this.rating,
+    required this.service,
+    required this.socialPost,
+    required this.repost,
     this.fullName,
     this.phone,
     this.email,
     this.socialProfiles,
     this.highlights,
   });
-  
 }
 
 class SocialLinkModel {
