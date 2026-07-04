@@ -6,8 +6,11 @@ class HomeService {
   final NetworkClient client;
   HomeService({required this.client});
 
-  Future<List<ArtistsModel>> fetchRecentArtist() async {
-    const String url = Endpoint.recentArtis;
+  Future<List<ArtistsModel>> fetchRecentArtist({String? category}) async {
+    String url = Endpoint.recentArtis;
+    if (category != null && category.isNotEmpty) {
+      url = "$url&category=$category";
+    }
 
     try {
       final response = await client.getRequest(url: url);

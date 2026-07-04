@@ -54,7 +54,10 @@ class ArtistsYouKnow extends StatelessWidget {
           ),
         );
       }
-      final rowCount = 2;
+
+final length = controller.recentArtistsList.length;
+final rowCount = length >= 4 ? 2 : 1;
+     // final rowCount = 2;
 
       // final rowCount = (controller.recentArtistsList.length + 1) ~/ 2;
 
