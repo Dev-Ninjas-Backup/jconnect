@@ -5,6 +5,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/repost/repost_listings/model/repost_listing_model.dart';
 import 'package:jconnect/features/repost/repost_listings/service/repost_listing_service.dart';
+import 'package:jconnect/features/user_profile/profile/controller/profile_controller.dart';
 
 class RepostListingController extends GetxController
     with GetSingleTickerProviderStateMixin {
@@ -21,7 +22,8 @@ class RepostListingController extends GetxController
   );
 
   final RxList<RepostListingModel> activeListings = <RepostListingModel>[].obs;
-  final RxList<RepostListingModel> inactiveListings = <RepostListingModel>[].obs;
+  final RxList<RepostListingModel> inactiveListings =
+      <RepostListingModel>[].obs;
 
   final RxBool isLoading = false.obs;
   final RxBool isError = false.obs;
@@ -59,8 +61,13 @@ class RepostListingController extends GetxController
 
   Future<void> toggleStatus(RepostListingModel item) async {
     try {
-      EasyLoading.show(status: item.isActive ? 'Deactivating...' : 'Activating...');
-      final updatedItem = await service.toggleActiveRepostListing(item.id, !item.isActive);
+      EasyLoading.show(
+        status: item.isActive ? 'Deactivating...' : 'Activating...',
+      );
+      final updatedItem = await service.toggleActiveRepostListing(
+        item.id,
+        !item.isActive,
+      );
 
       if (item.isActive) {
         activeListings.remove(item);
@@ -73,15 +80,50 @@ class RepostListingController extends GetxController
       EasyLoading.dismiss();
       Get.snackbar(
         'Success',
-        updatedItem.isActive ? 'Listing activated successfully!' : 'Listing deactivated successfully!',
+        updatedItem.isActive
+            ? 'Listing activated successfully!'
+            : 'Listing deactivated successfully!',
         snackPosition: SnackPosition.BOTTOM,
       );
+      if (Get.isRegistered<ProfileController>()) {
+        Get.find<ProfileController>().fetchProfile();
+      }
     } catch (e) {
       EasyLoading.dismiss();
       debugPrint('Error toggling active status: $e');
       Get.snackbar(
         'Error',
         'Failed to toggle active status: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  Future<void> deleteRepostListing(String id) async {
+    try {
+      EasyLoading.show(status: 'Deleting listing...');
+      await service.deleteRepostListing(id);
+
+      // Refresh listings
+      await fetchListings();
+
+      // Refresh profile controller
+      if (Get.isRegistered<ProfileController>()) {
+        Get.find<ProfileController>().fetchProfile();
+      }
+
+      EasyLoading.dismiss();
+      Get.snackbar(
+        'Success',
+        'Listing deleted successfully!',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      EasyLoading.dismiss();
+      debugPrint('Error deleting repost listing: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to delete listing: $e',
         snackPosition: SnackPosition.BOTTOM,
       );
     }

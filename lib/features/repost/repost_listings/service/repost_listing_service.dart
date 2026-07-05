@@ -44,4 +44,20 @@ class RepostListingService {
       throw "Something went wrong while toggling active status: $e";
     }
   }
+
+  Future<void> deleteRepostListing(String id) async {
+    final String url = Endpoint.repostListingById(id);
+
+    try {
+      final response = await client.deleteRequest(url);
+
+      if (response.isSuccess) {
+        return;
+      } else {
+        throw response.errorMessage ?? "Failed to delete repost listing";
+      }
+    } catch (e) {
+      throw "Something went wrong while deleting repost listing: $e";
+    }
+  }
 }

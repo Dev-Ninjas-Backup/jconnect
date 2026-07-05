@@ -21,57 +21,65 @@ class ProfileListingsSection extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade800),
       ),
       padding: EdgeInsets.all(16.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header row with "My Listings" and "View All"
-          Text(
-            'My Listings',
-            style: getTextStyle(
-              color: AppColors.primaryTextColor,
-              fontweight: FontWeight.bold,
-              fontsize: 16,
+      child: Obx(
+        () => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header row with "My Listings" and "View All"
+            Text(
+              'My Listings',
+              style: getTextStyle(
+                color: AppColors.primaryTextColor,
+                fontweight: FontWeight.bold,
+                fontsize: 16,
+              ),
             ),
-          ),
-          SizedBox(height: 12.h),
+            SizedBox(height: 12.h),
 
-          // Services item
-          _buildListingItem(
-            icon: Icons.design_services_rounded,
-            iconBgColor: const Color(0xFF2D1A1A),
-            iconColor: AppColors.redColor,
-            label: 'Services',
-            count: controller.user.value.service.toString(),
-            onTap: () {
-              Get.toNamed(AppRoute.addServiceScreen);
-            },
-          ),
+            // Services item
+            _buildListingItem(
+              icon: Icons.design_services_rounded,
+              iconBgColor: const Color(0xFF2D1A1A),
+              iconColor: AppColors.redColor,
+              label: 'Services',
+              count: controller.user.value.service.toString(),
+              onTap: () {
+                Get.toNamed(
+                  AppRoute.addServiceScreen,
+                  arguments: {'serviceType': 'SERVICE'},
+                );
+              },
+            ),
 
-          // Social Posts item
-          _buildListingItem(
-            icon: Icons.grid_view_rounded,
-            iconBgColor: const Color(0xFF1A2D1A),
-            iconColor: const Color(0xFF4CAF50),
-            label: 'Social Posts',
-            count: controller.user.value.socialPost.toString(),
-            onTap: () {
-              Get.toNamed(AppRoute.addServiceScreen);
-            },
-          ),
+            // Social Posts item
+            _buildListingItem(
+              icon: Icons.grid_view_rounded,
+              iconBgColor: const Color(0xFF1A2D1A),
+              iconColor: const Color(0xFF4CAF50),
+              label: 'Social Posts',
+              count: controller.user.value.socialPost.toString(),
+              onTap: () {
+                Get.toNamed(
+                  AppRoute.addServiceScreen,
+                  arguments: {'serviceType': 'SOCIAL_POST'},
+                );
+              },
+            ),
 
-          // Reposts item
-          _buildListingItem(
-            icon: Icons.repeat_rounded,
-            iconBgColor: const Color(0xFF2D1A2A),
-            iconColor: const Color(0xFFE91E63),
-            label: 'Reposts',
-            count: controller.user.value.repost.toString(),
-            isLast: true,
-            onTap: () {
-              Get.toNamed(AppRoute.repostListingsScreen);
-            },
-          ),
-        ],
+            // Reposts item
+            _buildListingItem(
+              icon: Icons.repeat_rounded,
+              iconBgColor: const Color(0xFF2D1A2A),
+              iconColor: const Color(0xFFE91E63),
+              label: 'Reposts',
+              count: controller.user.value.repost.toString(),
+              isLast: true,
+              onTap: () {
+                Get.toNamed(AppRoute.repostListingsScreen);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -16,7 +16,7 @@ void showAddRepostSheet(AddServiceController controller) {
   String selectedTurnaround = 'TWENTY_FOUR_HOURS';
 
   final Map<String, String> turnaroundOptions = {
-    'Within 20 Minutes': "TWENTY_MINUTES",
+    'Within 30 Minutes': "THIRTY_MIN",
     'Within 1 Hour': "ONE_HOUR",
     'Within 2 Hours': "TWO_HOURS",
     'Within 6 Hours': "SIX_HOURS",
