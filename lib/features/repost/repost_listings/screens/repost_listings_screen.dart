@@ -147,6 +147,7 @@ class RepostListingsScreen extends StatelessWidget {
               );
               controller.fetchListings();
             },
+            onLongPress: () => _showDeleteDialog(context, controller, item),
             child: RepostListingCard(
               item: item,
               isActive: isActive,
@@ -156,5 +157,60 @@ class RepostListingsScreen extends StatelessWidget {
         },
       );
     });
+  }
+
+  void _showDeleteDialog(
+    BuildContext context,
+    RepostListingController controller,
+    RepostListingModel item,
+  ) {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: Text(
+          'Delete Listing',
+          style: getTextStyle(
+            color: Colors.white,
+            fontsize: 18,
+            fontweight: FontWeight.w600,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to delete this repost listing? This action cannot be undone.',
+          style: getTextStyle(
+            color: Colors.grey,
+            fontsize: 14,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              'Cancel',
+              style: getTextStyle(
+                color: Colors.grey,
+                fontsize: 14,
+                fontweight: FontWeight.w500,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              controller.deleteRepostListing(item.id);
+            },
+            child: Text(
+              'Delete',
+              style: getTextStyle(
+                color: const Color(0xFFB71C1C),
+                fontsize: 14,
+                fontweight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
