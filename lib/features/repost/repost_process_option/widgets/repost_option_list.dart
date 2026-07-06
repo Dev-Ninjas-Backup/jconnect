@@ -82,7 +82,12 @@ class RepostOptionList extends StatelessWidget {
                       SizedBox(width: 8.w),
                       GestureDetector(
                         onTap: () {
-                          Get.to(RepostContentPaymentScreen());
+                          controller.selectOption(index);
+                          Get.to(
+                            RepostContentPaymentScreen(
+                              listingId: option.listingId,
+                            ),
+                          );
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(
