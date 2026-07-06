@@ -14,6 +14,13 @@ class RepostScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final artistId = Get.arguments as String?;
+      if (artistId != null) {
+        controller.fetchRepostListings(artistId);
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
       body: SafeArea(

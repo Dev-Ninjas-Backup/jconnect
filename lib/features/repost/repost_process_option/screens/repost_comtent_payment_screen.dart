@@ -6,12 +6,16 @@ import 'package:jconnect/core/common/constants/custom_textfield.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
+import 'package:jconnect/features/repost/repost_process_option/controller/repost_process_option_controller.dart';
 import 'package:jconnect/features/repost/repost_process_option/screens/set_complation_time.dart';
 
 class RepostContentPaymentScreen extends StatelessWidget {
   const RepostContentPaymentScreen({super.key});
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<RepostProcessOptionController>();
+    final selectedOption = controller.currentPlatform.repostOptions[controller.selectedOptionIndex.value];
+
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
       body: SafeArea(
@@ -70,7 +74,7 @@ class RepostContentPaymentScreen extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                'Pay Now \$1',
+                                'Pay Now ${selectedOption.price}',
                                 style: getTextStyle(
                                   fontsize: 14,
                                   fontweight: FontWeight.w700,

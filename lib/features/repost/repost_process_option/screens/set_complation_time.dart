@@ -14,7 +14,8 @@ class SetCompletionTimeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(RepostProcessOptionController());
+    final controller = Get.find<RepostProcessOptionController>();
+    final selectedOption = controller.currentPlatform.repostOptions[controller.selectedOptionIndex.value];
 
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
@@ -108,7 +109,7 @@ class SetCompletionTimeScreen extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '\$1.00',
+                            selectedOption.price,
                             style: getTextStyle(
                               fontsize: 14,
                               fontweight: FontWeight.w700,

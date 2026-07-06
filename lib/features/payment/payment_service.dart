@@ -64,6 +64,7 @@ class PaymentService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+      print(data);
       return PaymentMethodModel.fromJson(data);
     } else {
       throw Exception('Failed to load payment method');
