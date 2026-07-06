@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:jconnect/routes/approute.dart';
+import 'package:jconnect/features/repost/repost_process_option/controller/repost_process_option_controller.dart';
+import 'package:jconnect/features/repost/repost_process_option/screens/repost_comtent_payment_screen.dart';
+import 'package:jconnect/features/repost/repost_start/model/repost_model.dart';
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/style/global_text_style.dart';
 import '../controller/artists_details_controller.dart';
 
-/// Reposts tab — shows social posts with "Buy Repost" buttons.
-/// This mirrors the SocialPost widget but uses repost-specific labels
-/// matching the Figma design.
 class RepostsSection extends StatelessWidget {
   const RepostsSection({super.key, required this.controller});
 
@@ -47,7 +46,7 @@ class RepostsSection extends StatelessWidget {
           padding: EdgeInsets.zero,
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
-          itemCount: visiblePosts.length > 3 ? 3 : visiblePosts.length,
+          itemCount: visiblePosts.length,
           itemBuilder: (_, index) {
             var item = visiblePosts[index];
             return Container(
@@ -61,57 +60,46 @@ class RepostsSection extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Social platform icon with small + badge
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        width: 48.w,
-                        height: 48.w,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.grey.shade700,
-                            width: 1,
-                          ),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(24.r),
-                          child: Image.network(
-                            item.socialLogoForSocialService.toString(),
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Icon(
+                  Container(
+                    width: 48.w,
+                    height: 48.w,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey.shade700, width: 1),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24.r),
+                      child:
+                          item.socialLogoForSocialService != null &&
+                              item.socialLogoForSocialService!.startsWith(
+                                'http',
+                              )
+                          ? Image.network(
+                              item.socialLogoForSocialService!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Icon(
+                                Icons.repeat_rounded,
+                                size: 24.sp,
+                                color: Colors.white54,
+                              ),
+                            )
+                          : item.socialLogoForSocialService != null &&
+                                item.socialLogoForSocialService!.isNotEmpty
+                          ? Image.asset(
+                              item.socialLogoForSocialService!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Icon(
+                                Icons.repeat_rounded,
+                                size: 24.sp,
+                                color: Colors.white54,
+                              ),
+                            )
+                          : Icon(
                               Icons.repeat_rounded,
                               size: 24.sp,
                               color: Colors.white54,
                             ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: -2,
-                        right: -2,
-                        child: Container(
-                          width: 18.w,
-                          height: 18.w,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.backGroundColor,
-                            border: Border.all(
-                              color: Colors.grey.shade700,
-                              width: 1,
-                            ),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Icons.add,
-                              size: 12.sp,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                   SizedBox(width: 12.w),
 
@@ -233,9 +221,40 @@ class RepostsSection extends StatelessWidget {
                             ? const SizedBox()
                             : GestureDetector(
                                 onTap: () {
-                                  Get.toNamed(
-                                    AppRoute.getRequestServiceScreen(),
-                                    arguments: item,
+                                  final option = RepostOption(
+                                    title: item.serviceName,
+                                    price: '\$${item.price.toStringAsFixed(2)}',
+                                    badge: 'Active',
+                                    listingId: item.id,
+                                    followerCount: 0,
+                                    description: item.description,
+                                    defaultTurnaround: 'TWENTY_FOUR_HOURS',
+                                    rawPlatform: item.serviceName
+                                        .toUpperCase()
+                                        .replaceAll(' REPOST', '')
+                                        .replaceAll(' ', '_'),
+                                  );
+
+                                  final platform = RepostPlatform(
+                                    name: item.serviceName.split(' ').first,
+                                    iconPath: item.socialLogoForSocialService,
+                                    heroTitle: item.serviceName,
+                                    heroSubtitle: item.description,
+                                    visualTag: item.serviceName
+                                        .split(' ')
+                                        .first,
+                                    repostTypes: [item.serviceName],
+                                    repostOptions: [option],
+                                  );
+
+                                  final procController = Get.put(
+                                    RepostProcessOptionController(),
+                                  );
+                                  procController.platform.value = platform;
+                                  procController.selectedOptionIndex.value = 0;
+
+                                  Get.to(
+                                    () => const RepostContentPaymentScreen(),
                                   );
                                 },
                                 child: Container(
@@ -273,30 +292,6 @@ class RepostsSection extends StatelessWidget {
             );
           },
         ),
-
-        // View all repost options link
-        if (visiblePosts.length > 3)
-          Padding(
-            padding: EdgeInsets.only(top: 8.h),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'View all repost options (${visiblePosts.length})',
-                  style: getTextStyle(
-                    fontsize: 13,
-                    fontweight: FontWeight.w500,
-                    color: AppColors.redColor,
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: AppColors.redColor,
-                  size: 14.sp,
-                ),
-              ],
-            ),
-          ),
       ],
     );
   }
