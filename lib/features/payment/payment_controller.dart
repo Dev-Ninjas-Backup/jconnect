@@ -95,11 +95,9 @@ class PaymentController extends GetxController {
     try {
       isLoading.value = true;
 
-      final paymentMethodId = await Navigator.of(context).push<String?>(
-        MaterialPageRoute(
-          builder: (_) => const AddCardScreen(),
-        ),
-      );
+      final paymentMethodId = await Navigator.of(
+        context,
+      ).push<String?>(MaterialPageRoute(builder: (_) => const AddCardScreen()));
 
       if (paymentMethodId == null) return;
 
@@ -196,10 +194,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
                 const SizedBox(height: 8),
                 Text(
                   'Your payment information is secure and encrypted',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white70,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.white70),
                 ),
                 const SizedBox(height: 32),
                 _CardEntrySheet(
@@ -236,20 +231,18 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
       children: [
         CardFormField(
           style: CardFormStyle(
-         // borderColor: Colors.blueAccent,
-         //   borderWidth: 2,
+            // borderColor: Colors.blueAccent,
+            //   borderWidth: 2,
             backgroundColor: Colors.blueGrey.shade900,
             textColor: Colors.white,
             placeholderColor: Colors.grey.shade400,
             borderRadius: 12,
             cursorColor: Theme.of(context).primaryColor,
             textErrorColor: Colors.red,
-            
           ),
           onCardChanged: (card) {
             setState(() => _card = card);
           },
-          
         ),
         const SizedBox(height: 32),
         Padding(

@@ -345,7 +345,7 @@ class ArtistCard extends StatelessWidget {
 
             CustomBuyButton(
               onTap: () {
-                Get.to(RepostScreen());
+                Get.to(RepostScreen(), arguments: artist.id);
               },
               buttonText: 'Reposts',
               priceText: artist.repostPrice,

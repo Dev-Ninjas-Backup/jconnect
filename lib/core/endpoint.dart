@@ -89,4 +89,7 @@ class Endpoint {
   static const String repostSpotlight = "$baseUrl/repost-listings/spotlight";
   static String toggleActiveRepost(String id) =>
       "$baseUrl/repost-listings/$id/toggle-active";
+  static const String repostPlatforms = "$baseUrl/repost-listings/platforms";
+  static String getReposListingByArtist(String artistId) =>
+      "$baseUrl/repost-listings/artist/$artistId";
 }

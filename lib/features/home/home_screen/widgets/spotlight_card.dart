@@ -150,7 +150,7 @@ class SpotlightCard extends StatelessWidget {
 
           GestureDetector(
             onTap: () {
-              Get.to(RepostScreen());
+              Get.to(RepostScreen(), arguments: item.sellerId);
             },
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
