@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/features/add_services/repository/add_service_repository.dart';
+import 'package:jconnect/features/user_profile/profile/controller/profile_controller.dart';
 
 class AddServiceController extends GetxController {
   final serviceNameController = TextEditingController();
@@ -147,6 +148,9 @@ class AddServiceController extends GetxController {
 
       EasyLoading.dismiss();
       clearForm();
+      if (Get.isRegistered<ProfileController>()) {
+        Get.find<ProfileController>().fetchProfile();
+      }
     } catch (e) {
       EasyLoading.dismiss();
       print('Error saving service: $e');
@@ -209,6 +213,9 @@ class AddServiceController extends GetxController {
 
       print("repost listing save response: $response");
       EasyLoading.dismiss();
+      if (Get.isRegistered<ProfileController>()) {
+        Get.find<ProfileController>().fetchProfile();
+      }
       clearForm();
       return true;
     } catch (e) {

@@ -5,7 +5,7 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/features/add_services/controller/add_services_controller.dart';
 import 'package:jconnect/features/add_services/widget/service_card_widget.dart';
-import 'package:jconnect/features/add_services/widget/service_form_widget.dart';
+//import 'package:jconnect/features/add_services/widget/service_form_widget.dart';
 
 class AddServiceScreen extends StatelessWidget {
   const AddServiceScreen({super.key});
@@ -20,20 +20,43 @@ class AddServiceScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Obx(() {
-            // Build a list of indices for services that are NOT custom
+            // Extract serviceType parameter from arguments
+            final Map<dynamic, dynamic>? args = Get.arguments as Map<dynamic, dynamic>?;
+            final String? serviceTypeArg = args?['serviceType'];
+
+            // Build a list of indices for services that are NOT custom and match the serviceTypeArg
             final visibleIndices = List<int>.generate(
               controller.services.length,
               (i) => i,
-            ).where((i) => controller.services[i]['isCustom'] != true).toList();
+            ).where((i) {
+              final svc = controller.services[i];
+              if (svc['isCustom'] == true) return false;
+              if (serviceTypeArg == null) return true;
 
-            final hasVisibleServices = visibleIndices.isNotEmpty;
+              final String? serviceType = svc['serviceType'];
+              final socialPlatforms = SocialServiceType.values.map((e) => e.name).toList();
+              final isSocial = serviceType == 'SOCIAL_POST' ||
+                  (serviceType != null && socialPlatforms.contains(serviceType));
+
+              if (serviceTypeArg == 'SOCIAL_POST') {
+                return isSocial;
+              } else if (serviceTypeArg == 'SERVICE') {
+                return !isSocial;
+              }
+              return true;
+            }).toList();
+
+            final String pageTitle = serviceTypeArg == 'SOCIAL_POST' ? "MY SOCIAL POSTS" : "MY SERVICES";
+            final String pageSubtitle = serviceTypeArg == 'SOCIAL_POST'
+                ? "Add your social posts & get discovered by artists and buyers looking for promotion"
+                : "Add your creative services & get discovered by artists and buyers looking for talent like yours";
 
             return SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomAppBar2(
-                    title: "MY SERVICES",
+                    title: pageTitle,
                     leadingIconUrl: Iconpath.backIcon,
                     onLeadingTap: () => Get.back(),
                   ),
@@ -48,7 +71,7 @@ class AddServiceScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Add your creative services & get discovered by artists and buyers looking for talent like yours",
+                    pageSubtitle,
                     style: getTextStyle(
                       color: Colors.white70,
                       fontsize: 14,
@@ -66,25 +89,25 @@ class AddServiceScreen extends StatelessWidget {
                         ),
                         child: Column(
                           children: [
-                            if (hasVisibleServices)
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: visibleIndices.length,
-                                itemBuilder: (context, idx) {
-                                  final originalIndex = visibleIndices[idx];
-                                  return ServiceCardWidget(
-                                    controller,
-                                    originalIndex,
-                                  );
-                                },
-                              )
-                            else
-                              ServiceFormWidget(
-                                controller,
-                                //   onChanged: (_) => controller.checkIfSaveEnabled(),
-                              ),
-                            const SizedBox(height: 16),
+                            //if (hasVisibleServices)
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: visibleIndices.length,
+                              itemBuilder: (context, idx) {
+                                final originalIndex = visibleIndices[idx];
+                                return ServiceCardWidget(
+                                  controller,
+                                  originalIndex,
+                                );
+                              },
+                            ),
+                            // else
+                            //   ServiceFormWidget(
+                            //     controller,
+                            //     //   onChanged: (_) => controller.checkIfSaveEnabled(),
+                            //   ),
+                            // const SizedBox(height: 16),
 
                             // Row(
                             //   mainAxisAlignment: MainAxisAlignment.center,
@@ -171,71 +194,71 @@ class AddServiceScreen extends StatelessWidget {
   }
 
   // ✅ CHANGED: Use saveService() instead of addService()
-  void showAddServiceSheet(
-    BuildContext context,
-    AddServiceController controller,
-  ) {
-    Get.bottomSheet(
-      StatefulBuilder(
-        builder: (context, setState) {
-          return Container(
-            padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ServiceFormWidget(
-                  controller,
-                  // onChanged: (_) => checkFields()
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Get.back(),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.white24),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text(
-                          "Cancel",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed:
-                            //  controller.isSaveEnabled.value
-                            () async {
-                              await controller.saveService();
-                              Get.back();
-                            },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text("Save"),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-      isScrollControlled: true,
-    );
-  }
+  // void showAddServiceSheet(
+  //   BuildContext context,
+  //   AddServiceController controller,
+  // ) {
+  //   Get.bottomSheet(
+  //     StatefulBuilder(
+  //       builder: (context, setState) {
+  //         return Container(
+  //           padding: const EdgeInsets.all(20),
+  //           decoration: const BoxDecoration(
+  //             color: Colors.black,
+  //             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+  //           ),
+  //           child: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               ServiceFormWidget(
+  //                 controller,
+  //                 // onChanged: (_) => checkFields()
+  //               ),
+  //               const SizedBox(height: 16),
+  //               Row(
+  //                 children: [
+  //                   Expanded(
+  //                     child: OutlinedButton(
+  //                       onPressed: () => Get.back(),
+  //                       style: OutlinedButton.styleFrom(
+  //                         side: const BorderSide(color: Colors.white24),
+  //                         shape: RoundedRectangleBorder(
+  //                           borderRadius: BorderRadius.circular(10),
+  //                         ),
+  //                       ),
+  //                       child: const Text(
+  //                         "Cancel",
+  //                         style: TextStyle(color: Colors.white),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   const SizedBox(width: 12),
+  //                   Expanded(
+  //                     child: ElevatedButton(
+  //                       onPressed:
+  //                           //  controller.isSaveEnabled.value
+  //                           () async {
+  //                             await controller.saveService();
+  //                             Get.back();
+  //                           },
+  //                       style: ElevatedButton.styleFrom(
+  //                         backgroundColor: Colors.grey,
+  //                         padding: const EdgeInsets.symmetric(vertical: 14),
+  //                         shape: RoundedRectangleBorder(
+  //                           borderRadius: BorderRadius.circular(10),
+  //                         ),
+  //                       ),
+  //                       child: const Text("Save"),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       },
+  //     ),
+  //     isScrollControlled: true,
+  //   );
+  // }
 }

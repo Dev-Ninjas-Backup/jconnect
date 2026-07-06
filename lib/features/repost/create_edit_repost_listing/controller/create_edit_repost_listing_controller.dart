@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/features/add_services/repository/add_service_repository.dart';
+import 'package:jconnect/features/user_profile/profile/controller/profile_controller.dart';
 
 class CreateEditRepostListingController extends GetxController {
   final Map<String, String> platformApiMap = {
@@ -19,7 +20,7 @@ class CreateEditRepostListingController extends GetxController {
   };
 
   final Map<String, String> turnaroundOptions = {
-    'Within 20 Minutes': "TWENTY_MINUTES",
+    'Within 30 Minutes': "THIRTY_MIN",
     'Within 1 Hour': "ONE_HOUR",
     'Within 2 Hours': "TWO_HOURS",
     'Within 6 Hours': "SIX_HOURS",
@@ -101,10 +102,10 @@ class CreateEditRepostListingController extends GetxController {
       }
 
       priceController.text = (data['price'] ?? '').toString();
-      platformFollowerController.text = (data['followerCount'] ?? '').toString();
+      platformFollowerController.text = (data['followerCount'] ?? '')
+          .toString();
       acceptsDollarProgram.value = data['isSpotlight'] ?? false;
       descriptionController.text = data['description'] ?? '';
-
     } catch (e) {
       debugPrint('Error fetching listing details: $e');
       Get.snackbar(
@@ -163,7 +164,9 @@ class CreateEditRepostListingController extends GetxController {
       return;
     }
 
-    final int? followerCountValue = int.tryParse(platformFollowerController.text);
+    final int? followerCountValue = int.tryParse(
+      platformFollowerController.text,
+    );
     if (followerCountValue == null) {
       Get.snackbar(
         'Error',
@@ -177,7 +180,9 @@ class CreateEditRepostListingController extends GetxController {
 
     try {
       EasyLoading.show(
-        status: editingListingId != null ? 'Updating repost...' : 'Saving repost...',
+        status: editingListingId != null
+            ? 'Updating repost...'
+            : 'Saving repost...',
       );
 
       final dynamic response;
@@ -217,6 +222,9 @@ class CreateEditRepostListingController extends GetxController {
             : 'Repost listing saved successfully!',
         snackPosition: SnackPosition.BOTTOM,
       );
+      if (Get.isRegistered<ProfileController>()) {
+        Get.find<ProfileController>().fetchProfile();
+      }
     } catch (e) {
       EasyLoading.dismiss();
       debugPrint('Error saving repost listing: $e');
