@@ -10,7 +10,20 @@ import 'package:jconnect/features/repost/repost_process_option/controller/repost
 import 'package:jconnect/features/repost/repost_status/screen/repost_status.dart';
 
 class SetCompletionTimeScreen extends StatelessWidget {
-  const SetCompletionTimeScreen({super.key});
+  final String listingId;
+  final String paymentUrl;
+  final String paymentIntentId;
+  final int amount;
+  final String currency;
+
+  const SetCompletionTimeScreen({
+    super.key,
+    required this.listingId,
+    required this.paymentUrl,
+    required this.paymentIntentId,
+    required this.amount,
+    required this.currency,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -124,11 +137,16 @@ class SetCompletionTimeScreen extends StatelessWidget {
 
                     CustomPrimaryButton(
                       buttonText: 'Continue',
-                      onTap: () {
-                        Get.to(RepostStatuScreen());
-
-                        // ignore: avoid_print
-                        print("timeframe:: ${controller.selectedTimeframe}");
+                      onTap: () async {
+                        final success = await controller.createRepostOrder(
+                          listingId: listingId,
+                          contentUrl: paymentUrl,
+                          paymentIntentId: paymentIntentId,
+                          timeframe: controller.selectedTimeframeEnum,
+                        );
+                        if (success) {
+                          Get.to(RepostStatuScreen());
+                        }
                       },
                     ),
 
