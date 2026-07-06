@@ -62,7 +62,8 @@ class ArtistsDetailsController extends GetxController {
         artistsDetails.value = ArtistsModel.fromJson(response.responseData!);
         _filterServices();
 
-        // ✅ Add this line — checks follow status every time page loads
+        await fetchArtistRepostListings(id);
+
         await checkFollowStatus(id);
       } else {
         Get.snackbar(
@@ -91,6 +92,100 @@ class ArtistsDetailsController extends GetxController {
     reposts.value = artistsDetails.value!.services
         .where((s) => s.serviceType == "REPOST")
         .toList();
+  }
+
+  Future<void> fetchArtistRepostListings(String artistId) async {
+    try {
+      final response = await networkClient.getRequest(
+        url: Endpoint.getReposListingByArtist(artistId),
+      );
+
+      if (response.isSuccess && response.responseData != null) {
+        final List data = response.responseData as List;
+        
+        final List<ServiceModel> list = [];
+        for (final item in data) {
+          final isActive = item['isActive'] as bool? ?? false;
+          final isPaused = item['isPaused'] as bool? ?? false;
+          if (isActive && !isPaused) {
+            final rawPlatform = item['platform'] as String? ?? '';
+            final displayName = _getPlatformDisplayName(rawPlatform);
+            final iconUrl = _getPlatformIconPath(rawPlatform);
+            
+            Creator? creator;
+            if (item['seller'] != null) {
+              creator = Creator.fromJson(item['seller']);
+            }
+            
+            list.add(
+              ServiceModel(
+                id: item['id'] as String? ?? '',
+                serviceName: displayName,
+                serviceType: "REPOST",
+                description: item['description'] as String? ?? '',
+                price: (item['price'] ?? 0).toDouble(),
+                currency: "USD",
+                isPost: false,
+                isCustom: false,
+                socialLogoForSocialService: iconUrl,
+                creatorId: item['sellerId'] as String? ?? '',
+                creator: creator,
+              ),
+            );
+          }
+        }
+        reposts.assignAll(list);
+      }
+    } catch (e) {
+      print('Error fetching artist repost listings: $e');
+    }
+  }
+
+  String _getPlatformDisplayName(String platform) {
+    switch (platform.toUpperCase()) {
+      case 'INSTAGRAM_STORY':
+        return 'Instagram Story Repost';
+      case 'INSTAGRAM_FEED':
+        return 'Instagram Feed Repost';
+      case 'INSTAGRAM_REEL':
+        return 'Instagram Reel Repost';
+      case 'TIKTOK':
+        return 'Tiktok Repost';
+      case 'TIKTOK_DUET':
+        return 'Tiktok Duet/Stitch Repost';
+      case 'TWITTER':
+      case 'X':
+        return 'X Repost';
+      case 'TWITTER_QUOTE':
+      case 'X_QUOTE':
+        return 'X Quote Repost';
+      case 'YOUTUBE_COMMUNITY_POST':
+        return 'YouTube Community Post Repost';
+      case 'YOUTUBE_SHORTS':
+        return 'YouTube Video Repost (Shorts)';
+      case 'FACEBOOK_POST':
+        return 'Facebook Post Repost';
+      case 'FACEBOOK_STORY':
+        return 'Facebook Story Repost';
+      default:
+        return platform.replaceAll('_', ' ');
+    }
+  }
+
+  String _getPlatformIconPath(String platform) {
+    final lower = platform.toLowerCase();
+    if (lower.contains('instagram')) {
+      return 'assets/icons/instagram.png';
+    } else if (lower.contains('tiktok')) {
+      return 'assets/icons/tiktok.png';
+    } else if (lower.contains('twitter') || lower.contains('x')) {
+      return 'assets/icons/twitter.png';
+    } else if (lower.contains('facebook')) {
+      return 'assets/icons/facebook.png';
+    } else if (lower.contains('youtube')) {
+      return 'assets/icons/youtube.png';
+    }
+    return 'assets/icons/social-media.png';
   }
 
   Future<void> checkFollowStatus(String artistId) async {
