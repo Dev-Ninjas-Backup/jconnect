@@ -10,11 +10,13 @@ import 'package:jconnect/features/repost/repost_process_option/controller/repost
 import 'package:jconnect/features/repost/repost_process_option/screens/set_complation_time.dart';
 
 class RepostContentPaymentScreen extends StatelessWidget {
-  const RepostContentPaymentScreen({super.key});
+  final String listingId;
+  const RepostContentPaymentScreen({super.key, required this.listingId});
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<RepostProcessOptionController>();
     final selectedOption = controller.currentPlatform.repostOptions[controller.selectedOptionIndex.value];
+    final shareLinkController = TextEditingController();
 
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
@@ -49,14 +51,44 @@ class RepostContentPaymentScreen extends StatelessWidget {
                         const SizedBox(height: 6),
                         CustomTextfield(
                           hintText: "Enter your Share Link",
-                          controller: TextEditingController(),
+                          controller: shareLinkController,
                         ),
                         const SizedBox(height: 20),
 
                         Center(
                           child: GestureDetector(
-                            onTap: () {
-                              Get.to(SetCompletionTimeScreen());
+                            onTap: () async {
+                              final urlText = shareLinkController.text.trim();
+                              if (urlText.isEmpty) {
+                                Get.snackbar(
+                                  'Hi!',
+                                  'Please enter a share link',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                );
+                                return;
+                              }
+                              final uri = Uri.tryParse(urlText);
+                              if (uri == null || !uri.hasAbsolutePath || !uri.scheme.startsWith('http')) {
+                                Get.snackbar(
+                                  'Hi!',
+                                  'Please enter a valid URL address',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                );
+                                return;
+                              }
+
+                              final res = await controller.processPayment(listingId);
+                              if (res != null) {
+                                Get.to(
+                                  SetCompletionTimeScreen(
+                                    listingId: listingId,
+                                    paymentUrl: urlText,
+                                    paymentIntentId: res['paymentIntentId'] as String? ?? '',
+                                    amount: res['amount'] as int? ?? 0,
+                                    currency: res['currency'] as String? ?? '',
+                                  ),
+                                );
+                              }
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
