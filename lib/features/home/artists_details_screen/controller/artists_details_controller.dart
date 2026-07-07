@@ -11,6 +11,7 @@ import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../home_screen/model/artists_model.dart';
+import '../model/repost_listing_model.dart';
 
 class ArtistsDetailsController extends GetxController {
   final NetworkClient networkClient;
@@ -27,7 +28,7 @@ class ArtistsDetailsController extends GetxController {
   var artistsDetails = Rxn<ArtistsModel>();
 
   var socialPosts = <ServiceModel>[].obs;
-  var reposts = <ServiceModel>[].obs;
+  var reposts = <RepostListingModel>[].obs;
   var services = <ServiceModel>[].obs;
 
   final RxString selectSocialOrService = "social".obs;
@@ -89,9 +90,6 @@ class ArtistsDetailsController extends GetxController {
     services.value = artistsDetails.value!.services
         .where((s) => s.serviceType == "SERVICE")
         .toList();
-    reposts.value = artistsDetails.value!.services
-        .where((s) => s.serviceType == "REPOST")
-        .toList();
   }
 
   Future<void> fetchArtistRepostListings(String artistId) async {
@@ -103,35 +101,12 @@ class ArtistsDetailsController extends GetxController {
       if (response.isSuccess && response.responseData != null) {
         final List data = response.responseData as List;
         
-        final List<ServiceModel> list = [];
+        final List<RepostListingModel> list = [];
         for (final item in data) {
           final isActive = item['isActive'] as bool? ?? false;
           final isPaused = item['isPaused'] as bool? ?? false;
           if (isActive && !isPaused) {
-            final rawPlatform = item['platform'] as String? ?? '';
-            final displayName = _getPlatformDisplayName(rawPlatform);
-            final iconUrl = _getPlatformIconPath(rawPlatform);
-            
-            Creator? creator;
-            if (item['seller'] != null) {
-              creator = Creator.fromJson(item['seller']);
-            }
-            
-            list.add(
-              ServiceModel(
-                id: item['id'] as String? ?? '',
-                serviceName: displayName,
-                serviceType: "REPOST",
-                description: item['description'] as String? ?? '',
-                price: (item['price'] ?? 0).toDouble(),
-                currency: "USD",
-                isPost: false,
-                isCustom: false,
-                socialLogoForSocialService: iconUrl,
-                creatorId: item['sellerId'] as String? ?? '',
-                creator: creator,
-              ),
-            );
+            list.add(RepostListingModel.fromJson(item));
           }
         }
         reposts.assignAll(list);
@@ -141,52 +116,7 @@ class ArtistsDetailsController extends GetxController {
     }
   }
 
-  String _getPlatformDisplayName(String platform) {
-    switch (platform.toUpperCase()) {
-      case 'INSTAGRAM_STORY':
-        return 'Instagram Story Repost';
-      case 'INSTAGRAM_FEED':
-        return 'Instagram Feed Repost';
-      case 'INSTAGRAM_REEL':
-        return 'Instagram Reel Repost';
-      case 'TIKTOK':
-        return 'Tiktok Repost';
-      case 'TIKTOK_DUET':
-        return 'Tiktok Duet/Stitch Repost';
-      case 'TWITTER':
-      case 'X':
-        return 'X Repost';
-      case 'TWITTER_QUOTE':
-      case 'X_QUOTE':
-        return 'X Quote Repost';
-      case 'YOUTUBE_COMMUNITY_POST':
-        return 'YouTube Community Post Repost';
-      case 'YOUTUBE_SHORTS':
-        return 'YouTube Video Repost (Shorts)';
-      case 'FACEBOOK_POST':
-        return 'Facebook Post Repost';
-      case 'FACEBOOK_STORY':
-        return 'Facebook Story Repost';
-      default:
-        return platform.replaceAll('_', ' ');
-    }
-  }
 
-  String _getPlatformIconPath(String platform) {
-    final lower = platform.toLowerCase();
-    if (lower.contains('instagram')) {
-      return 'assets/icons/instagram.png';
-    } else if (lower.contains('tiktok')) {
-      return 'assets/icons/tiktok.png';
-    } else if (lower.contains('twitter') || lower.contains('x')) {
-      return 'assets/icons/twitter.png';
-    } else if (lower.contains('facebook')) {
-      return 'assets/icons/facebook.png';
-    } else if (lower.contains('youtube')) {
-      return 'assets/icons/youtube.png';
-    }
-    return 'assets/icons/social-media.png';
-  }
 
   Future<void> checkFollowStatus(String artistId) async {
     try {
