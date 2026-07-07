@@ -6,6 +6,7 @@ import 'package:jconnect/core/common/constants/custom_textfield.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/features/repost/repost_process_option/controller/repost_process_option_controller.dart';
 import 'package:jconnect/features/repost/repost_process_option/screens/set_complation_time.dart';
 
@@ -60,19 +61,17 @@ class RepostContentPaymentScreen extends StatelessWidget {
                             onTap: () async {
                               final urlText = shareLinkController.text.trim();
                               if (urlText.isEmpty) {
-                                Get.snackbar(
-                                  'Hi!',
-                                  'Please enter a share link',
-                                  snackPosition: SnackPosition.BOTTOM,
+                                showGradientSnackBar(
+                                  title: 'Hi!',
+                                  message: 'Please enter a share link',
                                 );
                                 return;
                               }
                               final uri = Uri.tryParse(urlText);
                               if (uri == null || !uri.hasAbsolutePath || !uri.scheme.startsWith('http')) {
-                                Get.snackbar(
-                                  'Hi!',
-                                  'Please enter a valid URL address',
-                                  snackPosition: SnackPosition.BOTTOM,
+                                showGradientSnackBar(
+                                  title: 'Hi!',
+                                  message: 'Please enter a valid URL address',
                                 );
                                 return;
                               }
