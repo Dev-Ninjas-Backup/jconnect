@@ -92,4 +92,12 @@ class Endpoint {
   static const String repostPlatforms = "$baseUrl/repost-listings/platforms";
   static String getReposListingByArtist(String artistId) =>
       "$baseUrl/repost-listings/artist/$artistId";
+  static const String myRepostOrders = "$baseUrl/repost-orders/my-orders";
+  static String repostOrderDetails(String id) => "$baseUrl/repost-orders/$id";
+  static const String sellerRepostOrde =
+      "$baseUrl/repost-orders/my-seller-orders";
+  static String acceptRepostOrder(String id) =>
+      "$baseUrl/repost-orders/$id/accept";
+  static String uploadRepostOrderProof(String id) =>
+      "$baseUrl/repost-orders/$id/submit-proof";
 }

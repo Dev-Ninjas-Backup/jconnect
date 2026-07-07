@@ -1,84 +1,126 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
+import 'package:jconnect/features/repost/repost_status/service/repost_status_service.dart';
 
-enum RepostStatusType {active, completed, cancelled }
 enum RepostTab { myRepost, paidRepost }
 
 class RepostStatusController extends GetxController {
   final selectedTab = RepostTab.myRepost.obs;
   final isLoading = false.obs;
+  final isError = false.obs;
+  final errorMessage = ''.obs;
 
-  // My repost status — I am the seller
-  final myReposts = <RepostStatusItem>[
-    RepostStatusItem(
-      id: '1',
-      platform: 'Instagram',
-      contentUrl: 'https://www.instagram.com/p/abc123xyz/',
-      sellerName: 'You',
-      amount: 1.00,
-      status: RepostStatusType.active,
-      createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-      timeframe: '2 Hours',
+  final RepostStatusService _service = RepostStatusService(
+    client: NetworkClient(
+      onUnAuthorize: () {
+        if (kDebugMode) {
+          print('unauthorized');
+        }
+      },
     ),
-    RepostStatusItem(
-      id: '2',
-      platform: 'X',
-      contentUrl: 'https://twitter.com/janedoe/status/987654321/',
-      sellerName: 'You',
-      amount: 2.50,
-      status: RepostStatusType.completed,
-      createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      timeframe: '6 Hours',
-    ),
-    RepostStatusItem(
-      id: '3',
-      platform: 'TikTok',
-      contentUrl: 'https://www.tiktok.com/@creator_x/video/1122334455/',
-      sellerName: 'You',
-      amount: 3.00,
-      status: RepostStatusType.active,
-      createdAt: DateTime.now().subtract(const Duration(minutes: 30)),
-      timeframe: '1 Hour',
-    ),
-  ].obs;
+  );
 
-  // Paid repost status — I am the buyer
-  final paidReposts = <RepostStatusItem>[
-    RepostStatusItem(
-      id: '4',
-      platform: 'Instagram',
-      contentUrl: 'https://www.instagram.com/p/mybrandpromo456/',
-      sellerName: '@top_influencer',
-      amount: 5.00,
-      status: RepostStatusType.active,
-      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-      timeframe: '12 Hours',
-    ),
-    RepostStatusItem(
-      id: '5',
-      platform: 'YouTube',
-      contentUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      sellerName: '@tech_reviewer',
-      amount: 10.00,
-      status: RepostStatusType.cancelled,
-      createdAt: DateTime.now().subtract(const Duration(days: 3)),
-      timeframe: '24 Hours',
-    ),
-  ].obs;
+  // My repost status — I am the seller (fetched from my-seller-orders API)
+  final myReposts = <RepostStatusItem>[].obs;
 
-  void selectTab(RepostTab tab) => selectedTab.value = tab;
+  // Paid repost status — I am the buyer (fetched from my-orders API)
+  final paidReposts = <RepostStatusItem>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchMySellerRepostOrders();
+    fetchPaidRepostOrders();
+  }
+
+  Future<void> fetchPaidRepostOrders() async {
+    isLoading.value = true;
+    isError.value = false;
+    errorMessage.value = '';
+
+    try {
+      final orders = await _service.fetchMyRepostOrders();
+      paidReposts.assignAll(orders);
+    } catch (e) {
+      isError.value = true;
+      errorMessage.value = e.toString();
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchMySellerRepostOrders() async {
+    isLoading.value = true;
+    isError.value = false;
+    errorMessage.value = '';
+
+    try {
+      final orders = await _service.fetchMySellerRepostOrders();
+      myReposts.assignAll(orders);
+    } catch (e) {
+      isError.value = true;
+      errorMessage.value = e.toString();
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void selectTab(RepostTab tab) {
+    selectedTab.value = tab;
+    if (tab == RepostTab.paidRepost && paidReposts.isEmpty && !isLoading.value) {
+      fetchPaidRepostOrders();
+    } else if (tab == RepostTab.myRepost && myReposts.isEmpty && !isLoading.value) {
+      fetchMySellerRepostOrders();
+    }
+  }
 
   List<RepostStatusItem> get currentList =>
       selectedTab.value == RepostTab.myRepost ? myReposts : paidReposts;
 
-  String statusLabel(RepostStatusType status) {
-    switch (status) {
-      case RepostStatusType.active:
-        return 'Active';
-      case RepostStatusType.completed:
-        return 'Completed';
-      case RepostStatusType.cancelled:
-        return 'Cancelled';
-    }
+  /// Returns a human-readable display label for the platform string from API.
+  String platformLabel(String platform) {
+    final map = {
+      'FACEBOOK_STORY': 'Facebook Story',
+      'FACEBOOK_POST': 'Facebook Post',
+      'TWITTER_QUOTE': 'X (Twitter) Quote',
+      'TWITTER_RETWEET': 'X (Twitter) Retweet',
+      'TIKTOK_DUET': 'TikTok Duet',
+      'TIKTOK_STITCH': 'TikTok Stitch',
+      'INSTAGRAM_STORY': 'Instagram Story',
+      'INSTAGRAM_POST': 'Instagram Post',
+      'YOUTUBE_SHORT': 'YouTube Short',
+      'YOUTUBE_SHORTS': 'YouTube Shorts',
+    };
+    return map[platform] ?? platform.replaceAll('_', ' ').toLowerCase();
+  }
+
+  /// Returns a human-readable display label for the timeframe string from API.
+  String timeframeLabel(String timeframe) {
+    final map = {
+      'THIRTY_MIN': '30 Min',
+      'ONE_HOUR': '1 Hour',
+      'TWO_HOURS': '2 Hours',
+      'SIX_HOURS': '6 Hours',
+      'TWELVE_HOURS': '12 Hours',
+      'TWENTY_FOUR_HOURS': '24 Hours',
+    };
+    return map[timeframe] ?? timeframe.replaceAll('_', ' ').toLowerCase();
+  }
+
+  /// Returns a human-readable status label.
+  String statusLabel(String status) {
+    final map = {
+      'NEW_REQUEST': 'New Request',
+      'ACCEPTED': 'Accepted',
+      'IN_PROGRESS': 'In Progress',
+      'PROOF_SUBMITTED': 'Proof Submitted',
+      'COMPLETED': 'Completed',
+      'REFUNDED': 'Refunded',
+      'CANCELLED': 'Cancelled',
+      'DISPUTED': 'Disputed',
+    };
+    return map[status] ?? status.replaceAll('_', ' ').toLowerCase();
   }
 }

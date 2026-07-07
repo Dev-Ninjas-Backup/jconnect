@@ -43,6 +43,77 @@ class RepostStatuScreen extends StatelessWidget {
                   final list = controller.currentList;
                   final isPaidTab = controller.selectedTab.value == RepostTab.paidRepost;
 
+                  // Show loading spinner while fetching
+                  if (controller.isLoading.value) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  // Show error state with retry
+                  if (controller.isError.value) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error_outline_rounded,
+                            size: 48.r,
+                            color: AppColors.secondaryTextColor,
+                          ),
+                          SizedBox(height: 12.h),
+                          Text(
+                            'Failed to load orders',
+                            style: getTextStyle(
+                              fontsize: 15,
+                              fontweight: FontWeight.w600,
+                              color: AppColors.primaryTextColor,
+                            ),
+                          ),
+                          SizedBox(height: 6.h),
+                          Text(
+                            controller.errorMessage.value,
+                            textAlign: TextAlign.center,
+                            style: getTextStyle(
+                              fontsize: 12,
+                              color: AppColors.secondaryTextColor,
+                            ),
+                          ),
+                          SizedBox(height: 16.h),
+                          GestureDetector(
+                            onTap: isPaidTab
+                                ? controller.fetchPaidRepostOrders
+                                : controller.fetchMySellerRepostOrders,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20.w,
+                                vertical: 10.h,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF60000F),
+                                    Color(0xFFBB0224),
+                                    Color(0xFF60000F),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                              child: Text(
+                                'Retry',
+                                style: getTextStyle(
+                                  fontsize: 13,
+                                  fontweight: FontWeight.w600,
+                                  color: AppColors.primaryTextColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
                   if (list.isEmpty) {
                     return _EmptyState(isPaidTab: isPaidTab);
                   }

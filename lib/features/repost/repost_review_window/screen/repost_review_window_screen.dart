@@ -106,15 +106,15 @@ class RepostReviewWindowScreen extends StatelessWidget {
                 Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20.w),
-                    child: Text(
-                      'You have ${item.timeframe} to review this repost before funds are automatically released.',
+                    child: Obx(() => Text(
+                      'You have ${controller.timeframeLabel} to review this repost before funds are automatically released.',
                       textAlign: TextAlign.center,
                       style: getTextStyle(
                         fontsize: 13,
                         fontweight: FontWeight.w400,
                         color: AppColors.secondaryTextColor,
                       ),
-                    ),
+                    )),
                   ),
                 ),
             
@@ -131,86 +131,89 @@ class RepostReviewWindowScreen extends StatelessWidget {
             
                 SizedBox(height: 10.h),
             
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(16.r),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF161616),
-                    borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.08),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Image.asset(
-                            controller.platformIconPath,
-                            height: 28.h,
-                            width: 28.w,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(
-                                Icons.share,
-                                color: Colors.white,
-                                size: 28.r,
-                              );
-                            },
-                          ),
-                          SizedBox(width: 12.w),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Repost Option',
-                                style: getTextStyle(
-                                  fontsize: 10,
-                                  color: AppColors.secondaryTextColor,
-                                ),
-                              ),
-                              SizedBox(height: 2.h),
-                              Text(
-                                controller.optionText,
-                                style: getTextStyle(
-                                  fontsize: 13,
-                                  fontweight: FontWeight.w600,
-                                  color: AppColors.primaryTextColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16.h),
-                      Divider(
+                Obx(() {
+                  final currentItem = controller.detailedItem.value ?? item;
+                  return Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(16.r),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF161616),
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(
                         color: Colors.white.withValues(alpha: 0.08),
-                        height: 1,
                       ),
-                      SizedBox(height: 16.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Submitted',
-                            style: getTextStyle(
-                              fontsize: 12,
-                              color: AppColors.secondaryTextColor,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Image.asset(
+                              controller.platformIconPath,
+                              height: 28.h,
+                              width: 28.w,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Icon(
+                                  Icons.share,
+                                  color: Colors.white,
+                                  size: 28.r,
+                                );
+                              },
                             ),
-                          ),
-                          Text(
-                            DateFormat('hh:mm a').format(item.createdAt),
-                            style: getTextStyle(
-                              fontsize: 12,
-                              fontweight: FontWeight.w600,
-                              color: AppColors.primaryTextColor,
+                            SizedBox(width: 12.w),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Repost Option',
+                                  style: getTextStyle(
+                                    fontsize: 10,
+                                    color: AppColors.secondaryTextColor,
+                                  ),
+                                ),
+                                SizedBox(height: 2.h),
+                                Text(
+                                  controller.optionText,
+                                  style: getTextStyle(
+                                    fontsize: 13,
+                                    fontweight: FontWeight.w600,
+                                    color: AppColors.primaryTextColor,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                          ],
+                        ),
+                        SizedBox(height: 16.h),
+                        Divider(
+                          color: Colors.white.withValues(alpha: 0.08),
+                          height: 1,
+                        ),
+                        SizedBox(height: 16.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Submitted',
+                              style: getTextStyle(
+                                fontsize: 12,
+                                color: AppColors.secondaryTextColor,
+                              ),
+                            ),
+                            Text(
+                              DateFormat('yyyy-MM-dd hh:mm a').format(currentItem.updatedAt),
+                              style: getTextStyle(
+                                fontsize: 12,
+                                fontweight: FontWeight.w600,
+                                color: AppColors.primaryTextColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                }),
                 SizedBox(height: 80.h),
             
                 CustomPrimaryButton(

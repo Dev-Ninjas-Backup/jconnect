@@ -8,6 +8,7 @@ import 'package:jconnect/features/repost/repost_status/controller/repost_status_
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
 import 'package:jconnect/features/repost/repost_review_window/screen/repost_review_window_screen.dart';
 import 'package:jconnect/features/repost/seller_active_order_state/screen/request_details_screen.dart';
+import 'package:jconnect/features/repost/seller_active_order_state/screen/seller_active_order_screen.dart';
 
 class RepostStatusCard extends StatelessWidget {
   final RepostStatusItem item;
@@ -19,14 +20,37 @@ class RepostStatusCard extends StatelessWidget {
     required this.isPaidTab,
   });
 
-  Color _statusColor(RepostStatusType status) {
+  Color _statusColor(String status) {
     switch (status) {
-      case RepostStatusType.active:
+      case 'NEW_REQUEST':
+      case 'ACCEPTED':
+      case 'IN_PROGRESS':
         return Colors.blueAccent;
-      case RepostStatusType.completed:
+      case 'PROOF_SUBMITTED':
+        return Colors.orangeAccent;
+      case 'COMPLETED':
         return Colors.greenAccent;
-      case RepostStatusType.cancelled:
+      case 'REFUNDED':
+      case 'CANCELLED':
         return Colors.redAccent;
+      case 'DISPUTED':
+        return Colors.purpleAccent;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  bool _isActive(String status) {
+    if (isPaidTab) {
+      // Buyer side: Only PROOF_SUBMITTED is active (requires buyer review/action)
+      return status == 'PROOF_SUBMITTED';
+    } else {
+      // Seller side: NEW_REQUEST, ACCEPTED, IN_PROGRESS, PROOF_SUBMITTED, and REDO_REQUESTED are active
+      return status == 'NEW_REQUEST' ||
+          status == 'ACCEPTED' ||
+          status == 'IN_PROGRESS' ||
+          status == 'PROOF_SUBMITTED' ||
+          status == 'REDO_REQUESTED';
     }
   }
 
@@ -43,12 +67,19 @@ class RepostStatusCard extends StatelessWidget {
     final controller = Get.find<RepostStatusController>();
 
     return GestureDetector(
-      onTap: (item.status == RepostStatusType.active)
+      onTap: _isActive(item.status)
           ? () {
               if (isPaidTab) {
                 Get.to(() => RepostReviewWindowScreen(item: item));
               } else {
-                Get.to(() => RequestDetailsScreen(item: item));
+                if (item.status == 'ACCEPTED' ||
+                    item.status == 'IN_PROGRESS' ||
+                    item.status == 'PROOF_SUBMITTED' ||
+                    item.status == 'REDO_REQUESTED') {
+                  Get.to(() => SellerActiveOrderScreen(item: item));
+                } else {
+                  Get.to(() => RequestDetailsScreen(item: item));
+                }
               }
             }
           : null,
@@ -67,6 +98,7 @@ class RepostStatusCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Platform badge + timeframe
                   Row(
                     children: [
                       Container(
@@ -81,7 +113,7 @@ class RepostStatusCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4.r),
                         ),
                         child: Text(
-                          item.platform,
+                          controller.platformLabel(item.platform),
                           style: getTextStyle(
                             fontsize: 10,
                             fontweight: FontWeight.w600,
@@ -99,7 +131,7 @@ class RepostStatusCard extends StatelessWidget {
                       ),
                       SizedBox(width: 3.w),
                       Text(
-                        item.timeframe,
+                        controller.timeframeLabel(item.timeframe),
                         style: getTextStyle(
                           fontsize: 11,
                           color: AppColors.secondaryTextColor,
@@ -109,6 +141,17 @@ class RepostStatusCard extends StatelessWidget {
                   ),
 
                   SizedBox(height: 6.h),
+
+                  // Order code
+                  Text(
+                    item.orderCode,
+                    style: getTextStyle(
+                      fontsize: 10,
+                      color: AppColors.secondaryTextColor,
+                    ),
+                  ),
+
+                  SizedBox(height: 4.h),
 
                   // Content URL — copyable
                   GestureDetector(
@@ -160,14 +203,52 @@ class RepostStatusCard extends StatelessWidget {
                   SizedBox(height: 4.h),
 
                   // Seller / buyer label
-                  Text(
-                    isPaidTab
-                        ? 'Seller: ${item.sellerName}'
-                        : 'Requested by buyer',
-                    style: getTextStyle(
-                      fontsize: 11,
-                      color: AppColors.secondaryTextColor,
-                    ),
+                  Row(
+                    children: [
+                      if (isPaidTab && item.seller?.profilePhoto != null) ...[
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12.r),
+                          child: Image.network(
+                            item.seller!.profilePhoto!,
+                            width: 18.r,
+                            height: 18.r,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Icon(
+                              Icons.person,
+                              size: 18.r,
+                              color: AppColors.secondaryTextColor,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 5.w),
+                      ],
+                      if (!isPaidTab && item.buyer?.profilePhoto != null) ...[
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12.r),
+                          child: Image.network(
+                            item.buyer!.profilePhoto!,
+                            width: 18.r,
+                            height: 18.r,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Icon(
+                              Icons.person,
+                              size: 18.r,
+                              color: AppColors.secondaryTextColor,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 5.w),
+                      ],
+                      Text(
+                        isPaidTab
+                            ? 'Seller: @${item.seller?.username ?? ''}'
+                            : 'Requested by buyer: @${item.buyer?.username ?? ''}',
+                        style: getTextStyle(
+                          fontsize: 11,
+                          color: AppColors.secondaryTextColor,
+                        ),
+                      ),
+                    ],
                   ),
 
                   SizedBox(height: 8.h),
