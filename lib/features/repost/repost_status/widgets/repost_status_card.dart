@@ -8,6 +8,7 @@ import 'package:jconnect/features/repost/repost_status/controller/repost_status_
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
 import 'package:jconnect/features/repost/repost_review_window/screen/repost_review_window_screen.dart';
 import 'package:jconnect/features/repost/seller_active_order_state/screen/request_details_screen.dart';
+import 'package:jconnect/features/repost/seller_active_order_state/screen/seller_active_order_screen.dart';
 
 class RepostStatusCard extends StatelessWidget {
   final RepostStatusItem item;
@@ -40,10 +41,17 @@ class RepostStatusCard extends StatelessWidget {
   }
 
   bool _isActive(String status) {
-    return status == 'NEW_REQUEST' ||
-        status == 'ACCEPTED' ||
-        status == 'IN_PROGRESS' ||
-        status == 'PROOF_SUBMITTED';
+    if (isPaidTab) {
+      // Buyer side: Only PROOF_SUBMITTED is active (requires buyer review/action)
+      return status == 'PROOF_SUBMITTED';
+    } else {
+      // Seller side: NEW_REQUEST, ACCEPTED, IN_PROGRESS, PROOF_SUBMITTED, and REDO_REQUESTED are active
+      return status == 'NEW_REQUEST' ||
+          status == 'ACCEPTED' ||
+          status == 'IN_PROGRESS' ||
+          status == 'PROOF_SUBMITTED' ||
+          status == 'REDO_REQUESTED';
+    }
   }
 
   Color _bgColor() =>
@@ -64,7 +72,14 @@ class RepostStatusCard extends StatelessWidget {
               if (isPaidTab) {
                 Get.to(() => RepostReviewWindowScreen(item: item));
               } else {
-                Get.to(() => RequestDetailsScreen(item: item));
+                if (item.status == 'ACCEPTED' ||
+                    item.status == 'IN_PROGRESS' ||
+                    item.status == 'PROOF_SUBMITTED' ||
+                    item.status == 'REDO_REQUESTED') {
+                  Get.to(() => SellerActiveOrderScreen(item: item));
+                } else {
+                  Get.to(() => RequestDetailsScreen(item: item));
+                }
               }
             }
           : null,

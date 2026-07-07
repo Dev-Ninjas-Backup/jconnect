@@ -100,7 +100,7 @@ class RepostStatusItem {
   final DateTime? releasedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final RepostOrderListing listing;
+  final RepostOrderListing? listing;
   final RepostOrderSeller? seller;
   final RepostOrderBuyer? buyer;
 
@@ -131,7 +131,7 @@ class RepostStatusItem {
     this.releasedAt,
     required this.createdAt,
     required this.updatedAt,
-    required this.listing,
+    this.listing,
     this.seller,
     this.buyer,
   });
@@ -174,15 +174,79 @@ class RepostStatusItem {
           : null,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
-      listing: RepostOrderListing.fromJson(
-        json['listing'] as Map<String, dynamic>,
-      ),
+      listing: json['listing'] != null
+          ? RepostOrderListing.fromJson(json['listing'] as Map<String, dynamic>)
+          : null,
       seller: json['seller'] != null
           ? RepostOrderSeller.fromJson(json['seller'] as Map<String, dynamic>)
           : null,
       buyer: json['buyer'] != null
           ? RepostOrderBuyer.fromJson(json['buyer'] as Map<String, dynamic>)
           : null,
+    );
+  }
+
+  RepostStatusItem copyWith({
+    String? id,
+    String? orderCode,
+    String? buyerId,
+    String? sellerId,
+    String? listingId,
+    String? platform,
+    String? timeframe,
+    double? amount,
+    double? platformFee,
+    double? sellerAmount,
+    String? status,
+    String? contentUrl,
+    List<String>? contentFiles,
+    DateTime? countdownEndsAt,
+    String? proofType,
+    String? proofUrl,
+    List<String>? proofFiles,
+    DateTime? proofSubmittedAt,
+    DateTime? reviewWindowEndsAt,
+    DateTime? redoWindowEndsAt,
+    int? redoCount,
+    String? redoInstructions,
+    bool? isReleased,
+    DateTime? releasedAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    RepostOrderListing? listing,
+    RepostOrderSeller? seller,
+    RepostOrderBuyer? buyer,
+  }) {
+    return RepostStatusItem(
+      id: id ?? this.id,
+      orderCode: orderCode ?? this.orderCode,
+      buyerId: buyerId ?? this.buyerId,
+      sellerId: sellerId ?? this.sellerId,
+      listingId: listingId ?? this.listingId,
+      platform: platform ?? this.platform,
+      timeframe: timeframe ?? this.timeframe,
+      amount: amount ?? this.amount,
+      platformFee: platformFee ?? this.platformFee,
+      sellerAmount: sellerAmount ?? this.sellerAmount,
+      status: status ?? this.status,
+      contentUrl: contentUrl ?? this.contentUrl,
+      contentFiles: contentFiles ?? this.contentFiles,
+      countdownEndsAt: countdownEndsAt ?? this.countdownEndsAt,
+      proofType: proofType ?? this.proofType,
+      proofUrl: proofUrl ?? this.proofUrl,
+      proofFiles: proofFiles ?? this.proofFiles,
+      proofSubmittedAt: proofSubmittedAt ?? this.proofSubmittedAt,
+      reviewWindowEndsAt: reviewWindowEndsAt ?? this.reviewWindowEndsAt,
+      redoWindowEndsAt: redoWindowEndsAt ?? this.redoWindowEndsAt,
+      redoCount: redoCount ?? this.redoCount,
+      redoInstructions: redoInstructions ?? this.redoInstructions,
+      isReleased: isReleased ?? this.isReleased,
+      releasedAt: releasedAt ?? this.releasedAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      listing: listing ?? this.listing,
+      seller: seller ?? this.seller,
+      buyer: buyer ?? this.buyer,
     );
   }
 }

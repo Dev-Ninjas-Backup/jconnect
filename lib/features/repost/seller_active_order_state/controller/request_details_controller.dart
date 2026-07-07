@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
@@ -206,8 +207,27 @@ class RequestDetailsController extends GetxController {
     return Iconpath.defaultSocial;
   }
 
-  void acceptRequest() {
-    Get.off(() => SellerActiveOrderScreen(item: detailedItem.value ?? item));
+  Future<void> acceptRequest() async {
+    final orderId = detailedItem.value?.id ?? item.id;
+    try {
+      EasyLoading.show(status: 'Accepting request...');
+      final updatedItem = await _service.acceptRepostOrder(orderId);
+      final mergedItem = updatedItem.copyWith(
+        listing: detailedItem.value?.listing ?? item.listing,
+        seller: detailedItem.value?.seller ?? item.seller,
+        buyer: detailedItem.value?.buyer ?? item.buyer,
+      );
+      EasyLoading.dismiss();
+      Get.snackbar(
+        'Success',
+        'Request accepted successfully!',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      Get.off(() => SellerActiveOrderScreen(item: mergedItem));
+    } catch (e) {
+      EasyLoading.dismiss();
+      Get.snackbar('Error', e.toString(), snackPosition: SnackPosition.BOTTOM);
+    }
   }
 
   void rejectRequest() {

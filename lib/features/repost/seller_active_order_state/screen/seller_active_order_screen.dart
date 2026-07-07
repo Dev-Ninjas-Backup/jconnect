@@ -9,6 +9,7 @@ import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
 import 'package:jconnect/features/repost/seller_active_order_state/controller/request_details_controller.dart';
 import 'package:jconnect/features/repost/repost_proof_upload/screen/repost_proof_upload_screen.dart';
+
 class SellerActiveOrderScreen extends StatelessWidget {
   final RepostStatusItem item;
   const SellerActiveOrderScreen({required this.item, super.key});
@@ -18,7 +19,7 @@ class SellerActiveOrderScreen extends StatelessWidget {
       RequestDetailsController(item: item),
       tag: 'accepted',
     );
-    final orderCode = 'OC${item.id.padLeft(6, '0')}';
+    final orderCode = item.orderCode;
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
       body: SafeArea(
@@ -52,14 +53,25 @@ class SellerActiveOrderScreen extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            'Accepted',
-                            style: getTextStyle(
-                              fontsize: 20,
-                              fontweight: FontWeight.w700,
-                              color: AppColors.primaryTextColor,
-                            ),
-                          ),
+                          Obx(() {
+                            final currentItem = controller.detailedItem.value ?? item;
+                            String statusText = 'Accepted';
+                            if (currentItem.status == 'PROOF_SUBMITTED') {
+                              statusText = 'Proof Submitted';
+                            } else if (currentItem.status == 'REDO_REQUESTED') {
+                              statusText = 'Redo Requested';
+                            } else if (currentItem.status == 'IN_PROGRESS') {
+                              statusText = 'In Progress';
+                            }
+                            return Text(
+                              statusText,
+                              style: getTextStyle(
+                                fontsize: 20,
+                                fontweight: FontWeight.w700,
+                                color: AppColors.primaryTextColor,
+                              ),
+                            );
+                          }),
                           SizedBox(height: 24.h),
 
                           Container(
@@ -112,7 +124,8 @@ class SellerActiveOrderScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 4.h),
                           Obx(() {
-                            final currentItem = controller.detailedItem.value ?? item;
+                            final currentItem =
+                                controller.detailedItem.value ?? item;
                             return Text(
                               '@${currentItem.buyer?.username ?? 'buyer'}',
                               style: getTextStyle(
@@ -132,7 +145,8 @@ class SellerActiveOrderScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 4.h),
                           Obx(() {
-                            final currentItem = controller.detailedItem.value ?? item;
+                            final currentItem =
+                                controller.detailedItem.value ?? item;
                             return Text(
                               '\$${currentItem.amount.toStringAsFixed(2)}',
                               style: getTextStyle(
@@ -143,10 +157,23 @@ class SellerActiveOrderScreen extends StatelessWidget {
                             );
                           }),
                           SizedBox(height: 32.h),
-                          CustomPrimaryButton(
-                            buttonText: 'Submit Proof',
-                            onTap: () => Get.to(() => RepostProofUploadScreen(item: controller.detailedItem.value ?? item)),
-                          ),
+                           Obx(() {
+                            final currentItem = controller.detailedItem.value ?? item;
+                            final isProofSubmitted = currentItem.status == 'PROOF_SUBMITTED';
+                            return CustomPrimaryButton(
+                              buttonText: isProofSubmitted ? 'Proof Submitted' : 'Submit Proof',
+                              gradientColor: isProofSubmitted
+                                  ? [const Color(0xFF2E2E2E), const Color(0xFF424242), const Color(0xFF2E2E2E)]
+                                  : null,
+                              onTap: isProofSubmitted
+                                  ? () {}
+                                  : () => Get.to(
+                                        () => RepostProofUploadScreen(
+                                          item: currentItem,
+                                        ),
+                                      ),
+                            );
+                          }),
                         ],
                       ),
                     ),

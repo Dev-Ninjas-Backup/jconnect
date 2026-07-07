@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:jconnect/core/endpoint.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
@@ -40,6 +41,53 @@ class RepostStatusService {
       }
     } catch (e) {
       throw 'Something went wrong while fetching repost order details: $e';
+    }
+  }
+
+  Future<RepostStatusItem> acceptRepostOrder(String id) async {
+    try {
+      final response = await client.postRequest(
+        url: Endpoint.acceptRepostOrder(id),
+        body: {},
+      );
+
+      if (response.isSuccess &&
+          (response.statusCode == 200 || response.statusCode == 201)) {
+        return RepostStatusItem.fromJson(response.responseData as Map<String, dynamic>);
+      } else {
+        throw response.errorMessage ?? 'Failed to accept repost order';
+      }
+    } catch (e) {
+      throw 'Something went wrong while accepting repost order: $e';
+    }
+  }
+
+  Future<RepostStatusItem> submitRepostProof({
+    required String orderId,
+    required File file,
+    required String proofType,
+    required String note,
+  }) async {
+    try {
+      final response = await client.uploadFile(
+        url: Endpoint.uploadRepostOrderProof(orderId),
+        file: file,
+        fieldName: 'files',
+        extraFields: {
+          'proofType': proofType,
+          'proofUrl': '',
+          'note': note,
+        },
+      );
+
+      if (response.isSuccess &&
+          (response.statusCode == 200 || response.statusCode == 201)) {
+        return RepostStatusItem.fromJson(response.responseData as Map<String, dynamic>);
+      } else {
+        throw response.errorMessage ?? 'Failed to upload proof';
+      }
+    } catch (e) {
+      throw 'Something went wrong while submitting proof: $e';
     }
   }
 

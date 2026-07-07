@@ -96,4 +96,8 @@ class Endpoint {
   static String repostOrderDetails(String id) => "$baseUrl/repost-orders/$id";
   static const String sellerRepostOrde =
       "$baseUrl/repost-orders/my-seller-orders";
+  static String acceptRepostOrder(String id) =>
+      "$baseUrl/repost-orders/$id/accept";
+  static String uploadRepostOrderProof(String id) =>
+      "$baseUrl/repost-orders/$id/submit-proof";
 }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -6,12 +7,24 @@ import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
+import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
+import 'package:jconnect/features/repost/repost_status/service/repost_status_service.dart';
 import 'package:jconnect/features/repost/repost_proof_upload/widgets/proof_success_dialog.dart';
 
 class RepostProofUploadController extends GetxController {
   final RepostStatusItem item;
   RepostProofUploadController({required this.item});
+
+  final RepostStatusService _service = RepostStatusService(
+    client: NetworkClient(
+      onUnAuthorize: () {
+        if (kDebugMode) {
+          print('unauthorized');
+        }
+      },
+    ),
+  );
 
   final noteController = TextEditingController();
   final noteText = ''.obs;
@@ -169,13 +182,29 @@ class RepostProofUploadController extends GetxController {
     }
 
     EasyLoading.show(status: 'Submitting proof...');
-    // Simulate file upload delay
-    await Future.delayed(const Duration(seconds: 2));
-    EasyLoading.dismiss();
+    try {
+      final type = isVideo.value ? 'SCREEN_RECORDING' : 'SCREENSHOT';
+      await _service.submitRepostProof(
+        orderId: item.id,
+        file: selectedFile.value!,
+        proofType: type,
+        note: noteController.text,
+      );
+      EasyLoading.dismiss();
 
-    Get.dialog(
-      const ProofSuccessDialog(),
-      barrierDismissible: false,
-    );
+      Get.dialog(
+        const ProofSuccessDialog(),
+        barrierDismissible: false,
+      );
+    } catch (e) {
+      EasyLoading.dismiss();
+      Get.snackbar(
+        'Error',
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withValues(alpha: 0.9),
+        colorText: Colors.white,
+      );
+    }
   }
 }
