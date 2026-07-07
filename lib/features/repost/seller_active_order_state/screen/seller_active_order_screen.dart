@@ -111,14 +111,17 @@ class SellerActiveOrderScreen extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 4.h),
-                          Text(
-                            '@buyername',
-                            style: getTextStyle(
-                              fontsize: 16,
-                              fontweight: FontWeight.w600,
-                              color: AppColors.primaryTextColor,
-                            ),
-                          ),
+                          Obx(() {
+                            final currentItem = controller.detailedItem.value ?? item;
+                            return Text(
+                              '@${currentItem.buyer?.username ?? 'buyer'}',
+                              style: getTextStyle(
+                                fontsize: 16,
+                                fontweight: FontWeight.w600,
+                                color: AppColors.primaryTextColor,
+                              ),
+                            );
+                          }),
                           SizedBox(height: 20.h),
                           Text(
                             'Amount',
@@ -128,18 +131,21 @@ class SellerActiveOrderScreen extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 4.h),
-                          Text(
-                            '\$${item.amount.toStringAsFixed(2)}',
-                            style: getTextStyle(
-                              fontsize: 20,
-                              fontweight: FontWeight.w700,
-                              color: AppColors.primaryTextColor,
-                            ),
-                          ),
+                          Obx(() {
+                            final currentItem = controller.detailedItem.value ?? item;
+                            return Text(
+                              '\$${currentItem.amount.toStringAsFixed(2)}',
+                              style: getTextStyle(
+                                fontsize: 20,
+                                fontweight: FontWeight.w700,
+                                color: AppColors.primaryTextColor,
+                              ),
+                            );
+                          }),
                           SizedBox(height: 32.h),
                           CustomPrimaryButton(
                             buttonText: 'Submit Proof',
-                            onTap: () => Get.to(() => RepostProofUploadScreen(item: item)),
+                            onTap: () => Get.to(() => RepostProofUploadScreen(item: controller.detailedItem.value ?? item)),
                           ),
                         ],
                       ),

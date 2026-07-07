@@ -33,55 +33,57 @@ class RequestDetailsScreen extends StatelessWidget {
 
               SizedBox(height: 30.h),
 
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(16.r),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF161616),
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.08),
+              Obx(() {
+                return Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(16.r),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF161616),
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    Image.asset(
-                      controller.platformIconPath,
-                      height: 28.h,
-                      width: 28.w,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Icon(
-                          Icons.share,
-                          color: Colors.white,
-                          size: 28.r,
-                        );
-                      },
-                    ),
-                    SizedBox(width: 12.w),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Repost Option',
-                          style: getTextStyle(
-                            fontsize: 12,
-                            color: AppColors.primaryTextColor,
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        controller.platformIconPath,
+                        height: 28.h,
+                        width: 28.w,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Icons.share,
+                            color: Colors.white,
+                            size: 28.r,
+                          );
+                        },
+                      ),
+                      SizedBox(width: 12.w),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Repost Option',
+                            style: getTextStyle(
+                              fontsize: 12,
+                              color: AppColors.primaryTextColor,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 2.h),
-                        Text(
-                          controller.optionText,
-                          style: getTextStyle(
-                            fontsize: 13,
-                            fontweight: FontWeight.w600,
-                            color: AppColors.primaryTextColor,
+                          SizedBox(height: 2.h),
+                          Text(
+                            controller.optionText,
+                            style: getTextStyle(
+                              fontsize: 13,
+                              fontweight: FontWeight.w600,
+                              color: AppColors.primaryTextColor,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              }),
 
               SizedBox(height: 16.h),
 
@@ -129,46 +131,49 @@ class RequestDetailsScreen extends StatelessWidget {
 
               SizedBox(height: 16.h),
 
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(16.r),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF161616),
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.08),
+              Obx(() {
+                final currentItem = controller.detailedItem.value ?? item;
+                return Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(16.r),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF161616),
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
                   ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Payment',
-                      style: getTextStyle(
-                        fontsize: 12,
-                        color: AppColors.primaryTextColor,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Payment',
+                        style: getTextStyle(
+                          fontsize: 12,
+                          color: AppColors.primaryTextColor,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      '\$${item.amount.toStringAsFixed(2)}',
-                      style: getTextStyle(
-                        fontsize: 24,
-                        fontweight: FontWeight.w700,
-                        color: AppColors.primaryTextColor,
+                      SizedBox(height: 8.h),
+                      Text(
+                        '\$${currentItem.amount.toStringAsFixed(2)}',
+                        style: getTextStyle(
+                          fontsize: 24,
+                          fontweight: FontWeight.w700,
+                          color: AppColors.primaryTextColor,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 6.h),
-                    Text(
-                      'Secure escrow until you approve the repost',
-                      style: getTextStyle(
-                        fontsize: 11,
-                        color: AppColors.secondaryTextColor,
+                      SizedBox(height: 6.h),
+                      Text(
+                        'Secure escrow until you approve the repost',
+                        style: getTextStyle(
+                          fontsize: 11,
+                          color: AppColors.secondaryTextColor,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
+                    ],
+                  ),
+                );
+              }),
 
               const Spacer(),
 

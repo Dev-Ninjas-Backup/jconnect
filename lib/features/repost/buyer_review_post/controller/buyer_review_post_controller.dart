@@ -15,10 +15,10 @@ class BuyerReviewPostController extends GetxController {
       id: item.id,
       proofImageUrl:
           'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&q=80',
-      sellerName: item.sellerName,
+      sellerName: item.seller?.username ?? 'Unknown Seller',
       submittedAt: item.createdAt.add(
         const Duration(minutes: 15),
-      ), // Mock submission time
+      ), // Approximated submission time
       amount: item.amount,
       originalItem: item,
     );
