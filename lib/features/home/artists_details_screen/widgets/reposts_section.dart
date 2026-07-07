@@ -7,6 +7,7 @@ import 'package:jconnect/features/repost/repost_start/model/repost_model.dart';
 import '../../../../core/common/constants/app_colors.dart';
 import '../../../../core/common/style/global_text_style.dart';
 import '../controller/artists_details_controller.dart';
+import '../model/repost_listing_model.dart';
 
 class RepostsSection extends StatelessWidget {
   RepostsSection({super.key, required this.controller});
@@ -17,13 +18,7 @@ class RepostsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final visiblePosts = controller.reposts.where((p) {
-        try {
-          return p.isCustom == false;
-        } catch (_) {
-          return true;
-        }
-      }).toList();
+      final List<RepostListingModel> visiblePosts = controller.reposts;
 
       if (visiblePosts.isEmpty) {
         return Padding(
@@ -77,36 +72,15 @@ class RepostsSection extends StatelessWidget {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(24.r),
-                        child:
-                            item.socialLogoForSocialService != null &&
-                                item.socialLogoForSocialService!.startsWith(
-                                  'http',
-                                )
-                            ? Image.network(
-                                item.socialLogoForSocialService!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Icon(
-                                  Icons.repeat_rounded,
-                                  size: 24.sp,
-                                  color: Colors.white54,
-                                ),
-                              )
-                            : item.socialLogoForSocialService != null &&
-                                  item.socialLogoForSocialService!.isNotEmpty
-                            ? Image.asset(
-                                item.socialLogoForSocialService!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Icon(
-                                  Icons.repeat_rounded,
-                                  size: 24.sp,
-                                  color: Colors.white54,
-                                ),
-                              )
-                            : Icon(
-                                Icons.repeat_rounded,
-                                size: 24.sp,
-                                color: Colors.white54,
-                              ),
+                        child: Image.asset(
+                          item.platformIcon,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Icon(
+                            Icons.repeat_rounded,
+                            size: 24.sp,
+                            color: Colors.white54,
+                          ),
+                        ),
                       ),
                     ),
                     SizedBox(width: 12.w),
@@ -121,7 +95,7 @@ class RepostsSection extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: Text(
-                                  item.serviceName,
+                                  item.platformDisplayName,
                                   style: getTextStyle(
                                     fontsize: 15,
                                     fontweight: FontWeight.w600,
@@ -129,48 +103,11 @@ class RepostsSection extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              // Price tag badge
-                              // if (index == 0)
-                              //   Container(
-                              //     padding: EdgeInsets.symmetric(
-                              //       horizontal: 8.w,
-                              //       vertical: 3.h,
-                              //     ),
-                              //     decoration: BoxDecoration(
-                              //       color: AppColors.redColor.withValues(
-                              //         alpha: 0.2,
-                              //       ),
-                              //       borderRadius: BorderRadius.circular(4.r),
-                              //       border: Border.all(
-                              //         color: AppColors.redColor.withValues(
-                              //           alpha: 0.5,
-                              //         ),
-                              //         width: 0.5,
-                              //       ),
-                              //     ),
-                              //     child: Row(
-                              //       mainAxisSize: MainAxisSize.min,
-                              //       children: [
-                              //         Text(
-                              //           '🔥 ',
-                              //           style: TextStyle(fontSize: 10.sp),
-                              //         ),
-                              //         Text(
-                              //           '\$${item.price.toStringAsFixed(0)} REPOST',
-                              //           style: getTextStyle(
-                              //             fontsize: 9,
-                              //             fontweight: FontWeight.w700,
-                              //             color: AppColors.redColor,
-                              //           ),
-                              //         ),
-                              //       ],
-                              //     ),
-                              //   ),
                             ],
                           ),
                           SizedBox(height: 4.h),
                           Text(
-                            item.description.isNotEmpty ? item.description : '',
+                            '${item.formattedFollowerCount} Followers  •  ${item.formattedTurnaround}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: getTextStyle(
@@ -228,29 +165,26 @@ class RepostsSection extends StatelessWidget {
                               : GestureDetector(
                                   onTap: () {
                                     final option = RepostOption(
-                                      title: item.serviceName,
+                                      title: item.platformDisplayName,
                                       price:
                                           '\$${item.price.toStringAsFixed(2)}',
                                       badge: 'Active',
                                       listingId: item.id,
-                                      followerCount: 0,
+                                      followerCount: item.followerCount,
                                       description: item.description,
-                                      defaultTurnaround: 'TWENTY_FOUR_HOURS',
-                                      rawPlatform: item.serviceName
-                                          .toUpperCase()
-                                          .replaceAll(' REPOST', '')
-                                          .replaceAll(' ', '_'),
+                                      defaultTurnaround: item.defaultTurnaround,
+                                      rawPlatform: item.platform,
                                     );
 
                                     final platform = RepostPlatform(
-                                      name: item.serviceName.split(' ').first,
-                                      iconPath: item.socialLogoForSocialService,
-                                      heroTitle: item.serviceName,
+                                      name: item.platformDisplayName.split(' ').first,
+                                      iconPath: item.platformIcon,
+                                      heroTitle: item.platformDisplayName,
                                       heroSubtitle: item.description,
-                                      visualTag: item.serviceName
+                                      visualTag: item.platformDisplayName
                                           .split(' ')
                                           .first,
-                                      repostTypes: [item.serviceName],
+                                      repostTypes: [item.platformDisplayName],
                                       repostOptions: [option],
                                     );
 
