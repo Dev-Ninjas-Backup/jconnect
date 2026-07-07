@@ -1,12 +1,16 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
+import 'package:jconnect/core/service/network_service/network_client.dart';
+import 'package:jconnect/features/home/artists_details_screen/controller/artists_details_controller.dart';
 import 'package:jconnect/features/home/home_screen/model/spotlight_listings_model.dart';
 import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/features/repost/repost_start/screens/repost_screen.dart';
+import 'package:jconnect/routes/approute.dart';
 
 class SpotlightCard extends StatelessWidget {
   const SpotlightCard({super.key, required this.item, this.padding});
@@ -70,25 +74,40 @@ class SpotlightCard extends StatelessWidget {
           Stack(
             clipBehavior: Clip.none,
             children: [
-              Container(
-                padding: EdgeInsets.all(2.5.r),
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [Colors.orange, Colors.pink, Colors.purple],
-                    begin: Alignment.bottomLeft,
-                    end: Alignment.topRight,
+              GestureDetector(
+                onTap: () {
+                  final artistsDetailsController = Get.put(
+                    ArtistsDetailsController(
+                      networkClient: NetworkClient(
+                        onUnAuthorize: () {
+                          if (kDebugMode) print("unauthorized");
+                        },
+                      ),
+                    ),
+                  );
+                  artistsDetailsController.fetchArtistById(item.seller!.id);
+                  Get.toNamed(AppRoute.artistsDetailsPage);
+                },
+                child: Container(
+                  padding: EdgeInsets.all(2.5.r),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [Colors.orange, Colors.pink, Colors.purple],
+                      begin: Alignment.bottomLeft,
+                      end: Alignment.topRight,
+                    ),
                   ),
-                ),
-                child: CircleAvatar(
-                  radius: 34.r,
-                  backgroundColor: Colors.grey[900],
-                  backgroundImage:
-                      item.seller?.profilePhoto != null &&
-                          item.seller!.profilePhoto!.trim().isNotEmpty
-                      ? NetworkImage(item.seller!.profilePhoto!)
-                            as ImageProvider
-                      : AssetImage(Imagepath.profileImage) as ImageProvider,
+                  child: CircleAvatar(
+                    radius: 34.r,
+                    backgroundColor: Colors.grey[900],
+                    backgroundImage:
+                        item.seller?.profilePhoto != null &&
+                            item.seller!.profilePhoto!.trim().isNotEmpty
+                        ? NetworkImage(item.seller!.profilePhoto!)
+                              as ImageProvider
+                        : AssetImage(Imagepath.profileImage) as ImageProvider,
+                  ),
                 ),
               ),
               if (item.platform.isNotEmpty)
@@ -119,16 +138,31 @@ class SpotlightCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Flexible(
-                child: Text(
-                  item.seller?.username.trim().isEmpty == true
-                      ? "User"
-                      : item.seller!.username,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: getTextStyle(
-                    fontsize: sp(12),
-                    fontweight: FontWeight.w600,
-                    color: Colors.white,
+                child: GestureDetector(
+                  onTap: () {
+                    final artistsDetailsController = Get.put(
+                      ArtistsDetailsController(
+                        networkClient: NetworkClient(
+                          onUnAuthorize: () {
+                            if (kDebugMode) print("unauthorized");
+                          },
+                        ),
+                      ),
+                    );
+                    artistsDetailsController.fetchArtistById(item.seller!.id);
+                    Get.toNamed(AppRoute.artistsDetailsPage);
+                  },
+                  child: Text(
+                    item.seller?.username.trim().isEmpty == true
+                        ? "User"
+                        : item.seller!.username,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: getTextStyle(
+                      fontsize: sp(12),
+                      fontweight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),

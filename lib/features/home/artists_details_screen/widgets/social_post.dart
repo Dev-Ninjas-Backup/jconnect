@@ -116,24 +116,24 @@ class SocialPost extends StatelessWidget {
                             color: AppColors.secondaryTextColor,
                           ),
                         ),
-                        SizedBox(height: 6.h),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.verified_outlined,
-                              size: 14.sp,
-                              color: AppColors.secondaryTextColor,
-                            ),
-                            SizedBox(width: 4.w),
-                            Text(
-                              'Verification Included',
-                              style: getTextStyle(
-                                fontsize: 11,
-                                color: AppColors.secondaryTextColor,
-                              ),
-                            ),
-                          ],
-                        ),
+                        // SizedBox(height: 6.h),
+                        // Row(
+                        //   children: [
+                        //     Icon(
+                        //       Icons.verified_outlined,
+                        //       size: 14.sp,
+                        //       color: AppColors.secondaryTextColor,
+                        //     ),
+                        //     SizedBox(width: 4.w),
+                        //     Text(
+                        //       'Verification Included',
+                        //       style: getTextStyle(
+                        //         fontsize: 11,
+                        //         color: AppColors.secondaryTextColor,
+                        //       ),
+                        //     ),
+                        //   ],
+                        // ),
                       ],
                     ),
                   ),
