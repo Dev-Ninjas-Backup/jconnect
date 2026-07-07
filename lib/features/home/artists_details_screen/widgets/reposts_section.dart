@@ -254,7 +254,9 @@ class RepostsSection extends StatelessWidget {
                                   procController.selectedOptionIndex.value = 0;
 
                                   Get.to(
-                                    () => const RepostContentPaymentScreen(),
+                                    () => RepostContentPaymentScreen(
+                                      listingId: item.id.toString(),
+                                    ),
                                   );
                                 },
                                 child: Container(
