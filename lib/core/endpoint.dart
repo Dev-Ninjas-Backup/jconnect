@@ -100,4 +100,8 @@ class Endpoint {
       "$baseUrl/repost-orders/$id/accept";
   static String uploadRepostOrderProof(String id) =>
       "$baseUrl/repost-orders/$id/submit-proof";
+  static String reviewRepostOrder(String id) =>
+      "$baseUrl/repost-orders/$id/review";
+  static String rejectRepostOrder(String id) =>
+      "$baseUrl/repost-orders/$id/reject";
 }

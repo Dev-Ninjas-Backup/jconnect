@@ -46,7 +46,7 @@ class BuyerReviewPostScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 4.h),
                 Text(
-                  'Submitted ${DateFormat('hh:mm a').format(controller.reviewModel.submittedAt)}',
+                  'Submitted ${DateFormat('yyyy-MM-dd hh:mm a').format(controller.reviewModel.submittedAt)}',
                   style: getTextStyle(
                     fontsize: 13,
                     color: AppColors.secondaryTextColor,
@@ -164,6 +164,37 @@ class BuyerReviewPostScreen extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (controller.reviewModel.proofNote != null &&
+                    controller.reviewModel.proofNote!.isNotEmpty) ...[
+                  SizedBox(height: 20.h),
+                  Text(
+                    'Seller Note',
+                    style: getTextStyle(
+                      fontsize: 14,
+                      fontweight: FontWeight.w600,
+                      color: AppColors.primaryTextColor,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(16.r),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF161616),
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
+                    ),
+                    child: Text(
+                      controller.reviewModel.proofNote!,
+                      style: getTextStyle(
+                        fontsize: 13,
+                        color: AppColors.secondaryTextColor,
+                      ),
+                    ),
+                  ),
+                ],
                 SizedBox(height: 28.h),
 
                 Text(
@@ -203,19 +234,23 @@ class BuyerReviewPostScreen extends StatelessWidget {
                 SizedBox(height: 12.h),
 
                 OutlinedButton(
-                  onPressed: () {
-                    Get.dialog(
-                      RedoRequestDialog(
-                        controller: controller,
-                        onSubmit: (instructions) =>
-                            controller.submitRedoRequest(instructions),
-                      ),
-                    );
-                  },
+                  onPressed: item.status == 'REDO_REQUESTED'
+                      ? null
+                      : () {
+                          Get.dialog(
+                            RedoRequestDialog(
+                              controller: controller,
+                              onSubmit: (instructions) =>
+                                  controller.submitRedoRequest(instructions),
+                            ),
+                          );
+                        },
                   style: OutlinedButton.styleFrom(
                     padding: EdgeInsets.zero,
                     side: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: Colors.white.withValues(
+                        alpha: item.status == 'REDO_REQUESTED' ? 0.3 : 0.6,
+                      ),
                     ),
                     minimumSize: Size(double.infinity, 44.h),
                     shape: RoundedRectangleBorder(
@@ -223,10 +258,14 @@ class BuyerReviewPostScreen extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Ask for Redo',
+                    item.status == 'REDO_REQUESTED'
+                        ? 'Asked for Redo'
+                        : 'Ask for Redo',
                     style: getTextStyle(
                       fontsize: 16,
-                      color: AppColors.primaryTextColor,
+                      color: item.status == 'REDO_REQUESTED'
+                          ? AppColors.secondaryTextColor
+                          : AppColors.primaryTextColor,
                     ),
                   ),
                 ),
