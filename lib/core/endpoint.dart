@@ -100,4 +100,7 @@ class Endpoint {
       "$baseUrl/repost-orders/$id/accept";
   static String uploadRepostOrderProof(String id) =>
       "$baseUrl/repost-orders/$id/submit-proof";
+
+  // Repost socket
+  static const String repostSocketIO = '$baseUrl/repost';
 }
