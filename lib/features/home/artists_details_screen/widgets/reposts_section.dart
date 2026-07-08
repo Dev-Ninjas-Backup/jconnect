@@ -60,7 +60,7 @@ class RepostsSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: EdgeInsets.all(2),
+                      padding: EdgeInsets.all(8.w),
                       width: 48.w,
                       height: 48.w,
                       decoration: BoxDecoration(
@@ -70,16 +70,13 @@ class RepostsSection extends StatelessWidget {
                           width: 1,
                         ),
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(24.r),
-                        child: Image.asset(
-                          item.platformIcon,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Icon(
-                            Icons.repeat_rounded,
-                            size: 24.sp,
-                            color: Colors.white54,
-                          ),
+                      child: Image.asset(
+                        item.platformIcon,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => Icon(
+                          Icons.repeat_rounded,
+                          size: 24.sp,
+                          color: Colors.white54,
                         ),
                       ),
                     ),
