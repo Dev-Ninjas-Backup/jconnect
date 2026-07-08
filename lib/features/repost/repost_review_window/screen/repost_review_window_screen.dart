@@ -214,12 +214,23 @@ class RepostReviewWindowScreen extends StatelessWidget {
                     ),
                   );
                 }),
-                SizedBox(height: 80.h),
-            
-                CustomPrimaryButton(
-                  buttonText: "View Proof",
-                  onTap: () => Get.to(() => BuyerReviewPostScreen(item: item)),
-                ),
+                Obx(() {
+                  final currentItem = controller.detailedItem.value ?? item;
+                  final hideButton = currentItem.status == 'NEW_REQUEST' ||
+                      currentItem.status == 'ACCEPTED';
+                  if (hideButton) {
+                    return const SizedBox.shrink();
+                  }
+                  return Column(
+                    children: [
+                      SizedBox(height: 80.h),
+                      CustomPrimaryButton(
+                        buttonText: "View Proof",
+                        onTap: () => Get.to(() => BuyerReviewPostScreen(item: currentItem)),
+                      ),
+                    ],
+                  );
+                }),
             
                 SizedBox(height: 8.h),
               ],

@@ -62,6 +62,24 @@ class RepostStatusService {
     }
   }
 
+  Future<RepostStatusItem> rejectRepostOrder(String id) async {
+    try {
+      final response = await client.postRequest(
+        url: Endpoint.rejectRepostOrder(id),
+        body: {},
+      );
+
+      if (response.isSuccess &&
+          (response.statusCode == 200 || response.statusCode == 201)) {
+        return RepostStatusItem.fromJson(response.responseData as Map<String, dynamic>);
+      } else {
+        throw response.errorMessage ?? 'Failed to reject repost order';
+      }
+    } catch (e) {
+      throw 'Something went wrong while rejecting repost order: $e';
+    }
+  }
+
   Future<RepostStatusItem> submitRepostProof({
     required String orderId,
     required File file,
@@ -88,6 +106,31 @@ class RepostStatusService {
       }
     } catch (e) {
       throw 'Something went wrong while submitting proof: $e';
+    }
+  }
+
+  Future<RepostStatusItem> reviewRepostOrder({
+    required String orderId,
+    required String action,
+    required String instructions,
+  }) async {
+    try {
+      final response = await client.postRequest(
+        url: Endpoint.reviewRepostOrder(orderId),
+        body: {
+          'action': action,
+          'instructions': instructions,
+        },
+      );
+
+      if (response.isSuccess &&
+          (response.statusCode == 200 || response.statusCode == 201)) {
+        return RepostStatusItem.fromJson(response.responseData as Map<String, dynamic>);
+      } else {
+        throw response.errorMessage ?? 'Failed to review repost order';
+      }
+    } catch (e) {
+      throw 'Something went wrong while reviewing repost order: $e';
     }
   }
 

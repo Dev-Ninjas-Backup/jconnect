@@ -230,11 +230,23 @@ class RequestDetailsController extends GetxController {
     }
   }
 
-  void rejectRequest() {
-    Get.snackbar(
-      'Rejected',
-      'You have rejected this repost request.',
-      snackPosition: SnackPosition.BOTTOM,
-    );
+  Future<void> rejectRequest() async {
+    final orderId = detailedItem.value?.id ?? item.id;
+    try {
+      EasyLoading.show(status: 'Rejecting request...');
+      await _service.rejectRepostOrder(orderId);
+      EasyLoading.dismiss();
+      Get.snackbar(
+        'Rejected',
+        'You have rejected this repost request.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      Future.delayed(const Duration(seconds: 1), () {
+        Get.back();
+      });
+    } catch (e) {
+      EasyLoading.dismiss();
+      Get.snackbar('Error', e.toString(), snackPosition: SnackPosition.BOTTOM);
+    }
   }
 }

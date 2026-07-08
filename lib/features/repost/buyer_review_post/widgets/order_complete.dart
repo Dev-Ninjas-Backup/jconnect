@@ -15,36 +15,20 @@ class OrderComplete extends StatelessWidget {
   const OrderComplete({required this.item, this.onViewOrderTap, super.key});
 
   String get _optionText {
-    final platform = item.platform;
-    if (platform.toLowerCase() == 'instagram') {
-      return 'Instagram Story Repost';
-    }
-    return '$platform Repost';
+    return '${item.platform} Repost';
   }
 
   String get _platformIconPath {
-    final platform = item.platform;
-    switch (platform.toLowerCase()) {
-      case 'instagram':
-        return Iconpath.instagram;
-      case 'facebook':
-        return Iconpath.facebook;
-      case 'tiktok':
-        return Iconpath.tiktok;
-      case 'youtube':
-        return Iconpath.youtube;
-      case 'linkedin':
-        return Iconpath.linkedIn;
-      case 'twitter':
-      case 'x':
-        return Iconpath.twitter;
-      case 'snapchat':
-        return Iconpath.snapChat;
-      case 'twitch':
-        return Iconpath.twitch;
-      default:
-        return Iconpath.defaultSocial;
-    }
+    final platform = item.platform.toLowerCase();
+    if (platform.contains('instagram')) return Iconpath.instagram;
+    if (platform.contains('facebook')) return Iconpath.facebook;
+    if (platform.contains('tiktok')) return Iconpath.tiktok;
+    if (platform.contains('youtube')) return Iconpath.youtube;
+    if (platform.contains('linkedin')) return Iconpath.linkedIn;
+    if (platform.contains('twitter') || platform == 'x') return Iconpath.twitter;
+    if (platform.contains('snapchat')) return Iconpath.snapChat;
+    if (platform.contains('twitch')) return Iconpath.twitch;
+    return Iconpath.defaultSocial;
   }
 
   @override
@@ -138,7 +122,7 @@ class OrderComplete extends StatelessWidget {
                         Align(
                           alignment: AlignmentGeometry.topEnd,
                           child: Text(
-                            "\$ 1.00",
+                            "\$${item.amount.toStringAsFixed(2)}",
                             style: getTextStyle(
                               fontsize: 16,
                               fontweight: FontWeight.w700,
@@ -152,7 +136,7 @@ class OrderComplete extends StatelessWidget {
                     Align(
                       alignment: AlignmentGeometry.topEnd,
                       child: Text(
-                        "Order ID: #5654652",
+                        "Order ID: #${item.orderCode}",
                         style: getTextStyle(
                           fontsize: 12,
                           fontweight: FontWeight.w400,
@@ -217,7 +201,7 @@ class OrderComplete extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          DateFormat('hh:mm a').format(item.createdAt),
+                          DateFormat('hh:mm a').format(item.proofSubmittedAt ?? item.createdAt),
                           style: getTextStyle(
                             fontsize: 12,
                             fontweight: FontWeight.w600,
