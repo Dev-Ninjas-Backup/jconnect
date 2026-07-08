@@ -41,17 +41,11 @@ class RepostStatusCard extends StatelessWidget {
   }
 
   bool _isActive(String status) {
-    if (isPaidTab) {
-      // Buyer side: Only PROOF_SUBMITTED is active (requires buyer review/action)
-      return status == 'PROOF_SUBMITTED';
-    } else {
-      // Seller side: NEW_REQUEST, ACCEPTED, IN_PROGRESS, PROOF_SUBMITTED, and REDO_REQUESTED are active
-      return status == 'NEW_REQUEST' ||
-          status == 'ACCEPTED' ||
-          status == 'IN_PROGRESS' ||
-          status == 'PROOF_SUBMITTED' ||
-          status == 'REDO_REQUESTED';
-    }
+    return status == 'NEW_REQUEST' ||
+        status == 'ACCEPTED' ||
+        status == 'IN_PROGRESS' ||
+        status == 'PROOF_SUBMITTED' ||
+        status == 'REDO_REQUESTED';
   }
 
   Color _bgColor() =>
@@ -67,8 +61,11 @@ class RepostStatusCard extends StatelessWidget {
     final controller = Get.find<RepostStatusController>();
 
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: _isActive(item.status)
           ? () {
+              // ignore: avoid_print
+              print("TAP CARD: status=${item.status}, isPaidTab=$isPaidTab");
               if (isPaidTab) {
                 Get.to(() => RepostReviewWindowScreen(item: item));
               } else {

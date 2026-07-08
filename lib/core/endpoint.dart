@@ -103,4 +103,8 @@ class Endpoint {
 
   // Repost socket
   static const String repostSocketIO = '$baseUrl/repost';
+  static String reviewRepostOrder(String id) =>
+      "$baseUrl/repost-orders/$id/review";
+  static String rejectRepostOrder(String id) =>
+      "$baseUrl/repost-orders/$id/reject";
 }

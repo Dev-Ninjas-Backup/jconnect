@@ -91,6 +91,7 @@ class RepostStatusItem {
   final String? proofType;
   final String? proofUrl;
   final List<String> proofFiles;
+  final String? proofNote;
   final DateTime? proofSubmittedAt;
   final DateTime? reviewWindowEndsAt;
   final DateTime? redoWindowEndsAt;
@@ -122,6 +123,7 @@ class RepostStatusItem {
     this.proofType,
     this.proofUrl,
     required this.proofFiles,
+    this.proofNote,
     this.proofSubmittedAt,
     this.reviewWindowEndsAt,
     this.redoWindowEndsAt,
@@ -157,6 +159,7 @@ class RepostStatusItem {
       proofType: json['proofType'] as String?,
       proofUrl: json['proofUrl'] as String?,
       proofFiles: List<String>.from(json['proofFiles'] as List? ?? []),
+      proofNote: json['proofNote'] as String?,
       proofSubmittedAt: json['proofSubmittedAt'] != null
           ? DateTime.tryParse(json['proofSubmittedAt'] as String)
           : null,
@@ -204,6 +207,7 @@ class RepostStatusItem {
     String? proofType,
     String? proofUrl,
     List<String>? proofFiles,
+    String? proofNote,
     DateTime? proofSubmittedAt,
     DateTime? reviewWindowEndsAt,
     DateTime? redoWindowEndsAt,
@@ -235,6 +239,7 @@ class RepostStatusItem {
       proofType: proofType ?? this.proofType,
       proofUrl: proofUrl ?? this.proofUrl,
       proofFiles: proofFiles ?? this.proofFiles,
+      proofNote: proofNote ?? this.proofNote,
       proofSubmittedAt: proofSubmittedAt ?? this.proofSubmittedAt,
       reviewWindowEndsAt: reviewWindowEndsAt ?? this.reviewWindowEndsAt,
       redoWindowEndsAt: redoWindowEndsAt ?? this.redoWindowEndsAt,

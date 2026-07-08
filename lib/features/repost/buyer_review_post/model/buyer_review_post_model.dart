@@ -8,6 +8,8 @@ class BuyerReviewPostModel {
   final double amount;
   final RepostStatusItem originalItem;
 
+  final String? proofNote;
+
   const BuyerReviewPostModel({
     required this.id,
     required this.proofImageUrl,
@@ -15,5 +17,6 @@ class BuyerReviewPostModel {
     required this.submittedAt,
     required this.amount,
     required this.originalItem,
+    this.proofNote,
   });
 }
