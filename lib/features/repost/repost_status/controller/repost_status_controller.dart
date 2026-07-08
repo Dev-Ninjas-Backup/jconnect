@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
+import 'package:jconnect/features/repost/repost_socket/repost_socket_service.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
 import 'package:jconnect/features/repost/repost_status/service/repost_status_service.dart';
 
@@ -28,11 +31,46 @@ class RepostStatusController extends GetxController {
   // Paid repost status — I am the buyer (fetched from my-orders API)
   final paidReposts = <RepostStatusItem>[].obs;
 
+  StreamSubscription? _socketSubscription;
+
   @override
   void onInit() {
     super.onInit();
     fetchMySellerRepostOrders();
     fetchPaidRepostOrders();
+    _initSocket();
+  }
+
+  @override
+  void onClose() {
+    _socketSubscription?.cancel();
+    RepostSocketService().disconnect();
+    super.onClose();
+  }
+
+  Future<void> _initSocket() async {
+    try {
+      final prefs = Get.find<SharedPreferencesHelperController>();
+      final token = await prefs.getAccessRowToken();
+      if (token != null && token.isNotEmpty) {
+        final socketService = RepostSocketService();
+        socketService.connect(token: token);
+
+        _socketSubscription = socketService.eventStream.listen((event) {
+          if (event.event == 'repost:error') {
+            debugPrint('❌ Repost Socket Error: ${event.data}');
+          } else if (event.event == 'repost:success') {
+            debugPrint('✅ Repost Socket Success: ${event.data}');
+          } else {
+            debugPrint('📩 Repost Socket Event: ${event.event}. Refreshing lists.');
+            fetchMySellerRepostOrders();
+            fetchPaidRepostOrders();
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('⚠️ Error initializing repost socket: $e');
+    }
   }
 
   Future<void> fetchPaidRepostOrders() async {

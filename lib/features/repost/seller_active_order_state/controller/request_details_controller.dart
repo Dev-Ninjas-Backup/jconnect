@@ -3,7 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
+import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
+import 'package:jconnect/features/repost/repost_socket/repost_socket_service.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
 import 'package:jconnect/features/repost/repost_status/service/repost_status_service.dart';
 import 'package:jconnect/features/repost/seller_active_order_state/screen/seller_active_order_screen.dart';
@@ -33,6 +35,8 @@ class RequestDetailsController extends GetxController {
   final remainingSeconds = 0.obs;
   final totalSeconds = 7200.obs;
 
+  StreamSubscription? _socketSubscription;
+
   @override
   void onInit() {
     super.onInit();
@@ -40,12 +44,54 @@ class RequestDetailsController extends GetxController {
     detailedItem.value = item;
     _initializeTimer(item);
     fetchOrderDetails();
+    _initSocket();
   }
 
   @override
   void onClose() {
     _timer?.cancel();
+    _socketSubscription?.cancel();
+    _leaveOrderRoom();
     super.onClose();
+  }
+
+  Future<void> _initSocket() async {
+    try {
+      final prefs = Get.find<SharedPreferencesHelperController>();
+      final token = await prefs.getAccessRowToken();
+      if (token != null && token.isNotEmpty) {
+        final socketService = RepostSocketService();
+        if (!socketService.isConnected) {
+          socketService.connect(token: token);
+        }
+        
+        // Join the specific order room
+        socketService.joinOrder(item.id);
+
+        _socketSubscription = socketService.eventStream.listen((event) {
+          final data = event.data;
+          String? eventOrderId;
+          if (data is Map) {
+            eventOrderId = data['id'] ?? data['orderId'];
+          }
+
+          if (eventOrderId == item.id) {
+            debugPrint('📩 Socket event matching order ${item.id} received: ${event.event}. Fetching details.');
+            fetchOrderDetails();
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('⚠️ Error initializing socket in RequestDetailsController: $e');
+    }
+  }
+
+  void _leaveOrderRoom() {
+    try {
+      RepostSocketService().leaveOrder(item.id);
+    } catch (e) {
+      debugPrint('⚠️ Error leaving order room: $e');
+    }
   }
 
   Future<void> fetchOrderDetails() async {
