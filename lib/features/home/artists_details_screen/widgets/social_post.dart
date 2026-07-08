@@ -58,10 +58,7 @@ class SocialPost extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.backGroundColor,
                 borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(
-                  color: Colors.grey.shade800,
-                  width: 1,
-                ),
+                border: Border.all(color: Colors.grey.shade800, width: 1),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,18 +67,16 @@ class SocialPost extends StatelessWidget {
                   Container(
                     width: 48.w,
                     height: 48.w,
+                    padding: EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.grey.shade700,
-                        width: 1,
-                      ),
+                      border: Border.all(color: Colors.grey.shade700, width: 1),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(24.r),
                       child: Image.network(
                         item.socialLogoForSocialService.toString(),
-                        fit: BoxFit.cover,
+                        fit: BoxFit.contain,
                         errorBuilder: (_, __, ___) => Icon(
                           Icons.photo_library_outlined,
                           size: 24.sp,
