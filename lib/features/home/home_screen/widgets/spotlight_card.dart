@@ -155,7 +155,9 @@ class SpotlightCard extends StatelessWidget {
                   child: Text(
                     item.seller?.username.trim().isEmpty == true
                         ? "User"
-                        : item.seller!.username,
+                        : item.seller!.username.trim().length > 10
+                            ? "${item.seller!.username.trim().substring(0, 10)}..."
+                            : item.seller!.username,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: getTextStyle(
