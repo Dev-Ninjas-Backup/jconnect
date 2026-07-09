@@ -62,6 +62,12 @@ class SellerActiveOrderScreen extends StatelessWidget {
                               statusText = 'Redo Requested';
                             } else if (currentItem.status == 'IN_PROGRESS') {
                               statusText = 'In Progress';
+                            } else if (currentItem.status == 'COMPLETED') {
+                              statusText = 'Completed';
+                            } else if (currentItem.status == 'REFUNDED') {
+                              statusText = 'Refunded';
+                            } else if (currentItem.status == 'CANCELLED' || currentItem.status == 'REJECTED') {
+                              statusText = 'Cancelled';
                             }
                             return Text(
                               statusText,
@@ -159,7 +165,21 @@ class SellerActiveOrderScreen extends StatelessWidget {
                           SizedBox(height: 32.h),
                            Obx(() {
                             final currentItem = controller.detailedItem.value ?? item;
+                            final isCompleted = currentItem.status == 'COMPLETED';
                             final isProofSubmitted = currentItem.status == 'PROOF_SUBMITTED';
+                            
+                            if (isCompleted) {
+                              return CustomPrimaryButton(
+                                buttonText: 'Completed',
+                                gradientColor: [
+                                  const Color(0xFF0F2916),
+                                  const Color(0xFF22C55E).withValues(alpha: 0.2),
+                                  const Color(0xFF0F2916)
+                                ],
+                                onTap: () => Get.back(),
+                              );
+                            }
+                            
                             return CustomPrimaryButton(
                               buttonText: isProofSubmitted ? 'Proof Submitted' : 'Submit Proof',
                               gradientColor: isProofSubmitted

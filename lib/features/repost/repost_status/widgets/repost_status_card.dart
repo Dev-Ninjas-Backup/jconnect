@@ -7,6 +7,7 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/repost/repost_status/controller/repost_status_controller.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
 import 'package:jconnect/features/repost/repost_review_window/screen/repost_review_window_screen.dart';
+import 'package:jconnect/features/repost/repost_status/screen/repost_inactive_order_details_screen.dart';
 import 'package:jconnect/features/repost/seller_active_order_state/screen/request_details_screen.dart';
 import 'package:jconnect/features/repost/seller_active_order_state/screen/seller_active_order_screen.dart';
 
@@ -40,14 +41,6 @@ class RepostStatusCard extends StatelessWidget {
     }
   }
 
-  bool _isActive(String status) {
-    return status == 'NEW_REQUEST' ||
-        status == 'ACCEPTED' ||
-        status == 'IN_PROGRESS' ||
-        status == 'PROOF_SUBMITTED' ||
-        status == 'REDO_REQUESTED';
-  }
-
   Color _bgColor() =>
       isPaidTab ? const Color(0xFF0D1F2D) : Colors.teal.withValues(alpha: .08);
 
@@ -62,24 +55,28 @@ class RepostStatusCard extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: _isActive(item.status)
-          ? () {
-              // ignore: avoid_print
-              print("TAP CARD: status=${item.status}, isPaidTab=$isPaidTab");
-              if (isPaidTab) {
-                Get.to(() => RepostReviewWindowScreen(item: item));
-              } else {
-                if (item.status == 'ACCEPTED' ||
-                    item.status == 'IN_PROGRESS' ||
-                    item.status == 'PROOF_SUBMITTED' ||
-                    item.status == 'REDO_REQUESTED') {
-                  Get.to(() => SellerActiveOrderScreen(item: item));
-                } else {
-                  Get.to(() => RequestDetailsScreen(item: item));
-                }
-              }
-            }
-          : null,
+      onTap: () {
+        // ignore: avoid_print
+        print("TAP CARD: status=${item.status}, isPaidTab=$isPaidTab");
+        final statusUpper = item.status.toUpperCase();
+        if (statusUpper == 'COMPLETED' ||
+            statusUpper == 'REJECTED' ||
+            statusUpper == 'REFUNDED' ||
+            statusUpper == 'CANCELLED') {
+          Get.to(() => RepostInactiveOrderDetailsScreen(item: item, isPaidTab: isPaidTab));
+        } else if (isPaidTab) {
+          Get.to(() => RepostReviewWindowScreen(item: item));
+        } else {
+          if (statusUpper == 'ACCEPTED' ||
+              statusUpper == 'IN_PROGRESS' ||
+              statusUpper == 'PROOF_SUBMITTED' ||
+              statusUpper == 'REDO_REQUESTED') {
+            Get.to(() => SellerActiveOrderScreen(item: item));
+          } else {
+            Get.to(() => RequestDetailsScreen(item: item));
+          }
+        }
+      },
       child: Container(
         margin: EdgeInsets.only(bottom: 12.h),
         padding: EdgeInsets.all(14.r),
