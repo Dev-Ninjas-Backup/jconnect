@@ -6,6 +6,8 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/core/common/constants/custom_textfield.dart';
 import 'package:jconnect/core/common/constants/custom_obsecure_textfield.dart';
+import 'package:jconnect/core/common/constants/imagepath.dart';
+import 'package:jconnect/features/auth/login/controller/login_controller.dart';
 import 'package:jconnect/features/auth/signup/controller/signup_controller.dart';
 import 'package:jconnect/features/auth/signup/widgets/checkbox_widget.dart';
 import 'package:jconnect/features/auth/signup/widgets/phone_field_widget.dart';
@@ -16,6 +18,7 @@ class SignupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(SignupController());
+    final loginController = Get.put(LoginController());
 
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
@@ -69,7 +72,7 @@ class SignupScreen extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               CustomTextfield(
-                hintText: "Enter your address",
+                hintText: "Enter your email",
                 controller: controller.emailController,
               ),
 
@@ -139,9 +142,25 @@ class SignupScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _socialCircle(Iconpath.googleIcon),
-                        SizedBox(width: 24),
-                        _socialCircle(Iconpath.facebookIcon),
+                        GestureDetector(
+                          onTap: () => loginController.signInWithGoogle(),
+                          child: CircleAvatar(
+                            radius: 20,
+                            backgroundColor: Colors.white,
+                            child: Image.asset(Iconpath.googleIcon, height: 40),
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        GestureDetector(
+                          onTap: () async {
+                            await Get.find<LoginController>().signInWithApple();
+                          },
+                          child: CircleAvatar(
+                            radius: 20,
+                            backgroundColor: Colors.white,
+                            child: Image.asset(Imagepath.appleLogo, height: 40),
+                          ),
+                        ),
                       ],
                     ),
                     SizedBox(height: 24),
@@ -178,16 +197,4 @@ class SignupScreen extends StatelessWidget {
     );
   }
 
-  Widget _socialCircle(String path) {
-    return Container(
-      height: 50,
-      width: 50,
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Color(0xFF1E1E1E),
-      ),
-      child: Image.asset(path, fit: BoxFit.fill),
-    );
-  }
 }

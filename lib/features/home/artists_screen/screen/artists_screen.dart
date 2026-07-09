@@ -20,7 +20,12 @@ class ArtistsScreen extends StatelessWidget {
       backgroundColor: AppColors.backGroundColor,
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(left: 7.w, right: 7.w, top: 74.h),
+          padding: EdgeInsets.only(
+            left: 7.w,
+            right: 7.w,
+            top: 74.h,
+            bottom: 50,
+          ),
           child: Column(
             children: [
               CustomAppBar2(
@@ -52,9 +57,9 @@ class ArtistsScreen extends StatelessWidget {
               ),
               SizedBox(height: 20.h),
               BrowseByCategorySection(controller: controller),
-              SizedBox(height: 30.h),
+              SizedBox(height: 25.h),
               ArtistsItemListTab(controller: controller),
-              SizedBox(height: 40.h),
+              SizedBox(height: 25.h),
               ArtistsItem(controller: controller),
             ],
           ),
