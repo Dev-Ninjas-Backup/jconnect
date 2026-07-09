@@ -139,20 +139,18 @@ class RepostListingsScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           final item = listings[index];
           final isActive = item.isActive;
-          return GestureDetector(
-            onTap: () async {
+          return RepostListingCard(
+            item: item,
+            isActive: isActive,
+            controller: controller,
+            onEdit: () async {
               await Get.toNamed(
                 AppRoute.createEditRepostListingScreen,
                 arguments: item.id,
               );
               controller.fetchListings();
             },
-            onLongPress: () => _showDeleteDialog(context, controller, item),
-            child: RepostListingCard(
-              item: item,
-              isActive: isActive,
-              controller: controller,
-            ),
+            onDelete: () => _showDeleteDialog(context, controller, item),
           );
         },
       );
@@ -178,10 +176,7 @@ class RepostListingsScreen extends StatelessWidget {
         ),
         content: Text(
           'Are you sure you want to delete this repost listing? This action cannot be undone.',
-          style: getTextStyle(
-            color: Colors.grey,
-            fontsize: 14,
-          ),
+          style: getTextStyle(color: Colors.grey, fontsize: 14),
         ),
         actions: [
           TextButton(

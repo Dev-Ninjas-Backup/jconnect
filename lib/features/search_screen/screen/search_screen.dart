@@ -26,7 +26,7 @@ class SearchScreen extends StatelessWidget {
             return Padding(
               padding: EdgeInsets.only(left: 7.w, right: 7.w, top: 74.h),
               child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+                physics: const ScrollPhysics(),
                 child: Column(
                   children: [
                     CustomTextfield(
@@ -45,7 +45,7 @@ class SearchScreen extends StatelessWidget {
                         }
                       },
                     ),
-                    SizedBox(height: 40.h),
+                    SizedBox(height: 25.h),
                     ArtistsItem(controller: controller),
                   ],
                 ),
