@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
@@ -13,6 +14,131 @@ class RequestDetailsScreen extends StatelessWidget {
   final RepostStatusItem item;
   const RequestDetailsScreen({required this.item, super.key});
 
+  Widget _buildParticipantCard({
+    required String title,
+    required String username,
+    String? photoUrl,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        color: const Color(0xFF161616),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.08),
+        ),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 20.r,
+            backgroundColor: const Color(0xFF2C2C2C),
+            backgroundImage: (photoUrl != null && photoUrl.isNotEmpty)
+                ? NetworkImage(photoUrl)
+                : null,
+            child: (photoUrl == null || photoUrl.isEmpty)
+                ? Text(
+                    username.isNotEmpty ? username.substring(0, 1).toUpperCase() : 'B',
+                    style: getTextStyle(
+                      fontsize: 14,
+                      fontweight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  )
+                : null,
+          ),
+          SizedBox(width: 10.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: getTextStyle(
+                    fontsize: 10,
+                    color: AppColors.secondaryTextColor,
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  username,
+                  style: getTextStyle(
+                    fontsize: 13,
+                    fontweight: FontWeight.w600,
+                    color: AppColors.primaryTextColor,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderLabel(String text) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.h),
+      child: Text(
+        text,
+        style: getTextStyle(
+          fontsize: 14,
+          fontweight: FontWeight.w600,
+          color: AppColors.primaryTextColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentRow(
+    String label,
+    String amount, {
+    bool isNegative = false,
+    bool isHighlight = false,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: getTextStyle(
+            fontsize: 12,
+            fontweight: isHighlight ? FontWeight.w600 : FontWeight.w400,
+            color: isHighlight
+                ? AppColors.primaryTextColor
+                : AppColors.secondaryTextColor,
+          ),
+        ),
+        Text(
+          isNegative ? '-$amount' : amount,
+          style: getTextStyle(
+            fontsize: isHighlight ? 15 : 13,
+            fontweight: isHighlight ? FontWeight.bold : FontWeight.w500,
+            color: isHighlight
+                ? Colors.greenAccent
+                : isNegative
+                    ? Colors.redAccent
+                    : AppColors.primaryTextColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _copyToClipboard(String text, String label) {
+    Clipboard.setData(ClipboardData(text: text));
+    Get.snackbar(
+      'Copied',
+      '$label copied to clipboard!',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xFF1E1E1E),
+      colorText: Colors.white,
+      margin: EdgeInsets.all(16.r),
+      duration: const Duration(seconds: 2),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(RequestDetailsController(item: item));
@@ -26,157 +152,254 @@ class RequestDetailsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CustomAppBar2(
-                title: "Request Details",
+                title: "Request #${item.orderCode}",
                 leadingIconUrl: Iconpath.backIcon,
                 onLeadingTap: () => Get.back(),
               ),
 
-              SizedBox(height: 30.h),
+              SizedBox(height: 24.h),
 
-              Obx(() {
-                return Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(16.r),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF161616),
-                    borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.08),
-                    ),
-                  ),
-                  child: Row(
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Image.asset(
-                        controller.platformIconPath,
-                        height: 28.h,
-                        width: 28.w,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.share,
-                            color: Colors.white,
-                            size: 28.r,
-                          );
-                        },
-                      ),
-                      SizedBox(width: 12.w),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Repost Option',
-                            style: getTextStyle(
-                              fontsize: 12,
-                              color: AppColors.primaryTextColor,
+                      // Repost Option
+                      Obx(() {
+                        return Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(16.r),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF161616),
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.08),
                             ),
                           ),
-                          SizedBox(height: 2.h),
-                          Text(
-                            controller.optionText,
-                            style: getTextStyle(
-                              fontsize: 13,
-                              fontweight: FontWeight.w600,
-                              color: AppColors.primaryTextColor,
-                            ),
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                controller.platformIconPath,
+                                height: 28.h,
+                                width: 28.w,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Icon(
+                                    Icons.share,
+                                    color: Colors.white,
+                                    size: 28.r,
+                                  );
+                                },
+                              ),
+                              SizedBox(width: 12.w),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Repost Option',
+                                    style: getTextStyle(
+                                      fontsize: 12,
+                                      color: AppColors.primaryTextColor,
+                                    ),
+                                  ),
+                                  SizedBox(height: 2.h),
+                                  Text(
+                                    controller.optionText,
+                                    style: getTextStyle(
+                                      fontsize: 13,
+                                      fontweight: FontWeight.w600,
+                                      color: AppColors.primaryTextColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ],
+                        );
+                      }),
+
+                      SizedBox(height: 16.h),
+
+                      // Time to Complete
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(vertical: 24.h),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF161616),
+                          borderRadius: BorderRadius.circular(12.r),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.08),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Time to Complete',
+                              style: getTextStyle(
+                                fontsize: 12,
+                                color: AppColors.primaryTextColor,
+                              ),
+                            ),
+                            SizedBox(height: 10.h),
+                            Obx(() {
+                              return Text(
+                                controller.formattedTime,
+                                style: getTextStyle(
+                                  fontsize: 36,
+                                  fontweight: FontWeight.w700,
+                                  color: Colors.red,
+                                ),
+                              );
+                            }),
+                            SizedBox(height: 6.h),
+                            Text(
+                              'Time remaining',
+                              style: getTextStyle(
+                                fontsize: 11,
+                                color: AppColors.secondaryTextColor,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+
+                      SizedBox(height: 16.h),
+
+                      // Buyer Info
+                      Obx(() {
+                        final currentItem = controller.detailedItem.value ?? item;
+                        final buyer = currentItem.buyer;
+                        if (buyer == null) return const SizedBox.shrink();
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildHeaderLabel('Buyer'),
+                            _buildParticipantCard(
+                              title: 'Buyer Details',
+                              username: buyer.username,
+                              photoUrl: buyer.profilePhoto,
+                            ),
+                            SizedBox(height: 16.h),
+                          ],
+                        );
+                      }),
+
+                      // Content to Repost
+                      Obx(() {
+                        final currentItem = controller.detailedItem.value ?? item;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildHeaderLabel('Content to Repost'),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 16.w,
+                                vertical: 12.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF161616),
+                                borderRadius: BorderRadius.circular(12.r),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.08),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      currentItem.contentUrl.isNotEmpty
+                                          ? currentItem.contentUrl
+                                          : 'No link provided',
+                                      style: getTextStyle(
+                                        fontsize: 13,
+                                        color: currentItem.contentUrl.isNotEmpty
+                                            ? Colors.blueAccent
+                                            : AppColors.secondaryTextColor,
+                                        fontweight: FontWeight.w500,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  if (currentItem.contentUrl.isNotEmpty) ...[
+                                    SizedBox(width: 8.w),
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.content_copy_rounded,
+                                        color: Colors.grey,
+                                        size: 20.r,
+                                      ),
+                                      onPressed: () => _copyToClipboard(
+                                        currentItem.contentUrl,
+                                        'Content URL',
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 16.h),
+                          ],
+                        );
+                      }),
+
+                      // Payment Breakdown
+                      Obx(() {
+                        final currentItem = controller.detailedItem.value ?? item;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildHeaderLabel('Payment Breakdown'),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(16.r),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF161616),
+                                borderRadius: BorderRadius.circular(12.r),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.08),
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  _buildPaymentRow(
+                                    'Total Budget',
+                                    '\$${currentItem.amount.toStringAsFixed(2)}',
+                                  ),
+                                  Divider(
+                                    color: Colors.white.withValues(alpha: 0.06),
+                                    height: 20.h,
+                                  ),
+                                  _buildPaymentRow(
+                                    'Platform Fee (10%)',
+                                    '\$${currentItem.platformFee.toStringAsFixed(2)}',
+                                    isNegative: true,
+                                  ),
+                                  Divider(
+                                    color: Colors.white.withValues(alpha: 0.06),
+                                    height: 20.h,
+                                  ),
+                                  _buildPaymentRow(
+                                    'Your Earnings',
+                                    '\$${currentItem.sellerAmount.toStringAsFixed(2)}',
+                                    isHighlight: true,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                      SizedBox(height: 20.h),
                     ],
                   ),
-                );
-              }),
-
-              SizedBox(height: 16.h),
-
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 24.h),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF161616),
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.08),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      'Time to Complete',
-                      style: getTextStyle(
-                        fontsize: 12,
-                        color: AppColors.primaryTextColor,
-                      ),
-                    ),
-                    SizedBox(height: 10.h),
-                    Obx(() {
-                      return Text(
-                        controller.formattedTime,
-                        style: getTextStyle(
-                          fontsize: 36,
-                          fontweight: FontWeight.w700,
-                          color: Colors.red,
-                        ),
-                      );
-                    }),
-                    SizedBox(height: 6.h),
-                    Text(
-                      'Time remaining',
-                      style: getTextStyle(
-                        fontsize: 11,
-                        color: AppColors.secondaryTextColor,
-                      ),
-                    ),
-                  ],
                 ),
               ),
 
               SizedBox(height: 16.h),
 
-              Obx(() {
-                final currentItem = controller.detailedItem.value ?? item;
-                return Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(16.r),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF161616),
-                    borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.08),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Payment',
-                        style: getTextStyle(
-                          fontsize: 12,
-                          color: AppColors.primaryTextColor,
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      Text(
-                        '\$${currentItem.amount.toStringAsFixed(2)}',
-                        style: getTextStyle(
-                          fontsize: 24,
-                          fontweight: FontWeight.w700,
-                          color: AppColors.primaryTextColor,
-                        ),
-                      ),
-                      SizedBox(height: 6.h),
-                      Text(
-                        'Secure escrow until you approve the repost',
-                        style: getTextStyle(
-                          fontsize: 11,
-                          color: AppColors.secondaryTextColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-
-              const Spacer(),
-
+              // Action Buttons
               CustomPrimaryButton(
                 buttonText: 'Accept Request',
                 onTap: () => controller.acceptRequest(),
@@ -211,3 +434,4 @@ class RequestDetailsScreen extends StatelessWidget {
     );
   }
 }
+
