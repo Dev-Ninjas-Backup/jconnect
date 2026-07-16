@@ -8,7 +8,9 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/features/repost/repost_process_option/controller/repost_process_option_controller.dart';
+import 'package:jconnect/features/payment/payment_controller.dart';
 import 'package:jconnect/features/repost/repost_process_option/screens/set_complation_time.dart';
+import 'package:jconnect/features/user_profile/payment_method/add_stripe/screen/add_stripe.dart';
 
 class RepostContentPaymentScreen extends StatelessWidget {
   final String listingId;
@@ -16,6 +18,7 @@ class RepostContentPaymentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<RepostProcessOptionController>();
+    final paymentController = Get.put(PaymentController());
     final selectedOption = controller.currentPlatform.repostOptions[controller.selectedOptionIndex.value];
     final shareLinkController = TextEditingController();
 
@@ -73,6 +76,16 @@ class RepostContentPaymentScreen extends StatelessWidget {
                                   title: 'Hi!',
                                   message: 'Please enter a valid URL address',
                                 );
+                                return;
+                              }
+
+                              // Check if a payment method is linked
+                              if (paymentController.paymentMethod.value == null) {
+                                showGradientSnackBar(
+                                  title: 'Payment Method Required',
+                                  message: 'Please add a payment card to continue.',
+                                );
+                                Get.to(() => AddStripe());
                                 return;
                               }
 
