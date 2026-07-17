@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/features/add_services/repository/add_service_repository.dart';
@@ -63,10 +64,9 @@ class AddServiceController extends GetxController {
       }
     } catch (e) {
       EasyLoading.dismiss();
-      Get.snackbar(
-        'Error',
-        'Failed to load services',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Failed to load services',
       );
     }
   }
@@ -88,13 +88,13 @@ class AddServiceController extends GetxController {
 
       if (selectedServiceType.value == null) {
         EasyLoading.dismiss();
-        Get.snackbar('Error', 'Please select a service type.');
+        showGradientSnackBar(title: 'Error', message: 'Please select a service type.');
         return;
       }
 
       if (isSocial && selectedSocialPlatform.value == null) {
         EasyLoading.dismiss();
-        Get.snackbar('Error', 'Please select a social platform.');
+        showGradientSnackBar(title: 'Error', message: 'Please select a social platform.');
         return;
       }
 
@@ -154,42 +154,38 @@ class AddServiceController extends GetxController {
     } catch (e) {
       EasyLoading.dismiss();
       print('Error saving service: $e');
-      Get.snackbar(
-        'Error',
-        editingIndex.value != null
+      showGradientSnackBar(
+        title: 'Error',
+        message: editingIndex.value != null
             ? 'Failed to update service'
             : 'Failed to add service',
-        snackPosition: SnackPosition.BOTTOM,
       );
     }
   }
 
   Future<bool> saveRepost() async {
     if (selectedSocialPlatform.value == null) {
-      Get.snackbar(
-        'Error',
-        'Please select a social platform.',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Please select a social platform.',
       );
       return false;
     }
 
     final priceValue = int.tryParse(repostPrice.text);
     if (priceValue == null) {
-      Get.snackbar(
-        'Error',
-        'Please enter a valid price.',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Please enter a valid price.',
       );
       return false;
     }
 
     final followerCountValue = int.tryParse(followerCountController.text);
     if (followerCountValue == null) {
-      Get.snackbar(
-        'Error',
-        'Please enter a valid follower count.',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Please enter a valid follower count.',
       );
       return false;
     }
@@ -221,10 +217,9 @@ class AddServiceController extends GetxController {
     } catch (e) {
       EasyLoading.dismiss();
       print('Error saving repost listing: $e');
-      Get.snackbar(
-        'Error',
-        'Failed to save repost listing: $e',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Failed to save repost listing: $e',
       );
       return false;
     }
@@ -244,10 +239,9 @@ class AddServiceController extends GetxController {
     } catch (e) {
       EasyLoading.dismiss();
       services.insert(index, removedService);
-      Get.snackbar(
-        'Error',
-        'Failed to delete service',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Failed to delete service',
       );
     }
   }

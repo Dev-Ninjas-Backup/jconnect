@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:http/http.dart' as http;
 import 'package:jconnect/core/endpoint.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
@@ -41,7 +42,7 @@ class ArtistsDetailsController extends GetxController {
 
     try {
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        Get.snackbar('Error', 'Could not launch URL');
+        showGradientSnackBar(title: 'Error', message: 'Could not launch URL');
       }
     } catch (e) {
       print('Error URL launch failed: $e');
@@ -67,13 +68,13 @@ class ArtistsDetailsController extends GetxController {
 
         await checkFollowStatus(id);
       } else {
-        Get.snackbar(
-          'Error',
-          response.errorMessage ?? 'Failed to fetch artist',
+        showGradientSnackBar(
+          title: 'Error',
+          message: response.errorMessage ?? 'Failed to fetch artist',
         );
       }
     } catch (e) {
-      Get.snackbar('Error', e.toString());
+      showGradientSnackBar(title: 'Error', message: e.toString());
     } finally {
       isLoading(false);
     }
@@ -208,7 +209,7 @@ class ArtistsDetailsController extends GetxController {
     if (id != null) {
       fetchArtistById(id);
     } else {
-      Get.snackbar('Error', 'Artist ID not found');
+      showGradientSnackBar(title: 'Error', message: 'Artist ID not found');
       Get.back();
     }
   }

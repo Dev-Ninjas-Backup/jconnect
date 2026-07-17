@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 
@@ -141,20 +142,16 @@ class _ReviewPopupState extends State<ReviewPopup> {
               child: ElevatedButton(
                 onPressed: () {
                   if (selectedRating == 0) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please select a rating'),
-                        backgroundColor: Colors.red,
-                      ),
+                    showGradientSnackBar(
+                      title: 'Error',
+                      message: 'Please select a rating',
                     );
                     return;
                   }
                   if (reviewController.text.trim().isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please write a review'),
-                        backgroundColor: Colors.red,
-                      ),
+                    showGradientSnackBar(
+                      title: 'Error',
+                      message: 'Please write a review',
                     );
                     return;
                   }

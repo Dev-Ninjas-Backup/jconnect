@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
@@ -269,18 +270,16 @@ class RepostReviewWindowController extends GetxController {
   }
 
   void releaseFunds() {
-    Get.snackbar(
-      'Success',
-      'Funds released successfully!',
-      snackPosition: SnackPosition.BOTTOM,
+    showGradientSnackBar(
+      title: 'Success',
+      message: 'Funds released successfully!',
     );
   }
 
   void reportIssue() {
-    Get.snackbar(
-      'Reported',
-      'Issue reported successfully.',
-      snackPosition: SnackPosition.BOTTOM,
+    showGradientSnackBar(
+      title: 'Reported',
+      message: 'Issue reported successfully.',
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_appbar.dart';
@@ -139,11 +140,9 @@ class PhoneVerificationScreen extends StatelessWidget {
                 if (phoneOtp.length == 4) {
                   controller.verifyPhoneOtp(int.parse(phoneOtp));
                 } else {
-                  Get.snackbar(
-                    'Error',
-                    'Please enter complete OTP',
-                    backgroundColor: AppColors.redColor,
-                    colorText: Colors.white,
+                  showGradientSnackBar(
+                    title: 'Error',
+                    message: 'Please enter complete OTP',
                   );
                 }
               },

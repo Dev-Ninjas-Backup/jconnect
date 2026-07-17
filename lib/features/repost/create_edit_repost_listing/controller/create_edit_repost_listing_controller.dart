@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/features/add_services/repository/add_service_repository.dart';
 import 'package:jconnect/features/user_profile/profile/controller/profile_controller.dart';
@@ -108,10 +109,9 @@ class CreateEditRepostListingController extends GetxController {
       descriptionController.text = data['description'] ?? '';
     } catch (e) {
       debugPrint('Error fetching listing details: $e');
-      Get.snackbar(
-        'Error',
-        'Failed to fetch listing details: $e',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Failed to fetch listing details: $e',
       );
     } finally {
       isFetchingDetails.value = false;
@@ -135,20 +135,18 @@ class CreateEditRepostListingController extends GetxController {
   Future<void> onSave() async {
     final platformApi = platformApiMap[selectedPlatform.value];
     if (platformApi == null) {
-      Get.snackbar(
-        'Error',
-        'Please select a social platform.',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Please select a social platform.',
       );
       return;
     }
 
     final turnaroundApi = turnaroundOptions[selectedTurnaround.value];
     if (turnaroundApi == null) {
-      Get.snackbar(
-        'Error',
-        'Please select a turnaround time.',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Please select a turnaround time.',
       );
       return;
     }
@@ -156,10 +154,9 @@ class CreateEditRepostListingController extends GetxController {
     final double? parsedPrice = double.tryParse(priceController.text);
     final int? priceValue = parsedPrice?.round();
     if (priceValue == null) {
-      Get.snackbar(
-        'Error',
-        'Please enter a valid price.',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Please enter a valid price.',
       );
       return;
     }
@@ -168,10 +165,9 @@ class CreateEditRepostListingController extends GetxController {
       platformFollowerController.text,
     );
     if (followerCountValue == null) {
-      Get.snackbar(
-        'Error',
-        'Please enter a valid follower count.',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Please enter a valid follower count.',
       );
       return;
     }
@@ -215,12 +211,11 @@ class CreateEditRepostListingController extends GetxController {
       EasyLoading.dismiss();
 
       Get.back();
-      Get.snackbar(
-        'Success',
-        editingListingId != null
+      showGradientSnackBar(
+        title: 'Success',
+        message: editingListingId != null
             ? 'Repost listing updated successfully!'
             : 'Repost listing saved successfully!',
-        snackPosition: SnackPosition.BOTTOM,
       );
       if (Get.isRegistered<ProfileController>()) {
         Get.find<ProfileController>().fetchProfile();
@@ -228,10 +223,9 @@ class CreateEditRepostListingController extends GetxController {
     } catch (e) {
       EasyLoading.dismiss();
       debugPrint('Error saving repost listing: $e');
-      Get.snackbar(
-        'Error',
-        'Failed to save repost listing: $e',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Failed to save repost listing: $e',
       );
     }
   }

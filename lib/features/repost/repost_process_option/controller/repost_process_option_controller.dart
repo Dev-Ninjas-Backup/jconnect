@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/repost/repost_process_option/api_services/repost_api_pament_service.dart';
 import 'package:jconnect/features/repost/repost_start/model/repost_model.dart';
@@ -76,10 +77,9 @@ class RepostProcessOptionController extends GetxController {
       return response;
     } catch (e) {
       EasyLoading.dismiss();
-      Get.snackbar(
-        'Error',
-        e.toString(),
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: e.toString(),
       );
       return null;
     }
@@ -122,10 +122,9 @@ class RepostProcessOptionController extends GetxController {
       return true;
     } catch (e) {
       EasyLoading.dismiss();
-      Get.snackbar(
-        'Error',
-        e.toString(),
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: e.toString(),
       );
       return false;
     }

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/features/messages/service/custom_service_service.dart';
@@ -57,10 +58,9 @@ class AddCustomServiceController extends GetxController {
       }
     } catch (e) {
       EasyLoading.dismiss();
-      Get.snackbar(
-        'Error',
-        'Failed to load services',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Failed to load services',
       );
     }
   }
@@ -83,13 +83,13 @@ class AddCustomServiceController extends GetxController {
 
       if (selectedServiceType.value == null) {
         EasyLoading.dismiss();
-        Get.snackbar('Error', 'Please select a service type.');
+        showGradientSnackBar(title: 'Error', message: 'Please select a service type.');
         return null;
       }
 
       if (isSocial && selectedSocialPlatform.value == null) {
         EasyLoading.dismiss();
-        Get.snackbar('Error', 'Please select a social platform.');
+        showGradientSnackBar(title: 'Error', message: 'Please select a social platform.');
         return null;
       }
 
@@ -115,9 +115,9 @@ class AddCustomServiceController extends GetxController {
         // Check if service object exists in response
         if (response['service'] == null) {
           EasyLoading.dismiss();
-          Get.snackbar(
-            'Error',
-            response['data']?.toString() ?? 'Failed to update service',
+          showGradientSnackBar(
+            title: 'Error',
+            message: response['data']?.toString() ?? 'Failed to update service',
           );
           return null;
         }
@@ -154,12 +154,11 @@ class AddCustomServiceController extends GetxController {
         if (svc == null) {
           EasyLoading.dismiss();
 
-          Get.snackbar(
-            'Error',
-            response['data']?.toString() ??
+          showGradientSnackBar(
+            title: 'Error',
+            message: response['data']?.toString() ??
                 response['message'] ??
                 'Service already exists',
-            snackPosition: SnackPosition.BOTTOM,
           );
           return null;
         }
@@ -181,12 +180,11 @@ class AddCustomServiceController extends GetxController {
     } catch (e) {
       EasyLoading.dismiss();
       print('Error saving service: $e');
-      Get.snackbar(
-        'Error',
-        editingIndex.value != null
+      showGradientSnackBar(
+        title: 'Error',
+        message: editingIndex.value != null
             ? 'Failed to update service'
             : 'Failed to add service',
-        snackPosition: SnackPosition.BOTTOM,
       );
       return null;
     }
@@ -207,10 +205,9 @@ class AddCustomServiceController extends GetxController {
     } catch (e) {
       EasyLoading.dismiss();
       services.insert(index, removedService);
-      Get.snackbar(
-        'Error',
-        'Failed to delete service',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Failed to delete service',
       );
     }
   }

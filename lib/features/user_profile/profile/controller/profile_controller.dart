@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:jconnect/core/common/constants/app_colors.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/endpoint.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
@@ -188,7 +188,7 @@ class ProfileController extends GetxController {
       final userId = await prefs.getUserId();
 
       if (token == null || token.isEmpty || userId == null || userId.isEmpty) {
-        Get.snackbar('Error', 'Unable to delete account: missing credentials');
+        showGradientSnackBar(title: 'Error', message: 'Unable to delete account: missing credentials');
         return;
       }
 
@@ -209,18 +209,14 @@ class ProfileController extends GetxController {
         try {
           final map = json.decode(resp.body) as Map<String, dynamic>?;
           final message = map?['message']?.toString() ?? 'Account deleted';
-          Get.snackbar(
-            'Deleted',
-            message,
-            backgroundColor: AppColors.redColor.withValues(alpha: .8),
-            colorText: AppColors.backGroundColor,
+          showGradientSnackBar(
+            title: 'Deleted',
+            message: message,
           );
         } catch (_) {
-          Get.snackbar(
-            'Deleted',
-            'Your account has been deleted.',
-            backgroundColor: AppColors.redColor.withValues(alpha: .8),
-            colorText: AppColors.backGroundColor,
+          showGradientSnackBar(
+            title: 'Deleted',
+            message: 'Your account has been deleted.',
           );
         }
       } else {
@@ -231,11 +227,11 @@ class ProfileController extends GetxController {
             msg = map['message'].toString();
           }
         } catch (_) {}
-        Get.snackbar('Error', msg);
+        showGradientSnackBar(title: 'Error', message: msg);
       }
     } catch (e) {
       EasyLoading.dismiss();
-      Get.snackbar('Error', 'Failed to delete account: $e');
+      showGradientSnackBar(title: 'Error', message: 'Failed to delete account: $e');
     }
   }
 }

@@ -11,10 +11,10 @@ void showGradientSnackBar({
 }) {
   Get.rawSnackbar(
     backgroundColor: Colors.transparent,
-    snackPosition: SnackPosition.BOTTOM,
+    snackPosition: SnackPosition.TOP,
     duration: const Duration(seconds: 3),
     margin: EdgeInsets.only(
-      bottom: 20.h,
+      top: 50.h,
       left: 16.w,
       right: 16.w,
     ),

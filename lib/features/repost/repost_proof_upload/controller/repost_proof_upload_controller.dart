@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
@@ -171,12 +172,9 @@ class RepostProofUploadController extends GetxController {
 
   Future<void> submitProof() async {
     if (selectedFile.value == null) {
-      Get.snackbar(
-        'Warning',
-        'Please upload a screenshot or video proof first.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.amber,
-        colorText: Colors.black,
+      showGradientSnackBar(
+        title: 'Warning',
+        message: 'Please upload a screenshot or video proof first.',
       );
       return;
     }
@@ -198,12 +196,9 @@ class RepostProofUploadController extends GetxController {
       );
     } catch (e) {
       EasyLoading.dismiss();
-      Get.snackbar(
-        'Error',
-        e.toString(),
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withValues(alpha: 0.9),
-        colorText: Colors.white,
+      showGradientSnackBar(
+        title: 'Error',
+        message: e.toString(),
       );
     }
   }

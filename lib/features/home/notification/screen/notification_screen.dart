@@ -3,6 +3,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/home/artists_details_screen/controller/artists_details_controller.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
@@ -141,9 +142,9 @@ class NotificationScreen extends StatelessWidget {
                                             notification.currentUser?.id;
 
                                         if (artistId == null) {
-                                          Get.snackbar(
-                                            'Error',
-                                            'Sender information not available',
+                                          showGradientSnackBar(
+                                            title: 'Error',
+                                            message: 'Sender information not available',
                                           );
                                           return;
                                         }

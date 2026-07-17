@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/add_services/controller/add_services_controller.dart';
@@ -330,10 +331,9 @@ void showAddRepostSheet(AddServiceController controller) {
                               final success = await controller.saveRepost();
                               if (success) {
                                 Get.back();
-                                Get.snackbar(
-                                  'Success',
-                                  'Repost listing saved successfully!',
-                                  snackPosition: SnackPosition.BOTTOM,
+                                showGradientSnackBar(
+                                  title: 'Success',
+                                  message: 'Repost listing saved successfully!',
                                 );
                               }
                             },
