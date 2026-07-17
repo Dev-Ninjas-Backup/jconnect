@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
@@ -2016,16 +2017,16 @@ void showAddServiceSheet(
                                     : null,
                               );
                               Get.back();
-                              Get.snackbar('Success', 'Service sent');
+                               showGradientSnackBar(title: 'Success', message: 'Service sent');
                             } catch (e) {
                               Get.back();
-                              Get.snackbar('Error', 'Failed to send service');
+                              showGradientSnackBar(title: 'Error', message: 'Failed to send service');
                             }
                           } else {
                             Get.back();
-                            Get.snackbar(
-                              'Info',
-                              'Service creation issue. Please try again.',
+                            showGradientSnackBar(
+                              title: 'Info',
+                              message: 'Service creation issue. Please try again.',
                             );
                           }
                         } else {

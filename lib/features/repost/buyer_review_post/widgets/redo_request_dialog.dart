@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/features/repost/buyer_review_post/controller/buyer_review_post_controller.dart';
@@ -118,12 +119,9 @@ class RedoRequestDialog extends StatelessWidget {
                     ),
                     onPressed: () {
                       if (controller.redoController.text.trim().isEmpty) {
-                        Get.snackbar(
-                          'Warning',
-                          'Please provide redo instructions.',
-                          snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: Colors.amber,
-                          colorText: Colors.black,
+                        showGradientSnackBar(
+                          title: 'Warning',
+                          message: 'Please provide redo instructions.',
                         );
                         return;
                       }

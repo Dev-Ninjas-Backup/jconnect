@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
@@ -137,7 +138,7 @@ class OrderDetailsScreen extends StatelessWidget {
                             Navigator.pop(dialogContext);
                             final success = await controller.uploadProof(file);
                             if (success) {
-                              Get.snackbar('Success', 'Proof uploaded');
+                              showGradientSnackBar(title: 'Success', message: 'Proof uploaded');
                               try {
                                 await orderController.loadOrders();
                               } catch (_) {}
@@ -735,11 +736,9 @@ class OrderDetailsScreen extends StatelessWidget {
                                     reviewText: reviewText,
                                   );
                                   if (success) {
-                                    Get.snackbar(
-                                      'Success',
-                                      'Review posted successfully!',
-                                      backgroundColor: Colors.green,
-                                      colorText: Colors.white,
+                                    showGradientSnackBar(
+                                      title: 'Success',
+                                      message: 'Review posted successfully!',
                                     );
                                     // Refresh orders list in My Orders screen
                                     try {

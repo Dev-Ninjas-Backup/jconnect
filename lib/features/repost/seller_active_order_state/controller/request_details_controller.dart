@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
@@ -264,15 +265,14 @@ class RequestDetailsController extends GetxController {
         buyer: detailedItem.value?.buyer ?? item.buyer,
       );
       EasyLoading.dismiss();
-      Get.snackbar(
-        'Success',
-        'Request accepted successfully!',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Success',
+        message: 'Request accepted successfully!',
       );
       Get.off(() => SellerActiveOrderScreen(item: mergedItem));
     } catch (e) {
       EasyLoading.dismiss();
-      Get.snackbar('Error', e.toString(), snackPosition: SnackPosition.BOTTOM);
+      showGradientSnackBar(title: 'Error', message: e.toString());
     }
   }
 
@@ -282,17 +282,16 @@ class RequestDetailsController extends GetxController {
       EasyLoading.show(status: 'Rejecting request...');
       await _service.rejectRepostOrder(orderId);
       EasyLoading.dismiss();
-      Get.snackbar(
-        'Rejected',
-        'You have rejected this repost request.',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Rejected',
+        message: 'You have rejected this repost request.',
       );
       Future.delayed(const Duration(seconds: 1), () {
         Get.back();
       });
     } catch (e) {
       EasyLoading.dismiss();
-      Get.snackbar('Error', e.toString(), snackPosition: SnackPosition.BOTTOM);
+      showGradientSnackBar(title: 'Error', message: e.toString());
     }
   }
 }

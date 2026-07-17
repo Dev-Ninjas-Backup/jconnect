@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/repost/repost_listings/model/repost_listing_model.dart';
@@ -78,12 +79,11 @@ class RepostListingController extends GetxController
       }
 
       EasyLoading.dismiss();
-      Get.snackbar(
-        'Success',
-        updatedItem.isActive
+      showGradientSnackBar(
+        title: 'Success',
+        message: updatedItem.isActive
             ? 'Listing activated successfully!'
             : 'Listing deactivated successfully!',
-        snackPosition: SnackPosition.BOTTOM,
       );
       if (Get.isRegistered<ProfileController>()) {
         Get.find<ProfileController>().fetchProfile();
@@ -91,10 +91,9 @@ class RepostListingController extends GetxController
     } catch (e) {
       EasyLoading.dismiss();
       debugPrint('Error toggling active status: $e');
-      Get.snackbar(
-        'Error',
-        'Failed to toggle active status: $e',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Failed to toggle active status: $e',
       );
     }
   }
@@ -113,18 +112,16 @@ class RepostListingController extends GetxController
       }
 
       EasyLoading.dismiss();
-      Get.snackbar(
-        'Success',
-        'Listing deleted successfully!',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Success',
+        message: 'Listing deleted successfully!',
       );
     } catch (e) {
       EasyLoading.dismiss();
       debugPrint('Error deleting repost listing: $e');
-      Get.snackbar(
-        'Error',
-        'Failed to delete listing: $e',
-        snackPosition: SnackPosition.BOTTOM,
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Failed to delete listing: $e',
       );
     }
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
@@ -128,14 +129,9 @@ class RequestDetailsScreen extends StatelessWidget {
 
   void _copyToClipboard(String text, String label) {
     Clipboard.setData(ClipboardData(text: text));
-    Get.snackbar(
-      'Copied',
-      '$label copied to clipboard!',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xFF1E1E1E),
-      colorText: Colors.white,
-      margin: EdgeInsets.all(16.r),
-      duration: const Duration(seconds: 2),
+    showGradientSnackBar(
+      title: 'Copied',
+      message: '$label copied to clipboard!',
     );
   }
 

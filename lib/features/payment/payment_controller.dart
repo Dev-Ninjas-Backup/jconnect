@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button_2.dart';
 import 'package:jconnect/features/payment/model/payment_model.dart';
 import 'package:jconnect/features/payment/payment_service.dart';
@@ -28,7 +29,7 @@ class PaymentController extends GetxController {
       isLoading.value = true;
       platformFee.value = await _paymentService.fetchPlatformFee();
     } catch (e) {
-      Get.snackbar('Error', e.toString());
+      showGradientSnackBar(title: 'Error', message: e.toString());
     } finally {
       isLoading.value = false;
     }
@@ -72,7 +73,7 @@ class PaymentController extends GetxController {
 
   Future<void> deleteMethod(String? id) async {
     if (id == null) {
-      Get.snackbar('Error', 'Invalid payment method');
+      showGradientSnackBar(title: 'Error', message: 'Invalid payment method');
       return;
     }
 
@@ -82,10 +83,10 @@ class PaymentController extends GetxController {
 
       if (success) {
         paymentMethod.value = null;
-        Get.snackbar('Success', 'Payment method deleted');
+        showGradientSnackBar(title: 'Success', message: 'Payment method deleted');
       }
     } catch (e) {
-      Get.snackbar('Error', e.toString());
+      showGradientSnackBar(title: 'Error', message: e.toString());
     } finally {
       isDeleting.value = false;
     }
@@ -105,18 +106,14 @@ class PaymentController extends GetxController {
 
       await loadPaymentMethod();
 
-      Get.snackbar(
-        'Success',
-        'Payment Method Added Successfully',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
+      showGradientSnackBar(
+        title: 'Success',
+        message: 'Payment Method Added Successfully',
       );
     } catch (e) {
-      Get.snackbar(
-        'Payment Failed',
-        e.toString(),
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+      showGradientSnackBar(
+        title: 'Payment Failed',
+        message: e.toString(),
       );
     } finally {
       isLoading.value = false;
@@ -292,9 +289,10 @@ class _CardEntrySheetState extends State<_CardEntrySheet> {
 
       widget.onCreated(pm.id);
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      showGradientSnackBar(
+        title: 'Error',
+        message: e.toString(),
+      );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
