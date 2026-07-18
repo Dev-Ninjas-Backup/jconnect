@@ -463,6 +463,43 @@ class SellerActiveOrderScreen extends StatelessWidget {
                               ),
                             ),
                             SizedBox(height: 16.h),
+                            if (currentItem.redoInstructions != null &&
+                                currentItem.redoInstructions!.isNotEmpty) ...[
+                              _buildHeaderLabel('Redo Instructions'),
+                              Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.all(16.r),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF161616),
+                                  borderRadius: BorderRadius.circular(12.r),
+                             border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.08),
+                            ),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(
+                                      Icons.replay_rounded,
+                                      color: Colors.orangeAccent,
+                                      size: 20.r,
+                                    ),
+                                    SizedBox(width: 10.w),
+                                    Expanded(
+                                      child: Text(
+                                        currentItem.redoInstructions!,
+                                        style: getTextStyle(
+                                          fontsize: 13,
+                                          color: AppColors.primaryTextColor,
+                                          fontweight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 16.h),
+                            ],
                           ],
                         );
                       }),
