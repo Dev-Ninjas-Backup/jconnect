@@ -11,6 +11,7 @@ import 'package:jconnect/features/messages/model/message_model2.dart';
 import 'package:jconnect/routes/approute.dart';
 import '../controller/notification_controller.dart';
 import '../model/notification_model.dart';
+import 'package:jconnect/fcm_notification/fcm_notification_controller.dart';
 
 class NotificationScreen extends StatelessWidget {
   const NotificationScreen({super.key});
@@ -66,6 +67,10 @@ class NotificationScreen extends StatelessWidget {
 
             return GestureDetector(
               onTap: () async {
+                final titleLower = notification.title.toLowerCase();
+                final messageLower = notification.message.toLowerCase();
+                final typeLower = notification.type?.toLowerCase() ?? '';
+
                 if (notification.title.contains("Service")) {
                   final artistId =
                       notification.userId ?? notification.creatorId;
@@ -89,6 +94,24 @@ class NotificationScreen extends StatelessWidget {
                   Get.toNamed(
                     AppRoute.artistsDetailsPage,
                     parameters: {'id': artistId},
+                  );
+                } else if (titleLower.contains('repost') ||
+                    titleLower.contains('order') ||
+                    messageLower.contains('repost') ||
+                    messageLower.contains('order') ||
+                    typeLower == 'repost' ||
+                    typeLower == 'order') {
+                  final fcmController = Get.find<FcmNotificationController>();
+                  final Map<String, dynamic> data =
+                      Map<String, dynamic>.from(notification.meta ?? {});
+                  data['type'] = notification.type;
+                  data['title'] = notification.title;
+                  data['message'] = notification.message;
+
+                  fcmController.routeFromNotificationData(
+                    data: data,
+                    title: notification.title,
+                    body: notification.message,
                   );
                 }
               },
