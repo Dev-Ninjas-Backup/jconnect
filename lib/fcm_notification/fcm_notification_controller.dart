@@ -14,6 +14,13 @@ import 'package:jconnect/features/home/notification/screen/notification_screen.d
 import 'package:jconnect/features/messages/chat_details/screen/chat_details_screen.dart';
 import 'package:jconnect/firebase_options.dart';
 import 'package:jconnect/routes/approute.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:jconnect/core/service/network_service/network_client.dart';
+import 'package:jconnect/features/repost/repost_status/service/repost_status_service.dart';
+import 'package:jconnect/features/repost/repost_status/screen/repost_inactive_order_details_screen.dart';
+import 'package:jconnect/features/repost/repost_review_window/screen/repost_review_window_screen.dart';
+import 'package:jconnect/features/repost/seller_active_order_state/screen/seller_active_order_screen.dart';
+import 'package:jconnect/features/repost/seller_active_order_state/screen/request_details_screen.dart';
 
 const String _channelId = 'high_importance_channel';
 const String _channelName = 'High Importance Notifications';
@@ -412,6 +419,14 @@ class FcmNotificationController extends GetxController {
     );
   }
 
+  void routeFromNotificationData({
+    required Map<String, dynamic> data,
+    String? title,
+    String? body,
+  }) {
+    _routeFromNotificationData(data: data, title: title, body: body);
+  }
+
   void _routeFromNotificationData({
     required Map<String, dynamic> data,
     String? title,
@@ -501,7 +516,78 @@ class FcmNotificationController extends GetxController {
         }
         return;
       }
-        Get.offAllNamed(AppRoute.navBarScreen);
+
+      if (type == 'repost') {
+        _log('➡️ Routing to repost details');
+        final orderId = _firstNonEmpty(data, const [
+          'orderId',
+          'repostOrderId',
+          'repost_order_id',
+          'id',
+        ]);
+
+        if (orderId == null || orderId.isEmpty) {
+          _log('❌ Repost routing: orderId is null or empty, falling back to NotificationScreen');
+          Get.offAllNamed(AppRoute.navBarScreen);
+          Future.delayed(const Duration(milliseconds: 100), () {
+            Get.to(() => NotificationScreen());
+          });
+          return;
+        }
+
+        try {
+          EasyLoading.show(status: 'Loading details...');
+          final service = RepostStatusService(
+            client: NetworkClient(
+              onUnAuthorize: () {
+                _log('Unauthorized while loading repost details');
+              },
+            ),
+          );
+
+          final item = await service.fetchRepostOrderDetail(orderId);
+          EasyLoading.dismiss();
+
+          final prefs = Get.find<SharedPreferencesHelperController>();
+          final userId = await prefs.getUserId();
+          final isPaidTab = (userId == item.buyerId);
+
+          _log('➡️ Navigating based on repost item.status=${item.status}, isPaidTab=$isPaidTab');
+          
+          Get.offAllNamed(AppRoute.navBarScreen);
+          
+          Future.delayed(const Duration(milliseconds: 150), () {
+            final statusUpper = item.status.toUpperCase();
+            if (statusUpper == 'COMPLETED' ||
+                statusUpper == 'REJECTED' ||
+                statusUpper == 'REFUNDED' ||
+                statusUpper == 'CANCELLED') {
+              Get.to(() => RepostInactiveOrderDetailsScreen(item: item, isPaidTab: isPaidTab));
+            } else if (isPaidTab) {
+              Get.to(() => RepostReviewWindowScreen(item: item));
+            } else {
+              if (statusUpper == 'ACCEPTED' ||
+                  statusUpper == 'IN_PROGRESS' ||
+                  statusUpper == 'PROOF_SUBMITTED' ||
+                  statusUpper == 'REDO_REQUESTED') {
+                Get.to(() => SellerActiveOrderScreen(item: item));
+              } else {
+                Get.to(() => RequestDetailsScreen(item: item));
+              }
+            }
+          });
+        } catch (e) {
+          EasyLoading.dismiss();
+          _log('❌ Error loading repost details: $e');
+          Get.offAllNamed(AppRoute.navBarScreen);
+          Future.delayed(const Duration(milliseconds: 100), () {
+            Get.to(() => NotificationScreen());
+          });
+        }
+        return;
+      }
+
+      Get.offAllNamed(AppRoute.navBarScreen);
 
         Future.delayed(const Duration(milliseconds: 100), () {
           Get.to(() => NotificationScreen());
@@ -588,6 +674,15 @@ class FcmNotificationController extends GetxController {
         descriptor.contains('private-chat')) {
       _log('   ✅ Matched: message');
       return 'message';
+    }
+
+    // ✅ Match repost/order notifications
+    if (descriptor.contains('repost') ||
+        descriptor.contains('order') ||
+        rawType?.toLowerCase() == 'repost' ||
+        rawType?.toLowerCase() == 'order') {
+      _log('   ✅ Matched: repost');
+      return 'repost';
     }
 
     _log('   ⚠️ No match found for type=$rawType');
