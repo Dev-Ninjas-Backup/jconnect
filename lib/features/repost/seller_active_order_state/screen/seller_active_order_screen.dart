@@ -11,6 +11,7 @@ import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
 import 'package:jconnect/features/repost/seller_active_order_state/controller/request_details_controller.dart';
 import 'package:jconnect/features/repost/repost_proof_upload/screen/repost_proof_upload_screen.dart';
+import 'package:jconnect/core/utils/social_link_launcher.dart';
 
 class SellerActiveOrderScreen extends StatelessWidget {
   final RepostStatusItem item;
@@ -429,20 +430,25 @@ class SellerActiveOrderScreen extends StatelessWidget {
                               ),
                               child: Row(
                                 children: [
-                                  Expanded(
-                                    child: Text(
-                                      currentItem.contentUrl.isNotEmpty
-                                          ? currentItem.contentUrl
-                                          : 'No link provided',
-                                      style: getTextStyle(
-                                        fontsize: 13,
-                                        color: currentItem.contentUrl.isNotEmpty
-                                            ? Colors.blueAccent
-                                            : AppColors.secondaryTextColor,
-                                        fontweight: FontWeight.w500,
+                                   Expanded(
+                                    child: GestureDetector(
+                                      onTap: currentItem.contentUrl.isNotEmpty
+                                          ? () => SocialLinkLauncher.launchSocialLink(currentItem.contentUrl)
+                                          : null,
+                                      child: Text(
+                                        currentItem.contentUrl.isNotEmpty
+                                            ? currentItem.contentUrl
+                                            : 'No link provided',
+                                        style: getTextStyle(
+                                          fontsize: 13,
+                                          color: currentItem.contentUrl.isNotEmpty
+                                              ? Colors.blueAccent
+                                              : AppColors.secondaryTextColor,
+                                          fontweight: FontWeight.w500,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                   if (currentItem.contentUrl.isNotEmpty) ...[

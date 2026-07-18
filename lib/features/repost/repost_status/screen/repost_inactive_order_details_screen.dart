@@ -8,6 +8,7 @@ import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
+import 'package:jconnect/core/utils/social_link_launcher.dart';
 
 class RepostInactiveOrderDetailsScreen extends StatelessWidget {
   final RepostStatusItem item;
@@ -320,19 +321,24 @@ class RepostInactiveOrderDetailsScreen extends StatelessWidget {
                         child: Row(
                           children: [
                             Expanded(
-                              child: Text(
-                                item.contentUrl.isNotEmpty
-                                    ? item.contentUrl
-                                    : 'No link provided',
-                                style: getTextStyle(
-                                  fontsize: 13,
-                                  color: item.contentUrl.isNotEmpty
-                                      ? Colors.blueAccent
-                                      : AppColors.secondaryTextColor,
-                                  fontweight: FontWeight.w500,
+                              child: GestureDetector(
+                                onTap: item.contentUrl.isNotEmpty
+                                    ? () => SocialLinkLauncher.launchSocialLink(item.contentUrl)
+                                    : null,
+                                child: Text(
+                                  item.contentUrl.isNotEmpty
+                                      ? item.contentUrl
+                                      : 'No link provided',
+                                  style: getTextStyle(
+                                    fontsize: 13,
+                                    color: item.contentUrl.isNotEmpty
+                                        ? Colors.blueAccent
+                                        : AppColors.secondaryTextColor,
+                                    fontweight: FontWeight.w500,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             if (item.contentUrl.isNotEmpty) ...[

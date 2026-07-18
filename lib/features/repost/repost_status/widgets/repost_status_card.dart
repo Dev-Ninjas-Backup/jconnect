@@ -10,6 +10,8 @@ import 'package:jconnect/features/repost/repost_review_window/screen/repost_revi
 import 'package:jconnect/features/repost/repost_status/screen/repost_inactive_order_details_screen.dart';
 import 'package:jconnect/features/repost/seller_active_order_state/screen/request_details_screen.dart';
 import 'package:jconnect/features/repost/seller_active_order_state/screen/seller_active_order_screen.dart';
+import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
+import 'package:jconnect/core/utils/social_link_launcher.dart';
 
 class RepostStatusCard extends StatelessWidget {
   final RepostStatusItem item;
@@ -147,11 +149,9 @@ class RepostStatusCard extends StatelessWidget {
 
                   SizedBox(height: 4.h),
 
-                  // Content URL — copyable
+                  // Content URL — launchable & copyable
                   GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: item.contentUrl));
-                    },
+                    onTap: () => SocialLinkLauncher.launchSocialLink(item.contentUrl),
                     child: Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 10.w,
@@ -184,10 +184,22 @@ class RepostStatusCard extends StatelessWidget {
                             ),
                           ),
                           SizedBox(width: 6.w),
-                          Icon(
-                            Icons.copy_rounded,
-                            size: 13.r,
-                            color: AppColors.secondaryTextColor,
+                          GestureDetector(
+                            onTap: () {
+                              Clipboard.setData(ClipboardData(text: item.contentUrl));
+                              showGradientSnackBar(
+                                title: 'Copied',
+                                message: 'URL copied to clipboard!',
+                              );
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.all(4.r),
+                              child: Icon(
+                                Icons.copy_rounded,
+                                size: 13.r,
+                                color: AppColors.secondaryTextColor,
+                              ),
+                            ),
                           ),
                         ],
                       ),
