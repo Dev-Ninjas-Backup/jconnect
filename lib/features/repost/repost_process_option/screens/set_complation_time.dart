@@ -7,7 +7,8 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/features/repost/repost_process_option/controller/repost_process_option_controller.dart';
-import 'package:jconnect/features/repost/repost_status/screen/repost_status.dart';
+import 'package:jconnect/features/my_orders/controller/my_order_controller.dart';
+import 'package:jconnect/features/my_orders/screen/my_orders_screen.dart';
 
 class SetCompletionTimeScreen extends StatelessWidget {
   final String listingId;
@@ -145,7 +146,9 @@ class SetCompletionTimeScreen extends StatelessWidget {
                           timeframe: controller.selectedTimeframeEnum,
                         );
                         if (success) {
-                          Get.to(RepostStatuScreen());
+                          final ordersController = Get.put(MyOrdersController());
+                          ordersController.selectedMainTab.value = OrderMainTab.repostService;
+                          Get.offAll(() => const MyOrdersScreen());
                         }
                       },
                     ),
