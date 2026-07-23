@@ -9,6 +9,7 @@ import 'package:jconnect/core/common/widgets/custom_primary_button.dart';
 import 'package:jconnect/features/repost/repost_process_option/controller/repost_process_option_controller.dart';
 import 'package:jconnect/features/my_orders/controller/my_order_controller.dart';
 import 'package:jconnect/features/my_orders/screen/my_orders_screen.dart';
+import 'package:jconnect/features/bottom_navbar/controller/bottom_navbar_controller.dart';
 
 class SetCompletionTimeScreen extends StatelessWidget {
   final String listingId;
@@ -51,55 +52,62 @@ class SetCompletionTimeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 12.h),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 12.h),
 
-                    Text(
-                      'Choose how much time the seller has to repost your content.',
-                      style: getTextStyle(
-                        fontsize: 13,
-                        fontweight: FontWeight.w400,
-                        color: AppColors.primaryTextColor,
-                      ),
-                    ),
+                            Text(
+                              'Choose how much time the seller has to repost your content.',
+                              style: getTextStyle(
+                                fontsize: 13,
+                                fontweight: FontWeight.w400,
+                                color: AppColors.primaryTextColor,
+                              ),
+                            ),
 
-                    SizedBox(height: 10.h),
+                            SizedBox(height: 10.h),
 
-                    Text(
-                      'Countdown starts when you submit this request.',
-                      style: getTextStyle(
-                        fontsize: 13,
-                        fontweight: FontWeight.w400,
-                        color: AppColors.secondaryTextColor,
-                      ),
-                    ),
+                            Text(
+                              'Countdown starts when you submit this request.',
+                              style: getTextStyle(
+                                fontsize: 13,
+                                fontweight: FontWeight.w400,
+                                color: AppColors.secondaryTextColor,
+                              ),
+                            ),
 
-                    SizedBox(height: 24.h),
+                            SizedBox(height: 24.h),
 
-                    Text(
-                      'Select Timeframe',
-                      style: getTextStyle(
-                        fontsize: 16,
-                        fontweight: FontWeight.w500,
-                        color: AppColors.primaryTextColor,
-                      ),
-                    ),
+                            Text(
+                              'Select Timeframe',
+                              style: getTextStyle(
+                                fontsize: 16,
+                                fontweight: FontWeight.w500,
+                                color: AppColors.primaryTextColor,
+                              ),
+                            ),
 
-                    SizedBox(height: 12.h),
+                            SizedBox(height: 12.h),
 
-                    Obx(() {
-                      return Column(
-                        children: List.generate(
-                          controller.timeframes.length,
-                          (index) => _TimeframeOption(
-                            label: controller.timeframes[index],
-                            isSelected: controller.selectedIndex.value == index,
-                            onTap: () => controller.selectTimeframe(index),
-                          ),
+                            Obx(() {
+                              return Column(
+                                children: List.generate(
+                                  controller.timeframes.length,
+                                  (index) => _TimeframeOption(
+                                    label: controller.timeframes[index],
+                                    isSelected: controller.selectedIndex.value == index,
+                                    onTap: () => controller.selectTimeframe(index),
+                                  ),
+                                ),
+                              );
+                            }),
+                          ],
                         ),
-                      );
-                    }),
-
-                    const Spacer(),
+                      ),
+                    ),
 
                     Container(
                       padding: EdgeInsets.symmetric(vertical: 12.h),
@@ -148,7 +156,8 @@ class SetCompletionTimeScreen extends StatelessWidget {
                         if (success) {
                           final ordersController = Get.put(MyOrdersController());
                           ordersController.selectedMainTab.value = OrderMainTab.repostService;
-                          Get.offAll(() => const MyOrdersScreen());
+                          final navBarController = Get.put(NavBarController());
+                          navBarController.changeIndex(3);
                         }
                       },
                     ),

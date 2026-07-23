@@ -568,8 +568,14 @@ class SellerActiveOrderScreen extends StatelessWidget {
               // Action button
               Obx(() {
                 final currentItem = controller.detailedItem.value ?? item;
-                final isCompleted = currentItem.status == 'COMPLETED';
-                final isProofSubmitted = currentItem.status == 'PROOF_SUBMITTED';
+                final statusUpper = currentItem.status.toUpperCase();
+                final isCompleted = statusUpper == 'COMPLETED';
+                final isProofSubmitted = statusUpper == 'PROOF_SUBMITTED';
+                final isRefunded = statusUpper.contains('REFUND');
+
+                if (isRefunded) {
+                  return const SizedBox.shrink();
+                }
 
                 if (isCompleted) {
                   return CustomPrimaryButton(

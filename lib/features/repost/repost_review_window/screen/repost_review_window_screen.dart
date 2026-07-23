@@ -216,9 +216,14 @@ class RepostReviewWindowScreen extends StatelessWidget {
                 }),
                 Obx(() {
                   final currentItem = controller.detailedItem.value ?? item;
-                  final hideButton = currentItem.status == 'NEW_REQUEST' ||
-                      currentItem.status == 'ACCEPTED';
-                  if (hideButton) {
+                  final hasProof = (currentItem.proofUrl != null && currentItem.proofUrl!.isNotEmpty) || 
+                                   currentItem.proofFiles.isNotEmpty;
+                  final statusUpper = currentItem.status.toUpperCase();
+                  final isHidden = statusUpper.contains('REJECT') || 
+                                   statusUpper.contains('REDO') ||
+                                   statusUpper.contains('REFUND');
+                  
+                  if (isHidden || !hasProof) {
                     return const SizedBox.shrink();
                   }
                   return Column(

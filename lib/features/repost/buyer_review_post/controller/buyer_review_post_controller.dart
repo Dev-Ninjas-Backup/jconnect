@@ -8,6 +8,7 @@ import 'package:jconnect/features/repost/buyer_review_post/model/buyer_review_po
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
 import 'package:jconnect/features/repost/repost_status/service/repost_status_service.dart';
 import 'package:jconnect/features/repost/buyer_review_post/widgets/order_complete.dart';
+import 'package:jconnect/features/repost/repost_review_window/controller/repost_review_window_controller.dart';
 
 class BuyerReviewPostController extends GetxController {
   final RepostStatusItem item;
@@ -68,7 +69,16 @@ class BuyerReviewPostController extends GetxController {
       EasyLoading.dismiss();
       isProcessing.value = false;
       
-      Get.to(() => OrderComplete(item: updatedItem));
+      if (Get.isRegistered<RepostReviewWindowController>()) {
+        final ctrl = Get.find<RepostReviewWindowController>();
+        ctrl.detailedItem.value = updatedItem;
+        ctrl.fetchOrderDetails(); // Guarantee fresh state
+      }
+      Get.back();
+      showGradientSnackBar(
+        title: 'Order Completed',
+        message: 'Funds have been released successfully.',
+      );
     } catch (e) {
       EasyLoading.dismiss();
       isProcessing.value = false;
@@ -83,7 +93,7 @@ class BuyerReviewPostController extends GetxController {
     isProcessing.value = true;
     EasyLoading.show(status: 'Rejecting proof...');
     try {
-      await _service.reviewRepostOrder(
+      final updatedItem = await _service.reviewRepostOrder(
         orderId: item.id,
         action: 'REJECT',
         instructions: '',
@@ -91,15 +101,16 @@ class BuyerReviewPostController extends GetxController {
       EasyLoading.dismiss();
       isProcessing.value = false;
 
+      if (Get.isRegistered<RepostReviewWindowController>()) {
+        final ctrl = Get.find<RepostReviewWindowController>();
+        ctrl.detailedItem.value = updatedItem;
+        ctrl.fetchOrderDetails(); // Guarantee fresh state
+      }
+      Get.back(); // close the current screen first
       showGradientSnackBar(
         title: 'Proof Rejected',
         message: 'You have rejected the submission. The order status has been updated.',
       );
-
-      // Go back to status page
-      Future.delayed(const Duration(seconds: 1), () {
-        Get.back(); // close the current screen
-      });
     } catch (e) {
       EasyLoading.dismiss();
       isProcessing.value = false;
@@ -122,7 +133,7 @@ class BuyerReviewPostController extends GetxController {
     isProcessing.value = true;
     EasyLoading.show(status: 'Submitting request...');
     try {
-      await _service.reviewRepostOrder(
+      final updatedItem = await _service.reviewRepostOrder(
         orderId: item.id,
         action: 'REDO',
         instructions: instructions,
@@ -130,15 +141,16 @@ class BuyerReviewPostController extends GetxController {
       EasyLoading.dismiss();
       isProcessing.value = false;
 
+      if (Get.isRegistered<RepostReviewWindowController>()) {
+        final ctrl = Get.find<RepostReviewWindowController>();
+        ctrl.detailedItem.value = updatedItem;
+        ctrl.fetchOrderDetails(); // Guarantee fresh state
+      }
+      Get.back(); // close the current screen first
       showGradientSnackBar(
         title: 'Redo Requested',
         message: 'Instructions have been sent to ${reviewModel.sellerName}.',
       );
-
-      // Go back to review window screen
-      Future.delayed(const Duration(seconds: 1), () {
-        Get.back();
-      });
     } catch (e) {
       EasyLoading.dismiss();
       isProcessing.value = false;
