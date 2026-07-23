@@ -104,10 +104,10 @@ class ServiceCardWidget extends StatelessWidget {
                         onPressed: () {
                           try {
                             controller.clearForm();
-                            Navigator.of(bottomSheetContext).pop();
+                            Get.back();
                           } catch (e) {
                             print('Error on cancel: $e');
-                            Navigator.of(bottomSheetContext).pop();
+                            Get.back();
                           }
                         },
                         style: OutlinedButton.styleFrom(
@@ -130,12 +130,12 @@ class ServiceCardWidget extends StatelessWidget {
                             await controller.saveService();
                             print("save service called");
                             if (bottomSheetContext.mounted) {
-                              Navigator.of(bottomSheetContext).pop();
+                              Get.back();
                             }
                           } catch (e) {
                             print('Error on save: $e');
                             if (bottomSheetContext.mounted) {
-                              Navigator.of(bottomSheetContext).pop();
+                              Get.back();
                             }
                           }
                         },

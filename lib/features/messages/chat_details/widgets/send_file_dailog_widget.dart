@@ -27,7 +27,7 @@ class SendFileDialogWidget extends StatelessWidget {
             Align(
               alignment: Alignment.topRight,
               child: GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
+                onTap: () => Get.back(),
                 child: const Icon(Icons.close, color: Colors.white, size: 28),
               ),
             ),

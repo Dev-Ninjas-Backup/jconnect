@@ -25,7 +25,7 @@ class PaymentDialogWidget extends StatelessWidget {
             Align(
               alignment: Alignment.topRight,
               child: GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
+                onTap: () => Get.back(),
                 child: Icon(Icons.close, color: Colors.white, size: 28),
               ),
             ),

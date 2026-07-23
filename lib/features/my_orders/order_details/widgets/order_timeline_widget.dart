@@ -1,6 +1,7 @@
 // ignore_for_file: use_super_parameters
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/features/my_orders/order_details/model/order_timeline_step.dart';
@@ -98,10 +99,7 @@ class OrderTimelineWidget extends StatelessWidget {
 
   Future<void> _showAudioPlayerDialog(BuildContext context, String url) async {
     // Open a full-screen audio player for better UX
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => _AudioPlayerScreen(audioUrl: url)),
-    );
+    Get.to(() => _AudioPlayerScreen(audioUrl: url));
   }
 
   Future<void> _showPdfViewDialog(BuildContext context, String url) async {
@@ -133,7 +131,7 @@ class OrderTimelineWidget extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Get.back(),
             child: Text(
               'Cancel',
               style: getTextStyle(color: AppColors.redColor),
@@ -141,7 +139,7 @@ class OrderTimelineWidget extends StatelessWidget {
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Get.back();
               try {
                 if (await canLaunchUrl(Uri.parse(url))) {
                   await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
@@ -159,7 +157,7 @@ class OrderTimelineWidget extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              Get.back();
               _downloadFile(url);
             },
             child: Text(
@@ -183,15 +181,12 @@ class OrderTimelineWidget extends StatelessWidget {
 
       if (_isImageFile(url)) {
         // Show image with PhotoView for zoom
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Scaffold(
+        Get.to(() => Scaffold(
               appBar: AppBar(
                 backgroundColor: Colors.black,
                 leading: IconButton(
                   icon: Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Get.back(),
                 ),
               ),
               backgroundColor: Colors.black,
@@ -206,16 +201,9 @@ class OrderTimelineWidget extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
-          ),
-        );
+            ));
       } else if (_isVideoFile(url)) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => _VideoViewerScreen(videoUrl: url),
-          ),
-        );
+        Get.to(() => _VideoViewerScreen(videoUrl: url));
       } else if (_isAudioFile(url)) {
         _showAudioPlayerDialog(context, url);
       } else if (_isPdfFile(url)) {
@@ -250,7 +238,7 @@ class OrderTimelineWidget extends StatelessWidget {
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Get.back(),
                 child: Text(
                   'Close',
                   style: getTextStyle(color: AppColors.redColor),
@@ -258,7 +246,7 @@ class OrderTimelineWidget extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Get.back();
                   _downloadFile(url);
                 },
                 child: Text(
@@ -615,7 +603,7 @@ class _VideoViewerScreenState extends State<_VideoViewerScreen> {
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: Icon(Icons.close),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Get.back(),
         ),
       ),
       backgroundColor: Colors.black,

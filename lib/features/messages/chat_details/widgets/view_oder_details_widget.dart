@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 
 class ViewOrderDetailsWidget extends StatelessWidget {
@@ -113,7 +114,7 @@ class ViewOrderDetailsWidget extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Get.back();
                 },
                 child: Text(
                   "Done",

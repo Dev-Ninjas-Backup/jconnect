@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 
@@ -61,7 +62,7 @@ class SetDateWidget extends StatelessWidget {
                   top: -10,
                   right: -6,
                   child: GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: () => Get.back(),
                     child: Container(
                       height: 30,
                       width: 30,
@@ -146,7 +147,7 @@ class SetDateWidget extends StatelessWidget {
                         ),
                         onPressed: () {
                           if (selectedDate != null) {
-                            Navigator.pop(context, selectedDate);
+                            Get.back(result: selectedDate);
                           }
                         },
                         child: const Text(

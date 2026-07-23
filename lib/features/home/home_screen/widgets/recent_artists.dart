@@ -695,7 +695,7 @@ class _PreviewCloseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
+      onTap: () => Get.back(),
       child: Container(
         width: 34.w,
         height: 34.w,
