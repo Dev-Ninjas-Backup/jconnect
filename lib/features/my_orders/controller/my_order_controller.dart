@@ -9,12 +9,16 @@ import 'package:jconnect/features/my_orders/model/order_model.dart';
 import 'package:jconnect/features/my_orders/order_details/controller/order_details_controller.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
+enum OrderMainTab { serviceAndSocialPost, repostService }
+
 class MyOrdersController extends GetxController {
   RxList<OrderModel> orders = <OrderModel>[].obs;
   RxList<OrderModel> paidOrders = <OrderModel>[].obs;
   RxString selectedTab = 'All Orders'.obs;
   RxString selectedOrderType = 'All Orders'.obs;
   RxBool isLoading = false.obs;
+  
+  Rx<OrderMainTab> selectedMainTab = OrderMainTab.serviceAndSocialPost.obs;
 
   @override
   void onInit() {
