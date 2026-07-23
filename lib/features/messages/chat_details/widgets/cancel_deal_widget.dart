@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
+import 'package:get/get.dart';
 
 class CancelDealWidget extends StatelessWidget {
   const CancelDealWidget({super.key});
@@ -23,7 +24,7 @@ class CancelDealWidget extends StatelessWidget {
             Align(
               alignment: Alignment.topRight,
               child: GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
+                onTap: () => Get.back(),
                 child: Icon(Icons.close, color: Colors.white70, size: 26),
               ),
             ),
@@ -60,7 +61,7 @@ class CancelDealWidget extends StatelessWidget {
                   backgroundColor: AppColors.backGroundColor,
                 ),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Get.back();
                 },
                 child: Text(
                   "No, Don’t want to cancel the order",
@@ -82,7 +83,7 @@ class CancelDealWidget extends StatelessWidget {
                   backgroundColor: Color(0xFF1A1A1A),
                 ),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Get.back();
                 },
                 child: Text(
                   "Yes, Save the order for next booking",
@@ -103,7 +104,7 @@ class CancelDealWidget extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Get.back();
                 },
                 child: Text(
                   "Cancel Order",

@@ -7,7 +7,7 @@ import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/repost/buyer_review_post/model/buyer_review_post_model.dart';
 import 'package:jconnect/features/repost/repost_status/model/repost_status_model.dart';
 import 'package:jconnect/features/repost/repost_status/service/repost_status_service.dart';
-import 'package:jconnect/features/repost/buyer_review_post/widgets/order_complete.dart';
+
 import 'package:jconnect/features/repost/repost_review_window/controller/repost_review_window_controller.dart';
 
 class BuyerReviewPostController extends GetxController {

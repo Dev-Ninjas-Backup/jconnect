@@ -120,7 +120,7 @@ class OrderDetailsScreen extends StatelessWidget {
                       Expanded(
                         child: TextButton(
                           onPressed: () {
-                            Navigator.pop(dialogContext);
+                            Get.back();
                           },
                           child: Text(
                             'Cancel',
@@ -135,7 +135,7 @@ class OrderDetailsScreen extends StatelessWidget {
                       Expanded(
                         child: TextButton(
                           onPressed: () async {
-                            Navigator.pop(dialogContext);
+                            Get.back();
                             final success = await controller.uploadProof(file);
                             if (success) {
                               showGradientSnackBar(title: 'Success', message: 'Proof uploaded');

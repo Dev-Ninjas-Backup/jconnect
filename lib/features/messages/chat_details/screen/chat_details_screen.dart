@@ -480,9 +480,7 @@ class ChatDetailsScreen extends StatelessWidget {
 
     if (isImage) {
       // Show image preview with PhotoView
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => Scaffold(
+      Get.to(() => Scaffold(
             backgroundColor: Colors.black,
             appBar: AppBar(
               backgroundColor: Colors.black,
@@ -507,16 +505,10 @@ class ChatDetailsScreen extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-        ),
-      );
+          ));
     } else if (isVideo) {
       // Show video player
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => _VideoViewerScreen(videoUrl: url),
-        ),
-      );
+      Get.to(() => _VideoViewerScreen(videoUrl: url));
     } else if (isAudio) {
       // Show audio player dialog
       _showAudioPlayerDialog(context, url);
@@ -539,7 +531,7 @@ class ChatDetailsScreen extends StatelessWidget {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
+              onPressed: () => Get.back(),
               child: const Text(
                 'Cancel',
                 style: TextStyle(color: Colors.white54),
@@ -547,7 +539,7 @@ class ChatDetailsScreen extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                Navigator.pop(dialogContext);
+                Get.back();
                 _downloadFile(url);
               },
               child: const Text(
@@ -562,10 +554,7 @@ class ChatDetailsScreen extends StatelessWidget {
   }
 
   void _showAudioPlayerDialog(BuildContext context, String url) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => _AudioPlayerScreen(audioUrl: url),
-      ),
+    Get.to(() => _AudioPlayerScreen(audioUrl: url),
     );
   }
 
@@ -598,7 +587,7 @@ class ChatDetailsScreen extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
+            onPressed: () => Get.back(),
             child: const Text(
               'Cancel',
               style: TextStyle(color: Colors.white54),
@@ -606,7 +595,7 @@ class ChatDetailsScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(dialogContext);
+              Get.back();
               if (await canLaunchUrl(Uri.parse(url))) {
                 await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
               } else {
@@ -620,7 +609,7 @@ class ChatDetailsScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(dialogContext);
+              Get.back();
               _downloadFile(url);
             },
             child: const Text(
@@ -2153,7 +2142,7 @@ class _VideoViewerScreenState extends State<_VideoViewerScreen> {
                       const SizedBox(width: 16),
                       FloatingActionButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                          Get.back();
                         },
                         backgroundColor: Colors.redAccent,
                         child: const Icon(Icons.close),
@@ -2486,7 +2475,7 @@ class _AudioPlayerScreenState extends State<_AudioPlayerScreen> {
                   child: GestureDetector(
                     onTap: () {
                       _audioPlayer.setSpeed(speed);
-                      Navigator.pop(context);
+                      Get.back();
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(

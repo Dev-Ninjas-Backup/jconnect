@@ -96,9 +96,7 @@ class PaymentController extends GetxController {
     try {
       isLoading.value = true;
 
-      final paymentMethodId = await Navigator.of(
-        context,
-      ).push<String?>(MaterialPageRoute(builder: (_) => const AddCardScreen()));
+      final paymentMethodId = await Get.to<String?>(() => const AddCardScreen());
 
       if (paymentMethodId == null) return;
 
@@ -139,7 +137,7 @@ Future<String?> _collectCardAndCreatePaymentMethod(BuildContext context) async {
           child: _CardEntrySheet(
             onCreated: (id) {
               paymentMethodId = id;
-              Navigator.of(context).pop();
+              Get.back();
             },
           ),
         ),
@@ -196,7 +194,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
                 const SizedBox(height: 32),
                 _CardEntrySheet(
                   onCreated: (id) {
-                    Navigator.of(context).pop(id);
+                    Get.back(result: id);
                   },
                 ),
               ],
