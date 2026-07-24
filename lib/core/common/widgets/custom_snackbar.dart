@@ -1,58 +1,17 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
-import 'package:jconnect/core/common/constants/app_colors.dart';
-import 'package:jconnect/core/common/style/global_text_style.dart';
-import 'package:jconnect/core/common/widgets/gradient_border_container.dart';
 
 void showGradientSnackBar({
   required String title,
   required String message,
+  SnackPosition snackPosition = SnackPosition.TOP,
+  Duration duration = const Duration(seconds: 1),
 }) {
-  Get.rawSnackbar(
-    backgroundColor: Colors.transparent,
-    snackPosition: SnackPosition.TOP,
-    duration: const Duration(seconds: 3),
-    margin: EdgeInsets.only(
-      top: 50.h,
-      left: 16.w,
-      right: 16.w,
-    ),
-    padding: EdgeInsets.zero,
-    messageText: GradientBorderContainer(
-      borderRadius: 12,
-      borderWidth: 1.5,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      gradientColors: const [
-        Color(0xFF60000F),
-        Color(0xFFBB0224),
-        Color(0xFF60000F),
-      ],
-      color: const Color(0xFF140E0E),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: getTextStyle(
-              fontsize: 14,
-              fontweight: FontWeight.w700,
-              color: AppColors.primaryTextColor,
-            ),
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            message,
-            style: getTextStyle(
-              fontsize: 12,
-              fontweight: FontWeight.w400,
-              color: AppColors.secondaryTextColor,
-            ),
-            textAlign: TextAlign.start,
-          ),
-        ],
-      ),
-    ),
+  EasyLoading.showToast(
+    "$title\n$message",
+    duration: duration,
+    toastPosition: snackPosition == SnackPosition.BOTTOM
+        ? EasyLoadingToastPosition.bottom
+        : EasyLoadingToastPosition.top,
   );
 }
