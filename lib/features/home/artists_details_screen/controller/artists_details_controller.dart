@@ -209,8 +209,8 @@ class ArtistsDetailsController extends GetxController {
     if (id != null) {
       fetchArtistById(id);
     } else {
-      showGradientSnackBar(title: 'Error', message: 'Artist ID not found');
       Get.back();
+      showGradientSnackBar(title: 'Error', message: 'Artist ID not found');
     }
   }
 

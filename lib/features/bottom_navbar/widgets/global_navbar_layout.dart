@@ -31,58 +31,69 @@ class GlobalNavBarLayout extends StatelessWidget {
       "Profile",
     ];
 
-    return Obx(
-      () => Scaffold(
-        backgroundColor: AppColors.backGroundColor,
-        body: child, // This is the root navigator containing the app's screens
-        bottomNavigationBar: controller.showNavBar.value
-            ? Container(
-                decoration: BoxDecoration(color: AppColors.backGroundColor),
-                padding: EdgeInsets.only(
-                  left: 30.w,
-                  right: 30.w,
-                  bottom: 46.h,
-                  top: 12.h,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(icons.length, (index) {
-                    bool isSelected = controller.currentIndex.value == index;
-                    return GestureDetector(
-                      onTap: () => controller.changeIndex(index),
-                      child: Container(
-                        color: Colors.transparent, // expand tap area
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Image.asset(
-                              icons[index],
-                              width: 24.w,
-                              height: 24.h,
-                              color: isSelected
-                                  ? AppColors.primaryTextColor
-                                  : AppColors.secondaryTextColor,
-                            ),
-                            SizedBox(height: 4.h),
-                            Text(
-                              labels[index],
-                              style: getTextStyle(
-                                fontsize: sp(10),
-                                fontweight: FontWeight.w500,
-                                color: isSelected
-                                    ? AppColors.primaryTextColor
-                                    : AppColors.secondaryTextColor,
+    return Scaffold(
+      backgroundColor: AppColors.backGroundColor,
+      body: NotificationListener<UserScrollNotification>(
+        onNotification: (notification) {
+          controller.handleScrollNotification(notification.direction);
+          return false;
+        },
+        child: child,
+      ), // This is the root navigator containing the app's screens
+      bottomNavigationBar: Obx(() => controller.showNavBar.value
+          ? AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              alignment: Alignment.topCenter,
+              child: controller.isNavBarVisible.value
+                  ? Container(
+                      decoration: BoxDecoration(color: AppColors.backGroundColor),
+                      padding: EdgeInsets.only(
+                        left: 30.w,
+                        right: 30.w,
+                        bottom: 46.h,
+                        top: 12.h,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: List.generate(icons.length, (index) {
+                          bool isSelected = controller.currentIndex.value == index;
+                          return GestureDetector(
+                            onTap: () => controller.changeIndex(index),
+                            child: Container(
+                              color: Colors.transparent, // expand tap area
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Image.asset(
+                                    icons[index],
+                                    width: 24.w,
+                                    height: 24.h,
+                                    color: isSelected
+                                        ? AppColors.primaryTextColor
+                                        : AppColors.secondaryTextColor,
+                                  ),
+                                  SizedBox(height: 4.h),
+                                  Text(
+                                    labels[index],
+                                    style: getTextStyle(
+                                      fontsize: sp(10),
+                                      fontweight: FontWeight.w500,
+                                      color: isSelected
+                                          ? AppColors.primaryTextColor
+                                          : AppColors.secondaryTextColor,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
+                          );
+                        }),
                       ),
-                    );
-                  }),
-                ),
-              )
-            : const SizedBox.shrink(),
-      ),
+                    )
+                  : const SizedBox(width: double.infinity, height: 0),
+            )
+          : const SizedBox.shrink()),
     );
   }
 }
