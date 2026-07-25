@@ -26,6 +26,10 @@ class ArtistsController extends GetxController {
       Get.find<SharedPreferencesHelperController>();
 
   var isLoading = false.obs;
+  var isAllLoading = false.obs;
+  var isRecentLoading = false.obs;
+  var isTopRatedLoading = false.obs;
+  var isSuggestedLoading = false.obs;
   var isError = false.obs;
   var errorMessage = ''.obs;
 
@@ -65,6 +69,7 @@ class ArtistsController extends GetxController {
   }
 
   Future<void> fetchRecentArtists({String? category}) async {
+    isRecentLoading(true);
     isLoading(true);
     isError(false);
     errorMessage('');
@@ -84,11 +89,13 @@ class ArtistsController extends GetxController {
         "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
       );
     } finally {
+      isRecentLoading(false);
       isLoading(false);
     }
   }
 
   Future<void> fetchTopRatedArtistsMethod() async {
+    isTopRatedLoading(true);
     isLoading(true);
     isError(false);
     errorMessage('');
@@ -108,11 +115,13 @@ class ArtistsController extends GetxController {
         "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
       );
     } finally {
+      isTopRatedLoading(false);
       isLoading(false);
     }
   }
 
   Future<void> fetchSuggestedArtistsMethod() async {
+    isSuggestedLoading(true);
     isLoading(true);
     isError(false);
     errorMessage('');
@@ -132,11 +141,13 @@ class ArtistsController extends GetxController {
         "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
       );
     } finally {
+      isSuggestedLoading(false);
       isLoading(false);
     }
   }
 
   Future<void> fetchAllArtistsMethod() async {
+    isAllLoading(true);
     isLoading(true);
     isError(false);
     errorMessage('');
@@ -156,6 +167,7 @@ class ArtistsController extends GetxController {
         "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
       );
     } finally {
+      isAllLoading(false);
       isLoading(false);
     }
   }

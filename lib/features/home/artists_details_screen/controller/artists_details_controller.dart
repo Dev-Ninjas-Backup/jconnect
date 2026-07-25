@@ -53,6 +53,7 @@ class ArtistsDetailsController extends GetxController {
   Future<void> fetchArtistById(String id) async {
     try {
       isLoading(true);
+      EasyLoading.show(status: 'Loading...');
 
       final response = await networkClient.getRequest(
         url: '${Endpoint.viewArtists}/$id',
@@ -77,6 +78,7 @@ class ArtistsDetailsController extends GetxController {
       showGradientSnackBar(title: 'Error', message: e.toString());
     } finally {
       isLoading(false);
+      EasyLoading.dismiss();
     }
   }
 

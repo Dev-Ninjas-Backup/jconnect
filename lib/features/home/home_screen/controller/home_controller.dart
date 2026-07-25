@@ -29,6 +29,9 @@ class HomeController extends GetxController {
 
   final RxList<StartDealModel> startDealList = <StartDealModel>[].obs;
   var isLoading = false.obs;
+  var isRecentLoading = false.obs;
+  var isTopRatedLoading = false.obs;
+  var isSuggestedLoading = false.obs;
   var isError = false.obs;
   var errorMessage = ''.obs;
   final selectedCategoryIndex = 0.obs;
@@ -86,6 +89,7 @@ class HomeController extends GetxController {
   }
 
   Future<void> fetchRecentArtists({String? category}) async {
+    isRecentLoading(true);
     isLoading(true);
     isError(false);
     errorMessage('');
@@ -105,11 +109,13 @@ class HomeController extends GetxController {
         "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
       );
     } finally {
+      isRecentLoading(false);
       isLoading(false);
     }
   }
 
   Future<void> fetchTopRatedArtistsMethod() async {
+    isTopRatedLoading(true);
     isLoading(true);
     isError(false);
     errorMessage('');
@@ -129,11 +135,13 @@ class HomeController extends GetxController {
         "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
       );
     } finally {
+      isTopRatedLoading(false);
       isLoading(false);
     }
   }
 
   Future<void> fetchSuggestedArtistsMethod() async {
+    isSuggestedLoading(true);
     isLoading(true);
     isError(false);
     errorMessage('');
@@ -153,6 +161,7 @@ class HomeController extends GetxController {
         "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
       );
     } finally {
+      isSuggestedLoading(false);
       isLoading(false);
     }
   }

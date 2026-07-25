@@ -187,7 +187,7 @@ class TopRatedArtists extends StatelessWidget {
       height: 470.h,
       child: Obx(() {
         // Loading state
-        if (controller.isLoading.value &&
+        if (controller.isTopRatedLoading.value &&
             controller.topRatedArtistsList.isEmpty) {
           return const Center(
             child: CircularProgressIndicator(color: Colors.white),

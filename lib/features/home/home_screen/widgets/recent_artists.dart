@@ -36,7 +36,7 @@ class ArtistsYouKnow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       // Loading state
-      if (controller.isLoading.value && controller.recentArtistsList.isEmpty) {
+      if (controller.isRecentLoading.value && controller.recentArtistsList.isEmpty) {
         return const Center(
           child: CircularProgressIndicator(color: Colors.white),
         );

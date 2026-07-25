@@ -95,9 +95,12 @@ class CustomImageWidget extends StatelessWidget {
       height: height,
       fit: fit,
     );
-    if (isCircle) return ClipOval(child: image);
-    if (borderRadius != null)
+    if (isCircle) {
+      return ClipOval(child: image);
+    }
+    if (borderRadius != null) {
       return ClipRRect(borderRadius: borderRadius!, child: image);
+    }
     return image;
   }
 

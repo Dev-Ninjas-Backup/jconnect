@@ -1,9 +1,7 @@
 import 'package:jconnect/core/common/widgets/artist_card.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:jconnect/core/service/network_service/network_client.dart';
-import 'package:jconnect/features/home/artists_details_screen/controller/artists_details_controller.dart';
 import 'package:jconnect/features/home/artists_screen/controller/artists_controller.dart';
 import 'package:jconnect/features/home/home_screen/model/artists_model.dart';
 import '../../../../core/common/constants/app_colors.dart';
@@ -12,18 +10,7 @@ import '../../../../core/common/style/global_text_style.dart';
 // ignore: must_be_immutable
 class ArtistsItem extends StatelessWidget {
   final ArtistsController controller;
-  ArtistsItem({required this.controller, super.key});
-  var artistsDetailsController = Get.put(
-    ArtistsDetailsController(
-      networkClient: NetworkClient(
-        onUnAuthorize: () {
-          if (kDebugMode) {
-            print("unauthorized");
-          }
-        },
-      ),
-    ),
-  );
+  const ArtistsItem({required this.controller, super.key});
 
   // List<ArtistsModel> get currentList {
   //   if (controller.searchArtistItems.isNotEmpty &&
@@ -79,6 +66,28 @@ class ArtistsItem extends StatelessWidget {
         }
         return artist.services.any((s) => s.serviceType == categoryType);
       }).toList();
+
+      bool isTabLoading = false;
+      if (controller.selectArtistsItemIndex.value == 0) {
+        isTabLoading = controller.isAllLoading.value;
+      } else if (controller.selectArtistsItemIndex.value == 1) {
+        isTabLoading = controller.isRecentLoading.value;
+      } else if (controller.selectArtistsItemIndex.value == 2) {
+        isTabLoading = controller.isTopRatedLoading.value;
+      } else {
+        isTabLoading = controller.isSuggestedLoading.value;
+      }
+
+      if (isTabLoading && currentList.isEmpty) {
+        return Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 50.h),
+            child: CircularProgressIndicator(
+              color: AppColors.redColor,
+            ),
+          ),
+        );
+      }
 
       if (currentList.isEmpty) {
         return Center(
