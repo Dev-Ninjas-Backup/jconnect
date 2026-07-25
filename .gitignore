@@ -51,3 +51,15 @@ app.*.map.json
 lib/secrets/stripe_key.dart
 temp_interactive_push.bat
 branch_structure.json
+
+# Flutter generated iOS/macOS files
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/ephemeral/
+
+macos/Flutter/ephemeral/
+macos/Flutter/flutter_export_environment.sh
+
+# Flutter generated files
+.dart_tool/
+.flutter-plugins-dependencies
