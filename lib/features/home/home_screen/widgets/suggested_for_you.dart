@@ -27,7 +27,7 @@ class SuggestedForYou extends StatelessWidget {
       height: 470.h,
       child: Obx(() {
         // Loading state
-        if (controller.isLoading.value &&
+        if (controller.isSuggestedLoading.value &&
             controller.suggestedForYouList.isEmpty) {
           return const Center(
             child: CircularProgressIndicator(color: Colors.white),
