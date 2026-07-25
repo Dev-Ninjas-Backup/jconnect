@@ -21,7 +21,7 @@ class ReviewModel {
       username: json['reviewer']?['username'] ?? 'Unknown',
       rating: (json['rating'] as num).toDouble(),
       description: json['reviewText'] ?? '',
-      avatarUrl: Imagepath.profileImage, // placeholder, updated later
+      avatarUrl: Imagepath.daconnectProfile, // placeholder, updated later
     );
   }
 

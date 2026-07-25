@@ -1,3 +1,4 @@
+import 'package:jconnect/core/common/widgets/custom_image_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -68,18 +69,16 @@ class ArtistsDetailsUpperSection extends StatelessWidget {
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.grey.shade700, width: 2),
                   ),
-                  child: ClipRRect(
+                  child: CustomImageWidget(
+                    urlOrPath: artist.profilePhoto,
                     borderRadius: BorderRadius.circular(60.r),
-                    child: Image.network(
-                      artist.profilePhoto ?? '',
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: Colors.grey.shade900,
-                        child: Icon(
-                          Icons.person,
-                          size: 60.sp,
-                          color: Colors.white38,
-                        ),
+                    fit: BoxFit.cover,
+                    errorWidget: Container(
+                      color: Colors.grey.shade900,
+                      child: Icon(
+                        Icons.person,
+                        size: 60.sp,
+                        color: Colors.white38,
                       ),
                     ),
                   ),

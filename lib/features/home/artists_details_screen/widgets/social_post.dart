@@ -1,3 +1,4 @@
+import 'package:jconnect/core/common/widgets/custom_image_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -74,10 +75,11 @@ class SocialPost extends StatelessWidget {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(24.r),
-                      child: Image.network(
-                        item.socialLogoForSocialService.toString(),
+                      child: CustomImageWidget(
+                        urlOrPath: item.socialLogoForSocialService.toString(),
+                        borderRadius: BorderRadius.circular(24.r),
                         fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => Icon(
+                        errorWidget: Icon(
                           Icons.photo_library_outlined,
                           size: 24.sp,
                           color: Colors.white54,

@@ -1,6 +1,3 @@
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -11,9 +8,7 @@ import '../../../../core/common/style/global_text_style.dart';
 import '../../../../core/common/widgets/gradient_border_container.dart';
 
 class ConfirmPromotionUpperCard extends StatelessWidget {
-  const ConfirmPromotionUpperCard({
-    super.key,
-  });
+  const ConfirmPromotionUpperCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +26,7 @@ class ConfirmPromotionUpperCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Image.asset(
-                    Iconpath.instagram,
-                    height: 22.h,
-                    width: 22.w,
-                  ),
+                  Image.asset(Iconpath.instagram, height: 22.h, width: 22.w),
                   SizedBox(width: 8.w),
                   Text(
                     "Instagram",
@@ -46,7 +37,7 @@ class ConfirmPromotionUpperCard extends StatelessWidget {
                   ),
                 ],
               ),
-    
+
               Text(
                 "\$50",
                 style: getTextStyle(
@@ -63,18 +54,14 @@ class ConfirmPromotionUpperCard extends StatelessWidget {
               Text(
                 "Social Post Promotion",
                 style: getTextStyle(
-                  color: AppColors.primaryTextColor.withValues(
-                    alpha: .5,
-                  ),
+                  color: AppColors.primaryTextColor.withValues(alpha: .5),
                 ),
               ),
               Text(
                 "Fixed service",
                 style: getTextStyle(
                   fontsize: sp(12),
-                  color: AppColors.primaryTextColor.withValues(
-                    alpha: .5,
-                  ),
+                  color: AppColors.primaryTextColor.withValues(alpha: .5),
                 ),
               ),
             ],
@@ -84,41 +71,32 @@ class ConfirmPromotionUpperCard extends StatelessWidget {
             color: Color(0xFF353434),
             borderRadius: 6.r,
             borderWidth: .6,
-            padding: EdgeInsets.symmetric(
-              horizontal: 10.w,
-              vertical: 10.h,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    
+
               children: [
                 Image.asset(
-                  Imagepath.profileImage,
+                  Imagepath.daconnectProfile,
                   height: 48.w,
                   width: 48.w,
                 ),
-                SizedBox(width: 8.w,),
+                SizedBox(width: 8.w),
                 Expanded(
-    
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
                         "Track Review by DJ Nova",
-                        style: getTextStyle(
-                          fontweight: FontWeight.w500,
-                        ),
+                        style: getTextStyle(fontweight: FontWeight.w500),
                       ),
-    
-                      Text(
-                        "@djnova",
-                        style: getTextStyle(fontsize: sp(12)),
-                      ),
+
+                      Text("@djnova", style: getTextStyle(fontsize: sp(12))),
                     ],
                   ),
                 ),
-    
+
                 Row(
                   children: [
                     Icon(
@@ -126,7 +104,7 @@ class ConfirmPromotionUpperCard extends StatelessWidget {
                       color: AppColors.primaryTextColor,
                       size: sp(14),
                     ),
-    
+
                     Text(
                       "4.9",
                       style: getTextStyle(

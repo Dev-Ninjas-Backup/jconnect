@@ -1,3 +1,4 @@
+import 'package:jconnect/core/utils/image_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -170,8 +171,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
                       children: [
                         CircleAvatar(
                           radius: 22.r,
-                          backgroundImage: NetworkImage(
-                            msg.participant?.profilePhoto ?? '',
+                          backgroundImage: getSafeImageProvider(
+                            msg.participant?.profilePhoto,
                           ),
                         ),
                         SizedBox(width: 12.w),

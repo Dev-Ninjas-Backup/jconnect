@@ -1,3 +1,4 @@
+import 'package:jconnect/core/common/widgets/custom_image_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -51,26 +52,23 @@ class ReviewAndRating extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Reviewer avatar
-              ClipRRect(
+              CustomImageWidget(
+                urlOrPath: item.reviewer?.profilePhoto,
+                height: 40.w,
+                width: 40.w,
                 borderRadius: BorderRadius.circular(20.r),
-                child: Image.network(
-                  item.reviewer?.profilePhoto ?? "",
+                fit: BoxFit.cover,
+                errorWidget: Container(
                   height: 40.w,
                   width: 40.w,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    height: 40.w,
-                    width: 40.w,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.grey.shade800,
-                    ),
-                    child: Icon(
-                      Icons.person,
-                      size: 22.sp,
-                      color: Colors.white38,
-                    ),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.grey.shade800,
+                  ),
+                  child: Icon(
+                    Icons.person,
+                    size: 22.sp,
+                    color: Colors.white38,
                   ),
                 ),
               ),

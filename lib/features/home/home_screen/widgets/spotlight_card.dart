@@ -106,7 +106,8 @@ class SpotlightCard extends StatelessWidget {
                             item.seller!.profilePhoto!.trim().isNotEmpty
                         ? NetworkImage(item.seller!.profilePhoto!)
                               as ImageProvider
-                        : AssetImage(Imagepath.profileImage) as ImageProvider,
+                        : AssetImage(Imagepath.daconnectProfile)
+                              as ImageProvider,
                   ),
                 ),
               ),
@@ -156,8 +157,8 @@ class SpotlightCard extends StatelessWidget {
                     item.seller?.username.trim().isEmpty == true
                         ? "User"
                         : item.seller!.username.trim().length > 10
-                            ? "${item.seller!.username.trim().substring(0, 10)}..."
-                            : item.seller!.username,
+                        ? "${item.seller!.username.trim().substring(0, 10)}..."
+                        : item.seller!.username,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: getTextStyle(
