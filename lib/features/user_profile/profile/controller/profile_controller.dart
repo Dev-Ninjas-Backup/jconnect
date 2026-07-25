@@ -13,7 +13,7 @@ class ProfileController extends GetxController {
   // USER PROFILE DATA
   final Rx<ProfileModel> user = ProfileModel(
     name: '',
-    imageUrl: Imagepath.profileImage,
+    imageUrl: Imagepath.daconnectProfile,
     shortbio: 'No Bio',
     location: 'No Location',
     hashtags: [],
@@ -58,7 +58,8 @@ class ProfileController extends GetxController {
     //final fullName = json['full_name']?.toString() ?? existing.fullName;
     final phone = json['phone']?.toString() ?? existing.phone;
     // If API returns null for profile_image_url use the app default profile image
-    final imageUrl = json['profilePhoto']?.toString() ?? Imagepath.profileImage;
+    final imageUrl =
+        json['profilePhoto']?.toString() ?? Imagepath.daconnectProfile;
     final shortbio =
         json['profile']?['short_bio']?.toString() ?? existing.shortbio;
     final location = json['location']?.toString() ?? existing.location;
@@ -188,7 +189,10 @@ class ProfileController extends GetxController {
       final userId = await prefs.getUserId();
 
       if (token == null || token.isEmpty || userId == null || userId.isEmpty) {
-        showGradientSnackBar(title: 'Error', message: 'Unable to delete account: missing credentials');
+        showGradientSnackBar(
+          title: 'Error',
+          message: 'Unable to delete account: missing credentials',
+        );
         return;
       }
 
@@ -209,10 +213,7 @@ class ProfileController extends GetxController {
         try {
           final map = json.decode(resp.body) as Map<String, dynamic>?;
           final message = map?['message']?.toString() ?? 'Account deleted';
-          showGradientSnackBar(
-            title: 'Deleted',
-            message: message,
-          );
+          showGradientSnackBar(title: 'Deleted', message: message);
         } catch (_) {
           showGradientSnackBar(
             title: 'Deleted',
@@ -231,7 +232,10 @@ class ProfileController extends GetxController {
       }
     } catch (e) {
       EasyLoading.dismiss();
-      showGradientSnackBar(title: 'Error', message: 'Failed to delete account: $e');
+      showGradientSnackBar(
+        title: 'Error',
+        message: 'Failed to delete account: $e',
+      );
     }
   }
 }

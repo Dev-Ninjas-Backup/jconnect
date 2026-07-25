@@ -7,7 +7,7 @@ class StripeController extends GetxController {
   var stripeStatus = 'Connected to Stripe'.obs;
   var accountStatus = 'Verified'.obs;
   var lastPayout = '\$320 - Oct 10, 2025'.obs;
-  var profileImage = Imagepath.profileImage.obs;
+  var profileImage = Imagepath.daconnectProfile.obs;
 
   void updateStripeStatus(String status) {
     stripeStatus.value = status;

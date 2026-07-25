@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use, avoid_print, must_be_immutable, unused_field, prefer_final_fields
 
+import 'package:jconnect/core/utils/image_helper.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -491,7 +492,7 @@ class ChatDetailsScreen extends StatelessWidget {
               ),
             ),
             body: PhotoView(
-              imageProvider: NetworkImage(url),
+              imageProvider: getSafeImageProvider(url),
               backgroundDecoration: const BoxDecoration(color: Colors.black),
               minScale: PhotoViewComputedScale.contained,
               maxScale: PhotoViewComputedScale.covered * 3,
@@ -902,8 +903,8 @@ class ChatDetailsScreen extends StatelessWidget {
                       ),
                       SizedBox(width: 10),
                       CircleAvatar(
-                        backgroundImage: NetworkImage(
-                          chatParticipant?.profilePhoto ?? '',
+                        backgroundImage: getSafeImageProvider(
+                          chatParticipant?.profilePhoto,
                         ),
                       ),
                       SizedBox(width: 10),

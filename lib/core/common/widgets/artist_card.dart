@@ -1,3 +1,5 @@
+import 'package:jconnect/core/common/widgets/custom_image_widget.dart';
+import 'package:jconnect/core/utils/image_helper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -90,12 +92,12 @@ class ArtistCard extends StatelessWidget {
                 children: [
                   artist.profilePhoto != null &&
                           artist.profilePhoto!.trim().isNotEmpty
-                      ? Image.network(
-                          artist.profilePhoto!,
+                      ? CustomImageWidget(
+                          urlOrPath: artist.profilePhoto!,
                           height: 185.h,
                           width: double.infinity,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Center(
+                          errorWidget: Center(
                             child: SizedBox(
                               height: 185.h,
                               width: double.infinity,
@@ -155,21 +157,20 @@ class ArtistCard extends StatelessWidget {
                                                 color: Colors.white,
                                               ),
                                             )
-                                          : Image.network(
-                                              highlight.url,
+                                          : CustomImageWidget(
+                                              urlOrPath: highlight.url,
                                               fit: BoxFit.cover,
-                                              errorBuilder: (_, __, ___) =>
-                                                  Container(
-                                                    color: Colors.white
-                                                        .withValues(
-                                                          alpha: 0.15,
-                                                        ),
-                                                    child: Icon(
-                                                      Icons.broken_image,
-                                                      size: 18.sp,
-                                                      color: Colors.white,
+                                              errorWidget: Container(
+                                                color: Colors.white
+                                                    .withValues(
+                                                      alpha: 0.15,
                                                     ),
-                                                  ),
+                                                child: Icon(
+                                                  Icons.broken_image,
+                                                  size: 18.sp,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
                                             ),
                                     ),
                                     if (highlight.isVideo)
@@ -450,7 +451,7 @@ class ArtistCard extends StatelessWidget {
                 : Stack(
                     children: [
                       PhotoView(
-                        imageProvider: NetworkImage(highlight.url),
+                        imageProvider: getSafeImageProvider(highlight.url),
                         backgroundDecoration: const BoxDecoration(
                           color: Colors.black,
                         ),

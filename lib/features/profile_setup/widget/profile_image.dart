@@ -23,8 +23,8 @@
 //         final hasImage = controller.hasImage;
 //         final imageProvider = hasImage
 //             ? FileImage(File(controller.imagePath)) as ImageProvider
-//             : AssetImage(Imagepath.profileImage);
-    
+//             : AssetImage(Imagepath.daconnectProfile);
+
 //         return Stack(
 //           clipBehavior: Clip.none,
 //           alignment: Alignment.center,

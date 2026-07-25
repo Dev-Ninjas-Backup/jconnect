@@ -38,7 +38,7 @@ class ReviewListWidget extends StatelessWidget {
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Image.asset(
-                        Imagepath.profileImage,
+                        Imagepath.daconnectProfile,
                         width: 48.w,
                         height: 48.h,
                         fit: BoxFit.cover,
