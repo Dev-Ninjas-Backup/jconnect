@@ -19,7 +19,16 @@ import 'package:jconnect/features/my_orders/order_details/controller/order_detai
 import 'package:jconnect/features/my_orders/order_details/widgets/order_timeline_widget.dart';
 import 'package:jconnect/features/my_orders/order_details/widgets/reviewer_details_widget.dart';
 import 'package:jconnect/features/my_orders/order_details/widgets/review_popup.dart';
+import 'package:jconnect/features/my_orders/order_details/widgets/expandable_text.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:jconnect/core/utils/image_helper.dart';
+import 'package:jconnect/features/messages/chat_details/screen/chat_details_screen.dart';
+import 'package:jconnect/features/my_orders/order_details/model/order_details_model.dart';
 
 class OrderDetailsScreen extends StatelessWidget {
   const OrderDetailsScreen({super.key});
@@ -64,13 +73,19 @@ class OrderDetailsScreen extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: ConstrainedBox(
-                        constraints: BoxConstraints(maxHeight: 280, maxWidth: 300),
+                        constraints: BoxConstraints(
+                          maxHeight: 280,
+                          maxWidth: 300,
+                        ),
                         child: Image.file(file, fit: BoxFit.contain),
                       ),
                     )
                   else
                     Container(
-                      padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 40,
+                        horizontal: 20,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.backGroundColor,
                         borderRadius: BorderRadius.circular(8),
@@ -81,7 +96,9 @@ class OrderDetailsScreen extends StatelessWidget {
                           Icon(
                             _getFileIcon(ext),
                             size: 64,
-                            color: AppColors.primaryTextColor.withValues(alpha: 0.6),
+                            color: AppColors.primaryTextColor.withValues(
+                              alpha: 0.6,
+                            ),
                           ),
                           SizedBox(height: 12),
                           Text(
@@ -138,7 +155,10 @@ class OrderDetailsScreen extends StatelessWidget {
                             Get.back();
                             final success = await controller.uploadProof(file);
                             if (success) {
-                              showGradientSnackBar(title: 'Success', message: 'Proof uploaded');
+                              showGradientSnackBar(
+                                title: 'Success',
+                                message: 'Proof uploaded',
+                              );
                               try {
                                 await orderController.loadOrders();
                               } catch (_) {}
@@ -170,33 +190,66 @@ class OrderDetailsScreen extends StatelessWidget {
         child: Wrap(
           children: [
             ListTile(
-              leading: Icon(Icons.camera_alt, color: AppColors.primaryTextColor),
-              title: Text('Take Photo', style: getTextStyle(color: AppColors.primaryTextColor)),
+              leading: Icon(
+                Icons.camera_alt,
+                color: AppColors.primaryTextColor,
+              ),
+              title: Text(
+                'Take Photo',
+                style: getTextStyle(color: AppColors.primaryTextColor),
+              ),
               onTap: () async {
                 Get.back();
-                final XFile? xfile = await picker.pickImage(source: ImageSource.camera, imageQuality: 85);
+                final XFile? xfile = await picker.pickImage(
+                  source: ImageSource.camera,
+                  imageQuality: 85,
+                );
                 if (xfile == null) return;
                 await _showConfirm(File(xfile.path), xfile.name);
               },
             ),
             ListTile(
               leading: Icon(Icons.videocam, color: AppColors.primaryTextColor),
-              title: Text('Record Video', style: getTextStyle(color: AppColors.primaryTextColor)),
+              title: Text(
+                'Record Video',
+                style: getTextStyle(color: AppColors.primaryTextColor),
+              ),
               onTap: () async {
                 Get.back();
-                final XFile? xfile = await picker.pickVideo(source: ImageSource.camera);
+                final XFile? xfile = await picker.pickVideo(
+                  source: ImageSource.camera,
+                );
                 if (xfile == null) return;
                 await _showConfirm(File(xfile.path), xfile.name);
               },
             ),
             ListTile(
-              leading: Icon(Icons.photo_library, color: AppColors.primaryTextColor),
-              title: Text('Choose File', style: getTextStyle(color: AppColors.primaryTextColor)),
+              leading: Icon(
+                Icons.photo_library,
+                color: AppColors.primaryTextColor,
+              ),
+              title: Text(
+                'Choose File',
+                style: getTextStyle(color: AppColors.primaryTextColor),
+              ),
               onTap: () async {
                 Get.back();
                 final result = await FilePicker.platform.pickFiles(
                   type: FileType.custom,
-                  allowedExtensions: ['mp3', 'mp4', 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'mov', 'avi', 'flv', 'wav', 'aac'],
+                  allowedExtensions: [
+                    'mp3',
+                    'mp4',
+                    'jpg',
+                    'jpeg',
+                    'png',
+                    'gif',
+                    'pdf',
+                    'mov',
+                    'avi',
+                    'flv',
+                    'wav',
+                    'aac',
+                  ],
                 );
                 if (result == null || result.files.single.path == null) return;
                 final file = File(result.files.single.path!);
@@ -204,28 +257,46 @@ class OrderDetailsScreen extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: Icon(Icons.photo, size: 20, color: AppColors.primaryTextColor),
-              title: Text('Choose Photo', style: getTextStyle(color: AppColors.primaryTextColor)),
+              leading: Icon(
+                Icons.photo,
+                size: 20,
+                color: AppColors.primaryTextColor,
+              ),
+              title: Text(
+                'Choose Photo',
+                style: getTextStyle(color: AppColors.primaryTextColor),
+              ),
               onTap: () async {
                 Get.back();
-                final XFile? xfile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+                final XFile? xfile = await picker.pickImage(
+                  source: ImageSource.gallery,
+                  imageQuality: 85,
+                );
                 if (xfile == null) return;
                 await _showConfirm(File(xfile.path), xfile.name);
               },
             ),
             ListTile(
               leading: Icon(Icons.videocam, color: AppColors.primaryTextColor),
-              title: Text('Choose Video', style: getTextStyle(color: AppColors.primaryTextColor)),
+              title: Text(
+                'Choose Video',
+                style: getTextStyle(color: AppColors.primaryTextColor),
+              ),
               onTap: () async {
                 Get.back();
-                final XFile? xfile = await picker.pickVideo(source: ImageSource.gallery);
+                final XFile? xfile = await picker.pickVideo(
+                  source: ImageSource.gallery,
+                );
                 if (xfile == null) return;
                 await _showConfirm(File(xfile.path), xfile.name);
               },
             ),
             ListTile(
               leading: Icon(Icons.close, color: AppColors.primaryTextColor),
-              title: Text('Cancel', style: getTextStyle(color: AppColors.primaryTextColor)),
+              title: Text(
+                'Cancel',
+                style: getTextStyle(color: AppColors.primaryTextColor),
+              ),
               onTap: () => Get.back(),
             ),
           ],
@@ -245,6 +316,249 @@ class OrderDetailsScreen extends StatelessWidget {
       return Icons.picture_as_pdf;
     }
     return Icons.insert_drive_file;
+  }
+
+  void _viewFile(BuildContext context, String url) {
+    final ext = url.split('.').last.split('?').first.toLowerCase();
+    final isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].contains(ext);
+    final isVideo = ['mp4', 'mov', 'avi', 'flv', 'mkv', 'webm'].contains(ext);
+    final isAudio = ['mp3', 'wav', 'aac', 'm4a', 'flac'].contains(ext);
+    final isPdf = ext == 'pdf';
+
+    if (isImage) {
+      // Show image preview with PhotoView
+      Get.to(() => Scaffold(
+            backgroundColor: Colors.black,
+            appBar: AppBar(
+              backgroundColor: Colors.black,
+              iconTheme: const IconThemeData(color: Colors.white),
+              title: const Text(
+                'View Image',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            body: PhotoView(
+              imageProvider: getSafeImageProvider(url),
+              backgroundDecoration: const BoxDecoration(color: Colors.black),
+              minScale: PhotoViewComputedScale.contained,
+              maxScale: PhotoViewComputedScale.covered * 3,
+              loadingBuilder: (_, __) => const Center(
+                child: CircularProgressIndicator(color: Colors.white),
+              ),
+              errorBuilder: (_, __, ___) => const Center(
+                child: Text(
+                  'Failed to load image',
+                  style: TextStyle(color: Colors.white70),
+                ),
+              ),
+            ),
+          ));
+    } else if (isVideo) {
+      // Show video player
+      Get.to(() => VideoViewerScreen(videoUrl: url));
+    } else if (isAudio) {
+      // Show audio player dialog
+      _showAudioPlayerDialog(context, url);
+    } else if (isPdf) {
+      // Open PDF in browser or show download dialog
+      _showPdfViewDialog(context, url);
+    } else {
+      // For other file types, show download dialog
+      showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          backgroundColor: Colors.grey[900],
+          title: const Text(
+            'Open File',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: Text(
+            'File type ($ext) cannot be previewed. Download to view?',
+            style: const TextStyle(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white54),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Get.back();
+                _downloadFile(url);
+              },
+              child: const Text(
+                'Download',
+                style: TextStyle(color: Colors.greenAccent),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  void _showAudioPlayerDialog(BuildContext context, String url) {
+    Get.to(() => AudioPlayerScreen(audioUrl: url));
+  }
+
+  void _showPdfViewDialog(BuildContext context, String url) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: const Text(
+          'PDF File',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.picture_as_pdf, color: Colors.redAccent, size: 48),
+            const SizedBox(height: 16),
+            const Text(
+              'PDF file detected',
+              style: TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              url.split('/').last.split('?').first,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white54, fontSize: 12),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white54),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Get.back();
+              if (await canLaunchUrl(Uri.parse(url))) {
+                await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+              } else {
+                _downloadFile(url);
+              }
+            },
+            child: const Text(
+              'Open',
+              style: TextStyle(color: Colors.blueAccent),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              _downloadFile(url);
+            },
+            child: const Text(
+              'Download',
+              style: TextStyle(color: Colors.greenAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _downloadFile(String fileUrl) async {
+    try {
+      EasyLoading.show(
+        status: 'Downloading...',
+        maskType: EasyLoadingMaskType.black,
+      );
+
+      // Step 1: Download the file
+      final response = await http.get(Uri.parse(fileUrl));
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        EasyLoading.dismiss();
+        EasyLoading.showError(
+          'Download failed: ${response.statusCode}',
+          duration: const Duration(seconds: 2),
+        );
+        return;
+      }
+
+      // Step 2: Extract file name and type
+      final String fileName = fileUrl.split('/').last.split('?').first;
+
+      // Step 3: Save to temporary directory first
+      final tempDir = await getTemporaryDirectory();
+      final File tempFile = File('${tempDir.path}/$fileName');
+      await tempFile.writeAsBytes(response.bodyBytes);
+
+      EasyLoading.dismiss();
+
+      // Step 4: Show file info
+      final fileSizeInMB = (response.bodyBytes.length / (1024 * 1024)).toStringAsFixed(2);
+      debugPrint('✅ File downloaded successfully');
+      debugPrint('📁 File name: $fileName');
+      debugPrint('📊 File size: $fileSizeInMB MB');
+      debugPrint('📱 Temp path: ${tempFile.path}');
+
+      // Step 5: Show success message and open share sheet immediately
+      EasyLoading.showSuccess(
+        '📥 Tap to save to Files',
+        duration: const Duration(seconds: 2),
+      );
+
+      // Step 6: Open iOS Share Sheet to save to Files app
+      await Future.delayed(const Duration(milliseconds: 500));
+      _openShareSheet(tempFile, fileName);
+    } catch (e) {
+      EasyLoading.dismiss();
+      debugPrint('❌ Download error: $e');
+      EasyLoading.showError(
+        'Error downloading: $e',
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
+  Future<void> _openShareSheet(File file, String fileName) async {
+    try {
+      final result = await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          text: 'Downloaded file: $fileName',
+        ),
+      );
+
+      debugPrint('📤 Share sheet result: $result');
+    } catch (e) {
+      debugPrint('❌ Share sheet error: $e');
+      EasyLoading.showError(
+        'Error sharing: $e',
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
+  Future<void> _cancelOrder({
+    required BuildContext context,
+    required OrderDetailsModel order,
+    required OrderDetailsController controller,
+    required MyOrdersController orderController,
+  }) async {
+    EasyLoading.show(status: 'Cancelling...');
+    try {
+      final success = await orderController.updateOrderStatus(
+        orderId: order.id.toString(),
+        status: OrderStatus.CANCELLED,
+      );
+      if (success) {
+        controller.applyStatusUpdate(order.id.toString(), 'CANCELLED');
+      }
+    } finally {
+      EasyLoading.dismiss();
+    }
   }
 
   @override
@@ -278,6 +592,18 @@ class OrderDetailsScreen extends StatelessWidget {
               ),
               SizedBox(height: 32),
               Obx(() {
+                if (controller.isLoading.value &&
+                    controller.order.value == null) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40),
+                      child: CircularProgressIndicator(
+                        color: AppColors.redColor,
+                      ),
+                    ),
+                  );
+                }
+
                 final order = controller.order.value;
                 if (order == null) return const SizedBox.shrink();
 
@@ -379,6 +705,145 @@ class OrderDetailsScreen extends StatelessWidget {
                         ],
                       ),
                     ),
+                    if (order.status.toUpperCase() != 'CANCELLED') ...[
+                      SizedBox(height: 24),
+                      Text(
+                        'Promotion Info',
+                        style: getTextStyle(
+                          color: AppColors.primaryTextColor,
+                          fontweight: FontWeight.w600,
+                          fontsize: 18,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppColors.backGroundColor,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.secondaryTextColor),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (order.promotionDate.isNotEmpty) ...[
+                              _buildDetailRow(
+                                'Promotion Date',
+                                _formatDate(order.promotionDate),
+                              ),
+                              Divider(
+                                color: AppColors.secondaryTextColor.withValues(
+                                  alpha: .2,
+                                ),
+                                height: 20,
+                              ),
+                            ],
+                            Text(
+                              'Caption / Instructions',
+                              style: getTextStyle(
+                                color: AppColors.secondaryTextColor,
+                                fontsize: 13,
+                                fontweight: FontWeight.w500,
+                              ),
+                            ),
+                            SizedBox(height: 6),
+                            ExpandableText(
+                              text: order.captionOrInstructions.isNotEmpty
+                                  ? order.captionOrInstructions
+                                  : 'No instructions provided.',
+                              style: getTextStyle(
+                                color: AppColors.primaryTextColor,
+                                fontsize: 14,
+                              ),
+                            ),
+                            if (order.specialNotes.isNotEmpty) ...[
+                              Divider(
+                                color: AppColors.secondaryTextColor.withValues(
+                                  alpha: .2,
+                                ),
+                                height: 24,
+                              ),
+                              Text(
+                                'Special Notes',
+                                style: getTextStyle(
+                                  color: AppColors.secondaryTextColor,
+                                  fontsize: 13,
+                                  fontweight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(height: 6),
+                              ExpandableText(
+                                text: order.specialNotes,
+                                style: getTextStyle(
+                                  color: AppColors.primaryTextColor,
+                                  fontsize: 14,
+                                ),
+                              ),
+                            ],
+                            if (order.files.isNotEmpty) ...[
+                              Divider(
+                                color: AppColors.secondaryTextColor.withValues(
+                                  alpha: .2,
+                                ),
+                                height: 24,
+                              ),
+                              Text(
+                                'Attachments',
+                                style: getTextStyle(
+                                  color: AppColors.secondaryTextColor,
+                                  fontsize: 13,
+                                  fontweight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              ...order.files.map((fileUrl) {
+                                final fileName = fileUrl.split('/').last;
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 8.0),
+                                  child: InkWell(
+                                    onTap: () => _viewFile(context, fileUrl),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 10,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF1E1E1E),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: Colors.white12),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.attach_file,
+                                            color: AppColors.redColor,
+                                            size: 20,
+                                          ),
+                                          SizedBox(width: 10),
+                                          Expanded(
+                                            child: Text(
+                                              fileName,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: getTextStyle(
+                                                color: AppColors.primaryTextColor,
+                                                fontsize: 13,
+                                              ),
+                                            ),
+                                          ),
+                                          //   Icon(Icons.open_in_new, color: AppColors.secondaryTextColor, size: 16),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
                     SizedBox(height: 24),
 
                     Text(
@@ -443,17 +908,12 @@ class OrderDetailsScreen extends StatelessWidget {
                             Expanded(
                               child: CustomPrimaryButton(
                                 buttonText: 'Cancel Order',
-                                onTap: () async {
-                                  EasyLoading.show(status: 'Cancelling...');
-                                  try {
-                                    await orderController.updateOrderStatus(
-                                      orderId: order.id.toString(),
-                                      status: OrderStatus.CANCELLED,
-                                    );
-                                  } finally {
-                                    EasyLoading.dismiss();
-                                  }
-                                },
+                                onTap: () => _cancelOrder(
+                                  context: context,
+                                  order: order,
+                                  controller: controller,
+                                  orderController: orderController,
+                                ),
                               ),
                             ),
                           ],
@@ -463,17 +923,12 @@ class OrderDetailsScreen extends StatelessWidget {
                       // If buyer, only show Cancel button (they requested cancel kept)
                       return CustomPrimaryButton(
                         buttonText: 'Cancel Order',
-                        onTap: () async {
-                          EasyLoading.show(status: 'Cancelling...');
-                          try {
-                            await orderController.updateOrderStatus(
-                              orderId: order.id.toString(),
-                              status: OrderStatus.CANCELLED,
-                            );
-                          } finally {
-                            EasyLoading.dismiss();
-                          }
-                        },
+                        onTap: () => _cancelOrder(
+                          context: context,
+                          order: order,
+                          controller: controller,
+                          orderController: orderController,
+                        ),
                       );
                     },
                   );
@@ -516,17 +971,12 @@ class OrderDetailsScreen extends StatelessWidget {
                             Expanded(
                               child: CustomPrimaryButton(
                                 buttonText: 'Cancel Order',
-                                onTap: () async {
-                                  EasyLoading.show(status: 'Cancelling...');
-                                  try {
-                                    await orderController.updateOrderStatus(
-                                      orderId: order.id.toString(),
-                                      status: OrderStatus.CANCELLED,
-                                    );
-                                  } finally {
-                                    EasyLoading.dismiss();
-                                  }
-                                },
+                                onTap: () => _cancelOrder(
+                                  context: context,
+                                  order: order,
+                                  controller: controller,
+                                  orderController: orderController,
+                                ),
                               ),
                             ),
                           ],
@@ -536,17 +986,12 @@ class OrderDetailsScreen extends StatelessWidget {
                       // Buyer sees only Cancel
                       return CustomPrimaryButton(
                         buttonText: 'Cancel Order',
-                        onTap: () async {
-                          EasyLoading.show(status: 'Cancelling...');
-                          try {
-                            await orderController.updateOrderStatus(
-                              orderId: order.id.toString(),
-                              status: OrderStatus.CANCELLED,
-                            );
-                          } finally {
-                            EasyLoading.dismiss();
-                          }
-                        },
+                        onTap: () => _cancelOrder(
+                          context: context,
+                          order: order,
+                          controller: controller,
+                          orderController: orderController,
+                        ),
                       );
                     },
                   );
@@ -630,17 +1075,12 @@ class OrderDetailsScreen extends StatelessWidget {
                             SizedBox(height: 12),
                             CustomPrimaryButton(
                               buttonText: 'Cancel Order',
-                              onTap: () async {
-                                EasyLoading.show(status: 'Cancelling...');
-                                try {
-                                  await orderController.updateOrderStatus(
-                                    orderId: order.id.toString(),
-                                    status: OrderStatus.CANCELLED,
-                                  );
-                                } finally {
-                                  EasyLoading.dismiss();
-                                }
-                              },
+                              onTap: () => _cancelOrder(
+                                context: context,
+                                order: order,
+                                controller: controller,
+                                orderController: orderController,
+                              ),
                             ),
                           ],
                         );
@@ -667,17 +1107,12 @@ class OrderDetailsScreen extends StatelessWidget {
                             SizedBox(height: 12),
                             CustomPrimaryButton(
                               buttonText: 'Cancel Order',
-                              onTap: () async {
-                                EasyLoading.show(status: 'Cancelling...');
-                                try {
-                                  await orderController.updateOrderStatus(
-                                    orderId: order.id.toString(),
-                                    status: OrderStatus.CANCELLED,
-                                  );
-                                } finally {
-                                  EasyLoading.dismiss();
-                                }
-                              },
+                              onTap: () => _cancelOrder(
+                                context: context,
+                                order: order,
+                                controller: controller,
+                                orderController: orderController,
+                              ),
                             ),
                           ],
                         );
@@ -686,17 +1121,12 @@ class OrderDetailsScreen extends StatelessWidget {
                       // Seller sees Cancel button when proof is pending review
                       return CustomPrimaryButton(
                         buttonText: 'Cancel Order',
-                        onTap: () async {
-                          EasyLoading.show(status: 'Cancelling...');
-                          try {
-                            await orderController.updateOrderStatus(
-                              orderId: order.id.toString(),
-                              status: OrderStatus.CANCELLED,
-                            );
-                          } finally {
-                            EasyLoading.dismiss();
-                          }
-                        },
+                        onTap: () => _cancelOrder(
+                          context: context,
+                          order: order,
+                          controller: controller,
+                          orderController: orderController,
+                        ),
                       );
                     },
                   );
@@ -766,17 +1196,12 @@ class OrderDetailsScreen extends StatelessWidget {
 
                 return CustomPrimaryButton(
                   buttonText: 'Cancel Order',
-                  onTap: () async {
-                    EasyLoading.show(status: 'Cancelling...');
-                    try {
-                      await orderController.updateOrderStatus(
-                        orderId: order.id.toString(),
-                        status: OrderStatus.CANCELLED,
-                      );
-                    } finally {
-                      EasyLoading.dismiss();
-                    }
-                  },
+                  onTap: () => _cancelOrder(
+                    context: context,
+                    order: order,
+                    controller: controller,
+                    orderController: orderController,
+                  ),
                 );
               }),
             ],

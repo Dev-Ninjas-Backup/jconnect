@@ -28,6 +28,10 @@ class OrderDetailsModel {
   final List<OrderTimelineStep> timeline;
   final List<String> proofUrl;
   final bool isCancalProofSubmitted;
+  final String captionOrInstructions;
+  final String specialNotes;
+  final String promotionDate;
+  final List<String> files;
 
   OrderDetailsModel({
     required this.id,
@@ -55,7 +59,75 @@ class OrderDetailsModel {
     required this.timeline,
     required this.proofUrl,
     this.isCancalProofSubmitted = false,
+    this.captionOrInstructions = '',
+    this.specialNotes = '',
+    this.promotionDate = '',
+    this.files = const [],
   });
+
+  OrderDetailsModel copyWith({
+    String? id,
+    String? orderCode,
+    String? platform,
+    String? serviceTitle,
+    String? subServiceTitle,
+    String? sellerName,
+    String? sellerEmail,
+    String? sellerUsername,
+    String? sellerimageUrl,
+    String? sellerId,
+    String? buyerName,
+    String? buyerEmail,
+    String? buyerUsername,
+    String? buyerImageUrl,
+    double? rating,
+    String? status,
+    String? orderCreated,
+    String? deliveryDate,
+    double? servicePrice,
+    String? platformRate,
+    double? platformFee,
+    String? buyerId,
+    List<OrderTimelineStep>? timeline,
+    List<String>? proofUrl,
+    bool? isCancalProofSubmitted,
+    String? captionOrInstructions,
+    String? specialNotes,
+    String? promotionDate,
+    List<String>? files,
+  }) {
+    return OrderDetailsModel(
+      id: id ?? this.id,
+      orderCode: orderCode ?? this.orderCode,
+      platform: platform ?? this.platform,
+      serviceTitle: serviceTitle ?? this.serviceTitle,
+      subServiceTitle: subServiceTitle ?? this.subServiceTitle,
+      sellerName: sellerName ?? this.sellerName,
+      sellerEmail: sellerEmail ?? this.sellerEmail,
+      sellerUsername: sellerUsername ?? this.sellerUsername,
+      sellerimageUrl: sellerimageUrl ?? this.sellerimageUrl,
+      sellerId: sellerId ?? this.sellerId,
+      buyerName: buyerName ?? this.buyerName,
+      buyerEmail: buyerEmail ?? this.buyerEmail,
+      buyerUsername: buyerUsername ?? this.buyerUsername,
+      buyerImageUrl: buyerImageUrl ?? this.buyerImageUrl,
+      rating: rating ?? this.rating,
+      status: status ?? this.status,
+      orderCreated: orderCreated ?? this.orderCreated,
+      deliveryDate: deliveryDate ?? this.deliveryDate,
+      servicePrice: servicePrice ?? this.servicePrice,
+      platformRate: platformRate ?? this.platformRate,
+      platformFee: platformFee ?? this.platformFee,
+      buyerId: buyerId ?? this.buyerId,
+      timeline: timeline ?? this.timeline,
+      proofUrl: proofUrl ?? this.proofUrl,
+      isCancalProofSubmitted: isCancalProofSubmitted ?? this.isCancalProofSubmitted,
+      captionOrInstructions: captionOrInstructions ?? this.captionOrInstructions,
+      specialNotes: specialNotes ?? this.specialNotes,
+      promotionDate: promotionDate ?? this.promotionDate,
+      files: files ?? this.files,
+    );
+  }
 
   factory OrderDetailsModel.fromJson(Map<String, dynamic> json) {
     String pickString(List<String> keys, [String fallback = '']) {
@@ -154,6 +226,17 @@ class OrderDetailsModel {
           json['isCancalProofSubmitted'] == 'true';
     }
 
+    List<String> filesList = [];
+    if (json['files'] != null) {
+      if (json['files'] is List) {
+        filesList = (json['files'] as List)
+            .map((e) => e.toString())
+            .toList();
+      } else if (json['files'] is String) {
+        filesList = [json['files'].toString()];
+      }
+    }
+
     final result = OrderDetailsModel(
       id: pickString(['id']),
       orderCode: pickString(['orderCode']),
@@ -179,6 +262,10 @@ class OrderDetailsModel {
       buyerId: pickString(['buyerId', 'buyer_id'], ''),
       proofUrl: proofUrlList,
       isCancalProofSubmitted: isCancalProofSubmitted,
+      captionOrInstructions: pickString(['captionOrInstructions']),
+      specialNotes: pickString(['specialNotes']),
+      promotionDate: pickString(['promotionDate']),
+      files: filesList,
       timeline: (() {
         final parsed = (json['timeline'] as List<dynamic>?)
             ?.map(

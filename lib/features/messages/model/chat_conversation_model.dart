@@ -37,7 +37,8 @@ class ChatMessage {
       service: json['service'] != null
           ? ServiceInfo.fromJson(json['service'])
           : null,
-      serviceRequest: (json['serviceRequest'] ?? json['service_request']) != null
+      serviceRequest:
+          (json['serviceRequest'] ?? json['service_request']) != null
           ? ServiceRequestInfo.fromJson(
               json['serviceRequest'] ?? json['service_request'],
             )
@@ -124,7 +125,11 @@ class ServiceRequestInfo {
       (promotionDate?.isNotEmpty ?? false) ||
       uploadedFileUrl.isNotEmpty;
 
-  ServiceRequestInfo copyWith({bool? isPaid, bool? isDeclined, bool? isAccepted}) {
+  ServiceRequestInfo copyWith({
+    bool? isPaid,
+    bool? isDeclined,
+    bool? isAccepted,
+  }) {
     return ServiceRequestInfo(
       id: id,
       captionOrInstructions: captionOrInstructions,
@@ -145,8 +150,9 @@ class ServiceRequestInfo {
 
     return ServiceRequestInfo(
       id: nonEmpty(json['id']),
-      captionOrInstructions:
-          nonEmpty(json['captionOrInstructions'] ?? json['caption_or_instructions']),
+      captionOrInstructions: nonEmpty(
+        json['captionOrInstructions'] ?? json['caption_or_instructions'],
+      ),
       specialNotes: nonEmpty(json['specialNotes'] ?? json['special_notes']),
       promotionDate: nonEmpty(json['promotionDate'] ?? json['promotion_date']),
       uploadedFileUrl: List<String>.from(
@@ -159,15 +165,15 @@ class ServiceRequestInfo {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'captionOrInstructions': captionOrInstructions,
-        'specialNotes': specialNotes,
-        'promotionDate': promotionDate,
-        'uploadedFileUrl': uploadedFileUrl,
-        'isPaid': isPaid,
-        'isDeclined': isDeclined,
-        'isAccepted': isAccepted,
-      };
+    'id': id,
+    'captionOrInstructions': captionOrInstructions,
+    'specialNotes': specialNotes,
+    'promotionDate': promotionDate,
+    'uploadedFileUrl': uploadedFileUrl,
+    'isPaid': isPaid,
+    'isDeclined': isDeclined,
+    'isAccepted': isAccepted,
+  };
 }
 
 class ServiceInfo {

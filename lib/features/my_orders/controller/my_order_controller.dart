@@ -251,7 +251,7 @@ class MyOrdersController extends GetxController {
     }
   }
 
-  Future<void> updateOrderStatus({
+  Future<bool> updateOrderStatus({
     required String orderId,
     required OrderStatus status,
   }) async {
@@ -261,7 +261,7 @@ class MyOrdersController extends GetxController {
 
       if (token == null || token.isEmpty) {
         print('[ORDER STATUS] No token found');
-        return;
+        return false;
       }
 
       final authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
@@ -286,7 +286,6 @@ class MyOrdersController extends GetxController {
       if (response.statusCode == 200) {
         // Parse response to get message
         String responseMessage = 'Order status updated';
-        bool isCancellationPending = false;
         String message = '';
         
         try {
@@ -295,10 +294,6 @@ class MyOrdersController extends GetxController {
             message = responseJson['message'] ?? '';
             if (message.isNotEmpty) {
               responseMessage = message;
-              // Check if this is a pending cancellation request (don't update UI)
-              if (message.contains('Cancellation request sent to seller successfully')) {
-                isCancellationPending = true;
-              }
             }
           }
         } catch (_) {
@@ -308,28 +303,26 @@ class MyOrdersController extends GetxController {
         // Show the response message
         EasyLoading.showSuccess(responseMessage);
         
-        // If not a pending cancellation request, update UI normally
-        if (!isCancellationPending) {
-          // Update locally and reload
-          _updateLocalOrderStatus(orderId, statusValue);
-          await Future.delayed(const Duration(milliseconds: 500));
-          await loadOrders();
-          print('[ORDER STATUS] Updated successfully');
-        } else {
-          print('[ORDER STATUS] Cancellation request sent to seller');
-        }
+        // Update locally and reload
+        _updateLocalOrderStatus(orderId, statusValue);
+        await Future.delayed(const Duration(milliseconds: 500));
+        await loadOrders();
+        print('[ORDER STATUS] Updated successfully');
 
         // Always send cancellation message when status is CANCELLED
         if (status == OrderStatus.CANCELLED && message.contains('Cancellation request sent to seller successfully')) {
           await _sendCancellationMessage(orderId, authHeader);
         }
+        return true;
       } else {
         EasyLoading.showError('Failed to update order');
         print('[ORDER STATUS] Failed: ${response.statusCode}');
+        return false;
       }
     } catch (e) {
       EasyLoading.showError('Error: $e');
       print('[ORDER STATUS] Error: $e');
+      return false;
     }
   }
 

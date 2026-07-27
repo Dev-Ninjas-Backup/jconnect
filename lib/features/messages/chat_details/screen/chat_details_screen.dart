@@ -300,7 +300,20 @@ class ChatDetailsScreen extends StatelessWidget {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['mp3', 'mp4', 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'mov', 'avi', 'flv', 'wav', 'aac'],
+        allowedExtensions: [
+          'mp3',
+          'mp4',
+          'jpg',
+          'jpeg',
+          'png',
+          'gif',
+          'pdf',
+          'mov',
+          'avi',
+          'flv',
+          'wav',
+          'aac',
+        ],
       );
       if (result == null || result.files.single.path == null) return;
 
@@ -481,35 +494,37 @@ class ChatDetailsScreen extends StatelessWidget {
 
     if (isImage) {
       // Show image preview with PhotoView
-      Get.to(() => Scaffold(
+      Get.to(
+        () => Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
             backgroundColor: Colors.black,
-            appBar: AppBar(
-              backgroundColor: Colors.black,
-              iconTheme: const IconThemeData(color: Colors.white),
-              title: const Text(
-                'View Image',
-                style: TextStyle(color: Colors.white),
+            iconTheme: const IconThemeData(color: Colors.white),
+            title: const Text(
+              'View Image',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          body: PhotoView(
+            imageProvider: getSafeImageProvider(url),
+            backgroundDecoration: const BoxDecoration(color: Colors.black),
+            minScale: PhotoViewComputedScale.contained,
+            maxScale: PhotoViewComputedScale.covered * 3,
+            loadingBuilder: (_, __) => const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            ),
+            errorBuilder: (_, __, ___) => const Center(
+              child: Text(
+                'Failed to load image',
+                style: TextStyle(color: Colors.white70),
               ),
             ),
-            body: PhotoView(
-              imageProvider: getSafeImageProvider(url),
-              backgroundDecoration: const BoxDecoration(color: Colors.black),
-              minScale: PhotoViewComputedScale.contained,
-              maxScale: PhotoViewComputedScale.covered * 3,
-              loadingBuilder: (_, __) => const Center(
-                child: CircularProgressIndicator(color: Colors.white),
-              ),
-              errorBuilder: (_, __, ___) => const Center(
-                child: Text(
-                  'Failed to load image',
-                  style: TextStyle(color: Colors.white70),
-                ),
-              ),
-            ),
-          ));
+          ),
+        ),
+      );
     } else if (isVideo) {
       // Show video player
-      Get.to(() => _VideoViewerScreen(videoUrl: url));
+      Get.to(() => VideoViewerScreen(videoUrl: url));
     } else if (isAudio) {
       // Show audio player dialog
       _showAudioPlayerDialog(context, url);
@@ -522,10 +537,7 @@ class ChatDetailsScreen extends StatelessWidget {
         context: context,
         builder: (dialogContext) => AlertDialog(
           backgroundColor: Colors.grey[900],
-          title: const Text(
-            'Open File',
-            style: TextStyle(color: Colors.white),
-          ),
+          title: const Text('Open File', style: TextStyle(color: Colors.white)),
           content: Text(
             'File type ($ext) cannot be previewed. Download to view?',
             style: const TextStyle(color: Colors.white70),
@@ -555,8 +567,7 @@ class ChatDetailsScreen extends StatelessWidget {
   }
 
   void _showAudioPlayerDialog(BuildContext context, String url) {
-    Get.to(() => _AudioPlayerScreen(audioUrl: url),
-    );
+    Get.to(() => AudioPlayerScreen(audioUrl: url));
   }
 
   void _showPdfViewDialog(BuildContext context, String url) {
@@ -564,10 +575,7 @@ class ChatDetailsScreen extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: Colors.grey[900],
-        title: const Text(
-          'PDF File',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('PDF File', style: TextStyle(color: Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -598,7 +606,10 @@ class ChatDetailsScreen extends StatelessWidget {
             onPressed: () async {
               Get.back();
               if (await canLaunchUrl(Uri.parse(url))) {
-                await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                await launchUrl(
+                  Uri.parse(url),
+                  mode: LaunchMode.externalApplication,
+                );
               } else {
                 _downloadFile(url);
               }
@@ -652,7 +663,8 @@ class ChatDetailsScreen extends StatelessWidget {
       EasyLoading.dismiss();
 
       // Step 4: Show file info
-      final fileSizeInMB = (response.bodyBytes.length / (1024 * 1024)).toStringAsFixed(2);
+      final fileSizeInMB = (response.bodyBytes.length / (1024 * 1024))
+          .toStringAsFixed(2);
       print('✅ File downloaded successfully');
       print('📁 File name: $fileName');
       print('📊 File size: $fileSizeInMB MB');
@@ -1013,7 +1025,8 @@ class ChatDetailsScreen extends StatelessWidget {
                                           children: [
                                             // Title with service name and price
                                             Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               mainAxisAlignment:
                                                   MainAxisAlignment
                                                       .spaceBetween,
@@ -1023,12 +1036,13 @@ class ChatDetailsScreen extends StatelessWidget {
                                                     '${msgItem.service!.serviceName} - \$${msgItem.service!.price}',
                                                     style: TextStyle(
                                                       color: Colors.white,
-                                                      fontWeight: FontWeight.w600,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                       fontSize: 13,
                                                     ),
                                                   ),
                                                 ),
-                                                SizedBox(width: 4,),
+                                                SizedBox(width: 4),
 
                                                 if (msgItem
                                                             .service!
@@ -2007,16 +2021,23 @@ void showAddServiceSheet(
                                     : null,
                               );
                               Get.back();
-                               showGradientSnackBar(title: 'Success', message: 'Service sent');
+                              showGradientSnackBar(
+                                title: 'Success',
+                                message: 'Service sent',
+                              );
                             } catch (e) {
                               Get.back();
-                              showGradientSnackBar(title: 'Error', message: 'Failed to send service');
+                              showGradientSnackBar(
+                                title: 'Error',
+                                message: 'Failed to send service',
+                              );
                             }
                           } else {
                             Get.back();
                             showGradientSnackBar(
                               title: 'Info',
-                              message: 'Service creation issue. Please try again.',
+                              message:
+                                  'Service creation issue. Please try again.',
                             );
                           }
                         } else {
@@ -2052,16 +2073,16 @@ void showAddServiceSheet(
 }
 
 /// Video player screen for viewing video files
-class _VideoViewerScreen extends StatefulWidget {
+class VideoViewerScreen extends StatefulWidget {
   final String videoUrl;
 
-  const _VideoViewerScreen({required this.videoUrl});
+  const VideoViewerScreen({super.key, required this.videoUrl});
 
   @override
-  State<_VideoViewerScreen> createState() => _VideoViewerScreenState();
+  State<VideoViewerScreen> createState() => _VideoViewerScreenState();
 }
 
-class _VideoViewerScreenState extends State<_VideoViewerScreen> {
+class _VideoViewerScreenState extends State<VideoViewerScreen> {
   late VideoPlayerController _controller;
   late Future<void> _initializeVideoPlayerFuture;
 
@@ -2085,10 +2106,7 @@ class _VideoViewerScreenState extends State<_VideoViewerScreen> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'Watch Video',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('Watch Video', style: TextStyle(color: Colors.white)),
       ),
       body: FutureBuilder<void>(
         future: _initializeVideoPlayerFuture,
@@ -2106,9 +2124,13 @@ class _VideoViewerScreenState extends State<_VideoViewerScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  AspectRatio(
-                    aspectRatio: _controller.value.aspectRatio,
-                    child: VideoPlayer(_controller),
+                  Expanded(
+                    child: Center(
+                      child: AspectRatio(
+                        aspectRatio: _controller.value.aspectRatio,
+                        child: VideoPlayer(_controller),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Row(
@@ -2126,7 +2148,9 @@ class _VideoViewerScreenState extends State<_VideoViewerScreen> {
                         },
                         backgroundColor: Colors.blueAccent,
                         child: Icon(
-                          _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                          _controller.value.isPlaying
+                              ? Icons.pause
+                              : Icons.play_arrow,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -2165,16 +2189,16 @@ class _VideoViewerScreenState extends State<_VideoViewerScreen> {
 }
 
 /// Audio player screen for viewing audio files with direct playback
-class _AudioPlayerScreen extends StatefulWidget {
+class AudioPlayerScreen extends StatefulWidget {
   final String audioUrl;
 
-  const _AudioPlayerScreen({required this.audioUrl});
+  const AudioPlayerScreen({super.key, required this.audioUrl});
 
   @override
-  State<_AudioPlayerScreen> createState() => _AudioPlayerScreenState();
+  State<AudioPlayerScreen> createState() => _AudioPlayerScreenState();
 }
 
-class _AudioPlayerScreenState extends State<_AudioPlayerScreen> {
+class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
   late AudioPlayer _audioPlayer;
   late Future<void> _initializeAudioFuture;
 
@@ -2206,7 +2230,7 @@ class _AudioPlayerScreenState extends State<_AudioPlayerScreen> {
   @override
   Widget build(BuildContext context) {
     final fileName = widget.audioUrl.split('/').last.split('?').first;
-    
+
     return Scaffold(
       backgroundColor: Colors.black87,
       appBar: AppBar(
@@ -2226,7 +2250,11 @@ class _AudioPlayerScreenState extends State<_AudioPlayerScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, color: Colors.redAccent, size: 64),
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.redAccent,
+                      size: 64,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'Error loading audio: ${snapshot.error}',
@@ -2300,7 +2328,9 @@ class _AudioPlayerScreenState extends State<_AudioPlayerScreen> {
                           children: [
                             // Progress slider
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
                               child: SliderTheme(
                                 data: SliderThemeData(
                                   trackHeight: 4,
@@ -2327,9 +2357,12 @@ class _AudioPlayerScreenState extends State<_AudioPlayerScreen> {
 
                             // Time display
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     _formatDuration(position),
@@ -2434,10 +2467,7 @@ class _AudioPlayerScreenState extends State<_AudioPlayerScreen> {
                         const SizedBox(height: 8),
                         const Text(
                           'Speed',
-                          style: TextStyle(
-                            color: Colors.white54,
-                            fontSize: 12,
-                          ),
+                          style: TextStyle(color: Colors.white54, fontSize: 12),
                         ),
                       ],
                     ),
@@ -2498,10 +2528,7 @@ class _AudioPlayerScreenState extends State<_AudioPlayerScreen> {
                             ),
                           ),
                           if (speed == 1.0)
-                            const Icon(
-                              Icons.check,
-                              color: Colors.blueAccent,
-                            ),
+                            const Icon(Icons.check, color: Colors.blueAccent),
                         ],
                       ),
                     ),
