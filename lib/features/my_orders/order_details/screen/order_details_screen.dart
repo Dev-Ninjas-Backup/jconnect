@@ -547,6 +547,20 @@ class OrderDetailsScreen extends StatelessWidget {
     required OrderDetailsController controller,
     required MyOrdersController orderController,
   }) async {
+    final prefs = Get.find<SharedPreferencesHelperController>();
+    final loggedInUserId = await prefs.getUserId();
+    final isBuyer = loggedInUserId != null && loggedInUserId == order.buyerId;
+    final isProofSubmitted = order.status.toUpperCase() == 'PROOF_SUBMITTED' ||
+        order.proofUrl.isNotEmpty;
+
+    if (isBuyer && isProofSubmitted) {
+      EasyLoading.showError(
+        'You cannot cancel the order after proof has been submitted.',
+        duration: const Duration(seconds: 3),
+      );
+      return;
+    }
+
     EasyLoading.show(status: 'Cancelling...');
     try {
       final success = await orderController.updateOrderStatus(

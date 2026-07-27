@@ -107,4 +107,7 @@ class Endpoint {
       "$baseUrl/repost-orders/$id/review";
   static String rejectRepostOrder(String id) =>
       "$baseUrl/repost-orders/$id/reject";
+
+  // Order socket
+  static const String orderSocketIO = '$baseUrl/order';
 }

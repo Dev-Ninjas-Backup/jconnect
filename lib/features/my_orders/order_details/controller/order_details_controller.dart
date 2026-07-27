@@ -12,6 +12,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:jconnect/features/my_orders/order_details/model/order_details_model.dart';
 import 'package:jconnect/features/my_orders/model/order_model.dart';
 import 'package:jconnect/features/my_orders/order_details/model/order_timeline_step.dart';
+import 'package:jconnect/features/my_orders/order_socket/order_socket_service.dart';
 
 class OrderDetailsController extends GetxController {
   final order = Rxn<OrderDetailsModel>();
@@ -19,7 +20,7 @@ class OrderDetailsController extends GetxController {
   final sellerAverage = Rxn<double>();
   final isLoading = false.obs;
   String? _loadedOrderId;
-  Timer? _pollingTimer;
+  StreamSubscription? _socketSubscription;
 
   @override
   void onInit() {
@@ -74,7 +75,9 @@ class OrderDetailsController extends GetxController {
   }
 
   Future<void> fetchOrderDetails(String orderId) async {
-    _startPolling(orderId);
+    if (_loadedOrderId != orderId) {
+      _initSocket(orderId);
+    }
     try {
       isLoading.value = true;
       _loadedOrderId = orderId;
@@ -91,10 +94,7 @@ class OrderDetailsController extends GetxController {
       print('🔥 [FETCH ORDER DETAILS] Requesting url: $url');
       final response = await http.get(
         Uri.parse(url),
-        headers: {
-          'Authorization': authHeader,
-          'accept': '*/*',
-        },
+        headers: {'Authorization': authHeader, 'accept': '*/*'},
       );
 
       print('🔥 [FETCH ORDER DETAILS] Status: ${response.statusCode}');
@@ -103,9 +103,13 @@ class OrderDetailsController extends GetxController {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final Map<String, dynamic> rawJson = jsonDecode(response.body);
         order.value = OrderDetailsModel.fromJson(rawJson);
-        print('✅ [ORDER DETAILS] Fetched from API successfully, ID: ${order.value?.id}');
+        print(
+          '✅ [ORDER DETAILS] Fetched from API successfully, ID: ${order.value?.id}',
+        );
       } else {
-        EasyLoading.showError('Failed to load order details: ${response.statusCode}');
+        EasyLoading.showError(
+          'Failed to load order details: ${response.statusCode}',
+        );
       }
     } catch (e) {
       print('❌ [FETCH ORDER DETAILS] Error: $e');
@@ -400,56 +404,66 @@ class OrderDetailsController extends GetxController {
       isCancalProofSubmitted: current.isCancalProofSubmitted,
     );
 
-    order.value = current.copyWith(
-      status: status,
-      timeline: newTimeline,
-    );
+    order.value = current.copyWith(status: status, timeline: newTimeline);
   }
 
   @override
   void onClose() {
-    _pollingTimer?.cancel();
+    _socketSubscription?.cancel();
+    if (_loadedOrderId != null) {
+      try {
+        OrderSocketService().leaveOrder(_loadedOrderId!);
+      } catch (_) {}
+    }
     super.onClose();
   }
 
-  void _startPolling(String orderId) {
-    _pollingTimer?.cancel();
-    _pollingTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
-      _pollOrderDetails(orderId);
-    });
-  }
-
-  Future<void> _pollOrderDetails(String orderId) async {
+  Future<void> _initSocket(String orderId) async {
     try {
       final prefs = Get.find<SharedPreferencesHelperController>();
-      final token = await prefs.getAccessToken();
-      if (token == null || token.isEmpty) return;
-
-      final authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
-      final url = Endpoint.orderDetails(orderId);
-
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {
-          'Authorization': authHeader,
-          'accept': '*/*',
-        },
-      );
-
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        final Map<String, dynamic> rawJson = jsonDecode(response.body);
-        final freshOrder = OrderDetailsModel.fromJson(rawJson);
-        final current = order.value;
-        if (current == null ||
-            current.status != freshOrder.status ||
-            current.isCancalProofSubmitted != freshOrder.isCancalProofSubmitted ||
-            current.proofUrl.length != freshOrder.proofUrl.length) {
-          order.value = freshOrder;
-          print('🔄 [ORDER DETAILS POLLING] State updated automatically, Status: ${freshOrder.status}');
+      final token = await prefs.getAccessRowToken();
+      if (token != null && token.isNotEmpty) {
+        final socketService = OrderSocketService();
+        if (!socketService.isConnected) {
+          socketService.connect(token: token);
         }
+
+        // Leave previous order room if any
+        if (_loadedOrderId != null && _loadedOrderId != orderId) {
+          socketService.leaveOrder(_loadedOrderId!);
+        }
+
+        // Join the specific order room
+        socketService.joinOrder(orderId);
+
+        _socketSubscription?.cancel();
+        _socketSubscription = socketService.eventStream.listen((event) {
+          final data = event.data;
+          print('📩 [ORDER SOCKET EVENT] Event: ${event.event}, Data: $data');
+
+          String? eventOrderId;
+          if (data is Map) {
+            eventOrderId = data['id']?.toString() ??
+                data['orderId']?.toString() ??
+                (data['order'] is Map ? data['order']['id']?.toString() : null) ??
+                (data['order'] is Map ? data['order']['orderId']?.toString() : null);
+          } else if (data is String) {
+            eventOrderId = data;
+          }
+
+          final isOrderLifecycleEvent = event.event.startsWith('order:') &&
+              event.event != 'order:success' &&
+              event.event != 'order:error';
+
+          if (eventOrderId == orderId ||
+              (isOrderLifecycleEvent && (eventOrderId == null || eventOrderId.isEmpty))) {
+            print('🔄 Refreshing order details for $orderId due to socket event: ${event.event}');
+            fetchOrderDetails(orderId);
+          }
+        });
       }
     } catch (e) {
-      print('⚠️ [ORDER DETAILS POLLING] Error: $e');
+      print('⚠️ Error initializing socket in OrderDetailsController: $e');
     }
   }
 
