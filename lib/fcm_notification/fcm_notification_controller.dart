@@ -11,7 +11,6 @@ import 'package:jconnect/core/service/local_service/shared_preferences_helper.da
 import 'package:jconnect/features/messages/model/message_model2.dart';
 import 'package:jconnect/features/messages/controller/messages_controller.dart';
 import 'package:jconnect/features/home/notification/screen/notification_screen.dart';
-import 'package:jconnect/features/messages/chat_details/screen/chat_details_screen.dart';
 import 'package:jconnect/firebase_options.dart';
 import 'package:jconnect/routes/approute.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -774,8 +773,8 @@ class FcmNotificationController extends GetxController {
       Get.offAllNamed(AppRoute.navBarScreen);
 
       Future.delayed(const Duration(milliseconds: 100), () {
-        Get.to(
-          () => ChatDetailsScreen(),
+        Get.toNamed(
+          AppRoute.getChatDetailsScreen(),
           arguments: {
             'chatItem': chatItem,
             'recipientId': recipientId ?? '',
