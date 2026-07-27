@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
                 AppRoute.getPhoneVerificationScreen(),
                 AppRoute.getProfileSetupScreen(),
                 AppRoute.getOnboardingScreen(),
-               // AppRoute.getChatDetailsScreen(),
+                AppRoute.getChatDetailsScreen(),
               ];
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 navBarController.showNavBar.value = !hiddenRoutes.contains(route);
