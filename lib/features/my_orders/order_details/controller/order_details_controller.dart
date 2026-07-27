@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -16,118 +17,101 @@ class OrderDetailsController extends GetxController {
   final order = Rxn<OrderDetailsModel>();
   // seller average rating loaded from user endpoint
   final sellerAverage = Rxn<double>();
+  final isLoading = false.obs;
+  String? _loadedOrderId;
+  Timer? _pollingTimer;
 
   @override
   void onInit() {
     super.onInit();
-    _loadOrderFromArguments();
+    _fetchDetailsIfNeeded();
   }
 
   @override
   void onReady() {
     super.onReady();
-    // Re-check arguments in case they've been updated
-    _loadOrderFromArguments();
+    _fetchDetailsIfNeeded();
   }
 
-  void _loadOrderFromArguments() {
-    final dynamic arguments = Get.arguments;
+  void _fetchDetailsIfNeeded() {
+    final orderId = _getOrderIdFromArguments(Get.arguments);
+    if (orderId != null && orderId.isNotEmpty && orderId != _loadedOrderId) {
+      fetchOrderDetails(orderId);
+    }
+  }
 
-    dynamic incoming;
-    Map<String, dynamic>? rawJson;
+  String? _getOrderIdFromArguments(dynamic arguments) {
+    if (arguments == null) return null;
 
     if (arguments is Map<String, dynamic>) {
-      if (arguments['raw'] is Map<String, dynamic>) {
-        rawJson = arguments['raw'];
+      if (arguments['order'] != null) {
+        final incoming = arguments['order'];
+        if (incoming is OrderModel) return incoming.orderId;
+        if (incoming is OrderDetailsModel) return incoming.id;
+        if (incoming is Map<String, dynamic>) {
+          return incoming['id']?.toString() ?? incoming['orderId']?.toString();
+        }
       }
-      incoming ??= arguments['order'];
-    } else {
-      incoming = arguments;
+      if (arguments['raw'] != null) {
+        final raw = arguments['raw'];
+        if (raw is Map<String, dynamic>) return raw['id']?.toString();
+      }
+      return arguments['id']?.toString() ??
+          arguments['orderId']?.toString() ??
+          arguments['orderID']?.toString();
     }
 
-    // 1 Prefer raw API JSON (contains real timeline)
-    if (rawJson != null) {
-      try {
-        order.value = OrderDetailsModel.fromJson(rawJson);
-        print('✅ [ORDER DETAILS] Loaded from raw JSON, ID: ${order.value?.id}');
+    if (arguments is OrderModel) {
+      return arguments.orderId;
+    }
+    if (arguments is OrderDetailsModel) {
+      return arguments.id;
+    }
+    if (arguments is String) {
+      return arguments;
+    }
+    return null;
+  }
+
+  Future<void> fetchOrderDetails(String orderId) async {
+    _startPolling(orderId);
+    try {
+      isLoading.value = true;
+      _loadedOrderId = orderId;
+      final prefs = Get.find<SharedPreferencesHelperController>();
+      final token = await prefs.getAccessToken();
+      if (token == null || token.isEmpty) {
+        EasyLoading.showError('No auth token available');
         return;
-      } catch (_) {}
-    }
+      }
 
-    // 2️Already parsed
-    if (incoming is OrderDetailsModel) {
-      order.value = incoming;
-      print(
-        '✅ [ORDER DETAILS] Loaded from OrderDetailsModel, ID: ${order.value?.id}',
+      final authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+      final url = Endpoint.orderDetails(orderId);
+
+      print('🔥 [FETCH ORDER DETAILS] Requesting url: $url');
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': authHeader,
+          'accept': '*/*',
+        },
       );
-      return;
-    }
 
-    // 3️Coming from OrderModel → build + generate timeline
-    if (incoming is OrderModel) {
-      print(
-        '📝 [ORDER DETAILS] Loading from OrderModel, orderId: ${incoming.orderId}',
-      );
-      final price = incoming.price;
+      print('🔥 [FETCH ORDER DETAILS] Status: ${response.statusCode}');
+      print('🔥 [FETCH ORDER DETAILS] Body: ${response.body}');
 
-      // Extract possible timestamps from the raw JSON when OrderModel lacks them
-      final String? createdAtFromRaw = incoming.raw != null
-          ? ((incoming.raw!['createdAt'])?.toString())
-          : null;
-      final String? deliveryDateFromRaw = incoming.raw != null
-          ? ((incoming.raw!['deliveryDate'])?.toString())
-          : null;
-      final String? updatedAtFromRaw = incoming.raw != null
-          ? ((incoming.raw!['updatedAt'])?.toString())
-          : null;
-      final String? buyerIdFromRaw = incoming.raw != null
-          ? ((incoming.raw!['buyerId'])?.toString())
-          : null;
-      final String? sellerIdFromRaw = incoming.raw != null
-          ? ((incoming.raw!['sellerId'])?.toString())
-          : null;
-
-      order.value = OrderDetailsModel(
-        id: incoming.orderId, // internal DB id
-        orderCode: incoming.orderCode, // user-facing code
-        platform: incoming.platform,
-        serviceTitle: incoming.title,
-        subServiceTitle: incoming.description ?? '',
-        sellerName: incoming.sellerName,
-        sellerEmail: incoming.sellerEmail,
-        sellerUsername: incoming.sellerUsername,
-        sellerimageUrl: '',
-        sellerId: sellerIdFromRaw ?? '',
-        buyerName: '',
-        buyerEmail: '',
-        buyerUsername: '',
-        buyerImageUrl: '',
-        rating: 0.0,
-        status: incoming.status,
-        orderCreated: createdAtFromRaw ?? '',
-        deliveryDate: deliveryDateFromRaw ?? '',
-        servicePrice: price,
-        platformFee: price,
-        // OrderModel does not always include a platformRate; use empty string fallback
-        platformRate: '',
-        buyerId: buyerIdFromRaw ?? '',
-        proofUrl: [],
-        timeline: _generateTimeline(
-          status: incoming.status,
-          createdAt: createdAtFromRaw,
-          deliveryDate: deliveryDateFromRaw,
-          updatedAt: updatedAtFromRaw,
-        ),
-        isCancalProofSubmitted: false,
-      );
-      return;
-    }
-
-    // 4️ Fallback raw map
-    if (incoming is Map<String, dynamic>) {
-      try {
-        order.value = OrderDetailsModel.fromJson(incoming);
-      } catch (_) {}
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final Map<String, dynamic> rawJson = jsonDecode(response.body);
+        order.value = OrderDetailsModel.fromJson(rawJson);
+        print('✅ [ORDER DETAILS] Fetched from API successfully, ID: ${order.value?.id}');
+      } else {
+        EasyLoading.showError('Failed to load order details: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ [FETCH ORDER DETAILS] Error: $e');
+      EasyLoading.showError('Error loading order details: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -278,29 +262,8 @@ class OrderDetailsController extends GetxController {
           isCancalProofSubmitted: isCancalProofSubmitted,
         );
 
-        order.value = OrderDetailsModel(
-          id: current.id,
-          orderCode: current.orderCode,
-          platform: current.platform,
-          serviceTitle: current.serviceTitle,
-          subServiceTitle: current.subServiceTitle,
-          sellerName: current.sellerName,
-          sellerEmail: current.sellerEmail,
-          sellerUsername: current.sellerUsername,
-          sellerimageUrl: current.sellerimageUrl,
-          sellerId: current.sellerId,
-          buyerName: current.buyerName,
-          buyerEmail: current.buyerEmail,
-          buyerUsername: current.buyerUsername,
-          buyerImageUrl: current.buyerImageUrl,
-          rating: current.rating,
+        order.value = current.copyWith(
           status: 'PROOF_SUBMITTED',
-          orderCreated: current.orderCreated,
-          deliveryDate: current.deliveryDate,
-          servicePrice: current.servicePrice,
-          platformRate: current.platformRate,
-          platformFee: current.platformFee,
-          buyerId: current.buyerId,
           proofUrl: newProofUrl,
           isCancalProofSubmitted: isCancalProofSubmitted,
           timeline: newTimeline,
@@ -345,29 +308,8 @@ class OrderDetailsController extends GetxController {
                   isCancalProofSubmitted: resetFlag,
                 );
 
-                order.value = OrderDetailsModel(
-                  id: current.id,
-                  orderCode: current.orderCode,
-                  platform: current.platform,
-                  serviceTitle: current.serviceTitle,
-                  subServiceTitle: current.subServiceTitle,
-                  sellerName: current.sellerName,
-                  sellerEmail: current.sellerEmail,
-                  sellerUsername: current.sellerUsername,
-                  sellerimageUrl: current.sellerimageUrl,
-                  sellerId: current.sellerId,
-                  buyerName: current.buyerName,
-                  buyerEmail: current.buyerEmail,
-                  buyerUsername: current.buyerUsername,
-                  buyerImageUrl: current.buyerImageUrl,
-                  rating: current.rating,
+                order.value = current.copyWith(
                   status: 'PROOF_SUBMITTED',
-                  orderCreated: current.orderCreated,
-                  deliveryDate: current.deliveryDate,
-                  servicePrice: current.servicePrice,
-                  platformRate: current.platformRate,
-                  platformFee: current.platformFee,
-                  buyerId: current.buyerId,
                   proofUrl: newProofUrl,
                   isCancalProofSubmitted: resetFlag,
                   timeline: confirmedTimeline,
@@ -458,33 +400,57 @@ class OrderDetailsController extends GetxController {
       isCancalProofSubmitted: current.isCancalProofSubmitted,
     );
 
-    order.value = OrderDetailsModel(
-      id: current.id,
-      orderCode: current.orderCode,
-      platform: current.platform,
-      serviceTitle: current.serviceTitle,
-      subServiceTitle: current.subServiceTitle,
-      sellerName: current.sellerName,
-      sellerUsername: current.sellerUsername,
-      sellerimageUrl: current.sellerimageUrl,
-      sellerEmail: current.sellerEmail,
-      sellerId: current.sellerId,
-      buyerName: current.buyerName,
-      buyerEmail: current.buyerEmail,
-      buyerUsername: current.buyerUsername,
-      buyerImageUrl: current.buyerImageUrl,
-      rating: current.rating,
+    order.value = current.copyWith(
       status: status,
-      orderCreated: current.orderCreated,
-      deliveryDate: current.deliveryDate,
-      servicePrice: current.servicePrice,
-      platformRate: current.platformRate,
-      platformFee: current.platformFee,
-      buyerId: current.buyerId,
-      proofUrl: current.proofUrl,
-      isCancalProofSubmitted: current.isCancalProofSubmitted,
       timeline: newTimeline,
     );
+  }
+
+  @override
+  void onClose() {
+    _pollingTimer?.cancel();
+    super.onClose();
+  }
+
+  void _startPolling(String orderId) {
+    _pollingTimer?.cancel();
+    _pollingTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      _pollOrderDetails(orderId);
+    });
+  }
+
+  Future<void> _pollOrderDetails(String orderId) async {
+    try {
+      final prefs = Get.find<SharedPreferencesHelperController>();
+      final token = await prefs.getAccessToken();
+      if (token == null || token.isEmpty) return;
+
+      final authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+      final url = Endpoint.orderDetails(orderId);
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': authHeader,
+          'accept': '*/*',
+        },
+      );
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final Map<String, dynamic> rawJson = jsonDecode(response.body);
+        final freshOrder = OrderDetailsModel.fromJson(rawJson);
+        final current = order.value;
+        if (current == null ||
+            current.status != freshOrder.status ||
+            current.isCancalProofSubmitted != freshOrder.isCancalProofSubmitted ||
+            current.proofUrl.length != freshOrder.proofUrl.length) {
+          order.value = freshOrder;
+          print('🔄 [ORDER DETAILS POLLING] State updated automatically, Status: ${freshOrder.status}');
+        }
+      }
+    } catch (e) {
+      print('⚠️ [ORDER DETAILS POLLING] Error: $e');
+    }
   }
 
   /// Post a review for the seller. Returns true on success.
@@ -614,29 +580,8 @@ class OrderDetailsController extends GetxController {
           isCancalProofSubmitted: isCancalProofSubmitted,
         );
 
-        order.value = OrderDetailsModel(
-          id: current.id,
-          orderCode: current.orderCode,
-          platform: current.platform,
-          serviceTitle: current.serviceTitle,
-          subServiceTitle: current.subServiceTitle,
-          sellerName: current.sellerName,
-          sellerEmail: current.sellerEmail,
-          sellerUsername: current.sellerUsername,
-          sellerimageUrl: current.sellerimageUrl,
-          sellerId: current.sellerId,
-          buyerName: current.buyerName,
-          buyerEmail: current.buyerEmail,
-          buyerUsername: current.buyerUsername,
-          buyerImageUrl: current.buyerImageUrl,
-          rating: current.rating,
+        order.value = current.copyWith(
           status: 'PROOF_SUBMITTED',
-          orderCreated: current.orderCreated,
-          deliveryDate: current.deliveryDate,
-          servicePrice: current.servicePrice,
-          platformRate: current.platformRate,
-          platformFee: current.platformFee,
-          buyerId: current.buyerId,
           proofUrl: [], // Clear proof URLs
           isCancalProofSubmitted: isCancalProofSubmitted,
           timeline: newTimeline,
