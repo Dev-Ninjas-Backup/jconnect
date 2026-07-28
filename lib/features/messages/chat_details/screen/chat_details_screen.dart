@@ -924,9 +924,12 @@ class ChatDetailsScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            senderUsername.isNotEmpty
-                                ? senderUsername
-                                : (chatParticipant?.username ?? ''),
+                            (chatParticipant?.username != null &&
+                                    chatParticipant.username!.trim().isNotEmpty)
+                                ? chatParticipant.username!
+                                : (senderUsername.isNotEmpty
+                                    ? senderUsername
+                                    : ''),
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -954,7 +957,7 @@ class ChatDetailsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'You started a chat with ${senderUsername.isNotEmpty ? senderUsername : (chatParticipant?.username ?? '')}',
+                      'You started a chat with ${(chatParticipant?.username != null && chatParticipant.username!.trim().isNotEmpty) ? chatParticipant.username! : (senderUsername.isNotEmpty ? senderUsername : '')}',
                       style: getTextStyle(
                         fontsize: 12,
                         fontweight: FontWeight.w400,

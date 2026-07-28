@@ -279,7 +279,9 @@ class RequestServiceScreen extends StatelessWidget {
                     print(
                       '🔥 [REQUEST SERVICE] Fetching user profile for: $recipientIdStr',
                     );
-                    final fullName = await _fetchUserFullName(recipientIdStr);
+                    final userDetails = await _fetchUserDetails(recipientIdStr);
+                    final fullName = userDetails['fullName'] ?? '';
+                    final username = userDetails['username'] ?? '';
                     final displayName = fullName.isNotEmpty
                         ? fullName
                         : (service.creator?.full_name ??
@@ -289,7 +291,7 @@ class RequestServiceScreen extends StatelessWidget {
                               .trim();
 
                     print(
-                      '🔥 [REQUEST SERVICE] Resolved display name: $displayName',
+                      '🔥 [REQUEST SERVICE] Resolved display name: $displayName, username: $username',
                     );
 
                     // Check if there's an existing conversation
@@ -315,6 +317,9 @@ class RequestServiceScreen extends StatelessWidget {
                         participant: ChatParticipant(
                           id: recipientIdStr,
                           fullName: displayName,
+                          username: username.isNotEmpty
+                              ? username
+                              : existingChat.participant?.username,
                           profilePhoto:
                               existingChat.participant?.profilePhoto ??
                               service.creator?.profilePhoto,
@@ -347,6 +352,7 @@ class RequestServiceScreen extends StatelessWidget {
                         participant: ChatParticipant(
                           id: recipientIdStr,
                           fullName: displayName,
+                          username: username,
                           profilePhoto: service.creator?.profilePhoto,
                         ),
                       );
@@ -407,7 +413,9 @@ class RequestServiceScreen extends StatelessWidget {
                         print(
                           '🔥 [MESSAGE SELLER] Fetching user profile for: $sellerIdStr',
                         );
-                        final fullName = await _fetchUserFullName(sellerIdStr);
+                        final userDetails = await _fetchUserDetails(sellerIdStr);
+                        final fullName = userDetails['fullName'] ?? '';
+                        final username = userDetails['username'] ?? '';
                         final displayName = fullName.isNotEmpty
                             ? fullName
                             : (service.creator?.full_name ??
@@ -417,7 +425,7 @@ class RequestServiceScreen extends StatelessWidget {
                                   .trim();
 
                         print(
-                          '🔥 [MESSAGE SELLER] Resolved display name: $displayName',
+                          '🔥 [MESSAGE SELLER] Resolved display name: $displayName, username: $username',
                         );
 
                         // Check if there's an existing conversation
@@ -443,6 +451,9 @@ class RequestServiceScreen extends StatelessWidget {
                             participant: ChatParticipant(
                               id: sellerIdStr,
                               fullName: displayName,
+                              username: username.isNotEmpty
+                                  ? username
+                                  : existingChat.participant?.username,
                               profilePhoto:
                                   existingChat.participant?.profilePhoto ??
                                   service.creator?.profilePhoto,
@@ -471,6 +482,7 @@ class RequestServiceScreen extends StatelessWidget {
                             participant: ChatParticipant(
                               id: sellerIdStr,
                               fullName: displayName,
+                              username: username,
                               profilePhoto: service.creator?.profilePhoto,
                             ),
                           );
@@ -506,8 +518,8 @@ class RequestServiceScreen extends StatelessWidget {
     );
   }
 
-  /// Fetch user profile by ID from API to get full name
-  Future<String> _fetchUserFullName(String userId) async {
+  /// Fetch user profile by ID from API to get full name and username
+  Future<Map<String, String>> _fetchUserDetails(String userId) async {
     try {
       final prefs = Get.find<SharedPreferencesHelperController>();
       final token = await prefs.getAccessToken();
@@ -524,17 +536,23 @@ class RequestServiceScreen extends StatelessWidget {
         final fullName = (userJson['full_name'] ?? userJson['fullName'] ?? '')
             .toString()
             .trim();
+        final username = (userJson['username'] ?? userJson['userName'] ?? '')
+            .toString()
+            .trim();
         print(
-          '✅ [FETCH USER] Retrieved full name: $fullName for user: $userId',
+          '✅ [FETCH USER DETAILS] fullName: $fullName, username: $username for user: $userId',
         );
-        return fullName.isNotEmpty ? fullName : '';
+        return {
+          'fullName': fullName,
+          'username': username,
+        };
       } else {
         print('❌ [FETCH USER] Failed to fetch user: ${response.statusCode}');
-        return '';
+        return {'fullName': '', 'username': ''};
       }
     } catch (e) {
       print('❌ [FETCH USER] Error: $e');
-      return '';
+      return {'fullName': '', 'username': ''};
     }
   }
 }
