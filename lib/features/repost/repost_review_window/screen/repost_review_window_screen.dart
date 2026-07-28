@@ -223,6 +223,10 @@ class RepostReviewWindowScreen extends StatelessWidget {
                                    statusUpper.contains('REDO') ||
                                    statusUpper.contains('REFUND');
                   
+                  final isCompleted = statusUpper == 'COMPLETED' || 
+                                      statusUpper == 'COMPLETE' || 
+                                      statusUpper == 'RELEASED';
+                  
                   if (isHidden || !hasProof) {
                     return const SizedBox.shrink();
                   }
@@ -230,8 +234,14 @@ class RepostReviewWindowScreen extends StatelessWidget {
                     children: [
                       SizedBox(height: 80.h),
                       CustomPrimaryButton(
-                        buttonText: "View Proof",
-                        onTap: () => Get.to(() => BuyerReviewPostScreen(item: currentItem)),
+                        buttonText: isCompleted ? "Completed" : "View Proof",
+                        onTap: () {
+                          if (isCompleted) return;
+                          Get.to(() => BuyerReviewPostScreen(item: currentItem));
+                        },
+                        gradientColor: isCompleted
+                            ? [Colors.grey.shade800, Colors.grey.shade700, Colors.grey.shade800]
+                            : null,
                       ),
                     ],
                   );
