@@ -1043,16 +1043,10 @@ class ChatDetailsScreen extends StatelessWidget {
                                                   ),
                                                 ),
                                                 SizedBox(width: 4),
-
-                                                if (msgItem
-                                                            .service!
-                                                            .serviceType ==
+                                                if (msgItem.service!.serviceType ==
                                                         'SOCIAL_POST' &&
-                                                    (msgItem
-                                                            .serviceRequest
-                                                            ?.uploadedFileUrl
-                                                            .isNotEmpty ??
-                                                        false))
+                                                    (msgItem.serviceRequest?.uploadedFileUrl.isNotEmpty ?? false) &&
+                                                    msgItem.serviceRequest?.requestStatus != ServiceRequestStatus.cancelled)
                                                   GestureDetector(
                                                     onTap: () => _shareFiles(
                                                       msgItem
@@ -1093,10 +1087,8 @@ class ChatDetailsScreen extends StatelessWidget {
                                             ),
 
                                             // Service request extra details
-                                            if (msgItem
-                                                    .serviceRequest
-                                                    ?.hasExtraDetails ==
-                                                true) ...[
+                                            if (msgItem.serviceRequest?.hasExtraDetails == true &&
+                                                msgItem.serviceRequest?.requestStatus != ServiceRequestStatus.cancelled) ...[
                                               SizedBox(height: 10),
                                               Divider(
                                                 color: Colors.white12,
@@ -1535,87 +1527,108 @@ class ChatDetailsScreen extends StatelessWidget {
                                             ],
 
                                             SizedBox(height: 12),
-                                            // Pay Now / Paid button logic:
-                                            // - For custom services: only recipient (not mine) should pay
-                                            // - For regular services: only sender (me) should pay
-                                            if (msgItem.service!.isCustom ==
-                                                    true
-                                                ? !isMine // Custom: show to recipient only
-                                                : isMine) // Regular: show to sender only
-                                              SizedBox(
-                                                width: double.infinity,
-                                                child:
-                                                    msgItem
-                                                            .serviceRequest
-                                                            ?.isPaid ==
-                                                        true
-                                                    ? Container(
-                                                        padding:
-                                                            EdgeInsets.symmetric(
-                                                              vertical: 10,
-                                                            ),
-                                                        decoration: BoxDecoration(
-                                                          color:
-                                                              Colors.green[700],
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                6,
-                                                              ),
+                                            // Pay Now / Paid / Cancelled button logic:
+                                            Builder(
+                                              builder: (context) {
+                                                final isBuyer = msgItem.service!.isCustom == true ? !isMine : isMine;
+                                                final status = msgItem.serviceRequest?.requestStatus;
+
+                                                if (status == null) return const SizedBox.shrink();
+
+                                                if (isBuyer) {
+                                                  // Buyer view: PENDING -> Pay Now, PAID -> Paid, CANCELLED -> Cancelled
+                                                  if (status == ServiceRequestStatus.paid) {
+                                                    return Container(
+                                                      width: double.infinity,
+                                                      padding: const EdgeInsets.symmetric(vertical: 10),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.green[700],
+                                                        borderRadius: BorderRadius.circular(6),
+                                                      ),
+                                                      alignment: Alignment.center,
+                                                      child: const Text(
+                                                        'Paid',
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight: FontWeight.w600,
+                                                          fontSize: 13,
                                                         ),
-                                                        alignment:
-                                                            Alignment.center,
-                                                        child: Text(
-                                                          'Paid',
-                                                          style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            fontSize: 13,
-                                                          ),
+                                                      ),
+                                                    );
+                                                  } else if (status == ServiceRequestStatus.cancelled) {
+                                                    return Container(
+                                                      width: double.infinity,
+                                                      padding: const EdgeInsets.symmetric(vertical: 10),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.red[700],
+                                                        borderRadius: BorderRadius.circular(6),
+                                                      ),
+                                                      alignment: Alignment.center,
+                                                      child: const Text(
+                                                        'Cancelled',
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight: FontWeight.w600,
+                                                          fontSize: 13,
                                                         ),
-                                                      )
-                                                    : ElevatedButton(
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    return SizedBox(
+                                                      width: double.infinity,
+                                                      child: ElevatedButton(
                                                         style: ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              AppColors
-                                                                  .redColor,
-                                                          padding:
-                                                              EdgeInsets.symmetric(
-                                                                vertical: 10,
-                                                              ),
+                                                          backgroundColor: AppColors.redColor,
+                                                          padding: const EdgeInsets.symmetric(vertical: 10),
                                                           shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  6,
-                                                                ),
+                                                            borderRadius: BorderRadius.circular(6),
                                                           ),
                                                         ),
                                                         onPressed: () async {
-                                                          final result =
-                                                              await Get.to(
-                                                                () =>
-                                                                    PaymentPage(),
-                                                                arguments:
-                                                                    msgItem,
-                                                              );
+                                                          final result = await Get.to(
+                                                            () => PaymentPage(),
+                                                            arguments: msgItem,
+                                                          );
                                                           if (result == true) {
-                                                            controller
-                                                                .markMessageAsPaid(
-                                                                  msgItem.id,
-                                                                );
+                                                            controller.markMessageAsPaid(msgItem.id);
                                                           }
                                                         },
-                                                        child: Text(
+                                                        child: const Text(
                                                           'Pay Now',
                                                           style: TextStyle(
                                                             color: Colors.white,
-                                                            fontWeight:
-                                                                FontWeight.w600,
+                                                            fontWeight: FontWeight.w600,
                                                             fontSize: 13,
                                                           ),
                                                         ),
                                                       ),
-                                              ),
+                                                    );
+                                                  }
+                                                } else {
+                                                  // Seller view: if only cancelled then show cancelled
+                                                  if (status == ServiceRequestStatus.cancelled) {
+                                                    return Container(
+                                                      width: double.infinity,
+                                                      padding: const EdgeInsets.symmetric(vertical: 10),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.red[700],
+                                                        borderRadius: BorderRadius.circular(6),
+                                                      ),
+                                                      alignment: Alignment.center,
+                                                      child: const Text(
+                                                        'Cancelled',
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight: FontWeight.w600,
+                                                          fontSize: 13,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }
+                                                  return const SizedBox.shrink();
+                                                }
+                                              },
+                                            ),
                                           ],
                                         ),
                                       ),

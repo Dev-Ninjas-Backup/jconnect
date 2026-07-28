@@ -98,6 +98,12 @@ class SenderInfo {
   }
 }
 
+enum ServiceRequestStatus {
+  pending,
+  paid,
+  cancelled,
+}
+
 class ServiceRequestInfo {
   final String? id;
   final String? captionOrInstructions;
@@ -107,6 +113,8 @@ class ServiceRequestInfo {
   final bool isPaid;
   final bool isDeclined;
   final bool isAccepted;
+  final String? status;
+  final String? orderId;
 
   ServiceRequestInfo({
     this.id,
@@ -117,7 +125,21 @@ class ServiceRequestInfo {
     this.isPaid = false,
     this.isDeclined = false,
     this.isAccepted = false,
+    this.status,
+    this.orderId,
   });
+
+  ServiceRequestStatus get requestStatus {
+    if (status != null) {
+      final s = status!.toUpperCase();
+      if (s == 'PAID') return ServiceRequestStatus.paid;
+      if (s == 'CANCELLED') return ServiceRequestStatus.cancelled;
+      if (s == 'PENDING') return ServiceRequestStatus.pending;
+    }
+    if (isDeclined) return ServiceRequestStatus.cancelled;
+    if (isPaid) return ServiceRequestStatus.paid;
+    return ServiceRequestStatus.pending;
+  }
 
   bool get hasExtraDetails =>
       (captionOrInstructions?.isNotEmpty ?? false) ||
@@ -129,6 +151,8 @@ class ServiceRequestInfo {
     bool? isPaid,
     bool? isDeclined,
     bool? isAccepted,
+    String? status,
+    String? orderId,
   }) {
     return ServiceRequestInfo(
       id: id,
@@ -139,6 +163,8 @@ class ServiceRequestInfo {
       isPaid: isPaid ?? this.isPaid,
       isDeclined: isDeclined ?? this.isDeclined,
       isAccepted: isAccepted ?? this.isAccepted,
+      status: status ?? this.status,
+      orderId: orderId ?? this.orderId,
     );
   }
 
@@ -149,7 +175,7 @@ class ServiceRequestInfo {
     }
 
     return ServiceRequestInfo(
-      id: nonEmpty(json['id']),
+      id: nonEmpty(json['id'] ?? json['serviceRequestId'] ?? json['service_request_id']),
       captionOrInstructions: nonEmpty(
         json['captionOrInstructions'] ?? json['caption_or_instructions'],
       ),
@@ -161,6 +187,8 @@ class ServiceRequestInfo {
       isPaid: json['isPaid'] ?? false,
       isDeclined: json['isDeclined'] ?? json['is_declined'] ?? false,
       isAccepted: json['isAccepted'] ?? json['is_accepted'] ?? false,
+      status: nonEmpty(json['status']),
+      orderId: nonEmpty(json['orderId'] ?? json['order_id'] ?? (json['order'] is Map ? json['order']['id'] : null)),
     );
   }
 
@@ -173,6 +201,8 @@ class ServiceRequestInfo {
     'isPaid': isPaid,
     'isDeclined': isDeclined,
     'isAccepted': isAccepted,
+    'status': status,
+    'orderId': orderId,
   };
 }
 

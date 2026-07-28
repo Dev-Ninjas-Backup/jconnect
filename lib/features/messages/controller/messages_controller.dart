@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:jconnect/features/messages/model/chat_conversation_model.dart';
 import 'package:jconnect/features/messages/model/message_model2.dart';
 import 'package:jconnect/features/messages/socket_service/message_service_rest.dart';
 import 'package:jconnect/features/messages/socket_service/message_socket_service.dart';
+import 'package:jconnect/features/my_orders/order_socket/order_socket_service.dart';
 
 class MessagesController extends GetxController {
   MessageServiceRest messageServiceRest = MessageServiceRest(
@@ -35,6 +37,75 @@ class MessagesController extends GetxController {
     _patchMessagesWithCache();
   }
 
+  void updateLocalServiceRequestStatus({
+    required String serviceRequestId,
+    required ServiceRequestStatus status,
+  }) {
+    if (serviceRequestId.isEmpty) return;
+
+    final existing = _serviceRequestCache[serviceRequestId] ?? ServiceRequestInfo(id: serviceRequestId);
+
+    final updated = existing.copyWith(
+      isPaid: status == ServiceRequestStatus.paid ? true : (status == ServiceRequestStatus.cancelled ? false : existing.isPaid),
+      isDeclined: status == ServiceRequestStatus.cancelled ? true : (status == ServiceRequestStatus.paid ? false : existing.isDeclined),
+      isAccepted: status == ServiceRequestStatus.paid ? true : (status == ServiceRequestStatus.cancelled ? false : existing.isAccepted),
+      status: status == ServiceRequestStatus.paid
+          ? 'PAID'
+          : (status == ServiceRequestStatus.cancelled ? 'CANCELLED' : 'PENDING'),
+    );
+
+    _serviceRequestCache[serviceRequestId] = updated;
+
+    bool patched = false;
+    for (int i = 0; i < messages.length; i++) {
+      if (messages[i].serviceRequest?.id == serviceRequestId) {
+        final existingSr = messages[i].serviceRequest;
+        final mergedSr = existingSr != null
+            ? existingSr.copyWith(
+                isPaid: updated.isPaid,
+                isDeclined: updated.isDeclined,
+                isAccepted: updated.isAccepted,
+                status: updated.status,
+                orderId: updated.orderId,
+              )
+            : updated;
+        messages[i] = messages[i].copyWith(serviceRequest: mergedSr);
+        patched = true;
+      }
+    }
+
+    if (patched) {
+      messages.refresh();
+    }
+  }
+
+  void _updateServiceRequestByOrderId(String orderId, ServiceRequestStatus status) {
+    bool patched = false;
+    for (int i = 0; i < messages.length; i++) {
+      final sr = messages[i].serviceRequest;
+      if (sr != null && sr.orderId == orderId) {
+        final updated = sr.copyWith(
+          isPaid: status == ServiceRequestStatus.paid ? true : (status == ServiceRequestStatus.cancelled ? false : sr.isPaid),
+          isDeclined: status == ServiceRequestStatus.cancelled ? true : (status == ServiceRequestStatus.paid ? false : sr.isDeclined),
+          isAccepted: status == ServiceRequestStatus.paid ? true : (status == ServiceRequestStatus.cancelled ? false : sr.isAccepted),
+          status: status == ServiceRequestStatus.paid
+              ? 'PAID'
+              : (status == ServiceRequestStatus.cancelled ? 'CANCELLED' : 'PENDING'),
+        );
+        messages[i] = messages[i].copyWith(serviceRequest: updated);
+
+        if (sr.id != null) {
+          _serviceRequestCache[sr.id!] = updated;
+        }
+        patched = true;
+      }
+    }
+    if (patched) {
+      print('✅ Real-time updated service request status to $status for order $orderId');
+      messages.refresh();
+    }
+  }
+
   /// Mark a specific message's service request as paid locally (instant UI update).
   void markMessageAsPaid(String messageId) {
     for (int i = 0; i < messages.length; i++) {
@@ -42,12 +113,13 @@ class MessagesController extends GetxController {
         final existing = messages[i].serviceRequest;
         if (existing != null) {
           messages[i] = messages[i].copyWith(
-            serviceRequest: existing.copyWith(isPaid: true),
+            serviceRequest: existing.copyWith(isPaid: true, status: 'PAID'),
           );
         }
         break;
       }
     }
+    messages.refresh();
   }
 
   void _patchMessagesWithCache() {
@@ -123,6 +195,7 @@ class MessagesController extends GetxController {
   final MessageSocketService _socket = MessageSocketService();
 
   bool _socketInitialized = false;
+  StreamSubscription<OrderSocketEvent>? _orderSocketSubscription;
 
   /// Reactive message list for current conversation
   final RxList<ChatMessage> messages = <ChatMessage>[].obs;
@@ -217,6 +290,33 @@ class MessagesController extends GetxController {
         connectSocket(token: token, userId: userId);
         _socketInitialized = true;
         print('✅ Socket connected with authenticated user: $userId');
+
+        // Ensure Order socket is connected as well for real-time order updates
+        OrderSocketService().connect(token: token);
+
+        // Listen to Order Socket events for real-time order status updates in chat
+        _orderSocketSubscription?.cancel();
+        _orderSocketSubscription = OrderSocketService().eventStream.listen((event) {
+          print('📩 [MESSAGES_CONTROLLER] Received Order Socket Event: ${event.event}');
+          final data = event.data;
+          String? orderId;
+          if (data is Map) {
+            orderId = data['id']?.toString() ??
+                data['orderId']?.toString() ??
+                (data['order'] is Map ? data['order']['id']?.toString() : null) ??
+                (data['order'] is Map ? data['order']['orderId']?.toString() : null);
+          } else if (data is String) {
+            orderId = data;
+          }
+
+          if (orderId != null && orderId.isNotEmpty) {
+            if (event.event == 'order:cancelled') {
+              _updateServiceRequestByOrderId(orderId, ServiceRequestStatus.cancelled);
+            } else if (event.event == 'order:released') {
+              _updateServiceRequestByOrderId(orderId, ServiceRequestStatus.paid);
+            }
+          }
+        });
       } else {
         throw Exception('No authentication token or user ID available');
       }
@@ -237,6 +337,7 @@ class MessagesController extends GetxController {
   void onClose() {
     _socket.disconnect();
     _socketInitialized = false;
+    _orderSocketSubscription?.cancel();
     super.onClose();
   }
 
@@ -405,8 +506,15 @@ class MessagesController extends GetxController {
         }
 
         // ── Handle serviceRequestUpdated ──────────────────────────────────
-        // Detect: has serviceId + status flags but no senderId (not a message)
-        if (data.containsKey('serviceId') && !data.containsKey('senderId')) {
+        // Detect: has id, serviceRequestId, serviceRequest, or service_request, but no senderId (not a message)
+        final isServiceRequestUpdate = !data.containsKey('senderId') &&
+            (data.containsKey('id') ||
+             data.containsKey('serviceRequestId') ||
+             data.containsKey('service_request_id') ||
+             data.containsKey('serviceRequest') ||
+             data.containsKey('service_request'));
+
+        if (isServiceRequestUpdate) {
           _handleServiceRequestUpdated(data as Map<String, dynamic>);
           return;
         }
@@ -466,17 +574,24 @@ class MessagesController extends GetxController {
     }
   }
 
-  /// Handle serviceRequestUpdated socket events — patch only the specific message
-  /// whose serviceRequestId matches. Never match by serviceId alone, as multiple
-  /// service requests can share the same serviceId.
   void _handleServiceRequestUpdated(Map<String, dynamic> data) {
     try {
-      final updatedServiceRequest = ServiceRequestInfo.fromJson(data);
+      // Direct or wrapped parse check
+      var srJson = data;
+      if (data.containsKey('serviceRequest') && data['serviceRequest'] is Map) {
+        srJson = data['serviceRequest'] as Map<String, dynamic>;
+      } else if (data.containsKey('service_request') && data['service_request'] is Map) {
+        srJson = data['service_request'] as Map<String, dynamic>;
+      } else if (data.containsKey('data') && data['data'] is Map) {
+        srJson = data['data'] as Map<String, dynamic>;
+      }
+
+      final updatedServiceRequest = ServiceRequestInfo.fromJson(srJson);
       final serviceRequestId = updatedServiceRequest.id;
 
       print(
         '🔄 Handling serviceRequestUpdated: srId=$serviceRequestId, '
-        'isAccepted=${updatedServiceRequest.isAccepted}, isDeclined=${updatedServiceRequest.isDeclined}, isPaid=${updatedServiceRequest.isPaid}',
+        'isAccepted=${updatedServiceRequest.isAccepted}, isDeclined=${updatedServiceRequest.isDeclined}, isPaid=${updatedServiceRequest.isPaid}, status=${updatedServiceRequest.status}',
       );
 
       if (serviceRequestId == null || serviceRequestId.isEmpty) {
@@ -494,16 +609,38 @@ class MessagesController extends GetxController {
         final matchById = msg.serviceRequest?.id == serviceRequestId;
 
         if (matchById) {
-          messages[i] = msg.copyWith(serviceRequest: updatedServiceRequest);
+          final existingSr = msg.serviceRequest;
+          final mergedSr = existingSr != null
+              ? existingSr.copyWith(
+                  isPaid: updatedServiceRequest.isPaid,
+                  isDeclined: updatedServiceRequest.isDeclined,
+                  isAccepted: updatedServiceRequest.isAccepted,
+                  status: updatedServiceRequest.status,
+                  orderId: updatedServiceRequest.orderId,
+                )
+              : updatedServiceRequest;
+          messages[i] = msg.copyWith(serviceRequest: mergedSr);
           print('✅ Patched message[${msg.id}] serviceRequest in-place (srId=$serviceRequestId)');
           patched = true;
         }
       }
 
       // Update cache keyed by serviceRequestId (not serviceId)
-      _serviceRequestCache[serviceRequestId] = updatedServiceRequest;
+      final existingCache = _serviceRequestCache[serviceRequestId];
+      final mergedCache = existingCache != null
+          ? existingCache.copyWith(
+              isPaid: updatedServiceRequest.isPaid,
+              isDeclined: updatedServiceRequest.isDeclined,
+              isAccepted: updatedServiceRequest.isAccepted,
+              status: updatedServiceRequest.status,
+              orderId: updatedServiceRequest.orderId,
+            )
+          : updatedServiceRequest;
+      _serviceRequestCache[serviceRequestId] = mergedCache;
 
-      if (!patched) {
+      if (patched) {
+        messages.refresh();
+      } else {
         print(
           '⚠️ serviceRequestUpdated: no matching message found for srId=$serviceRequestId',
         );
