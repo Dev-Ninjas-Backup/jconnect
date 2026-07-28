@@ -209,6 +209,9 @@ class NotificationScreen extends StatelessWidget {
                                                       .currentUser
                                                       ?.full_name ??
                                                   'User',
+                                              username: notification
+                                                  .currentUser
+                                                  ?.username,
                                               profilePhoto: notification
                                                   .currentUser
                                                   ?.profilePhoto,

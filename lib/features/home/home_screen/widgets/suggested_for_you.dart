@@ -272,6 +272,7 @@ class SuggestedForYou extends StatelessWidget {
                               participant: ChatParticipant(
                                 id: artist.id,
                                 fullName: artist.fullName,
+                                username: artist.userName,
                                 profilePhoto: artist.profilePhoto,
                               ),
                             );
