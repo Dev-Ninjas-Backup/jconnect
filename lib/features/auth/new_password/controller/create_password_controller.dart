@@ -88,7 +88,7 @@ class CreatePasswordController extends GetxController {
         );
       }
     } catch (e) {
-      EasyLoading.showError("Something went wrong: $e");
+      EasyLoading.showError(_getErrorMessage(e));
     } finally {
       EasyLoading.dismiss();
     }
@@ -124,15 +124,43 @@ class CreatePasswordController extends GetxController {
           barrierDismissible: false,
         );
       } else {
-        EasyLoading.showError(
-          "Failed to change password: ${response.statusCode}",
-        );
+        String errMsg = "Failed to change password";
+        try {
+          final data = jsonDecode(response.body);
+          if (data is Map && data.containsKey('message')) {
+            errMsg = data['message'].toString();
+          }
+        } catch (_) {}
+        EasyLoading.showError(errMsg);
       }
     } catch (e) {
-      EasyLoading.showError("Something went wrong: $e");
+      EasyLoading.showError(_getErrorMessage(e));
     } finally {
       EasyLoading.dismiss();
     }
+  }
+
+  String _getErrorMessage(dynamic e) {
+    final exceptionStr = e.toString();
+    try {
+      final jsonStartIndex = exceptionStr.indexOf('{');
+      if (jsonStartIndex != -1) {
+        final jsonEndIndex = exceptionStr.lastIndexOf('}');
+        if (jsonEndIndex != -1 && jsonEndIndex > jsonStartIndex) {
+          final jsonSub = exceptionStr.substring(jsonStartIndex, jsonEndIndex + 1);
+          final parsed = jsonDecode(jsonSub);
+          if (parsed is Map && parsed.containsKey('message')) {
+            return parsed['message'].toString();
+          }
+        }
+      }
+    } catch (_) {}
+
+    var msg = exceptionStr;
+    if (msg.startsWith('Exception: ')) {
+      msg = msg.substring('Exception: '.length);
+    }
+    return msg.trim();
   }
 
   @override

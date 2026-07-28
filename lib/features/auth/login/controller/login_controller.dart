@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_print, unnecessary_nullable_for_final_variable_declarations, await_only_futures
 
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -105,7 +107,7 @@ class LoginController extends GetxController {
       }
     } catch (e) {
       isLoading.value = false;
-      EasyLoading.showError('Login failed: $e');
+      EasyLoading.showError(_getErrorMessage(e));
       print('DEBUG: Login error: $e');
     }
   }
@@ -264,7 +266,7 @@ class LoginController extends GetxController {
       }
     } catch (e) {
       debugPrint('DEBUG: Apple login error => $e');
-      EasyLoading.showError('Apple login failed');
+      EasyLoading.showError(_getErrorMessage(e));
     } finally {
       isLoading.value = false;
       EasyLoading.dismiss();
@@ -404,13 +406,39 @@ class LoginController extends GetxController {
       isLoading.value = false;
       EasyLoading.dismiss();
       print('DEBUG: Firebase auth error: ${e.code} - ${e.message}');
-      EasyLoading.showError('Google login failed: ${e.message}');
+      EasyLoading.showError(e.message ?? 'Google login failed');
     } catch (e) {
       isLoading.value = false;
       EasyLoading.dismiss();
       print('DEBUG: Google login error: $e');
       print('DEBUG: Error type: ${e.runtimeType}');
-      EasyLoading.showError('Google login failed: $e');
+      EasyLoading.showError(_getErrorMessage(e));
     }
+  }
+
+  String _getErrorMessage(dynamic e) {
+    final exceptionStr = e.toString();
+    try {
+      final jsonStartIndex = exceptionStr.indexOf('{');
+      if (jsonStartIndex != -1) {
+        final jsonEndIndex = exceptionStr.lastIndexOf('}');
+        if (jsonEndIndex != -1 && jsonEndIndex > jsonStartIndex) {
+          final jsonSub = exceptionStr.substring(jsonStartIndex, jsonEndIndex + 1);
+          final parsed = jsonDecode(jsonSub);
+          if (parsed is Map && parsed.containsKey('message')) {
+            return parsed['message'].toString();
+          }
+        }
+      }
+    } catch (_) {}
+
+    var msg = exceptionStr;
+    if (msg.startsWith('Exception: ')) {
+      msg = msg.substring('Exception: '.length);
+    }
+    if (msg.startsWith('Login failed: ')) {
+      msg = msg.substring('Login failed: '.length);
+    }
+    return msg.trim();
   }
 }
