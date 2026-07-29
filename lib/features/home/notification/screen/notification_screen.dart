@@ -3,6 +3,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/home/artists_details_screen/controller/artists_details_controller.dart';
@@ -271,7 +272,11 @@ class NotificationScreen extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year} '
-        '${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+    try {
+      final localDate = date.toLocal();
+      return DateFormat('MMM d, yyyy · h:mm a').format(localDate);
+    } catch (_) {
+      return date.toString();
+    }
   }
 }
