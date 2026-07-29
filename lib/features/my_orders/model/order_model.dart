@@ -13,6 +13,7 @@ class OrderModel {
   final String sellerEmail;
   final String sellerUsername;
   final String sellerImageUrl;
+  final String createdAt;
 
   OrderModel({
     required this.title,
@@ -28,6 +29,7 @@ class OrderModel {
     this.sellerEmail = '',
     this.sellerUsername = '',
     this.sellerImageUrl = '',
+    this.createdAt = '',
     this.raw,
   });
 
@@ -46,7 +48,8 @@ class OrderModel {
       sellerName: json['buyer']?['full_name'] ?? '',
       sellerEmail: json['buyer']?['email'] ?? '',
       sellerUsername: json['buyer']?['username'] ?? '',
-      sellerImageUrl: json['buyer']?['imageUrl'] ?? '',
+      sellerImageUrl: json['buyer']?['profilePhoto'] ?? json['buyer']?['imageUrl'] ?? '',
+      createdAt: json['createdAt'] ?? '',
     );
   }
 
@@ -67,7 +70,8 @@ class OrderModel {
       sellerName: json['seller']?['full_name'] ?? '',
       sellerEmail: json['seller']?['email'] ?? '',
       sellerUsername: json['seller']?['username'] ?? '',
-      sellerImageUrl: json['seller']?['imageUrl'] ?? '',
+      sellerImageUrl: json['seller']?['profilePhoto'] ?? json['seller']?['imageUrl'] ?? '',
+      createdAt: json['createdAt'] ?? '',
     );
   }
 
@@ -87,6 +91,7 @@ class OrderModel {
     String? sellerEmail,
     String? sellerUsername,
     String? sellerImageUrl,
+    String? createdAt,
   }) {
     return OrderModel(
       title: title ?? this.title,
@@ -103,6 +108,7 @@ class OrderModel {
       sellerEmail: sellerEmail ?? this.sellerEmail,
       sellerUsername: sellerUsername ?? this.sellerUsername,
       sellerImageUrl: sellerImageUrl ?? this.sellerImageUrl,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 }
