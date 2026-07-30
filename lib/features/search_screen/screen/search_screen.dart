@@ -10,18 +10,22 @@ import 'package:jconnect/features/home/artists_screen/widgets/artists_item.dart'
 class SearchScreen extends StatelessWidget {
   const SearchScreen({super.key});
 
+  static const _tag = 'search';
+
   @override
   Widget build(BuildContext context) {
-    // ignore: deprecated_member_use
-    return WillPopScope(
-      onWillPop: () async {
-        Get.delete<ArtistsController>(force: true);
-        return true;
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          Get.delete<ArtistsController>(tag: _tag, force: true);
+        }
       },
       child: Scaffold(
         backgroundColor: AppColors.backGroundColor,
         body: GetBuilder<ArtistsController>(
-          init: ArtistsController(), // created ONCE
+          tag: _tag,
+          init: ArtistsController(), // isolated instance for SearchScreen only
           builder: (controller) {
             return Padding(
               padding: EdgeInsets.only(left: 7.w, right: 7.w, top: 74.h),
@@ -29,24 +33,42 @@ class SearchScreen extends StatelessWidget {
                 physics: const ScrollPhysics(),
                 child: Column(
                   children: [
-                    CustomTextfield(
-                      controller: controller.searchTextController,
-                      hintText: "Search artists or influencers…",
-                      prefixIcon: Icon(
-                        Icons.search,
-                        size: sp(20),
-                        color: AppColors.secondaryTextColor,
-                      ),
-                      onChanged: (value) {
-                        if (value.trim().isEmpty) {
-                          controller.searchArtistItems.clear();
-                        } else {
-                          controller.searchArtistByName(value);
-                        }
+                    ValueListenableBuilder<TextEditingValue>(
+                      valueListenable: controller.searchTextController,
+                      builder: (context, value, child) {
+                        return CustomTextfield(
+                          controller: controller.searchTextController,
+                          hintText: "Search artists or influencers…",
+                          prefixIcon: Icon(
+                            Icons.search,
+                            size: sp(20),
+                            color: AppColors.secondaryTextColor,
+                          ),
+                          suffixIcon: value.text.isNotEmpty
+                              ? IconButton(
+                                  icon: Icon(
+                                    Icons.clear_rounded,
+                                    size: sp(18),
+                                    color: AppColors.secondaryTextColor,
+                                  ),
+                                  onPressed: () {
+                                    controller.searchTextController.clear();
+                                    controller.searchArtistItems.clear();
+                                  },
+                                )
+                              : null,
+                          onChanged: (val) {
+                            if (val.trim().isEmpty) {
+                              controller.searchArtistItems.clear();
+                            } else {
+                              controller.searchArtistByName(val);
+                            }
+                          },
+                        );
                       },
                     ),
                     SizedBox(height: 25.h),
-                    ArtistsItem(controller: controller),
+                    ArtistsItem(controller: controller, disableFilter: true),
                   ],
                 ),
               ),
@@ -57,3 +79,4 @@ class SearchScreen extends StatelessWidget {
     );
   }
 }
+
