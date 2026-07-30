@@ -38,21 +38,38 @@ class ArtistsScreen extends StatelessWidget {
                 },
               ),
               SizedBox(height: 30.h),
-              CustomTextfield(
-                controller: controller.searchTextController,
-                hintText: "Search artists or influencers…",
-                prefixIcon: Icon(
-                  Icons.search,
-                  size: sp(20),
-                  color: AppColors.secondaryTextColor,
-                ),
-
-                onChanged: (value) {
-                  if (value.trim().isEmpty) {
-                    controller.searchArtistItems.clear();
-                  } else {
-                    controller.searchArtistByName(value);
-                  }
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: controller.searchTextController,
+                builder: (context, value, child) {
+                  return CustomTextfield(
+                    controller: controller.searchTextController,
+                    hintText: "Search artists or influencers…",
+                    prefixIcon: Icon(
+                      Icons.search,
+                      size: sp(20),
+                      color: AppColors.secondaryTextColor,
+                    ),
+                    suffixIcon: value.text.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(
+                              Icons.clear_rounded,
+                              size: sp(18),
+                              color: AppColors.secondaryTextColor,
+                            ),
+                            onPressed: () {
+                              controller.searchTextController.clear();
+                              controller.searchArtistItems.clear();
+                            },
+                          )
+                        : null,
+                    onChanged: (val) {
+                      if (val.trim().isEmpty) {
+                        controller.searchArtistItems.clear();
+                      } else {
+                        controller.searchArtistByName(val);
+                      }
+                    },
+                  );
                 },
               ),
               SizedBox(height: 20.h),

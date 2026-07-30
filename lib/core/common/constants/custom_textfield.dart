@@ -10,6 +10,7 @@ class CustomTextfield extends StatelessWidget {
   final bool readOnly;
   final Function(String)? onChanged;
   final Widget? prefixIcon;
+  final Widget? suffixIcon;
 
   const CustomTextfield({
     super.key,
@@ -19,6 +20,7 @@ class CustomTextfield extends StatelessWidget {
     this.readOnly = false,
     this.onChanged,
     this.prefixIcon,
+    this.suffixIcon,
   });
 
   @override
@@ -41,6 +43,7 @@ class CustomTextfield extends StatelessWidget {
           style: getTextStyle(color: AppColors.secondaryTextColor),
           decoration: InputDecoration(
             prefixIcon: prefixIcon,
+            suffixIcon: suffixIcon,
             contentPadding: EdgeInsets.symmetric(
               horizontal: 12.w,
               vertical: 14.h,

@@ -10,7 +10,13 @@ import '../../../../core/common/style/global_text_style.dart';
 // ignore: must_be_immutable
 class ArtistsItem extends StatelessWidget {
   final ArtistsController controller;
-  const ArtistsItem({required this.controller, super.key});
+  final bool disableFilter;
+
+  const ArtistsItem({
+    required this.controller,
+    this.disableFilter = false,
+    super.key,
+  });
 
   // List<ArtistsModel> get currentList {
   //   if (controller.searchArtistItems.isNotEmpty &&
@@ -37,12 +43,33 @@ class ArtistsItem extends StatelessWidget {
     return Obx(() {
       List<ArtistsModel> currentList;
 
+      final isSearchActive = controller.searchTextController.text.trim().isNotEmpty;
+
       //  Search first
-      if (controller.searchArtistItems.isNotEmpty &&
-          controller.searchTextController.text.trim().isNotEmpty) {
+      if (isSearchActive && controller.searchArtistItems.isNotEmpty) {
         currentList = controller.searchArtistItems;
+
+        // ArtistsScreen: further filter search results by the active tab
+        if (!disableFilter && controller.selectArtistsItemIndex.value != 0) {
+          final List<ArtistsModel> tabList;
+          if (controller.selectArtistsItemIndex.value == 1) {
+            tabList = controller.recentArtistsList;
+          } else if (controller.selectArtistsItemIndex.value == 2) {
+            tabList = controller.topRatedArtistsList;
+          } else {
+            tabList = controller.suggestedForYouList;
+          }
+          final tabIds = tabList.map((a) => a.id).toSet();
+          currentList = currentList.where((a) => tabIds.contains(a.id)).toList();
+        }
+      } else if (isSearchActive) {
+        // Search active but returned no results
+        currentList = [];
+      } else if (disableFilter) {
+        // Search screen — always show all artists, no tab/category filter
+        currentList = controller.artistsItems;
       }
-      //  Tab index selection
+      //  Tab index selection (ArtistsScreen only)
       else if (controller.selectArtistsItemIndex.value == 0) {
         currentList = controller.artistsItems;
       } else if (controller.selectArtistsItemIndex.value == 1) {
@@ -53,19 +80,22 @@ class ArtistsItem extends StatelessWidget {
         currentList = controller.suggestedForYouList;
       }
 
-      // Filter by category
-      final categoryType = controller.selectedCategoryIndex.value == 0
-          ? "SOCIAL_POST"
-          : controller.selectedCategoryIndex.value == 1
-              ? "REPOST"
-              : "SERVICE";
+      // Category filter — applies to ArtistsScreen always (search or not), skipped for SearchScreen
+      if (!disableFilter) {
+        final categoryType = controller.selectedCategoryIndex.value == 0
+            ? "SOCIAL_POST"
+            : controller.selectedCategoryIndex.value == 1
+                ? "REPOST"
+                : "SERVICE";
 
-      currentList = currentList.where((artist) {
-        if (categoryType == "REPOST" && artist.repostPrice > 0) {
-          return true;
-        }
-        return artist.services.any((s) => s.serviceType == categoryType);
-      }).toList();
+        currentList = currentList.where((artist) {
+          if (categoryType == "REPOST" && artist.repostPrice > 0) {
+            return true;
+          }
+          return artist.services.any((s) => s.serviceType == categoryType);
+        }).toList();
+      }
+
 
       bool isTabLoading = false;
       if (controller.selectArtistsItemIndex.value == 0) {
@@ -76,6 +106,16 @@ class ArtistsItem extends StatelessWidget {
         isTabLoading = controller.isTopRatedLoading.value;
       } else {
         isTabLoading = controller.isSuggestedLoading.value;
+      }
+
+      // Show spinner while search API is in progress
+      if (controller.isLoading.value && isSearchActive) {
+        return Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 50.h),
+            child: CircularProgressIndicator(color: AppColors.redColor),
+          ),
+        );
       }
 
       if (isTabLoading && currentList.isEmpty) {
@@ -91,11 +131,87 @@ class ArtistsItem extends StatelessWidget {
 
       if (currentList.isEmpty) {
         return Center(
-          child: Text(
-            "No artists found",
-            style: getTextStyle(
-              fontsize: sp(14),
-              color: AppColors.secondaryTextColor,
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 40.h, horizontal: 24.w),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(20.w),
+                  decoration: BoxDecoration(
+                    color: AppColors.secondaryTextColor.withValues(alpha: 0.08),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    isSearchActive
+                        ? Icons.search_off_rounded
+                        : Icons.person_search_outlined,
+                    size: sp(42),
+                    color: AppColors.secondaryTextColor,
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  isSearchActive ? "No Matches Found" : "No Artists Found",
+                  style: getTextStyle(
+                    fontsize: sp(16),
+                    fontweight: FontWeight.w600,
+                    color: AppColors.primaryTextColor,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  isSearchActive
+                      ? "We couldn't find any artists matching \"${controller.searchTextController.text.trim()}\"."
+                      : "There are currently no artists matching the selected filters.",
+                  textAlign: TextAlign.center,
+                  style: getTextStyle(
+                    fontsize: sp(13),
+                    color: AppColors.secondaryTextColor,
+                  ),
+                ),
+                if (isSearchActive) ...[
+                  SizedBox(height: 20.h),
+                  GestureDetector(
+                    onTap: () {
+                      controller.searchTextController.clear();
+                      controller.searchArtistItems.clear();
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 18.w,
+                        vertical: 10.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.redColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(20.r),
+                        border: Border.all(
+                          color: AppColors.redColor.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.close_rounded,
+                            size: sp(16),
+                            color: AppColors.redColor,
+                          ),
+                          SizedBox(width: 6.w),
+                          Text(
+                            "Clear Search",
+                            style: getTextStyle(
+                              fontsize: sp(13),
+                              fontweight: FontWeight.w500,
+                              color: AppColors.redColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
         );
