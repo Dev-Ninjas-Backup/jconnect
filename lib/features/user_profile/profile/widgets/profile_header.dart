@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -11,10 +12,7 @@ import 'package:jconnect/features/user_profile/profile/widgets/show_add_service_
 import 'package:jconnect/features/user_profile/profile/widgets/stat_card.dart';
 
 class ProfileHeader extends StatelessWidget {
-  const ProfileHeader({
-    super.key,
-    required this.controller,
-  });
+  const ProfileHeader({super.key, required this.controller});
 
   final ProfileController controller;
 
@@ -38,7 +36,7 @@ class ProfileHeader extends StatelessWidget {
               child: CircleAvatar(
                 radius: 47.w,
                 backgroundImage: user.imageUrl.startsWith('http')
-                    ? NetworkImage(user.imageUrl) as ImageProvider
+                    ? CachedNetworkImageProvider(user.imageUrl) as ImageProvider
                     : AssetImage(user.imageUrl) as ImageProvider,
               ),
             ),
@@ -80,7 +78,8 @@ class ProfileHeader extends StatelessWidget {
                       AddServiceController(),
                     );
                     addServiceController.clearForm();
-                    addServiceController.selectedServiceType.value = 'SOCIAL_POST';
+                    addServiceController.selectedServiceType.value =
+                        'SOCIAL_POST';
                     addServiceController.isSocialService.value = true;
                     showAddServiceSheet(addServiceController);
                   },
@@ -126,15 +125,27 @@ class ProfileHeader extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: StatCard(icon: Icons.shopping_bag_outlined, value: '${user.totaldeals}', label: 'Total Deals'),
+                child: StatCard(
+                  icon: Icons.shopping_bag_outlined,
+                  value: '${user.totaldeals}',
+                  label: 'Total Deals',
+                ),
               ),
               SizedBox(width: 10.w),
               Expanded(
-                child: StatCard(icon: Icons.attach_money_rounded, value: '\$${user.earnings.toStringAsFixed(2)}', label: 'Earnings'),
+                child: StatCard(
+                  icon: Icons.attach_money_rounded,
+                  value: '\$${user.earnings.toStringAsFixed(2)}',
+                  label: 'Earnings',
+                ),
               ),
               SizedBox(width: 10.w),
               Expanded(
-                child: StatCard(icon: Icons.star_border_rounded, value: user.rating.toStringAsFixed(1), label: 'Rating'),
+                child: StatCard(
+                  icon: Icons.star_border_rounded,
+                  value: user.rating.toStringAsFixed(1),
+                  label: 'Rating',
+                ),
               ),
             ],
           ),

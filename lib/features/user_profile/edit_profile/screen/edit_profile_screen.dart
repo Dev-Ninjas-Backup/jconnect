@@ -27,7 +27,7 @@ class EditProfileScreen extends StatelessWidget {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 18.w,vertical: 10.h),
+              padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
               child: CustomAppBar2(
                 title: 'Edit Profile',
                 leadingIconUrl: Iconpath.backIcon,
@@ -465,7 +465,6 @@ class EditProfileScreen extends StatelessWidget {
                                 onTap: () async {
                                   if (!controller.isLoading.value) {
                                     await controller.saveProfile();
-                                    await profileController.fetchProfile();
                                   }
                                 },
                               ),

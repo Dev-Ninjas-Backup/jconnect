@@ -77,7 +77,8 @@ class EditProfileController extends GetxController {
   final userNameController = TextEditingController();
 
   final RxList<Map<String, dynamic>> socialLinks = <Map<String, dynamic>>[].obs;
-  final RxList<Map<String, dynamic>> highlightsPaths = <Map<String, dynamic>>[].obs;
+  final RxList<Map<String, dynamic>> highlightsPaths =
+      <Map<String, dynamic>>[].obs;
 
   @override
   void onInit() {
@@ -288,11 +289,17 @@ class EditProfileController extends GetxController {
           .toList();
 
       print('DEBUG CONTROLLER: Total highlights: ${highlightsPaths.length}');
-      print('DEBUG CONTROLLER: Existing highlights: ${existingHighlights.length}');
-      print('DEBUG CONTROLLER: New local highlights: ${localHighlightPaths.length}');
-      print('DEBUG CONTROLLER: All highlights: ${highlightsPaths.map((h) => '${h['path']}, fromApi: ${h['fromApi']}').toList()}');
+      print(
+        'DEBUG CONTROLLER: Existing highlights: ${existingHighlights.length}',
+      );
+      print(
+        'DEBUG CONTROLLER: New local highlights: ${localHighlightPaths.length}',
+      );
+      print(
+        'DEBUG CONTROLLER: All highlights: ${highlightsPaths.map((h) => '${h['path']}, fromApi: ${h['fromApi']}').toList()}',
+      );
 
-      await profileRepository.updateProfile(
+      final updatedData = await profileRepository.updateProfile(
         phone: phoneController.text.trim(),
         shortBio: bioController.text.trim(),
         location: locationController.text.trim(),
@@ -304,7 +311,8 @@ class EditProfileController extends GetxController {
         existingHighlightUrls: existingHighlights,
       );
 
-      EasyLoading.showSuccess('Profile updated successfully');
+      final profileController = Get.find<ProfileController>();
+      profileController.updateFromApi(updatedData);
 
       EasyLoading.showSuccess('Profile updated successfully');
       Get.back();
