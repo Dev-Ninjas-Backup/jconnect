@@ -10,7 +10,7 @@ import 'package:jconnect/features/user_profile/edit_profile/model/social_profile
 class ProfileRepository {
   final _prefs = SharedPreferencesHelperController();
 
-  Future<void> updateProfile({
+  Future<Map<String, dynamic>> updateProfile({
     required String phone,
     required String shortBio,
     required String location,
@@ -61,46 +61,66 @@ class ProfileRepository {
       request.files.add(multipartFile);
     }
 
-    // Download and re-upload existing highlights (from S3 URLs)
-    print('DEBUG: Processing ${existingHighlightUrls?.length ?? 0} existing highlights');
+    // Download and re-upload existing highlights (from S3 URLs) in parallel
+    print(
+      'DEBUG: Processing ${existingHighlightUrls?.length ?? 0} existing highlights',
+    );
     if (existingHighlightUrls != null && existingHighlightUrls.isNotEmpty) {
-      for (int i = 0; i < existingHighlightUrls.length; i++) {
-        final url = existingHighlightUrls[i];
+      final downloadFutures = existingHighlightUrls.asMap().entries.map((
+        entry,
+      ) async {
+        final i = entry.key;
+        final url = entry.value;
         try {
           print('DEBUG: Downloading existing highlight [$i]: $url');
-          
-          // Download file from S3 URL
           final response = await http.get(Uri.parse(url));
           if (response.statusCode == 200) {
-            // Extract filename from URL
             final urlPath = url.split('/').last.split('?').first;
             final filename = urlPath.isNotEmpty ? urlPath : 'highlight_$i';
-            
-            // Determine MIME type
             final extension = filename.split('.').last.toLowerCase();
             final String mimeMainType;
-            if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].contains(extension)) {
+            if ([
+              'jpg',
+              'jpeg',
+              'png',
+              'gif',
+              'webp',
+              'bmp',
+            ].contains(extension)) {
               mimeMainType = 'image';
-            } else if (['mp4', 'mov', 'avi', 'flv', 'mkv', 'webm'].contains(extension)) {
+            } else if ([
+              'mp4',
+              'mov',
+              'avi',
+              'flv',
+              'mkv',
+              'webm',
+            ].contains(extension)) {
               mimeMainType = 'video';
             } else {
               mimeMainType = 'application';
             }
-
-            // Create multipart file from downloaded bytes
-            final multipartFile = http.MultipartFile.fromBytes(
+            return http.MultipartFile.fromBytes(
               'highlights',
               response.bodyBytes,
               filename: filename,
               contentType: MediaType(mimeMainType, extension),
             );
-            request.files.add(multipartFile);
-            print('DEBUG: Added existing highlight to upload [$i]: $filename');
           } else {
-            print('ERROR: Failed to download highlight [$i]: ${response.statusCode}');
+            print(
+              'ERROR: Failed to download highlight [$i]: ${response.statusCode}',
+            );
           }
         } catch (e) {
           print('ERROR: Exception downloading highlight [$i]: $e');
+        }
+        return null;
+      }).toList();
+
+      final multipartFiles = await Future.wait(downloadFutures);
+      for (final file in multipartFiles) {
+        if (file != null) {
+          request.files.add(file);
         }
       }
     }
@@ -110,10 +130,10 @@ class ProfileRepository {
     for (int i = 0; i < highlightsPaths.length; i++) {
       final highlightPath = highlightsPaths[i];
       final extension = highlightPath.split('.').last.toLowerCase();
-      
+
       String mimeType;
       late String fieldName;
-      
+
       // Determine if it's a video or image
       if (['mp4', 'mov', 'avi', 'mkv'].contains(extension)) {
         fieldName = 'highlights';
@@ -122,7 +142,9 @@ class ProfileRepository {
         fieldName = 'highlights';
         mimeType = 'image/$extension';
       } else {
-        throw Exception('Only images (JPG, PNG, GIF) and videos (MP4, MOV, AVI, MKV) allowed for highlights!');
+        throw Exception(
+          'Only images (JPG, PNG, GIF) and videos (MP4, MOV, AVI, MKV) allowed for highlights!',
+        );
       }
 
       final multipartFile = await http.MultipartFile.fromPath(
@@ -131,7 +153,9 @@ class ProfileRepository {
         contentType: MediaType(mimeType.split('/')[0], mimeType.split('/')[1]),
       );
       request.files.add(multipartFile);
-      print('DEBUG: Added new highlight file [$i]: $highlightPath (type: $fieldName)');
+      print(
+        'DEBUG: Added new highlight file [$i]: $highlightPath (type: $fieldName)',
+      );
     }
 
     print('DEBUG: ========== UPLOAD SUMMARY ==========');
@@ -150,6 +174,7 @@ class ProfileRepository {
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception(body);
     }
+    return jsonDecode(body) as Map<String, dynamic>;
   }
 
   // ignore: non_constant_identifier_names
