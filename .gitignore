@@ -160,8 +160,8 @@ lib/secrets/
 *.env
 
 # Firebase
-google-services.json
-GoogleService-Info.plist
+# google-services.json
+# GoogleService-Info.plist
 
 # API Keys
 *.key
@@ -179,3 +179,14 @@ branch_structure.json
 # =========================
 app.*.symbols
 app.*.map.json
+
+# Gradle
+.gradle/
+**/.gradle/
+
+# Local Android SDK config
+local.properties
+
+# Android build
+android/build/
+**/build/
