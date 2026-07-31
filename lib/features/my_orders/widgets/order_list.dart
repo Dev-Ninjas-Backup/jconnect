@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/features/my_orders/controller/my_order_controller.dart';
 import 'order_card_wrapper.dart';
+import 'order_section_header.dart';
 
 class OrdersList extends StatelessWidget {
   final MyOrdersController controller = Get.put(MyOrdersController());
@@ -14,57 +16,34 @@ class OrdersList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Dropdown for order type filter
-        // Obx(
-        //   () => DropdownButton<String>(
-        //     value: controller.selectedOrderType.value,
-        //     items: [
-        //       'All Orders',
-        //       'Given',
-        //       'Received',
-        //     ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-        //     onChanged: (v) =>
-        //         controller.selectedOrderType.value = v ?? 'All Orders',
-        //   ),
-        // ),
-        // Obx(
-        //   () => Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-        //     children:
-        //         ['All Orders', 'Active', 'Pending Confirmation', 'Completed']
-        //             .map(
-        //               (tab) => GestureDetector(
-        //                 onTap: () => controller.selectedTab.value = tab,
-        //                 child: Container(
-        //                   padding: EdgeInsets.symmetric(
-        //                     vertical: 8,
-        //                     horizontal: 12,
-        //                   ),
-        //                   decoration: BoxDecoration(
-        //                     color: controller.selectedTab.value == tab
-        //                         ? Colors.blue
-        //                         : Colors.grey[800],
-        //                     borderRadius: BorderRadius.circular(6),
-        //                   ),
-        //                   child: Text(
-        //                     tab,
-        //                     style: TextStyle(color: Colors.white),
-        //                   ),
-        //                 ),
-        //               ),
-        //             )
-        //             .toList(),
-        //   ),
-        // ),
         // List of orders
         Expanded(
           child: Obx(() {
             final orders = controller.filteredOrders;
-            if (orders.isEmpty) return Center(child: Text('No orders found'));
-            return ListView.builder(
+            if (orders.isEmpty) return const Center(child: Text('No orders found'));
+
+            final receivedOrders = orders.where((o) => o.type == 'Received').toList();
+            final purchasedOrders = orders.where((o) => o.type != 'Received').toList();
+
+            return ListView(
               padding: const EdgeInsets.all(12),
-              itemCount: orders.length,
-              itemBuilder: (_, index) => OrderCardWrapper(order: orders[index]),
+              children: [
+                if (receivedOrders.isNotEmpty) ...[
+                  OrderSectionHeader.received(),
+                  SizedBox(height: 4.h),
+                  ...receivedOrders.map(
+                    (order) => OrderCardWrapper(order: order),
+                  ),
+                  SizedBox(height: 8.h),
+                ],
+                if (purchasedOrders.isNotEmpty) ...[
+                  OrderSectionHeader.purchased(),
+                  SizedBox(height: 4.h),
+                  ...purchasedOrders.map(
+                    (order) => OrderCardWrapper(order: order),
+                  ),
+                ],
+              ],
             );
           }),
         ),
@@ -72,3 +51,4 @@ class OrdersList extends StatelessWidget {
     );
   }
 }
+
