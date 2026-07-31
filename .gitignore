@@ -1,12 +1,148 @@
-# branch_structure.json
+# # branch_structure.json
+# # temp_auto_push.bat
+# # temp_interactive_push.bat
+# # Miscellaneous
+# *.class
+# *.log
+# *.pyc
+# *.swp
+# .DS_Store
+# .atom/
+# .build/
+# .buildlog/
+# .history
+# .svn/
+# .swiftpm/
+# migrate_working_dir/
+
+# # IntelliJ related
+# *.iml
+# *.ipr
+# *.iws
+# .idea/
+
+# # VS Code which you may wish to be included in version control, so this line
+# # is commented out by default.
+
 # temp_auto_push.bat
+# # Flutter/Dart/Pub related
+# **/doc/api/
+# **/ios/Flutter/.last_build_id
+# .dart_tool/
+# .flutter-plugins-dependencies
+# .pub-cache/
+# .pub/
+# /build/
+# /coverage/
+
+# # Symbolication related
+# app.*.symbols
+
+# # Obfuscation related
+# app.*.map.json
+
+# # Android Studio will place build artifacts here
+# /android/app/debug
+# /android/app/profile
+# /android/app/release
+
+# # Secrets
+# lib/secrets/stripe_key.dart
 # temp_interactive_push.bat
-# Miscellaneous
-*.class
+# branch_structure.json
+
+# # Flutter generated iOS/macOS files
+# ios/Flutter/Generated.xcconfig
+# ios/Flutter/flutter_export_environment.sh
+# ios/Flutter/ephemeral/
+
+# macos/Flutter/ephemeral/
+# macos/Flutter/flutter_export_environment.sh
+
+# # Flutter generated files
+# .dart_tool/
+# .flutter-plugins-dependencies
+# .gitignore
+
+
+# =========================
+# Flutter / Dart
+# =========================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+.pub-cache/
+build/
+coverage/
+**/doc/api/
+
+# Generated
+generated_plugin_registrant.dart
+
+# =========================
+# Flutter Generated iOS/macOS
+# =========================
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/ephemeral/
+ios/Flutter/.last_build_id
+
+macos/Flutter/flutter_export_environment.sh
+macos/Flutter/ephemeral/
+
+# =========================
+# Android
+# =========================
+android/app/debug/
+android/app/profile/
+android/app/release/
+
+# Keystore (Never commit)
+android/key.properties
+*.jks
+*.keystore
+*.pem
+*.p12
+
+# Native build
+.cxx/
+externalNativeBuild/
+
+# =========================
+# Xcode / iOS
+# =========================
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcuserdatad/
+*.xcuserstate
+
+# =========================
+# IDE
+# =========================
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# =========================
+# macOS
+# =========================
+.DS_Store
+
+# =========================
+# Logs
+# =========================
 *.log
+
+# =========================
+# Misc
+# =========================
+*.class
 *.pyc
 *.swp
-.DS_Store
 .atom/
 .build/
 .buildlog/
@@ -15,51 +151,31 @@
 .swiftpm/
 migrate_working_dir/
 
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
-.idea/
-
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-
-temp_auto_push.bat
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-
+# =========================
 # Secrets
-lib/secrets/stripe_key.dart
+# =========================
+lib/secrets/
+.env
+.env.*
+*.env
+
+# Firebase
+google-services.json
+GoogleService-Info.plist
+
+# API Keys
+*.key
+*.secret
+
+# =========================
+# Your Temporary Files
+# =========================
+temp_auto_push.bat
 temp_interactive_push.bat
 branch_structure.json
 
-# Flutter generated iOS/macOS files
-ios/Flutter/Generated.xcconfig
-ios/Flutter/flutter_export_environment.sh
-ios/Flutter/ephemeral/
-
-macos/Flutter/ephemeral/
-macos/Flutter/flutter_export_environment.sh
-
-# Flutter generated files
-.dart_tool/
-.flutter-plugins-dependencies
-.gitignore
+# =========================
+# Symbolication
+# =========================
+app.*.symbols
+app.*.map.json

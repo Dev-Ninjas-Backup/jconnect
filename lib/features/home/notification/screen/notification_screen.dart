@@ -14,16 +14,27 @@ import '../controller/notification_controller.dart';
 import '../model/notification_model.dart';
 import 'package:jconnect/fcm_notification/fcm_notification_controller.dart';
 
-class NotificationScreen extends StatelessWidget {
+class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
 
   @override
+  State<NotificationScreen> createState() => _NotificationScreenState();
+}
+
+class _NotificationScreenState extends State<NotificationScreen> {
+  final NotificationController controller = Get.find();
+
+  @override
+  void initState() {
+    super.initState();
+    // Refresh notifications safely exactly once when screen opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.forceRefreshNotifications();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final NotificationController controller = Get.find();
-    
-    // Force refresh notifications using GetX (controller guards against rapid API calls)
-    controller.forceRefreshNotifications();
-    
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -54,17 +65,16 @@ class NotificationScreen extends StatelessWidget {
           );
         }
 
+        if (kDebugMode) {
+          print("Current Notification Length on Screen: ${controller.notifications.length}");
+        }
+
         return ListView.builder(
           padding: const EdgeInsets.all(12),
           itemCount: controller.notifications.length,
           itemBuilder: (context, index) {
             final AppNotification notification =
                 controller.notifications[index];
-
-            if (notification.title == "New Message" ||
-                notification.title.startsWith("New Service: ")) {
-              return const SizedBox.shrink();
-            }
 
             return GestureDetector(
               onTap: () async {
@@ -77,7 +87,6 @@ class NotificationScreen extends StatelessWidget {
                       notification.userId ?? notification.creatorId;
 
                   if (artistId == null) {
-                  //  Get.snackbar('Error', 'Creator information not available');
                     return;
                   }
 
@@ -96,18 +105,73 @@ class NotificationScreen extends StatelessWidget {
                     AppRoute.artistsDetailsPage,
                     parameters: {'id': artistId},
                   );
-                } else if (titleLower.contains('repost') ||
-                    titleLower.contains('order') ||
-                    messageLower.contains('repost') ||
-                    messageLower.contains('order') ||
-                    typeLower == 'repost' ||
-                    typeLower == 'order') {
+                } else if (titleLower.contains('inquiry') || 
+                           titleLower.contains('message') || 
+                           typeLower == 'message') {
+                  // Navigate to Chat Details for messages and inquiries
+                  final messagesController = Get.find<MessagesController>();
+                  final artistId = notification.currentUser?.id ?? notification.userId ?? notification.creatorId;
+
+                  if (artistId == null) {
+                    showGradientSnackBar(
+                      title: 'Error',
+                      message: 'Sender information not available',
+                    );
+                    return;
+                  }
+
+                  final existingChat = messagesController.allChats.firstWhereOrNull(
+                    (chat) => chat.participant?.id == artistId,
+                  );
+
+                  if (existingChat != null && existingChat.chatId != null) {
+                    Get.toNamed(
+                      AppRoute.chatDetailsScreen,
+                      arguments: {
+                        'chatItem': existingChat,
+                        'recipientId': artistId,
+                        'isNewConversation': false,
+                        'senderUsername': notification.currentUser?.username ??
+                            notification.currentUser?.full_name ??
+                            'User',
+                      },
+                    );
+                  } else {
+                    final chatItem = ChatItem(
+                      type: 'private',
+                      chatId: null,
+                      participant: ChatParticipant(
+                        id: artistId,
+                        fullName: notification.currentUser?.full_name ?? 'User',
+                        username: notification.currentUser?.username,
+                        profilePhoto: notification.currentUser?.profilePhoto,
+                      ),
+                    );
+                    Get.toNamed(
+                      AppRoute.chatDetailsScreen,
+                      arguments: {
+                        'chatItem': chatItem,
+                        'recipientId': artistId,
+                        'isNewConversation': true,
+                        'senderUsername': notification.currentUser?.username ??
+                            notification.currentUser?.full_name ??
+                            'User',
+                      },
+                    );
+                  }
+                } else {
+                  // Fallback: Let FCM Controller handle routing (e.g. Orders, Reposts)
                   final fcmController = Get.find<FcmNotificationController>();
                   final Map<String, dynamic> data =
                       Map<String, dynamic>.from(notification.meta ?? {});
                   data['type'] = notification.type;
                   data['title'] = notification.title;
                   data['message'] = notification.message;
+                  if (notification.currentUser != null) {
+                    data['recipientId'] = notification.currentUser?.id;
+                    data['senderUsername'] = notification.currentUser?.username;
+                    data['profilePhoto'] = notification.currentUser?.profilePhoto;
+                  }
 
                   fcmController.routeFromNotificationData(
                     data: data,
@@ -161,92 +225,6 @@ class NotificationScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              notification.title == "New Inquiry Received"
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        final messagesController =
-                                            Get.find<MessagesController>();
-                                        final artistId =
-                                            notification.currentUser?.id;
-
-                                        if (artistId == null) {
-                                          showGradientSnackBar(
-                                            title: 'Error',
-                                            message: 'Sender information not available',
-                                          );
-                                          return;
-                                        }
-
-                                        final existingChat = messagesController
-                                            .allChats
-                                            .firstWhereOrNull(
-                                              (chat) =>
-                                                  chat.participant?.id ==
-                                                  artistId,
-                                            );
-
-                                        if (existingChat != null &&
-                                            existingChat.chatId != null) {
-                                          Get.toNamed(
-                                            AppRoute.chatDetailsScreen,
-                                            arguments: {
-                                              'chatItem': existingChat,
-                                              'recipientId': artistId,
-                                              'isNewConversation': false,
-                                              'senderUsername':
-                                                  notification
-                                                      .currentUser
-                                                      ?.username ??
-                                                  notification
-                                                      .currentUser
-                                                      ?.full_name ??
-                                                  'User',
-                                            },
-                                          );
-                                        } else {
-                                          final chatItem = ChatItem(
-                                            type: 'private',
-                                            chatId: null,
-                                            participant: ChatParticipant(
-                                              id: artistId,
-                                              fullName:
-                                                  notification
-                                                      .currentUser
-                                                      ?.full_name ??
-                                                  'User',
-                                              username: notification
-                                                  .currentUser
-                                                  ?.username,
-                                              profilePhoto: notification
-                                                  .currentUser
-                                                  ?.profilePhoto,
-                                            ),
-                                          );
-                                          Get.toNamed(
-                                            AppRoute.chatDetailsScreen,
-                                            arguments: {
-                                              'chatItem': chatItem,
-                                              'recipientId': artistId,
-                                              'isNewConversation': true,
-                                              'senderUsername':
-                                                  notification
-                                                      .currentUser
-                                                      ?.username ??
-                                                  notification
-                                                      .currentUser
-                                                      ?.full_name ??
-                                                  'User',
-                                            },
-                                          );
-                                        }
-                                      },
-                                      child: Icon(
-                                        Icons.message,
-                                        color: Colors.greenAccent,
-                                        size: 24,
-                                      ),
-                                    )
-                                  : SizedBox.shrink(),
                             ],
                           ),
                           const SizedBox(height: 6),
