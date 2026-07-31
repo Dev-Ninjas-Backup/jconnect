@@ -29,14 +29,8 @@ class MyOrdersController extends GetxController {
   // Map tab label to API status
   String? _mapTabToApiStatus(String tab) {
     switch (tab) {
-      // case 'Active':
-      //   return 'ACTIVE';
-      case 'My orders':
-        return 'PENDING';
       case 'Pending':
         return 'PENDING';
-      case 'Paid Orders':
-        return 'PAID';
       case 'Released':
         return 'RELEASED';
       case 'Cancelled':
@@ -49,32 +43,37 @@ class MyOrdersController extends GetxController {
   }
 
   List<OrderModel> get filteredOrders {
-    final apiStatus = _mapTabToApiStatus(selectedTab.value);
-
-    // Handle Paid Orders specially - show all paid orders regardless of status
-    if (selectedTab.value == 'Paid Orders') {
-      return paidOrders.where((order) {
-        final typeMatch =
-            selectedOrderType.value == 'All Orders' ||
-            order.type == selectedOrderType.value;
-        return typeMatch;
-      }).toList();
-    }
-
-    // Combine both service orders and paid orders for other tabs
-    List<OrderModel> allOrders = [];
-    if (selectedTab.value == 'All Orders') {
-      allOrders = [...orders, ...paidOrders];
-    } else {
-      allOrders = [...orders];
-    }
+    final List<OrderModel> allOrders = [...orders, ...paidOrders];
 
     return allOrders.where((order) {
-      final statusMatch = apiStatus == null || order.status == apiStatus;
       final typeMatch =
           selectedOrderType.value == 'All Orders' ||
           order.type == selectedOrderType.value;
-      return statusMatch && typeMatch;
+
+      if (!typeMatch) return false;
+
+      // 1. 'All Orders' tab -> Shows both Received & Purchased orders
+      if (selectedTab.value == 'All Orders') return true;
+
+      // 2. 'My orders' tab -> Shows orders where buyers bought my order (Received / Seller end)
+      if (selectedTab.value == 'My orders') {
+        return order.type == 'Received';
+      }
+
+      // 3. 'Paid Orders' tab -> Shows orders that I paid for (Purchased / Buyer end)
+      if (selectedTab.value == 'Paid Orders') {
+        return order.type == 'Purchased';
+      }
+
+      // 4. Status-specific tabs (e.g. 'Pending', 'Released', 'Cancelled')
+      final apiStatus = _mapTabToApiStatus(selectedTab.value);
+      if (apiStatus == null) return true;
+
+      final orderStatusUpper = order.status.toUpperCase().trim();
+      final targetStatusUpper = apiStatus.toUpperCase().trim();
+
+      return orderStatusUpper == targetStatusUpper ||
+          orderStatusUpper.contains(targetStatusUpper);
     }).toList();
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:jconnect/core/common/constants/app_colors.dart';
 import 'package:jconnect/core/common/constants/iconpath.dart';
@@ -6,6 +7,7 @@ import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/features/my_orders/controller/my_order_controller.dart';
 import 'package:jconnect/features/my_orders/widgets/order_card_wrapper.dart';
 import 'package:jconnect/features/my_orders/widgets/order_empty_state.dart';
+import 'package:jconnect/features/my_orders/widgets/order_section_header.dart';
 import 'package:jconnect/features/my_orders/widgets/order_tab_bar.dart';
 import 'package:jconnect/features/repost/repost_status/screen/repost_status.dart';
 
@@ -163,6 +165,8 @@ class _ServiceAndSocialPostView extends StatelessWidget {
             }
 
             final list = controller.filteredOrders;
+            final receivedOrders = list.where((o) => o.type == 'Received').toList();
+            final purchasedOrders = list.where((o) => o.type != 'Received').toList();
 
             return RefreshIndicator(
               color: AppColors.redColor,
@@ -178,11 +182,25 @@ class _ServiceAndSocialPostView extends StatelessWidget {
                         ),
                       ],
                     )
-                  : ListView.builder(
+                  : ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: list.length,
-                      itemBuilder: (context, index) =>
-                          OrderCardWrapper(order: list[index]),
+                      children: [
+                        if (receivedOrders.isNotEmpty) ...[
+                          OrderSectionHeader.received(),
+                          SizedBox(height: 4.h),
+                          ...receivedOrders.map(
+                            (order) => OrderCardWrapper(order: order),
+                          ),
+                          SizedBox(height: 8.h),
+                        ],
+                        if (purchasedOrders.isNotEmpty) ...[
+                          OrderSectionHeader.purchased(),
+                          SizedBox(height: 4.h),
+                          ...purchasedOrders.map(
+                            (order) => OrderCardWrapper(order: order),
+                          ),
+                        ],
+                      ],
                     ),
             );
           }),
