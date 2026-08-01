@@ -592,10 +592,25 @@ class FcmNotificationController extends GetxController {
           'orderId',
           'order_id',
           'id',
+          'jobId',
+          'job_id',
+          'referenceId',
+          'reference_id',
+          'serviceId',
+          'serviceRequestId',
+          'service_request_id',
         ]);
 
         if (orderId == null || orderId.isEmpty) {
           _log('❌ Order routing: orderId is null or empty, falling back to NotificationScreen');
+          Get.snackbar(
+            'Missing Order ID', 
+            'Data received: ${data.toString()}',
+            snackPosition: SnackPosition.BOTTOM,
+            // backgroundColor: const Color(0xFFE57373),
+            // colorText: const Color(0xFFFFFFFF),
+            duration: const Duration(seconds: 10),
+          );
           Get.offAllNamed(AppRoute.navBarScreen);
           Future.delayed(const Duration(milliseconds: 100), () {
             Get.to(() => NotificationScreen());
@@ -701,17 +716,20 @@ class FcmNotificationController extends GetxController {
 
     // ✅ Match repost notifications
     if (descriptor.contains('repost') ||
-        rawType?.toLowerCase() == 'repost') {
+        descriptor.contains('rpo-') ||
+        rawType?.toLowerCase() == 'repost' ||
+        data['orderId']?.toString().toLowerCase().contains('rpo-') == true) {
       _log('   ✅ Matched: repost');
       return 'repost';
     }
 
-    // ✅ Match order and payment notifications
+    // ✅ Match order, payment, and proof notifications
     if (descriptor.contains('order') ||
         descriptor.contains('payment') ||
+        descriptor.contains('proof') ||
         rawType?.toLowerCase() == 'order' ||
         rawType?.toLowerCase() == 'payment') {
-      _log('   ✅ Matched: order (or payment)');
+      _log('   ✅ Matched: order (payment/proof)');
       return 'order';
     }
 
