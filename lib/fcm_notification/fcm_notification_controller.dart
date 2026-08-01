@@ -247,7 +247,9 @@ class FcmNotificationController extends GetxController {
         provisional: false, // Explicit permission, not provisional for iOS
       );
       _log('Step 4 OK: permission = ${settings.authorizationStatus}');
-      _log('   iOS AuthStatus: ${_getAuthStatusText(settings.authorizationStatus)}');
+      _log(
+        '   iOS AuthStatus: ${_getAuthStatusText(settings.authorizationStatus)}',
+      );
     } catch (e) {
       _log('Step 4 WARN: requestPermission failed: $e');
     }
@@ -288,7 +290,7 @@ class FcmNotificationController extends GetxController {
         if (message.notification != null) {
           _log('   Title: ${message.notification?.title}');
           _log('   Body: ${message.notification?.body}');
-          
+
           // Android: Manually show foreground notification
           // (iOS handles it via setForegroundNotificationPresentationOptions)
           _showLocalNotification(
@@ -351,12 +353,8 @@ class FcmNotificationController extends GetxController {
         .resolvePlatformSpecificImplementation<
           IOSFlutterLocalNotificationsPlugin
         >();
-    
-    await iosPlugin?.requestPermissions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+
+    await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true);
 
     // iOS: Set presentation options for foreground notifications
     // This is CRITICAL for iOS — without this, foreground notifications won't show
@@ -526,7 +524,9 @@ class FcmNotificationController extends GetxController {
         ]);
 
         if (orderId == null || orderId.isEmpty) {
-          _log('❌ Repost routing: orderId is null or empty, falling back to NotificationScreen');
+          _log(
+            '❌ Repost routing: orderId is null or empty, falling back to NotificationScreen',
+          );
           Get.offAllNamed(AppRoute.navBarScreen);
           Future.delayed(const Duration(milliseconds: 100), () {
             Get.to(() => NotificationScreen());
@@ -551,17 +551,24 @@ class FcmNotificationController extends GetxController {
           final userId = await prefs.getUserId();
           final isPaidTab = (userId == item.buyerId);
 
-          _log('➡️ Navigating based on repost item.status=${item.status}, isPaidTab=$isPaidTab');
-          
+          _log(
+            '➡️ Navigating based on repost item.status=${item.status}, isPaidTab=$isPaidTab',
+          );
+
           Get.offAllNamed(AppRoute.navBarScreen);
-          
+
           Future.delayed(const Duration(milliseconds: 150), () {
             final statusUpper = item.status.toUpperCase();
             if (statusUpper == 'COMPLETED' ||
                 statusUpper == 'REJECTED' ||
                 statusUpper == 'REFUNDED' ||
                 statusUpper == 'CANCELLED') {
-              Get.to(() => RepostInactiveOrderDetailsScreen(item: item, isPaidTab: isPaidTab));
+              Get.to(
+                () => RepostInactiveOrderDetailsScreen(
+                  item: item,
+                  isPaidTab: isPaidTab,
+                ),
+              );
             } else if (isPaidTab) {
               Get.to(() => RepostReviewWindowScreen(item: item));
             } else {
@@ -602,14 +609,8 @@ class FcmNotificationController extends GetxController {
         ]);
 
         if (orderId == null || orderId.isEmpty) {
-          _log('❌ Order routing: orderId is null or empty, falling back to NotificationScreen');
-          Get.snackbar(
-            'Missing Order ID', 
-            'Data received: ${data.toString()}',
-            snackPosition: SnackPosition.BOTTOM,
-            // backgroundColor: const Color(0xFFE57373),
-            // colorText: const Color(0xFFFFFFFF),
-            duration: const Duration(seconds: 10),
+          _log(
+            '❌ Order routing: orderId is null or empty, falling back to NotificationScreen',
           );
           Get.offAllNamed(AppRoute.navBarScreen);
           Future.delayed(const Duration(milliseconds: 100), () {
@@ -627,11 +628,11 @@ class FcmNotificationController extends GetxController {
 
       Get.offAllNamed(AppRoute.navBarScreen);
 
-        Future.delayed(const Duration(milliseconds: 100), () {
-          Get.to(() => NotificationScreen());
-        });
+      Future.delayed(const Duration(milliseconds: 100), () {
+        Get.to(() => NotificationScreen());
+      });
 
-        return;
+      return;
     });
   }
 

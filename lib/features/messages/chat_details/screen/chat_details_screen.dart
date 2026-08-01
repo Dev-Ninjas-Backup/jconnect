@@ -89,9 +89,17 @@ class ChatDetailsScreen extends StatelessWidget {
         );
         await _refreshConversation();
       } else {
+        String errorMessage = 'Failed to accept: ${response.statusCode}';
+        try {
+          final bodyJson = jsonDecode(response.body);
+          if (bodyJson['message'] != null) {
+            errorMessage = bodyJson['message'];
+          }
+        } catch (_) {}
+        
         EasyLoading.showError(
-          'Failed to accept: ${response.statusCode}',
-          duration: const Duration(seconds: 2),
+          errorMessage,
+          duration: const Duration(seconds: 5),
         );
       }
     } catch (e) {
@@ -124,8 +132,16 @@ class ChatDetailsScreen extends StatelessWidget {
         );
         await _refreshConversation();
       } else {
+        String errorMessage = 'Failed to decline: ${response.statusCode}';
+        try {
+          final bodyJson = jsonDecode(response.body);
+          if (bodyJson['message'] != null) {
+            errorMessage = bodyJson['message'];
+          }
+        } catch (_) {}
+        
         EasyLoading.showError(
-          'Failed to decline: ${response.statusCode}',
+          errorMessage,
           duration: const Duration(seconds: 2),
         );
       }
