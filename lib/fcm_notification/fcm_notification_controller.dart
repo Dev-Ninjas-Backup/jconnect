@@ -586,6 +586,30 @@ class FcmNotificationController extends GetxController {
         return;
       }
 
+      if (type == 'order') {
+        _log('➡️ Routing to order details');
+        final orderId = _firstNonEmpty(data, const [
+          'orderId',
+          'order_id',
+          'id',
+        ]);
+
+        if (orderId == null || orderId.isEmpty) {
+          _log('❌ Order routing: orderId is null or empty, falling back to NotificationScreen');
+          Get.offAllNamed(AppRoute.navBarScreen);
+          Future.delayed(const Duration(milliseconds: 100), () {
+            Get.to(() => NotificationScreen());
+          });
+          return;
+        }
+
+        Get.offAllNamed(AppRoute.navBarScreen);
+        Future.delayed(const Duration(milliseconds: 100), () {
+          Get.toNamed(AppRoute.orderDetails, arguments: {'orderId': orderId});
+        });
+        return;
+      }
+
       Get.offAllNamed(AppRoute.navBarScreen);
 
         Future.delayed(const Duration(milliseconds: 100), () {
@@ -675,13 +699,20 @@ class FcmNotificationController extends GetxController {
       return 'message';
     }
 
-    // ✅ Match repost/order notifications
+    // ✅ Match repost notifications
     if (descriptor.contains('repost') ||
-        descriptor.contains('order') ||
-        rawType?.toLowerCase() == 'repost' ||
-        rawType?.toLowerCase() == 'order') {
+        rawType?.toLowerCase() == 'repost') {
       _log('   ✅ Matched: repost');
       return 'repost';
+    }
+
+    // ✅ Match order and payment notifications
+    if (descriptor.contains('order') ||
+        descriptor.contains('payment') ||
+        rawType?.toLowerCase() == 'order' ||
+        rawType?.toLowerCase() == 'payment') {
+      _log('   ✅ Matched: order (or payment)');
+      return 'order';
     }
 
     _log('   ⚠️ No match found for type=$rawType');

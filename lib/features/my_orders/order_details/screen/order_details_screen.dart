@@ -583,7 +583,9 @@ class OrderDetailsScreen extends StatelessWidget {
       Get.delete<OrderDetailsController>(force: true);
     }
     final controller = Get.put(OrderDetailsController());
-    final orderController = Get.find<MyOrdersController>();
+    final orderController = Get.isRegistered<MyOrdersController>() 
+        ? Get.find<MyOrdersController>() 
+        : Get.put(MyOrdersController());
 
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
