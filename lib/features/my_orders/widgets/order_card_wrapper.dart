@@ -8,9 +8,9 @@ import 'package:jconnect/routes/approute.dart';
 
 class OrderCardWrapper extends StatelessWidget {
   final OrderModel order;
-  final MyOrdersController controller = Get.find();
+  final MyOrdersController controller;
 
-  OrderCardWrapper({super.key, required this.order});
+  const OrderCardWrapper({super.key, required this.order, required this.controller});
 
   @override
   Widget build(BuildContext context) {

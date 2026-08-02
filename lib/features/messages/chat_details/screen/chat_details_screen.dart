@@ -312,28 +312,33 @@ class ChatDetailsScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _uploadReplacementFile(String serviceRequestId) async {
+  Future<void> _uploadReplacementFile(String serviceRequestId, {String? predefinedFilePath}) async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: [
-          'mp3',
-          'mp4',
-          'jpg',
-          'jpeg',
-          'png',
-          'gif',
-          'pdf',
-          'mov',
-          'avi',
-          'flv',
-          'wav',
-          'aac',
-        ],
-      );
-      if (result == null || result.files.single.path == null) return;
-
-      final filePath = result.files.single.path!;
+      String filePath;
+      
+      if (predefinedFilePath != null) {
+        filePath = predefinedFilePath;
+      } else {
+        final result = await FilePicker.platform.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: [
+            'mp3',
+            'mp4',
+            'jpg',
+            'jpeg',
+            'png',
+            'gif',
+            'pdf',
+            'mov',
+            'avi',
+            'flv',
+            'wav',
+            'aac',
+          ],
+        );
+        if (result == null || result.files.single.path == null) return;
+        filePath = result.files.single.path!;
+      }
 
       EasyLoading.show(
         status: 'Uploading to S3...',
@@ -417,6 +422,67 @@ class ChatDetailsScreen extends StatelessWidget {
         duration: const Duration(seconds: 2),
       );
     }
+  }
+
+  void _showUploadOptions(String srId) {
+    Get.bottomSheet(
+      SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: Icon(Icons.camera_alt, color: AppColors.primaryTextColor),
+              title: Text('Take Photo', style: getTextStyle(color: AppColors.primaryTextColor)),
+              onTap: () async {
+                Get.back();
+                final picked = await _imagePicker.pickImage(source: ImageSource.camera);
+                if (picked != null) _uploadReplacementFile(srId, predefinedFilePath: picked.path);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.videocam, color: AppColors.primaryTextColor),
+              title: Text('Record Video', style: getTextStyle(color: AppColors.primaryTextColor)),
+              onTap: () async {
+                Get.back();
+                final picked = await _imagePicker.pickVideo(source: ImageSource.camera);
+                if (picked != null) _uploadReplacementFile(srId, predefinedFilePath: picked.path);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.photo_library, color: AppColors.primaryTextColor),
+              title: Text('Choose File', style: getTextStyle(color: AppColors.primaryTextColor)),
+              onTap: () {
+                Get.back();
+                _uploadReplacementFile(srId);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.photo, size: 20, color: AppColors.primaryTextColor),
+              title: Text('Choose Photo', style: getTextStyle(color: AppColors.primaryTextColor)),
+              onTap: () async {
+                Get.back();
+                final picked = await _imagePicker.pickImage(source: ImageSource.gallery);
+                if (picked != null) _uploadReplacementFile(srId, predefinedFilePath: picked.path);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.videocam, color: AppColors.primaryTextColor),
+              title: Text('Choose Video', style: getTextStyle(color: AppColors.primaryTextColor)),
+              onTap: () async {
+                Get.back();
+                final picked = await _imagePicker.pickVideo(source: ImageSource.gallery);
+                if (picked != null) _uploadReplacementFile(srId, predefinedFilePath: picked.path);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.close, color: AppColors.primaryTextColor),
+              title: Text('Cancel', style: getTextStyle(color: AppColors.primaryTextColor)),
+              onTap: () => Get.back(),
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: AppColors.backGroundColor,
+    );
   }
 
   Future<void> _refreshConversation() async {
@@ -761,7 +827,7 @@ class ChatDetailsScreen extends StatelessWidget {
       );
     } catch (e) {
       EasyLoading.dismiss();
-      EasyLoading.showError('Attachment not attached');
+      EasyLoading.showError('Error downloading file: $e');
     }
   }
 
@@ -1439,9 +1505,7 @@ class ChatDetailsScreen extends StatelessWidget {
                                                                                         if (srId !=
                                                                                                 null &&
                                                                                             srId.isNotEmpty) {
-                                                                                          _uploadReplacementFile(
-                                                                                            srId,
-                                                                                          );
+                                                                                          _showUploadOptions(srId);
                                                                                         }
                                                                                       },
                                                                                       child: Column(

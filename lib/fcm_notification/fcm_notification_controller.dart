@@ -600,6 +600,15 @@ class FcmNotificationController extends GetxController {
         return;
       }
 
+      if (type == ' new review from') {
+        _log('➡️ Routing to review details');
+        Get.offAllNamed(AppRoute.navBarScreen);
+        Future.delayed(const Duration(milliseconds: 100), () {
+          Get.toNamed(AppRoute.getReviewScreen());
+        });
+        return;
+      }
+
       if (type == 'order') {
         _log('➡️ Routing to order details');
         final orderId = _firstNonEmpty(data, const [
@@ -720,12 +729,19 @@ class FcmNotificationController extends GetxController {
       return 'inquiry';
     }
 
-    // ✅ Match message/chat notifications (AFTER inquiry check to avoid false positives)
+    // ✅ Match message/chat/files notifications (AFTER inquiry check to avoid false positives)
     if (descriptor.contains('message') ||
         descriptor.contains('chat') ||
-        descriptor.contains('private-chat')) {
-      _log('   ✅ Matched: message');
+        descriptor.contains('private-chat') ||
+        descriptor.contains('promotion')) {
+      _log('   ✅ Matched: message/promotion');
       return 'message';
+    }
+
+    // ✅ Match review notifications
+    if (descriptor.contains('new review from')) {
+      _log('   ✅ Matched: new review from');
+      return ' new review from';
     }
 
     // ✅ Match repost notifications
@@ -757,7 +773,7 @@ class FcmNotificationController extends GetxController {
   }) async {
     _log('💬 _openMessageDetails called');
 
-    final chatId = _firstNonEmpty(data, const [
+    var chatId = _firstNonEmpty(data, const [
       'chatId',
       'conversationId',
       'conversation_id',
@@ -794,6 +810,8 @@ class FcmNotificationController extends GetxController {
       '   Initial data: chatId=$chatId, recipientId=$recipientId, username=$username, photo=$profilePhoto',
     );
 
+    ChatItem? resolvedChatItem;
+
     // Try to get user info from existing chats in MessagesController
     if (recipientId != null && recipientId.isNotEmpty) {
       try {
@@ -804,6 +822,9 @@ class FcmNotificationController extends GetxController {
 
         if (existingChat != null) {
           _log('   Found existing chat! Using participant info from there');
+          resolvedChatItem = existingChat;
+          chatId ??= existingChat.chatId;
+          
           final existingParticipant = existingChat.participant;
           if (existingParticipant != null) {
             username ??=
@@ -826,7 +847,7 @@ class FcmNotificationController extends GetxController {
       profilePhoto: profilePhoto,
     );
 
-    final chatItem = ChatItem(
+    resolvedChatItem ??= ChatItem(
       type: 'private',
       chatId: chatId,
       participant: participant,
@@ -843,7 +864,7 @@ class FcmNotificationController extends GetxController {
         Get.toNamed(
           AppRoute.getChatDetailsScreen(),
           arguments: {
-            'chatItem': chatItem,
+            'chatItem': resolvedChatItem,
             'recipientId': recipientId ?? '',
             'isNewConversation': (chatId == null || chatId.isEmpty),
             'senderUsername': username ?? title ?? 'User',

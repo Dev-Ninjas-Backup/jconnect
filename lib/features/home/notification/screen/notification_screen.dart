@@ -69,9 +69,12 @@ class NotificationScreen extends StatelessWidget {
                 final messageLower = notification.message.toLowerCase();
                 final typeLower = notification.type?.toLowerCase() ?? '';
 
-                if (titleLower.contains('decline') || titleLower.contains('declined') ||
+                if (titleLower.contains(' new review from')) {
+                  Get.toNamed(AppRoute.getReviewScreen());
+                } else if (titleLower.contains('decline') || titleLower.contains('declined') ||
                     titleLower.contains('inquiry') || typeLower == 'inquiry' || typeLower == 'inquiry.create' ||
-                    titleLower.contains('message') || typeLower == 'message' || typeLower == 'chat') {
+                    titleLower.contains('message') || typeLower == 'message' || typeLower == 'chat' ||
+                    titleLower.contains('promotion')) {
                   _navigateToChat(notification);
                 } else if (notification.title.contains("Service")) {
                   final artistId =
