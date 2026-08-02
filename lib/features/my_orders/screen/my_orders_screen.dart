@@ -189,7 +189,7 @@ class _ServiceAndSocialPostView extends StatelessWidget {
                           OrderSectionHeader.received(),
                           SizedBox(height: 4.h),
                           ...receivedOrders.map(
-                            (order) => OrderCardWrapper(order: order),
+                            (order) => OrderCardWrapper(order: order, controller: controller),
                           ),
                           SizedBox(height: 8.h),
                         ],
@@ -197,7 +197,7 @@ class _ServiceAndSocialPostView extends StatelessWidget {
                           OrderSectionHeader.purchased(),
                           SizedBox(height: 4.h),
                           ...purchasedOrders.map(
-                            (order) => OrderCardWrapper(order: order),
+                            (order) => OrderCardWrapper(order: order, controller: controller),
                           ),
                         ],
                       ],
