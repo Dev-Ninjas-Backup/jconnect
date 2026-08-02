@@ -5,7 +5,7 @@ import 'package:jconnect/core/common/style/global_text_style.dart';
 import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/features/add_services/controller/add_services_controller.dart';
 import 'package:jconnect/features/add_services/widget/service_card_widget.dart';
-//import 'package:jconnect/features/add_services/widget/service_form_widget.dart';
+import 'package:jconnect/features/add_services/widget/service_form_widget.dart';
 
 class AddServiceScreen extends StatelessWidget {
   const AddServiceScreen({super.key});
@@ -89,96 +89,81 @@ class AddServiceScreen extends StatelessWidget {
                         ),
                         child: Column(
                           children: [
-                            //if (hasVisibleServices)
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: visibleIndices.length,
-                              itemBuilder: (context, idx) {
-                                final originalIndex = visibleIndices[idx];
-                                return ServiceCardWidget(
-                                  controller,
-                                  originalIndex,
-                                );
-                              },
-                            ),
-                            // else
-                            //   ServiceFormWidget(
-                            //     controller,
-                            //     //   onChanged: (_) => controller.checkIfSaveEnabled(),
-                            //   ),
-                            // const SizedBox(height: 16),
+                            if (visibleIndices.isNotEmpty)
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: visibleIndices.length,
+                                itemBuilder: (context, idx) {
+                                  final originalIndex = visibleIndices[idx];
+                                  return ServiceCardWidget(
+                                    controller,
+                                    originalIndex,
+                                  );
+                                },
+                              )
+                            else
+                              Column(
+                                children: [
+                                  ServiceFormWidget(controller),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          onPressed: () async {
+                                            await controller.saveService();
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.white70,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 14,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                          child: const Text("Save"),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            const SizedBox(height: 16),
+                            if (visibleIndices.isNotEmpty)
+                              GestureDetector(
+                                onTap: () {
+                                  controller.clearForm();
+                                  
+                                  // Pre-select correct type
+                                  if (serviceTypeArg == 'SOCIAL_POST') {
+                                    controller.selectedServiceType.value = 'SOCIAL_POST';
+                                    controller.isSocialService.value = true;
+                                  } else if (serviceTypeArg == 'SERVICE') {
+                                    controller.selectedServiceType.value = 'SERVICE';
+                                    controller.isSocialService.value = false;
+                                  }
 
-                            // Row(
-                            //   mainAxisAlignment: MainAxisAlignment.center,
-                            //   children: [
-                            //     // Expanded(child: SizedBox()),
-                            //     Expanded(
-                            //       child: ElevatedButton(
-                            //         onPressed:
-                            //             //controller.isSaveEnabled.value
-                            //             () async {
-                            //               await controller.saveService();
-                            //             },
-                            //         style: ElevatedButton.styleFrom(
-                            //           backgroundColor:
-                            //               //   controller.isSaveEnabled.value
-                            //               // ? AppColors.redAccent
-                            //               Colors.white70,
-                            //           padding: const EdgeInsets.symmetric(
-                            //             vertical: 14,
-                            //           ),
-                            //           shape: RoundedRectangleBorder(
-                            //             borderRadius: BorderRadius.circular(10),
-                            //           ),
-                            //         ),
-                            //         child: const Text("Save"),
-                            //       ),
-                            //     ),
-                            //     const SizedBox(width: 12),
-                            //     Expanded(
-                            //       child: OutlinedButton(
-                            //         onPressed: () {
-                            //           Get.toNamed(AppRoute.navBarScreen);
-                            //         },
-                            //         style: OutlinedButton.styleFrom(
-                            //           side: const BorderSide(
-                            //             color: Colors.white24,
-                            //           ),
-                            //           shape: RoundedRectangleBorder(
-                            //             borderRadius: BorderRadius.circular(10),
-                            //           ),
-                            //         ),
-                            //         child: const Text(
-                            //           "Skip for Now",
-                            //           style: TextStyle(color: Colors.white),
-                            //         ),
-                            //       ),
-                            //     ),
-                            //   ],
-                            // ),
-                            // const SizedBox(height: 16),
-                            // GestureDetector(
-                            //   onTap: () {
-                            //     controller.clearForm();
-                            //     showAddServiceSheet(context, controller);
-                            //   },
-                            //   child: Row(
-                            //     mainAxisAlignment: MainAxisAlignment.center,
-                            //     children: [
-                            //       const Icon(Icons.add, color: Colors.white),
-                            //       const SizedBox(width: 6),
-                            //       Text(
-                            //         "Add More Services",
-                            //         style: getTextStyle(
-                            //           color: Colors.white,
-                            //           fontsize: 15,
-                            //           fontweight: FontWeight.w500,
-                            //         ),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
+                                  showAddServiceSheet(context, controller);
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.add, color: Colors.white),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      "Add More Services",
+                                      style: getTextStyle(
+                                        color: Colors.white,
+                                        fontsize: 15,
+                                        fontweight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                           ],
                         ),
                       ),
@@ -193,72 +178,68 @@ class AddServiceScreen extends StatelessWidget {
     );
   }
 
-  // ✅ CHANGED: Use saveService() instead of addService()
-  // void showAddServiceSheet(
-  //   BuildContext context,
-  //   AddServiceController controller,
-  // ) {
-  //   Get.bottomSheet(
-  //     StatefulBuilder(
-  //       builder: (context, setState) {
-  //         return Container(
-  //           padding: const EdgeInsets.all(20),
-  //           decoration: const BoxDecoration(
-  //             color: Colors.black,
-  //             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-  //           ),
-  //           child: Column(
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: [
-  //               ServiceFormWidget(
-  //                 controller,
-  //                 // onChanged: (_) => checkFields()
-  //               ),
-  //               const SizedBox(height: 16),
-  //               Row(
-  //                 children: [
-  //                   Expanded(
-  //                     child: OutlinedButton(
-  //                       onPressed: () => Get.back(),
-  //                       style: OutlinedButton.styleFrom(
-  //                         side: const BorderSide(color: Colors.white24),
-  //                         shape: RoundedRectangleBorder(
-  //                           borderRadius: BorderRadius.circular(10),
-  //                         ),
-  //                       ),
-  //                       child: const Text(
-  //                         "Cancel",
-  //                         style: TextStyle(color: Colors.white),
-  //                       ),
-  //                     ),
-  //                   ),
-  //                   const SizedBox(width: 12),
-  //                   Expanded(
-  //                     child: ElevatedButton(
-  //                       onPressed:
-  //                           //  controller.isSaveEnabled.value
-  //                           () async {
-  //                             await controller.saveService();
-  //                             Get.back();
-  //                           },
-  //                       style: ElevatedButton.styleFrom(
-  //                         backgroundColor: Colors.grey,
-  //                         padding: const EdgeInsets.symmetric(vertical: 14),
-  //                         shape: RoundedRectangleBorder(
-  //                           borderRadius: BorderRadius.circular(10),
-  //                         ),
-  //                       ),
-  //                       child: const Text("Save"),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ],
-  //           ),
-  //         );
-  //       },
-  //     ),
-  //     isScrollControlled: true,
-  //   );
-  // }
+  void showAddServiceSheet(
+    BuildContext context,
+    AddServiceController controller,
+  ) {
+    Get.bottomSheet(
+      StatefulBuilder(
+        builder: (context, setState) {
+          return Container(
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ServiceFormWidget(
+                  controller,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Get.back(),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Colors.white24),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text(
+                          "Cancel",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                              await controller.saveService();
+                              Get.back();
+                            },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text("Save"),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      isScrollControlled: true,
+    );
+  }
 }

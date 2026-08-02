@@ -69,7 +69,11 @@ class NotificationScreen extends StatelessWidget {
                 final messageLower = notification.message.toLowerCase();
                 final typeLower = notification.type?.toLowerCase() ?? '';
 
-                if (notification.title.contains("Service")) {
+                if (titleLower.contains('decline') || titleLower.contains('declined') ||
+                    titleLower.contains('inquiry') || typeLower == 'inquiry' || typeLower == 'inquiry.create' ||
+                    titleLower.contains('message') || typeLower == 'message' || typeLower == 'chat') {
+                  _navigateToChat(notification);
+                } else if (notification.title.contains("Service")) {
                   final artistId =
                       notification.userId ?? notification.creatorId;
 
@@ -92,9 +96,6 @@ class NotificationScreen extends StatelessWidget {
                     AppRoute.artistsDetailsPage,
                     parameters: {'id': artistId},
                   );
-                } else if (titleLower.contains('inquiry') || typeLower == 'inquiry' || typeLower == 'inquiry.create' ||
-                           titleLower.contains('message') || typeLower == 'message' || typeLower == 'chat') {
-                  _navigateToChat(notification);
                 } else {
                   final fcmController = Get.find<FcmNotificationController>();
                   final Map<String, dynamic> data =
@@ -202,6 +203,10 @@ class NotificationScreen extends StatelessWidget {
         notification.meta?['senderId']?.toString() ??
         notification.meta?['inquiryUserId']?.toString() ??
         notification.meta?['sender_id']?.toString() ??
+        notification.meta?['sellerId']?.toString() ??
+        notification.meta?['seller_id']?.toString() ??
+        notification.meta?['buyerId']?.toString() ??
+        notification.meta?['buyer_id']?.toString() ??
         notification.meta?['user_id']?.toString();
 
     if (artistId == null) {

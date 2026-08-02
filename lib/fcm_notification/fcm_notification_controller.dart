@@ -453,6 +453,12 @@ class FcmNotificationController extends GetxController {
     Future.delayed(const Duration(milliseconds: 350), () async {
       _log('📲 Navigation delay complete, routing now...');
 
+      if (type == 'decline') {
+        _log('➡️ Routing to chat details (Service Request Declined)');
+        await _openMessageDetails(data, title: title);
+        return;
+      }
+
       if (type == 'service') {
         _log('➡️ Routing to notification screen (service)');
         // Use Get.to() to navigate on top of current screen without replacing stack
@@ -500,6 +506,7 @@ class FcmNotificationController extends GetxController {
         _log('   isServiceRequestMessage=$isServiceRequestMessage');
 
         if (isServiceRequestMessage) {
+           // Except if it is a decline notification, but we handled 'decline' above.
           _log('➡️ Routing to notification screen (Service Request Message)');
           Get.offAllNamed(AppRoute.navBarScreen);
 
@@ -662,6 +669,12 @@ class FcmNotificationController extends GetxController {
 
     _log('   descriptor=$descriptor');
 
+    // ✅ Match service decline
+    if (descriptor.contains('decline') || descriptor.contains('declined')) {
+      _log('   ✅ Matched: decline');
+      return 'decline';
+    }
+
     // ✅ Match service notifications
     if (descriptor.contains('service.create') ||
         (descriptor.contains('service') && descriptor.contains('create')) ||
@@ -761,6 +774,10 @@ class FcmNotificationController extends GetxController {
       'user_id',
       'artistId',
       'artist_id',
+      'sellerId',
+      'seller_id',
+      'buyerId',
+      'buyer_id',
     ]);
 
     var username = _firstNonEmpty(data, const [
