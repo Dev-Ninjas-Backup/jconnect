@@ -17,9 +17,12 @@ Future<void> main() async {
   Get.put(NotificationController(), permanent: true);
   Get.put(MessagesController(), permanent: true);
 
-  // ✅ Initialize Stripe BEFORE Firebase and before running app
-  Stripe.publishableKey = StripeKey.stripeKey;
-  await Stripe.instance.applySettings();
+  try {
+    Stripe.publishableKey = await StripeKey.fetchStripeKey();
+    await Stripe.instance.applySettings();
+  } catch (e) {
+    debugPrint("Failed to initialize Stripe: $e");
+  }
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
@@ -28,7 +31,6 @@ Future<void> main() async {
   configEasyLoading();
 
   runApp(const MyApp());
-  
 }
 
 void configEasyLoading() {
