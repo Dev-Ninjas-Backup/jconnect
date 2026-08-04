@@ -41,7 +41,8 @@ class SplashScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Create, Connect, Cash!",
+                //  "Create, Connect, Cash!",
+                "Be Seen. EARN. GROW.",
                   style: getTextStyle(
                     color: AppColors.primaryTextColor,
                     fontsize: 18.sp,
@@ -79,6 +80,16 @@ class SplashScreen extends StatelessWidget {
                       );
                     }),
                   ),
+                ),
+                SizedBox(height: 20.h),
+                Text(
+                  "Preparing your opportunities...",
+                  style: getTextStyle(
+                    color: AppColors.primaryTextColor,
+                    fontsize: 12.sp,
+                    fontweight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
