@@ -27,7 +27,11 @@ class ChatMessage {
     return ChatMessage(
       id: json['id']?.toString() ?? '',
       content: json['content'] ?? '',
-      files: List<String>.from(json['files'] ?? []),
+      files: (json['files'] as List?)
+              ?.expand((e) => e is List ? e : [e])
+              .map((e) => e.toString())
+              .toList() ??
+          [],
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : DateTime.now(),

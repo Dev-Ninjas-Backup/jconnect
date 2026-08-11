@@ -71,6 +71,7 @@ dependencies:
   video_player: ^2.9.5
   just_audio: ^0.9.37
   cached_network_image: ^3.4.1
+  record: ^7.1.1
 
 
 
