@@ -1,65 +1,95 @@
-# branch_structure.json
-# temp_auto_push.bat
-# temp_interactive_push.bat
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
+# =========================
+# Flutter / Dart
+# =========================
 
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
-.idea/
-
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-
-temp_auto_push.bat
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
 .dart_tool/
-.flutter-plugins-dependencies
-.pub-cache/
+.packages
 .pub/
-/build/
-/coverage/
+.pub-cache/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+coverage/
 
-# Symbolication related
-app.*.symbols
+# Generated API documentation
+**/doc/api/
 
-# Obfuscation related
-app.*.map.json
+# =========================
+# Android
+# =========================
 
-# Android Studio will place build artifacts here
+# Android Gradle cache
+android/.gradle/
+
+# Android local machine configuration
+android/local.properties
+
+# Android build artifacts
 /android/app/debug
 /android/app/profile
 /android/app/release
 
-# Secrets
-lib/secrets/stripe_key.dart
-temp_interactive_push.bat
-branch_structure.json
+# =========================
+# iOS
+# =========================
 
-# Flutter generated iOS/macOS files
+# Flutter generated iOS files
+**/ios/Flutter/.last_build_id
 ios/Flutter/Generated.xcconfig
 ios/Flutter/flutter_export_environment.sh
 ios/Flutter/ephemeral/
 
+# Uncomment if you don't want to commit CocoaPods
+# ios/Pods/
+
+# =========================
+# macOS
+# =========================
+
 macos/Flutter/ephemeral/
 macos/Flutter/flutter_export_environment.sh
+.DS_Store
 
-# Flutter generated files
-.dart_tool/
-.flutter-plugins-dependencies
-.gitignore
+# =========================
+# IDE / Editor
+# =========================
+
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VS Code
+.vscode/
+
+# =========================
+# Miscellaneous
+# =========================
+
+*.class
+*.log
+*.pyc
+*.swp
+.history/
+.svn/
+.swiftpm/
+.atom/
+
+# =========================
+# Symbolication / Obfuscation
+# =========================
+
+app.*.symbols
+app.*.map.json
+
+# =========================
+# Secrets / Local Files
+# =========================
+
+lib/secrets/stripe_key.dart
+
+# Temporary scripts/files
+temp_auto_push.bat
+temp_interactive_push.bat
+branch_structure.json
+migrate_working_dir/

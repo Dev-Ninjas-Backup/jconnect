@@ -29,6 +29,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:video_player/video_player.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:record/record.dart';
 
 class ChatDetailsScreen extends StatelessWidget {
   ChatDetailsScreen({super.key});
@@ -46,6 +47,11 @@ class ChatDetailsScreen extends StatelessWidget {
   late final dynamic arguments = Get.arguments;
   Timer? _autoRefreshTimer;
   bool _isOnScreen = true;
+
+  late final AudioRecorder _audioRecorder = AudioRecorder();
+  late final RxBool _isRecording = false.obs;
+  late final RxInt _recordDuration = 0.obs;
+  Timer? _recordTimer;
 
   String _formatDateFromDateTime(DateTime dt) {
     const months = <String>[
@@ -564,6 +570,124 @@ class ChatDetailsScreen extends StatelessWidget {
         'Error uploading file: $e',
         duration: Duration(seconds: 2),
       );
+    }
+  }
+
+  String _formatDuration(int seconds) {
+    final mins = (seconds ~/ 60).toString().padLeft(2, '0');
+    final secs = (seconds % 60).toString().padLeft(2, '0');
+    return '$mins:$secs';
+  }
+
+  Future<void> _startRecording() async {
+    try {
+      if (await _audioRecorder.hasPermission()) {
+        final tempDir = await getTemporaryDirectory();
+        final filePath =
+            '${tempDir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
+
+        await _audioRecorder.start(
+          const RecordConfig(encoder: AudioEncoder.aacLc),
+          path: filePath,
+        );
+
+        _recordDuration.value = 0;
+        _isRecording.value = true;
+        _recordTimer?.cancel();
+        _recordTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          _recordDuration.value++;
+        });
+      } else {
+        EasyLoading.showError('Microphone permission required');
+      }
+    } catch (e) {
+      if (e.toString().contains('MissingPluginException')) {
+        EasyLoading.showError(
+            'Please stop & restart/rebuild the app to compile the new native recording plugin.');
+      } else {
+        EasyLoading.showError('Could not start recording: $e');
+      }
+    }
+  }
+
+  Future<void> _cancelRecording() async {
+    try {
+      _recordTimer?.cancel();
+      final path = await _audioRecorder.stop();
+      _isRecording.value = false;
+      _recordDuration.value = 0;
+      if (path != null) {
+        final file = File(path);
+        if (await file.exists()) {
+          await file.delete();
+        }
+      }
+    } catch (e) {
+      _isRecording.value = false;
+    }
+  }
+
+  Future<void> _stopAndSendVoice(String recipientId) async {
+    try {
+      _recordTimer?.cancel();
+      final path = await _audioRecorder.stop();
+      _isRecording.value = false;
+      final durationSeconds = _recordDuration.value;
+      _recordDuration.value = 0;
+
+      if (path == null || path.isEmpty) {
+        EasyLoading.showError('Failed to record audio');
+        return;
+      }
+
+      final file = File(path);
+      if (!await file.exists() || (await file.length()) == 0) {
+        EasyLoading.showError('Recorded audio file is empty');
+        return;
+      }
+
+      EasyLoading.show(
+        status: 'Uploading voice message...',
+        maskType: EasyLoadingMaskType.black,
+      );
+
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse(Endpoint.fileUpload),
+      );
+
+      final multipartFile = await http.MultipartFile.fromPath('file', path);
+      request.files.add(multipartFile);
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      EasyLoading.dismiss();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final jsonResponse = jsonDecode(responseBody);
+        final fileUrl = jsonResponse['file'];
+
+        if (fileUrl != null) {
+          controller.sendMessage(
+            recipientId: recipientId,
+            content: 'Voice Message (${_formatDuration(durationSeconds)})',
+            files: [fileUrl],
+          );
+          EasyLoading.showSuccess(
+            'Voice message sent',
+            duration: const Duration(seconds: 1),
+          );
+        } else {
+          EasyLoading.showError('Failed to get uploaded audio URL');
+        }
+      } else {
+        EasyLoading.showError('Voice upload failed: ${response.statusCode}');
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
+      _isRecording.value = false;
+      EasyLoading.showError('Error sending voice message: $e');
     }
   }
 
@@ -1717,115 +1841,148 @@ class ChatDetailsScreen extends StatelessWidget {
                                       ),
                                     ),
 
-                                  // Regular message - only show if content is not empty
-                                  if (msgItem.content.trim().isNotEmpty)
-                                    Container(
-                                      margin: EdgeInsets.symmetric(vertical: 5),
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 12,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: isMine
-                                            ? AppColors.redColor
-                                            : Colors.grey[800],
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(20),
-                                          topRight: Radius.circular(20),
-                                          bottomLeft: isMine
-                                              ? Radius.circular(20)
-                                              : Radius.circular(0),
-                                          bottomRight: isMine
-                                              ? Radius.circular(0)
-                                              : Radius.circular(20),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        msgItem.content,
-                                        style: TextStyle(
-                                          color: isMine
-                                              ? Colors.white
-                                              : Colors.white70,
-                                        ),
-                                      ),
-                                    ),
-                                  // Files display
-                                  if (msgItem.files.isNotEmpty)
-                                    Container(
-                                      margin: EdgeInsets.symmetric(vertical: 8),
-                                      padding: EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[800],
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Attachments (${msgItem.files.length})',
-                                            style: TextStyle(
-                                              color: Colors.white70,
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          SizedBox(height: 8),
-                                          Wrap(
-                                            spacing: 8,
-                                            runSpacing: 8,
-                                            children: msgItem.files.map((file) {
-                                              final fileName = file
-                                                  .split('/')
-                                                  .last;
-                                              return GestureDetector(
-                                                onTap: () =>
-                                                    _downloadFile(file),
-                                                child: Container(
-                                                  padding: EdgeInsets.symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 6,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.grey[700],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          6,
-                                                        ),
-                                                  ),
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      Icon(
-                                                        Icons.download,
-                                                        color: Colors.white70,
-                                                        size: 14,
-                                                      ),
-                                                      SizedBox(width: 6),
-                                                      Flexible(
-                                                        child: Text(
-                                                          fileName.length > 20
-                                                              ? '${fileName.substring(0, 17)}...'
-                                                              : fileName,
-                                                          style: TextStyle(
-                                                            color:
-                                                                Colors.white70,
-                                                            fontSize: 11,
-                                                          ),
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              );
-                                            }).toList(),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
+                                   Builder(
+                                     builder: (context) {
+                                       final audioFiles = msgItem.files.where((file) {
+                                         final ext = file.split('.').last.split('?').first.toLowerCase();
+                                         return ['mp3', 'wav', 'aac', 'm4a', 'flac', 'ogg', 'opus'].contains(ext);
+                                       }).toList();
+
+                                       final otherFiles = msgItem.files.where((file) {
+                                         final ext = file.split('.').last.split('?').first.toLowerCase();
+                                         return !['mp3', 'wav', 'aac', 'm4a', 'flac', 'ogg', 'opus'].contains(ext);
+                                       }).toList();
+
+                                       final isVoiceOnlyHeader = audioFiles.isNotEmpty &&
+                                           (msgItem.content.trim().startsWith('Voice Message'));
+
+                                       return Column(
+                                         crossAxisAlignment: isMine
+                                             ? CrossAxisAlignment.end
+                                             : CrossAxisAlignment.start,
+                                         children: [
+                                           // Regular message - only show if content is not empty and not voice header
+                                           if (msgItem.content.trim().isNotEmpty && !isVoiceOnlyHeader)
+                                             Container(
+                                               margin: EdgeInsets.symmetric(vertical: 5),
+                                               padding: EdgeInsets.symmetric(
+                                                 horizontal: 16,
+                                                 vertical: 12,
+                                               ),
+                                               decoration: BoxDecoration(
+                                                 color: isMine
+                                                     ? AppColors.redColor
+                                                     : Colors.grey[800],
+                                                 borderRadius: BorderRadius.only(
+                                                   topLeft: Radius.circular(20),
+                                                   topRight: Radius.circular(20),
+                                                   bottomLeft: isMine
+                                                       ? Radius.circular(20)
+                                                       : Radius.circular(0),
+                                                   bottomRight: isMine
+                                                       ? Radius.circular(0)
+                                                       : Radius.circular(20),
+                                                 ),
+                                               ),
+                                               child: Text(
+                                                 msgItem.content,
+                                                 style: TextStyle(
+                                                   color: isMine
+                                                       ? Colors.white
+                                                       : Colors.white70,
+                                                 ),
+                                               ),
+                                             ),
+
+                                           // Inline Messenger-style Voice Message Player
+                                           if (audioFiles.isNotEmpty)
+                                             ...audioFiles.map(
+                                               (audioUrl) => VoiceMessageBubbleWidget(
+                                                 audioUrl: audioUrl,
+                                                 isMine: isMine,
+                                               ),
+                                             ),
+
+                                           // Non-audio files display
+                                           if (otherFiles.isNotEmpty)
+                                             Container(
+                                               margin: EdgeInsets.symmetric(vertical: 8),
+                                               padding: EdgeInsets.all(10),
+                                               decoration: BoxDecoration(
+                                                 color: Colors.grey[800],
+                                                 borderRadius: BorderRadius.circular(10),
+                                               ),
+                                               child: Column(
+                                                 crossAxisAlignment:
+                                                     CrossAxisAlignment.start,
+                                                 children: [
+                                                   Text(
+                                                     'Attachments (${otherFiles.length})',
+                                                     style: TextStyle(
+                                                       color: Colors.white70,
+                                                       fontSize: 11,
+                                                       fontWeight: FontWeight.w500,
+                                                     ),
+                                                   ),
+                                                   SizedBox(height: 8),
+                                                   Wrap(
+                                                     spacing: 8,
+                                                     runSpacing: 8,
+                                                     children: otherFiles.map((file) {
+                                                       final fileName = file
+                                                           .split('/')
+                                                           .last;
+                                                       return GestureDetector(
+                                                         onTap: () => _viewFile(context, file),
+                                                         child: Container(
+                                                           padding: EdgeInsets.symmetric(
+                                                             horizontal: 8,
+                                                             vertical: 6,
+                                                           ),
+                                                           decoration: BoxDecoration(
+                                                             color: Colors.grey[700],
+                                                             borderRadius:
+                                                                 BorderRadius.circular(
+                                                                   6,
+                                                                 ),
+                                                           ),
+                                                           child: Row(
+                                                             mainAxisSize:
+                                                                 MainAxisSize.min,
+                                                             children: [
+                                                               Icon(
+                                                                 Icons.download,
+                                                                 color: Colors.white70,
+                                                                 size: 14,
+                                                               ),
+                                                               SizedBox(width: 6),
+                                                               Flexible(
+                                                                 child: Text(
+                                                                   fileName.length > 20
+                                                                       ? '${fileName.substring(0, 17)}...'
+                                                                       : fileName,
+                                                                   style: TextStyle(
+                                                                     color:
+                                                                         Colors.white70,
+                                                                     fontSize: 11,
+                                                                   ),
+                                                                   overflow: TextOverflow
+                                                                       .ellipsis,
+                                                                 ),
+                                                               ),
+                                                             ],
+                                                           ),
+                                                         ),
+                                                       );
+                                                     }).toList(),
+                                                   ),
+                                                 ],
+                                               ),
+                                             ),
+                                         ],
+                                       );
+                                     },
+                                   ),
                                 ],
                               ),
                             );
@@ -1920,83 +2077,161 @@ class ChatDetailsScreen extends StatelessWidget {
                         ),
                       );
                     }),
-                    // Message input row
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            showAddServiceSheet(
-                              context,
-                              addCustomServiceController,
-                              recipientId: recipientId,
-                            );
-                          },
-
-                          child: Icon(
-                            Icons.file_copy_sharp,
-                            color: Colors.white,
+                    // Message input row with voice recording support
+                    Obx(() {
+                      if (_isRecording.value) {
+                        return Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
                           ),
-                        ),
-                        SizedBox(width: 10),
-
-                        GestureDetector(
-                          onTap: _pickFile,
-                          child: Image.asset(
-                            Iconpath.cekol,
-                            height: 20,
-                            width: 20,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[900],
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: AppColors.redColor.withOpacity(0.5),
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 10),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 10,
+                                height: 10,
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Recording...',
+                                style: TextStyle(
+                                  color: Colors.redAccent,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                _formatDuration(_recordDuration.value),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Spacer(),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.white70,
+                                  size: 20,
+                                ),
+                                onPressed: _cancelRecording,
+                                tooltip: 'Cancel',
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.send_rounded,
+                                  color: AppColors.redColor,
+                                  size: 20,
+                                ),
+                                onPressed: () =>
+                                    _stopAndSendVoice(recipientId),
+                                tooltip: 'Send Voice Message',
+                              ),
+                            ],
+                          ),
+                        );
+                      }
 
-                        Expanded(
-                          child: TextField(
-                            controller: controller.messageController,
-                            style: TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: 'Type your message...',
-                              hintStyle: TextStyle(color: Colors.white38),
-                              filled: true,
-                              fillColor: Colors.grey[900],
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 8,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(color: Colors.white38),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white38),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white),
+                      return Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              showAddServiceSheet(
+                                context,
+                                addCustomServiceController,
+                                recipientId: recipientId,
+                              );
+                            },
+
+                            child: Icon(
+                              Icons.file_copy_sharp,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+
+                          GestureDetector(
+                            onTap: _pickFile,
+                            child: Image.asset(
+                              Iconpath.cekol,
+                              height: 20,
+                              width: 20,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+
+                          GestureDetector(
+                            onTap: _startRecording,
+                            child: Icon(
+                              Icons.mic_none_outlined,
+                              color: Colors.white,
+                              size: 22,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+
+                          Expanded(
+                            child: TextField(
+                              controller: controller.messageController,
+                              style: TextStyle(color: Colors.white),
+                              decoration: InputDecoration(
+                                hintText: 'Type your message...',
+                                hintStyle: TextStyle(color: Colors.white38),
+                                filled: true,
+                                fillColor: Colors.grey[900],
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 8,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: Colors.white38),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.white38),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        IconButton(
-                          icon: Image.asset(
-                            Iconpath.send,
-                            height: 20,
-                            width: 20,
+                          IconButton(
+                            icon: Image.asset(
+                              Iconpath.send,
+                              height: 20,
+                              width: 20,
+                            ),
+                            onPressed: () {
+                              controller.sendMessage(
+                                recipientId: recipientId,
+                                content: controller.messageController.text,
+                                files: selectedFiles.isNotEmpty
+                                    ? selectedFiles.toList()
+                                    : null,
+                              );
+                              controller.messageController.clear();
+                              selectedFiles.clear();
+                            },
                           ),
-                          onPressed: () {
-                            controller.sendMessage(
-                              recipientId: recipientId,
-                              content: controller.messageController.text,
-                              files: selectedFiles.isNotEmpty
-                                  ? selectedFiles.toList()
-                                  : null,
-                            );
-                            controller.messageController.clear();
-                            selectedFiles.clear();
-                          },
-                        ),
-                      ],
-                    ),
+                        ],
+                      );
+                    }),
                   ],
                 ),
               ),
@@ -2166,6 +2401,200 @@ void showAddServiceSheet(
     ),
     isScrollControlled: true,
   );
+}
+
+/// Messenger-style voice message player widget in chat bubbles
+class VoiceMessageBubbleWidget extends StatefulWidget {
+  final String audioUrl;
+  final bool isMine;
+
+  const VoiceMessageBubbleWidget({
+    super.key,
+    required this.audioUrl,
+    required this.isMine,
+  });
+
+  @override
+  State<VoiceMessageBubbleWidget> createState() =>
+      _VoiceMessageBubbleWidgetState();
+}
+
+class _VoiceMessageBubbleWidgetState extends State<VoiceMessageBubbleWidget> {
+  static AudioPlayer? _activePlayer;
+
+  late AudioPlayer _audioPlayer;
+  bool _isPlaying = false;
+  Duration _duration = Duration.zero;
+  Duration _position = Duration.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    _audioPlayer = AudioPlayer();
+    _initAudio();
+  }
+
+  Future<void> _initAudio() async {
+    try {
+      final dur = await _audioPlayer.setUrl(widget.audioUrl);
+      if (mounted) {
+        setState(() {
+          _duration = dur ?? Duration.zero;
+        });
+      }
+    } catch (_) {}
+
+    _audioPlayer.playerStateStream.listen((state) {
+      if (mounted) {
+        setState(() {
+          _isPlaying = state.playing &&
+              state.processingState != ProcessingState.completed;
+          if (state.processingState == ProcessingState.completed) {
+            if (_activePlayer == _audioPlayer) {
+              _activePlayer = null;
+            }
+            _position = Duration.zero;
+            _audioPlayer.seek(Duration.zero);
+            _audioPlayer.pause();
+          }
+        });
+      }
+    });
+
+    _audioPlayer.positionStream.listen((pos) {
+      if (mounted) {
+        setState(() {
+          _position = pos;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    if (_activePlayer == _audioPlayer) {
+      _activePlayer = null;
+    }
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
+  void _togglePlay() async {
+    if (_isPlaying) {
+      await _audioPlayer.pause();
+      if (_activePlayer == _audioPlayer) {
+        _activePlayer = null;
+      }
+    } else {
+      if (_activePlayer != null && _activePlayer != _audioPlayer) {
+        try {
+          await _activePlayer!.pause();
+        } catch (_) {}
+      }
+      _activePlayer = _audioPlayer;
+
+      if (_position >= _duration && _duration > Duration.zero) {
+        await _audioPlayer.seek(Duration.zero);
+      }
+      await _audioPlayer.play();
+    }
+  }
+
+  String _formatDuration(Duration d) {
+    final mins = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final secs = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$mins:$secs';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      width: 240,
+      decoration: BoxDecoration(
+        color: widget.isMine ? AppColors.redColor : Colors.grey[850],
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: _togglePlay,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Colors.white24,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SliderTheme(
+                  data: SliderThemeData(
+                    thumbShape:
+                        const RoundSliderThumbShape(enabledThumbRadius: 5),
+                    trackHeight: 3,
+                    activeTrackColor: Colors.white,
+                    inactiveTrackColor: Colors.white30,
+                    thumbColor: Colors.white,
+                    overlayShape: SliderComponentShape.noOverlay,
+                  ),
+                  child: Slider(
+                    min: 0.0,
+                    max: _duration.inMilliseconds > 0
+                        ? _duration.inMilliseconds.toDouble()
+                        : 1.0,
+                    value: _position.inMilliseconds
+                        .clamp(
+                            0,
+                            _duration.inMilliseconds > 0
+                                ? _duration.inMilliseconds
+                                : 1)
+                        .toDouble(),
+                    onChanged: (val) {
+                      _audioPlayer.seek(Duration(milliseconds: val.toInt()));
+                    },
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _formatDuration(_position),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 10,
+                      ),
+                    ),
+                    Text(
+                      _duration > Duration.zero
+                          ? _formatDuration(_duration)
+                          : 'Voice',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// Video player screen for viewing video files
