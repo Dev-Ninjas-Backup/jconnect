@@ -20,12 +20,12 @@ class NotificationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final NotificationController controller = Get.find();
-    
+
     // Force refresh notifications using GetX (controller guards against rapid API calls)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.forceRefreshNotifications();
     });
-    
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -44,9 +44,11 @@ class NotificationScreen extends StatelessWidget {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return Center(child: const CircularProgressIndicator(color: Colors.white,));
+          return Center(
+            child: const CircularProgressIndicator(color: Colors.white),
+          );
         }
-        
+
         if (controller.notifications.isEmpty) {
           return const Center(
             child: Text(
@@ -66,14 +68,20 @@ class NotificationScreen extends StatelessWidget {
             return GestureDetector(
               onTap: () async {
                 final titleLower = notification.title.toLowerCase();
+                // ignore: unused_local_variable
                 final messageLower = notification.message.toLowerCase();
                 final typeLower = notification.type?.toLowerCase() ?? '';
 
                 if (titleLower.contains(' new review from')) {
                   Get.toNamed(AppRoute.getReviewScreen());
-                } else if (titleLower.contains('decline') || titleLower.contains('declined') ||
-                    titleLower.contains('inquiry') || typeLower == 'inquiry' || typeLower == 'inquiry.create' ||
-                    titleLower.contains('message') || typeLower == 'message' || typeLower == 'chat' ||
+                } else if (titleLower.contains('decline') ||
+                    titleLower.contains('declined') ||
+                    titleLower.contains('inquiry') ||
+                    typeLower == 'inquiry' ||
+                    typeLower == 'inquiry.create' ||
+                    titleLower.contains('message') ||
+                    typeLower == 'message' ||
+                    typeLower == 'chat' ||
                     titleLower.contains('promotion')) {
                   _navigateToChat(notification);
                 } else if (notification.title.contains("Service")) {
@@ -101,8 +109,9 @@ class NotificationScreen extends StatelessWidget {
                   );
                 } else {
                   final fcmController = Get.find<FcmNotificationController>();
-                  final Map<String, dynamic> data =
-                      Map<String, dynamic>.from(notification.meta ?? {});
+                  final Map<String, dynamic> data = Map<String, dynamic>.from(
+                    notification.meta ?? {},
+                  );
                   data['type'] = notification.type;
                   data['title'] = notification.title;
                   data['message'] = notification.message;
@@ -161,7 +170,8 @@ class NotificationScreen extends StatelessWidget {
                               ),
                               notification.title == "New Inquiry Received"
                                   ? GestureDetector(
-                                      onTap: () => _navigateToChat(notification),
+                                      onTap: () =>
+                                          _navigateToChat(notification),
                                       child: Icon(
                                         Icons.message,
                                         color: Colors.greenAccent,
@@ -199,8 +209,9 @@ class NotificationScreen extends StatelessWidget {
 
   void _navigateToChat(AppNotification notification) {
     final messagesController = Get.find<MessagesController>();
-    
-    final artistId = notification.currentUser?.id ??
+
+    final artistId =
+        notification.currentUser?.id ??
         notification.userId ??
         notification.creatorId ??
         notification.meta?['senderId']?.toString() ??
@@ -231,7 +242,8 @@ class NotificationScreen extends StatelessWidget {
           'chatItem': existingChat,
           'recipientId': artistId,
           'isNewConversation': false,
-          'senderUsername': notification.currentUser?.username ??
+          'senderUsername':
+              notification.currentUser?.username ??
               notification.currentUser?.full_name ??
               notification.meta?['senderName']?.toString() ??
               notification.meta?['senderUsername']?.toString() ??
@@ -244,12 +256,15 @@ class NotificationScreen extends StatelessWidget {
         chatId: null,
         participant: ChatParticipant(
           id: artistId,
-          fullName: notification.currentUser?.full_name ??
+          fullName:
+              notification.currentUser?.full_name ??
               notification.meta?['senderName']?.toString() ??
               'User',
-          username: notification.currentUser?.username ??
+          username:
+              notification.currentUser?.username ??
               notification.meta?['senderUsername']?.toString(),
-          profilePhoto: notification.currentUser?.profilePhoto ??
+          profilePhoto:
+              notification.currentUser?.profilePhoto ??
               notification.meta?['senderProfilePhoto']?.toString(),
         ),
       );
@@ -259,7 +274,8 @@ class NotificationScreen extends StatelessWidget {
           'chatItem': chatItem,
           'recipientId': artistId,
           'isNewConversation': true,
-          'senderUsername': notification.currentUser?.username ??
+          'senderUsername':
+              notification.currentUser?.username ??
               notification.currentUser?.full_name ??
               notification.meta?['senderName']?.toString() ??
               notification.meta?['senderUsername']?.toString() ??
