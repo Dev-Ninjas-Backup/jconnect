@@ -15,7 +15,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final size = MediaQueryData.fromView(View.of(context)).size;
     final loginController = Get.put(LoginController());
 
     return Scaffold(
@@ -201,7 +201,7 @@ class LoginScreen extends StatelessWidget {
 
           // Signup text
           Positioned(
-            bottom: size.height * 0.06,
+            top: size.height * 0.90,
             left: 0,
             right: 0,
             child: Center(

@@ -126,64 +126,50 @@ class OrderDetailsController extends GetxController {
     String? deliveryDate,
     String? updatedAt,
     bool isCancalProofSubmitted = false,
+    String? reason,
   }) {
-    final steps = [
-      'Order has been placed',
-      'Waiting to be Reviewed',
-      'Waiting for proof',
-      'Completed',
+    final statusUpper = status.toUpperCase();
+    final updated = updatedAt ?? '';
+    final isResubmit = statusUpper == 'RESUBMIT' || isCancalProofSubmitted;
+
+    final steps = <OrderTimelineStep>[
+      OrderTimelineStep(
+        title: 'Order has been placed',
+        dateTime: createdAt ?? '',
+        isCompleted: true,
+      ),
+      OrderTimelineStep(
+        title: 'Waiting to be Reviewed',
+        dateTime: statusUpper != 'PENDING' ? updated : '',
+        isCompleted: statusUpper != 'PENDING',
+      ),
+      OrderTimelineStep(
+        title: 'Waiting for proof',
+        dateTime: (statusUpper == 'PROOF_SUBMITTED' || isResubmit || statusUpper == 'RELEASED') ? updated : '',
+        isCompleted: statusUpper == 'PROOF_SUBMITTED' || statusUpper == 'RELEASED',
+      ),
     ];
 
-    int completedIndex = -1;
-    switch (status.toUpperCase()) {
-      case 'PENDING':
-        completedIndex = -1; // none completed
-        break;
-      case 'ACTIVE':
-      case 'IN_PROGRESS':
-        completedIndex =
-            1; // "Order placed" and "Waiting to be Reviewed" completed
-        break;
-      case 'PROOF_SUBMITTED':
-        // If proof was cancelled, mark "Waiting for proof" as incomplete
-        completedIndex = isCancalProofSubmitted ? 1 : 2;
-        break;
-      case 'RELEASED':
-      case 'COMPLETE':
-      case 'COMPLETED':
-        completedIndex = 3; // all steps completed
-        break;
-      case 'PAYMENTCONFIRM':
-      case 'PAYMENT_CONFIRM':
-        completedIndex = 1;
-        break;
+    if (isResubmit) {
+      steps.add(
+        OrderTimelineStep(
+          title: 'Proof Rejected - Resubmit Required',
+          dateTime: updated,
+          isCompleted: true,
+          description: reason,
+        ),
+      );
     }
 
-    // Determine first step date according to status
-    final updated = updatedAt ?? '';
-    final statusUpper = status.toUpperCase();
+    steps.add(
+      OrderTimelineStep(
+        title: statusUpper == 'CANCELLED' ? 'Order Cancelled' : 'Completed',
+        dateTime: statusUpper == 'RELEASED' ? (deliveryDate ?? updated) : (statusUpper == 'CANCELLED' ? updated : ''),
+        isCompleted: statusUpper == 'RELEASED' || statusUpper == 'COMPLETE' || statusUpper == 'COMPLETED' || statusUpper == 'CANCELLED',
+      ),
+    );
 
-    final firstStepDate = statusUpper == 'PENDING'
-        ? ''
-        : (statusUpper == 'ACTIVE' || statusUpper == 'IN_PROGRESS'
-              ? (updated.isNotEmpty ? updated : '')
-              : (createdAt ?? ''));
-
-    return List.generate(steps.length, (i) {
-      // Provide timestamps for intermediate steps when relevant
-      String dt = '';
-      if (i == 0) dt = firstStepDate;
-      if ((i == 1 || i == 2) && statusUpper == 'PROOF_SUBMITTED') {
-        dt = updated.isNotEmpty ? updated : '';
-      }
-      if (i == 3) dt = deliveryDate ?? '';
-
-      return OrderTimelineStep(
-        title: steps[i],
-        dateTime: dt,
-        isCompleted: i <= completedIndex,
-      );
-    });
+    return steps;
   }
 
   /// Upload proof file for the currently loaded order. Returns true on success.
@@ -276,7 +262,7 @@ class OrderDetailsController extends GetxController {
         // Call cancel-proof API with isCancalProofSubmitted=false to ensure proof is marked as accepted
         try {
           final cancelUrl =
-              '${Endpoint.baseUrl}/orders/${current.id}/cancel-proof?isCancalProofSubmitted=false';
+              Endpoint.cancelProof(current.id, isCancalProofSubmitted: false);
           final cancelResp = await http.patch(
             Uri.parse(cancelUrl),
             headers: {'Authorization': authHeader, 'Accept': '*/*'},
@@ -389,10 +375,18 @@ class OrderDetailsController extends GetxController {
   /// Apply a status update to the currently held OrderDetailsModel (if it
   /// matches [orderId]) so UI (timeline) updates immediately without
   /// re-entering the screen.
-  void applyStatusUpdate(String orderId, String status, {String? updatedAt}) {
+  void applyStatusUpdate(
+    String orderId,
+    String status, {
+    String? updatedAt,
+    String? reason,
+  }) {
     final current = order.value;
     if (current == null) return;
     if (current.id != orderId) return;
+
+    final updatedTime = updatedAt ?? DateTime.now().toIso8601String();
+    final isResubmit = status.toUpperCase() == 'RESUBMIT' || current.isCancalProofSubmitted;
 
     final newTimeline = _generateTimeline(
       status: status,
@@ -400,11 +394,16 @@ class OrderDetailsController extends GetxController {
       deliveryDate: current.deliveryDate.isNotEmpty
           ? current.deliveryDate
           : null,
-      updatedAt: updatedAt ?? DateTime.now().toIso8601String(),
-      isCancalProofSubmitted: current.isCancalProofSubmitted,
+      updatedAt: updatedTime,
+      isCancalProofSubmitted: isResubmit,
+      reason: reason,
     );
 
-    order.value = current.copyWith(status: status, timeline: newTimeline);
+    order.value = current.copyWith(
+      status: status,
+      timeline: newTimeline,
+      isCancalProofSubmitted: isResubmit,
+    );
   }
 
   @override
@@ -532,7 +531,7 @@ class OrderDetailsController extends GetxController {
   }
 
   /// Reject proof submitted by seller (buyer action). Returns true on success.
-  Future<bool> rejectProof() async {
+  Future<bool> rejectProof({required String reason}) async {
     final current = order.value;
     if (current == null) return false;
 
@@ -550,7 +549,12 @@ class OrderDetailsController extends GetxController {
       EasyLoading.show(status: 'Rejecting proof...');
       final resp = await http.patch(
         Uri.parse(url),
-        headers: {'Authorization': authHeader, 'Accept': '*/*'},
+        headers: {
+          'Authorization': authHeader,
+          'Accept': '*/*',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'reason': reason}),
       );
       EasyLoading.dismiss();
 
@@ -560,45 +564,12 @@ class OrderDetailsController extends GetxController {
       if (resp.statusCode >= 200 && resp.statusCode < 300) {
         EasyLoading.showSuccess('Proof rejected. Please upload new proof.');
 
-        // Parse the response to get isCancalProofSubmitted flag
-        bool isCancalProofSubmitted =
-            true; // Default to true (proof was rejected)
-
-        try {
-          final respJson = jsonDecode(resp.body);
-          if (respJson is Map<String, dynamic>) {
-            if (respJson['isCancalProofSubmitted'] != null) {
-              isCancalProofSubmitted =
-                  respJson['isCancalProofSubmitted'] == true ||
-                  respJson['isCancalProofSubmitted'] == 1 ||
-                  respJson['isCancalProofSubmitted'] == '1' ||
-                  respJson['isCancalProofSubmitted'] == 'true';
-            }
-          }
-        } catch (e) {
-          print('⚠️ [REJECT PROOF] Could not parse response: $e');
-          // Keep default value (true)
-        }
-
-        // Keep status as PROOF_SUBMITTED with isCancalProofSubmitted flag to indicate rejection
         final updatedAt = DateTime.now().toIso8601String();
-        final newTimeline = _generateTimeline(
-          status: 'PROOF_SUBMITTED',
-          createdAt: current.orderCreated.isNotEmpty
-              ? current.orderCreated
-              : null,
-          deliveryDate: current.deliveryDate.isNotEmpty
-              ? current.deliveryDate
-              : null,
+        applyStatusUpdate(
+          current.id,
+          'RESUBMIT',
           updatedAt: updatedAt,
-          isCancalProofSubmitted: isCancalProofSubmitted,
-        );
-
-        order.value = current.copyWith(
-          status: 'PROOF_SUBMITTED',
-          proofUrl: [], // Clear proof URLs
-          isCancalProofSubmitted: isCancalProofSubmitted,
-          timeline: newTimeline,
+          reason: reason,
         );
         return true;
       } else {

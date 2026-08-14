@@ -267,95 +267,121 @@ class OrderDetailsModel {
       promotionDate: pickString(['promotionDate']),
       files: filesList,
       timeline: (() {
-        final parsed = (json['timeline'] as List<dynamic>?)
-            ?.map(
-              (item) =>
-                  OrderTimelineStep.fromJson(item as Map<String, dynamic>),
-            )
-            .toList();
-
-        if (parsed != null && parsed.isNotEmpty) return parsed;
-
-        // If API didn't provide a timeline, generate a reasonable default
+        final rawTimeline = json['timeline'] as List<dynamic>?;
         final statusStr = pickString(['status'], '').toUpperCase();
+
+        if (rawTimeline != null && rawTimeline.isNotEmpty) {
+          final parsed = rawTimeline
+              .map((item) => OrderTimelineStep.fromJson(item as Map<String, dynamic>))
+              .toList();
+
+          final isCompletedAll = statusStr == 'RELEASED' || statusStr == 'COMPLETE' || statusStr == 'COMPLETED';
+
+          return List.generate(parsed.length, (i) {
+            final step = parsed[i];
+            bool completed = step.isCompleted || isCompletedAll;
+            if (step.dateTime.isNotEmpty) {
+              completed = true;
+            } else if (i == 0) {
+              completed = true;
+            }
+            return OrderTimelineStep(
+              title: step.title,
+              dateTime: step.dateTime,
+              isCompleted: completed,
+              description: step.description,
+            );
+          });
+        }
+
+        // If API didn't provide a timeline, generate timeline steps with timestamps
         final created = pickString([
           'createdAt',
           'created_at',
           'orderCreated',
           'order_created',
         ], '');
+        final inProgressAt = pickString(['inProgressAt', 'in_progress_at'], '');
+        final proofSubmittedAt = pickString(['proofSubmittedAt', 'proof_submitted_at'], '');
+        final resubmitAt = pickString(['resubmitAt', 'resubmit_at'], '');
+        final releasedAt = pickString(['releasedAt', 'released_at'], '');
+        final cancelledAt = pickString(['cancelledAt', 'cancelled_at'], '');
         final delivery = pickString(['deliveryDate', 'delivery_date'], '');
-
-        final steps = [
-          'Order has been placed',
-          'Waiting to be Reviewed',
-          'Waiting for proof',
-          'Completed',
-        ];
-
-        int completedIndex = -1;
-        switch (statusStr) {
-          case 'PENDING':
-            completedIndex = -1; // none completed for PENDING
-            break;
-          case 'ACTIVE':
-          case 'IN_PROGRESS':
-            completedIndex =
-                1; // "Order placed" and "Waiting to be Reviewed" completed when ACTIVE or IN_PROGRESS
-            break;
-          case 'PROOF_SUBMITTED':
-            // If proof was cancelled, mark "Waiting for proof" as incomplete
-            completedIndex = isCancalProofSubmitted
-                ? 1
-                : 2; // waiting for reviewer & proof completed
-            break;
-          case 'RELEASED':
-          case 'COMPLETE':
-          case 'COMPLETED':
-            completedIndex = 3; // all steps completed
-            break;
-          case 'PAYMENTCONFIRM':
-          case 'PAYMENT_CONFIRM':
-            completedIndex = 1;
-            break;
-        }
-
         final updated = pickString(['updatedAt'], '');
-        String firstStepDate;
-        if (statusStr == 'PENDING') {
-          // For PENDING do not show any timestamp for the first step
-          firstStepDate = '';
-        } else if (statusStr == 'ACTIVE' ||
-            statusStr == 'IN_PROGRESS' ||
-            statusStr == 'PROOF_SUBMITTED' ||
-            statusStr == 'RELEASED') {
-          // For ACTIVE, IN_PROGRESS, PROOF_SUBMITTED, or RELEASED show updatedAt (if present)
-          firstStepDate = updated.isNotEmpty ? updated : '';
-        } else {
-          // For other statuses fall back to created timestamp
-          firstStepDate = created;
+        final resubmitReason = pickString([
+          'resubmitReason',
+          'rejectReason',
+          'reason',
+          'description',
+        ], '');
+
+        final isResubmitState = statusStr == 'RESUBMIT' || isCancalProofSubmitted;
+
+        final List<OrderTimelineStep> stepsList = [];
+
+        // 1. Order Placed step
+        stepsList.add(
+          OrderTimelineStep(
+            title: 'Order has been placed',
+            dateTime: created,
+            isCompleted: true,
+          ),
+        );
+
+        // 2. In Progress / Reviewed step
+        final inProgressDate = inProgressAt.isNotEmpty
+            ? inProgressAt
+            : (statusStr != 'PENDING' ? (updated.isNotEmpty ? updated : created) : '');
+        stepsList.add(
+          OrderTimelineStep(
+            title: 'Waiting to be Reviewed',
+            dateTime: inProgressDate,
+            isCompleted: statusStr != 'PENDING',
+          ),
+        );
+
+        // 3. Proof Submitted step
+        final proofDate = proofSubmittedAt.isNotEmpty
+            ? proofSubmittedAt
+            : ((statusStr == 'PROOF_SUBMITTED' || isResubmitState || statusStr == 'RELEASED')
+                ? updated
+                : '');
+        stepsList.add(
+          OrderTimelineStep(
+            title: 'Waiting for proof',
+            dateTime: proofDate,
+            isCompleted: statusStr == 'PROOF_SUBMITTED' || statusStr == 'RELEASED',
+          ),
+        );
+
+        // 4. If RESUBMIT status or proof was rejected, show Resubmit step with description
+        if (isResubmitState) {
+          final resubmitDate = resubmitAt.isNotEmpty ? resubmitAt : updated;
+          stepsList.add(
+            OrderTimelineStep(
+              title: 'Proof Rejected - Resubmit Required',
+              dateTime: resubmitDate,
+              isCompleted: true,
+              description: resubmitReason.isNotEmpty ? resubmitReason : null,
+            ),
+          );
         }
 
-        return List.generate(steps.length, (i) {
-          // Provide timestamps for intermediate steps when PROOF_SUBMITTED or RELEASED
-          String dt = '';
-          if (i == 0) dt = firstStepDate;
-          if ((i == 1 || i == 2) &&
-              (statusStr == 'PROOF_SUBMITTED' || statusStr == 'RELEASED')) {
-            dt = updated.isNotEmpty ? updated : '';
-          }
-          if (i == 3) {
-            dt = (statusStr == 'RELEASED' && updated.isNotEmpty)
-                ? updated
-                : delivery;
-          }
+        // 5. Completed step
+        final completedDate = releasedAt.isNotEmpty
+            ? releasedAt
+            : (statusStr == 'RELEASED' ? (updated.isNotEmpty ? updated : delivery) : '');
+        stepsList.add(
+          OrderTimelineStep(
+            title: statusStr == 'CANCELLED' ? 'Order Cancelled' : 'Completed',
+            dateTime: statusStr == 'CANCELLED'
+                ? (cancelledAt.isNotEmpty ? cancelledAt : updated)
+                : completedDate,
+            isCompleted: statusStr == 'RELEASED' || statusStr == 'COMPLETE' || statusStr == 'COMPLETED' || statusStr == 'CANCELLED',
+          ),
+        );
 
-          return OrderTimelineStep(
-            title: steps[i],
-            dateTime: dt,
-            isCompleted: i <= completedIndex,
-          );
-        });
+        return stepsList;
       })(),
     );
 
