@@ -1014,6 +1014,97 @@ class OrderDetailsScreen extends StatelessWidget {
                 }
 
                 // For PROOF_SUBMITTED: show Confirm Order and Reject Proof (for buyer) and Cancel
+                // For RESUBMIT status
+                if (order.status == 'RESUBMIT' || (order.status == 'PROOF_SUBMITTED' && order.isCancalProofSubmitted)) {
+                  return FutureBuilder<String?>(
+                    future: (() {
+                      try {
+                        return Get.find<SharedPreferencesHelperController>()
+                            .getUserId();
+                      } catch (_) {
+                        return Get.put(
+                          SharedPreferencesHelperController(),
+                        ).getUserId();
+                      }
+                    })(),
+                    builder: (context, snapshot) {
+                      final loggedInUserId = snapshot.data;
+                      final isBuyer =
+                          loggedInUserId != null &&
+                          loggedInUserId == order.buyerId;
+
+                      // Seller view: can re-submit proof
+                      if (!isBuyer) {
+                        return Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: CustomPrimaryButton(
+                                    buttonText: 'Re-submit Proof',
+                                    onTap: () => _pickAndConfirmProofUpload(
+                                      context,
+                                      controller,
+                                      orderController,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 12),
+                            CustomPrimaryButton(
+                              buttonText: 'Cancel Order',
+                              onTap: () => _cancelOrder(
+                                context: context,
+                                order: order,
+                                controller: controller,
+                                orderController: orderController,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      // Buyer view: waiting for seller to resubmit proof
+                      return Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: AppColors.redColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: AppColors.redColor.withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Text(
+                              'Proof Rejected. Waiting for seller to re-submit proof.',
+                              textAlign: TextAlign.center,
+                              style: getTextStyle(
+                                color: AppColors.primaryTextColor,
+                                fontsize: 13,
+                                fontweight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          CustomPrimaryButton(
+                            buttonText: 'Cancel Order',
+                            onTap: () => _cancelOrder(
+                              context: context,
+                              order: order,
+                              controller: controller,
+                              orderController: orderController,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+
+                // For PROOF_SUBMITTED: show Confirm Order and Reject Proof (for buyer) and Cancel
                 if (order.status == 'PROOF_SUBMITTED') {
                   return FutureBuilder<String?>(
                     future: (() {
@@ -1058,63 +1149,16 @@ class OrderDetailsScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            // Show Reject Proof button only if proof has not been rejected yet (isCancalProofSubmitted = false)
-                            if (!order.isCancalProofSubmitted)
-                              Column(
-                                children: [
-                                  SizedBox(height: 12),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: CustomPrimaryButton(
-                                          buttonText: 'Reject Proof',
-                                          onTap: () async {
-                                            final success = await controller
-                                                .rejectProof();
-                                            if (success) {
-                                              EasyLoading.showSuccess(
-                                                'Proof rejected. Seller can now re-submit.',
-                                              );
-                                              // Refresh orders list in My Orders screen
-                                              try {
-                                                await orderController
-                                                    .loadOrders();
-                                              } catch (_) {}
-                                            }
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
                             SizedBox(height: 12),
-                            CustomPrimaryButton(
-                              buttonText: 'Cancel Order',
-                              onTap: () => _cancelOrder(
-                                context: context,
-                                order: order,
-                                controller: controller,
-                                orderController: orderController,
-                              ),
-                            ),
-                          ],
-                        );
-                      }
-
-                      // Seller can re-upload proof if it was rejected (isCancalProofSubmitted)
-                      if (!isBuyer && order.isCancalProofSubmitted) {
-                        return Column(
-                          children: [
                             Row(
                               children: [
                                 Expanded(
                                   child: CustomPrimaryButton(
-                                    buttonText: 'Upload Proof',
-                                    onTap: () => _pickAndConfirmProofUpload(
-                                      context,
-                                      controller,
-                                      orderController,
+                                    buttonText: 'Reject Proof',
+                                    onTap: () => _showRejectProofDialog(
+                                      context: context,
+                                      controller: controller,
+                                      orderController: orderController,
                                     ),
                                   ),
                                 ),
@@ -1255,6 +1299,130 @@ class OrderDetailsScreen extends StatelessWidget {
             style: getTextStyle(
               color: AppColors.primaryTextColor,
               fontweight: isBold ? FontWeight.w600 : FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRejectProofDialog({
+    required BuildContext context,
+    required OrderDetailsController controller,
+    required MyOrdersController orderController,
+  }) {
+    final TextEditingController reasonController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.backGroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: AppColors.secondaryTextColor.withValues(alpha: 0.3),
+          ),
+        ),
+        title: Text(
+          'Reject Proof',
+          style: getTextStyle(
+            color: AppColors.primaryTextColor,
+            fontweight: FontWeight.w600,
+            fontsize: 18,
+          ),
+        ),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Please specify the reason for rejecting the proof:',
+                style: getTextStyle(
+                  color: AppColors.secondaryTextColor,
+                  fontsize: 13,
+                ),
+              ),
+              SizedBox(height: 12),
+              TextFormField(
+                controller: reasonController,
+                maxLines: 3,
+                style: getTextStyle(
+                  color: AppColors.primaryTextColor,
+                  fontsize: 14,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Enter reason (required)...',
+                  hintStyle: getTextStyle(
+                    color: AppColors.secondaryTextColor,
+                    fontsize: 13,
+                  ),
+                  filled: true,
+                  fillColor: const Color(0xFF1E1E1E),
+                  contentPadding: const EdgeInsets.all(12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: AppColors.secondaryTextColor.withValues(
+                        alpha: 0.3,
+                      ),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: AppColors.secondaryTextColor.withValues(
+                        alpha: 0.3,
+                      ),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: AppColors.redColor),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Reason is required to reject proof';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              'Cancel',
+              style: getTextStyle(color: AppColors.secondaryTextColor),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (formKey.currentState!.validate()) {
+                final reason = reasonController.text.trim();
+                Get.back();
+                final success = await controller.rejectProof(reason: reason);
+                if (success) {
+                  EasyLoading.showSuccess(
+                    'Proof rejected. Seller can now re-submit.',
+                  );
+                  try {
+                    await orderController.loadOrders();
+                  } catch (_) {}
+                }
+              }
+            },
+            child: Text(
+              'Reject Proof',
+              style: getTextStyle(
+                color: AppColors.redColor,
+                fontweight: FontWeight.w600,
+              ),
             ),
           ),
         ],

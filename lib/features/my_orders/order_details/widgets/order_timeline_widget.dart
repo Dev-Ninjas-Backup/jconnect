@@ -309,6 +309,119 @@ class OrderTimelineWidget extends StatelessWidget {
     }
   }
 
+  void _showReasonDialog(BuildContext context, String reason) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.backGroundColor,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            border: Border.all(color: Colors.grey.shade800, width: 1),
+          ),
+          padding: EdgeInsets.fromLTRB(20, 16, 20, 24),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.redColor.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.error_outline_rounded,
+                        color: AppColors.redColor,
+                        size: 20,
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Proof Rejection Reason',
+                        style: getTextStyle(
+                          color: Colors.white,
+                          fontsize: 16,
+                          fontweight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(Icons.close, color: Colors.white54, size: 20),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppColors.redColor.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: AppColors.redColor.withValues(alpha: 0.25),
+                    ),
+                  ),
+                  child: Text(
+                    reason,
+                    style: getTextStyle(
+                      color: AppColors.primaryTextColor,
+                      fontsize: 13,
+                      fontweight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.redColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: Text(
+                      'Close',
+                      style: getTextStyle(
+                        color: Colors.white,
+                        fontsize: 14,
+                        fontweight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -324,93 +437,295 @@ class OrderTimelineWidget extends StatelessWidget {
           final step = timeline[index];
           final isLast = index == timeline.length - 1;
           final isWaitingForProof = step.title == 'Waiting for proof';
-          return Column(
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    children: [
-                      Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
+          return IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  children: [
+                    Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: step.isCompleted
+                            ? AppColors.redColor
+                            : Colors.transparent,
+                        shape: BoxShape.circle,
+                        border: Border.all(
                           color: step.isCompleted
                               ? AppColors.redColor
-                              : Colors.transparent,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white24, width: 2),
+                              : Colors.white24,
+                          width: 2,
                         ),
-                        child: step.isCompleted
-                            ? Icon(Icons.check, color: Colors.white, size: 12)
-                            : null,
                       ),
-                      if (!isLast)
-                        Container(width: 2, height: 35, color: Colors.white24),
-                    ],
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 2),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  step.title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: getTextStyle(
-                                    color: AppColors.primaryTextColor,
-                                    fontweight: FontWeight.w500,
+                      child: step.isCompleted
+                          ? Icon(Icons.check, color: Colors.white, size: 12)
+                          : null,
+                    ),
+                    if (!isLast)
+                      Expanded(
+                        child: Container(
+                          width: 2,
+                          color: (step.isCompleted &&
+                                  index < timeline.length - 1 &&
+                                  timeline[index + 1].isCompleted)
+                              ? AppColors.redColor.withValues(alpha: 0.5)
+                              : Colors.white24,
+                          margin: EdgeInsets.symmetric(vertical: 4),
+                        ),
+                      ),
+                  ],
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 2, bottom: isLast ? 0 : 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                step.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: getTextStyle(
+                                  color: AppColors.primaryTextColor,
+                                  fontweight: FontWeight.w500,
+                                ),
+                              ),
+                              if (step.description != null &&
+                                  step.description!.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 6),
+                                  child: GestureDetector(
+                                    onTap: () => _showReasonDialog(
+                                      context,
+                                      step.description!,
+                                    ),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.redColor.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(
+                                          color: AppColors.redColor.withValues(
+                                            alpha: 0.3,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Icon(
+                                                Icons.info_outline,
+                                                size: 14,
+                                                color: AppColors.redColor,
+                                              ),
+                                              SizedBox(width: 6),
+                                              Expanded(
+                                                child: Text(
+                                                  'Reason: ${step.description}',
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: getTextStyle(
+                                                    color: AppColors
+                                                        .primaryTextColor,
+                                                    fontsize: 11,
+                                                    fontweight: FontWeight.w400,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 6),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                'View Reason',
+                                                style: getTextStyle(
+                                                  color: AppColors.redColor,
+                                                  fontsize: 10,
+                                                  fontweight: FontWeight.w600,
+                                                ),
+                                              ),
+                                              SizedBox(width: 2),
+                                              Icon(
+                                                Icons.arrow_forward_ios_rounded,
+                                                color: AppColors.redColor,
+                                                size: 9,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                if (isWaitingForProof &&
-                                    timeline
-                                        .sublist(0, index)
-                                        .every((s) => s.isCompleted) &&
-                                    proofUrl.isNotEmpty)
-                                  Padding(
-                                    padding: EdgeInsets.only(top: 8),
-                                    child: Row(
+                              if (proofUrl.isNotEmpty &&
+                                  (isWaitingForProof ||
+                                      step.title
+                                          .toLowerCase()
+                                          .contains('proof') ||
+                                      (!timeline.any((s) => s.title
+                                          .toLowerCase()
+                                          .contains('proof')) &&
+                                          index == 0)))
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade900,
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(
+                                        color: Colors.grey.shade800,
+                                      ),
+                                    ),
+                                    child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        GestureDetector(
-                                          onTap: () => _viewAttachment(context),
-                                          child: Text(
-                                            'View Attachment',
-                                            style: getTextStyle(
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.attach_file_rounded,
+                                              size: 14,
                                               color: AppColors.redColor,
-                                              fontsize: 10,
-                                              fontweight: FontWeight.w500,
                                             ),
-                                          ),
+                                            SizedBox(width: 6),
+                                            Text(
+                                              'Proof Attachment (${proofUrl.length})',
+                                              style: getTextStyle(
+                                                color:
+                                                    AppColors.primaryTextColor,
+                                                fontsize: 11,
+                                                fontweight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        SizedBox(width: 20),
-                                        GestureDetector(
-                                          onTap: _downloadAttachment,
-                                          child: Text(
-                                            'Download Attachment',
-                                            style: getTextStyle(
-                                              color: AppColors.redColor,
-                                              fontsize: 10,
-                                              fontweight: FontWeight.w500,
+                                        SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () =>
+                                                  _viewAttachment(context),
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 4,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.redColor
+                                                      .withValues(alpha: 0.15),
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                  border: Border.all(
+                                                    color: AppColors.redColor
+                                                        .withValues(
+                                                      alpha: 0.4,
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons
+                                                          .visibility_outlined,
+                                                      size: 12,
+                                                      color: AppColors.redColor,
+                                                    ),
+                                                    SizedBox(width: 4),
+                                                    Text(
+                                                      'View',
+                                                      style: getTextStyle(
+                                                        color:
+                                                            AppColors.redColor,
+                                                        fontsize: 10,
+                                                        fontweight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                             ),
-                                          ),
+                                            SizedBox(width: 8),
+                                            GestureDetector(
+                                              onTap: _downloadAttachment,
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 4,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white10,
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                  border: Border.all(
+                                                    color: Colors.white24,
+                                                  ),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.download_rounded,
+                                                      size: 12,
+                                                      color: Colors.white70,
+                                                    ),
+                                                    SizedBox(width: 4),
+                                                    Text(
+                                                      'Download',
+                                                      style: getTextStyle(
+                                                        color: Colors.white,
+                                                        fontsize: 10,
+                                                        fontweight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
                                   ),
-                              ],
-                            ),
+                                ),
+                            ],
                           ),
-                          if (step.dateTime.isNotEmpty && index == 0)
-                            ConstrainedBox(
+                        ),
+                        if (step.isCompleted && step.dateTime.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: ConstrainedBox(
                               constraints: BoxConstraints(maxWidth: 140),
                               child: Text(
                                 _formatDateShort(step.dateTime),
@@ -423,13 +738,13 @@ class OrderTimelineWidget extends StatelessWidget {
                                 ),
                               ),
                             ),
-                        ],
-                      ),
+                          ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           );
         }),
       ),

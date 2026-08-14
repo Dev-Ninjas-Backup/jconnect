@@ -421,4 +421,4 @@ class MyOrdersController extends GetxController {
 }
 
 // ignore: constant_identifier_names
-enum OrderStatus { CANCELLED, PENDING, IN_PROGRESS, PROOF_SUBMITTED }
+enum OrderStatus { CANCELLED, PENDING, IN_PROGRESS, PROOF_SUBMITTED, RESUBMIT, RELEASED }
