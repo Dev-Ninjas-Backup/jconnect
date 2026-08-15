@@ -10,6 +10,16 @@ class OrderCard extends StatelessWidget {
   final OrderModel order;
   const OrderCard({super.key, required this.order});
 
+  String _formatDateTime(String raw) {
+    if (raw.isEmpty) return '';
+    try {
+      final dt = DateTime.parse(raw).toLocal();
+      return DateFormat('MMM d, yyyy · h:mm a').format(dt);
+    } catch (_) {
+      return raw;
+    }
+  }
+
   String _formatDate(String raw) {
     if (raw.isEmpty) return '';
     try {
@@ -19,13 +29,21 @@ class OrderCard extends StatelessWidget {
 
       if (diff.inMinutes < 60) {
         final mins = diff.inMinutes <= 0 ? 1 : diff.inMinutes;
-        return '${mins}m ago';
+        return '$mins ${mins == 1 ? 'min' : 'mins'} ago';
       } else if (diff.inHours < 24) {
-        return '${diff.inHours}h ago';
-      } else if (diff.inDays < 7) {
-        return '${diff.inDays}d ago';
+        final hrs = diff.inHours;
+        return '$hrs ${hrs == 1 ? 'hr' : 'hrs'} ago';
+      } else if (diff.inDays < 30) {
+        final days = diff.inDays;
+        return '$days ${days == 1 ? 'day' : 'days'} ago';
+      } else if (diff.inDays < 365) {
+        final months = (diff.inDays / 30).floor();
+        final m = months <= 0 ? 1 : months;
+        return '$m ${m == 1 ? 'month' : 'months'} ago';
       } else {
-        return DateFormat('MMM d').format(dt);
+        final years = (diff.inDays / 365).floor();
+        final y = years <= 0 ? 1 : years;
+        return '$y ${y == 1 ? 'year' : 'years'} ago';
       }
     } catch (_) {
       return raw;
@@ -67,7 +85,8 @@ class OrderCard extends StatelessWidget {
     } else if (statusLower.contains('cancel')) {
       statusColor = const Color(0xFFEF4444);
       statusIcon = Icons.cancel_outlined;
-    } else if (statusLower.contains('payment') || statusLower.contains('pending')) {
+    } else if (statusLower.contains('payment') ||
+        statusLower.contains('pending')) {
       statusColor = const Color(0xFFF59E0B);
       statusIcon = Icons.access_time_rounded;
     } else {
@@ -75,7 +94,11 @@ class OrderCard extends StatelessWidget {
       statusIcon = Icons.access_time_rounded;
     }
 
-    final formattedDate = _formatDate(order.createdAt);
+    final dateToUse = order.updatedAt.isNotEmpty
+        ? order.updatedAt
+        : order.createdAt;
+    final formattedDateTime = _formatDateTime(dateToUse);
+    final formattedAgo = _formatDate(dateToUse);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -91,10 +114,7 @@ class OrderCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Left vertical accent strip
-              Container(
-                width: 4.w,
-                color: accentColor,
-              ),
+              Container(width: 4.w, color: accentColor),
               // Main card details
               Expanded(
                 child: Padding(
@@ -152,11 +172,7 @@ class OrderCard extends StatelessWidget {
                             ],
                             Row(
                               children: [
-                                Icon(
-                                  statusIcon,
-                                  size: 13,
-                                  color: statusColor,
-                                ),
+                                Icon(statusIcon, size: 13, color: statusColor),
                                 const SizedBox(width: 4),
                                 Flexible(
                                   child: Text(
@@ -172,13 +188,11 @@ class OrderCard extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            if (formattedDate.isNotEmpty) ...[
+                            if (formattedDateTime.isNotEmpty) ...[
                               const SizedBox(height: 2),
                               Text(
-                                isReceived
-                                    ? 'Order received $formattedDate'
-                                    : 'You paid $formattedDate',
-                                maxLines: 1,
+                                '${order.statusMessage} · $formattedDateTime${formattedAgo.isNotEmpty ? " ($formattedAgo)" : ""}',
+                                maxLines: 3,
                                 overflow: TextOverflow.ellipsis,
                                 style: getTextStyle(
                                   color: const Color(0xFF64748B),
@@ -220,4 +234,3 @@ class OrderCard extends StatelessWidget {
     );
   }
 }
-
