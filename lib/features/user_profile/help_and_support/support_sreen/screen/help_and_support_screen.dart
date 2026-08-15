@@ -67,13 +67,15 @@ class HelpAndSupportScreen extends StatelessWidget {
   }
 
   Widget _menuTile(String title) {
-    return Container(
-      padding: EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.secondaryTextColor),
-      ),
-      child: ListTile(
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        padding: EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.secondaryTextColor),
+        ),
+        child: ListTile(
         contentPadding: EdgeInsets.zero,
         title: Text(
           title,
@@ -104,6 +106,7 @@ class HelpAndSupportScreen extends StatelessWidget {
           }
         },
       ),
+    ),
     );
   }
 

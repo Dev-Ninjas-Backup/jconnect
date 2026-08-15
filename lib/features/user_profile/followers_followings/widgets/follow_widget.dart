@@ -7,18 +7,21 @@ class UserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(
-        user.username,
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        title: Text(
+          user.username,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
-      ),
-      subtitle: Image.network(
-        user.profilePhoto ?? '',
-        fit: BoxFit.cover,
+        subtitle: Image.network(
+          user.profilePhoto ?? '',
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }

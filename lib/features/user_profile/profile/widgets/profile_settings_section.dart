@@ -17,15 +17,17 @@ class ProfileSettingsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.backGroundColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.secondaryTextColor),
-      ),
-      padding: EdgeInsets.symmetric(vertical: 10),
-      child: Column(
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: AppColors.backGroundColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.secondaryTextColor),
+        ),
+        padding: EdgeInsets.symmetric(vertical: 10),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
@@ -87,6 +89,7 @@ class ProfileSettingsSection extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -96,22 +99,25 @@ class ProfileSettingsSection extends StatelessWidget {
     bool isLogout = false,
     required VoidCallback onTap,
   }) {
-    return ListTile(
-      contentPadding: EdgeInsets.symmetric(horizontal: 16),
-      leading: Icon(
-        icon,
-        color: isLogout ? AppColors.redColor : AppColors.primaryTextColor,
-      ),
-      title: Text(
-        title,
-        style: getTextStyle(
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        contentPadding: EdgeInsets.symmetric(horizontal: 16),
+        leading: Icon(
+          icon,
           color: isLogout ? AppColors.redColor : AppColors.primaryTextColor,
-          fontweight: FontWeight.w500,
-          fontsize: 14,
         ),
+        title: Text(
+          title,
+          style: getTextStyle(
+            color: isLogout ? AppColors.redColor : AppColors.primaryTextColor,
+            fontweight: FontWeight.w500,
+            fontsize: 14,
+          ),
+        ),
+        trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white70),
+        onTap: onTap,
       ),
-      trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white70),
-      onTap: onTap,
     );
   }
 }

@@ -104,38 +104,41 @@ class FollowScreen extends StatelessWidget {
                               );
                               Get.toNamed(AppRoute.artistsDetailsPage);
                             },
-                            child: ListTile(
-                              leading: user.profilePhoto != null
-                                  ? CircleAvatar(
-                                      backgroundImage: NetworkImage(
-                                        user.profilePhoto!,
+                            child: Material(
+                              color: Colors.transparent,
+                              child: ListTile(
+                                leading: user.profilePhoto != null
+                                    ? CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                          user.profilePhoto!,
+                                        ),
+                                      )
+                                    : CircleAvatar(
+                                        child: Text(
+                                          user.username[0].toUpperCase(),
+                                        ),
                                       ),
-                                    )
-                                  : CircleAvatar(
-                                      child: Text(
-                                        user.username[0].toUpperCase(),
-                                      ),
-                                    ),
-                              title: Text(
-                                user.username,
-                                style: getTextStyle(
-                                  fontsize: sp(16),
-                                  fontweight: FontWeight.w500,
-                                  color: AppColors.primaryTextColor,
+                                title: Text(
+                                  user.username,
+                                  style: getTextStyle(
+                                    fontsize: sp(16),
+                                    fontweight: FontWeight.w500,
+                                    color: AppColors.primaryTextColor,
+                                  ),
                                 ),
+                                trailing: Obx(() {
+                                  final isFollowing = controller.followingUsers[user.id] ??
+                                      controller.followings.any((f) => f.id == user.id);
+                                  return CustomPrimaryButton(
+                                    buttonHeight: 4,
+                                    buttonWidth: 12,
+                                    buttonText: isFollowing ? 'Following' : 'Follow',
+                                    onTap: () {
+                                      controller.followUser(user.id);
+                                    },
+                                  );
+                                }),
                               ),
-                              trailing: Obx(() {
-                                final isFollowing = controller.followingUsers[user.id] ??
-                                    controller.followings.any((f) => f.id == user.id);
-                                return CustomPrimaryButton(
-                                  buttonHeight: 4,
-                                  buttonWidth: 12,
-                                  buttonText: isFollowing ? 'Following' : 'Follow',
-                                  onTap: () {
-                                    controller.followUser(user.id);
-                                  },
-                                );
-                              }),
                             ),
                           );
                         }).toList(),
@@ -176,38 +179,41 @@ class FollowScreen extends StatelessWidget {
                               );
                               Get.toNamed(AppRoute.artistsDetailsPage);
                             },
-                            child: ListTile(
-                              leading: user.profilePhoto != null
-                                  ? CircleAvatar(
-                                      backgroundImage: NetworkImage(
-                                        user.profilePhoto!,
+                            child: Material(
+                              color: Colors.transparent,
+                              child: ListTile(
+                                leading: user.profilePhoto != null
+                                    ? CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                          user.profilePhoto!,
+                                        ),
+                                      )
+                                    : CircleAvatar(
+                                        child: Text(
+                                          user.username[0].toUpperCase(),
+                                        ),
                                       ),
-                                    )
-                                  : CircleAvatar(
-                                      child: Text(
-                                        user.username[0].toUpperCase(),
-                                      ),
-                                    ),
-                              title: Text(
-                                user.username,
-                                style: getTextStyle(
-                                  fontsize: sp(16),
-                                  fontweight: FontWeight.w500,
-                                  color: AppColors.primaryTextColor,
+                                title: Text(
+                                  user.username,
+                                  style: getTextStyle(
+                                    fontsize: sp(16),
+                                    fontweight: FontWeight.w500,
+                                    color: AppColors.primaryTextColor,
+                                  ),
                                 ),
+                                trailing: Obx(() {
+                                  final isFollowing = controller.followingUsers[user.id] ??
+                                      controller.followings.any((f) => f.id == user.id);
+                                  return CustomPrimaryButton(
+                                    buttonHeight: 4,
+                                    buttonWidth: 12,
+                                    buttonText: isFollowing ? 'Unfollow' : 'Follow',
+                                    onTap: () {
+                                      controller.followUser(user.id);
+                                    },
+                                  );
+                                }),
                               ),
-                              trailing: Obx(() {
-                                final isFollowing = controller.followingUsers[user.id] ??
-                                    controller.followings.any((f) => f.id == user.id);
-                                return CustomPrimaryButton(
-                                  buttonHeight: 4,
-                                  buttonWidth: 12,
-                                  buttonText: isFollowing ? 'Unfollow' : 'Follow',
-                                  onTap: () {
-                                    controller.followUser(user.id);
-                                  },
-                                );
-                              }),
                             ),
                           );
                         }).toList(),
