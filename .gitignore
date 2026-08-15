@@ -60,7 +60,6 @@ macos/Flutter/flutter_export_environment.sh
 *.iws
 
 # VS Code
-.vscode/
 # =========================
 # Miscellaneous
 # =========================

@@ -14,6 +14,7 @@ class OrderModel {
   final String sellerUsername;
   final String sellerImageUrl;
   final String createdAt;
+  final String updatedAt;
 
   OrderModel({
     required this.title,
@@ -30,6 +31,7 @@ class OrderModel {
     this.sellerUsername = '',
     this.sellerImageUrl = '',
     this.createdAt = '',
+    this.updatedAt = '',
     this.raw,
   });
 
@@ -50,6 +52,7 @@ class OrderModel {
       sellerUsername: json['buyer']?['username'] ?? '',
       sellerImageUrl: json['buyer']?['profilePhoto'] ?? json['buyer']?['imageUrl'] ?? '',
       createdAt: json['createdAt'] ?? '',
+      updatedAt: json['updatedAt'] ?? json['createdAt'] ?? '',
     );
   }
 
@@ -72,6 +75,7 @@ class OrderModel {
       sellerUsername: json['seller']?['username'] ?? '',
       sellerImageUrl: json['seller']?['profilePhoto'] ?? json['seller']?['imageUrl'] ?? '',
       createdAt: json['createdAt'] ?? '',
+      updatedAt: json['updatedAt'] ?? json['createdAt'] ?? '',
     );
   }
 
@@ -92,6 +96,7 @@ class OrderModel {
     String? sellerUsername,
     String? sellerImageUrl,
     String? createdAt,
+    String? updatedAt,
   }) {
     return OrderModel(
       title: title ?? this.title,
@@ -109,6 +114,43 @@ class OrderModel {
       sellerUsername: sellerUsername ?? this.sellerUsername,
       sellerImageUrl: sellerImageUrl ?? this.sellerImageUrl,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
+  }
+
+  /// Returns a suitable status message based on status and order type
+  String get statusMessage {
+    final s = status.toUpperCase().trim();
+    final isReceived = type == 'Received';
+
+    if (s.contains('CANCEL') || s.contains('REJECT')) {
+      return 'Order cancelled';
+    } else if (s.contains('COMPLET') || s.contains('RELEASE')) {
+      return isReceived
+          ? 'Order completed & funds released'
+          : 'Order completed';
+    } else if (s.contains('PROOF') || s.contains('SUBMIT')) {
+      return isReceived
+          ? 'Proof submitted, awaiting review'
+          : 'Proof submitted, review required';
+    } else if (s.contains('ACCEPT') || s.contains('PROGRESS') || s.contains('WORK')) {
+      return isReceived
+          ? 'Order in progress'
+          : 'Creator is working on order';
+    } else if (s.contains('PENDING') || s.contains('PAYMENT')) {
+      return isReceived
+          ? 'Order received, action required'
+          : 'Order placed, payment processed';
+    } else if (s.contains('REVISION')) {
+      return isReceived
+          ? 'Revision requested by buyer'
+          : 'Revision request sent to creator';
+    }
+
+    if (s.isNotEmpty) {
+      final formatted = s[0].toUpperCase() + s.substring(1).toLowerCase();
+      return 'Order $formatted';
+    }
+    return isReceived ? 'Order received' : 'You paid';
   }
 }
