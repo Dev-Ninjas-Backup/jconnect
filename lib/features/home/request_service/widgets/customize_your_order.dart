@@ -71,67 +71,79 @@ class CustomizeYourOrder extends StatelessWidget {
               onTap: () {
                 if (controller.selectedFile.value == null) {
                   Get.bottomSheet(
-                    SafeArea(
-                      child: Wrap(
-                        children: [
-                          ListTile(
-                            leading: Icon(Icons.camera_alt,color: AppColors.primaryTextColor,),
-                            title: Text('Take Photo', style: getTextStyle(color: AppColors.primaryTextColor),),
-                            onTap: () {
-                              Get.back();
-                              controller.pickFromCamera(video: false);
-                            },
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.videocam,color: AppColors.primaryTextColor,),
-                            title: Text('Record Video', style: getTextStyle(color: AppColors.primaryTextColor),),
-                            onTap: () {
-                              Get.back();
-                              controller.pickFromCamera(video: true);
-                            },
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.photo_library,color: AppColors.primaryTextColor,),
-                            title: Text('Choose File', style: getTextStyle(color: AppColors.primaryTextColor),),
-                            onTap: () {
-                              Get.back();
-                              controller.pickFile();
-                            },
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.photo,size: 20,color: AppColors.primaryTextColor,),
-                            title: Text('Choose Photo', style: getTextStyle(color: AppColors.primaryTextColor),),
-                            onTap: () {
-                              Get.back();
-                              controller.pickFromGallery(video: false);
-                            },
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.videocam,color: AppColors.primaryTextColor,),
-                            title: Text('Choose Video', style: getTextStyle(color: AppColors.primaryTextColor),),
-                            onTap: () {
-                              Get.back();
-                              controller.pickFromGallery(video: true);
-                            },
-                          ),
-
-
-
-
-
-
-
-                          
-                          ListTile(
-                            leading: Icon(Icons.close,color: AppColors.primaryTextColor,),
-                            title: Text('Cancel', style: getTextStyle(color: AppColors.primaryTextColor),),
-                            onTap: () => Get.back(),
-                          ),
-                        ],
+                    Material(
+                      color: AppColors.backGroundColor,
+                      child: SafeArea(
+                        child: Wrap(
+                          children: [
+                            Material(
+                              color: Colors.transparent,
+                              child: ListTile(
+                                leading: Icon(Icons.camera_alt,color: AppColors.primaryTextColor,),
+                                title: Text('Take Photo', style: getTextStyle(color: AppColors.primaryTextColor),),
+                                onTap: () {
+                                  Get.back();
+                                  controller.pickFromCamera(video: false);
+                                },
+                              ),
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              child: ListTile(
+                                leading: Icon(Icons.videocam,color: AppColors.primaryTextColor,),
+                                title: Text('Record Video', style: getTextStyle(color: AppColors.primaryTextColor),),
+                                onTap: () {
+                                  Get.back();
+                                  controller.pickFromCamera(video: true);
+                                },
+                              ),
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              child: ListTile(
+                                leading: Icon(Icons.photo_library,color: AppColors.primaryTextColor,),
+                                title: Text('Choose File', style: getTextStyle(color: AppColors.primaryTextColor),),
+                                onTap: () {
+                                  Get.back();
+                                  controller.pickFile();
+                                },
+                              ),
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              child: ListTile(
+                                leading: Icon(Icons.photo,size: 20,color: AppColors.primaryTextColor,),
+                                title: Text('Choose Photo', style: getTextStyle(color: AppColors.primaryTextColor),),
+                                onTap: () {
+                                  Get.back();
+                                  controller.pickFromGallery(video: false);
+                                },
+                              ),
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              child: ListTile(
+                                leading: Icon(Icons.videocam,color: AppColors.primaryTextColor,),
+                                title: Text('Choose Video', style: getTextStyle(color: AppColors.primaryTextColor),),
+                                onTap: () {
+                                  Get.back();
+                                  controller.pickFromGallery(video: true);
+                                },
+                              ),
+                            ),
+                            Material(
+                              color: Colors.transparent,
+                              child: ListTile(
+                                leading: Icon(Icons.close,color: AppColors.primaryTextColor,),
+                                title: Text('Cancel', style: getTextStyle(color: AppColors.primaryTextColor),),
+                                onTap: () => Get.back(),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  //  backgroundColor: AppColors.secondaryTextColor.withValues(alpha: .3),
-                  backgroundColor: AppColors.backGroundColor,
+                    backgroundColor: AppColors.backGroundColor,
                   );
                 }
               },

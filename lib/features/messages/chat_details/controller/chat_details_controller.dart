@@ -365,59 +365,80 @@ class ChatDetailsController extends GetxController {
 
   void showUploadOptions(BuildContext context, String srId) {
     Get.bottomSheet(
-      SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: Icon(Icons.camera_alt, color: AppColors.primaryTextColor),
-              title: Text('Take Photo', style: getTextStyle(color: AppColors.primaryTextColor)),
-              onTap: () async {
-                Get.back();
-                final picked = await imagePicker.pickImage(source: ImageSource.camera);
-                if (picked != null) uploadReplacementFile(srId, predefinedFilePath: picked.path);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.videocam, color: AppColors.primaryTextColor),
-              title: Text('Record Video', style: getTextStyle(color: AppColors.primaryTextColor)),
-              onTap: () async {
-                Get.back();
-                final picked = await imagePicker.pickVideo(source: ImageSource.camera);
-                if (picked != null) uploadReplacementFile(srId, predefinedFilePath: picked.path);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.photo_library, color: AppColors.primaryTextColor),
-              title: Text('Choose File', style: getTextStyle(color: AppColors.primaryTextColor)),
-              onTap: () {
-                Get.back();
-                uploadReplacementFile(srId);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.photo, size: 20, color: AppColors.primaryTextColor),
-              title: Text('Choose Photo', style: getTextStyle(color: AppColors.primaryTextColor)),
-              onTap: () async {
-                Get.back();
-                final picked = await imagePicker.pickImage(source: ImageSource.gallery);
-                if (picked != null) uploadReplacementFile(srId, predefinedFilePath: picked.path);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.videocam, color: AppColors.primaryTextColor),
-              title: Text('Choose Video', style: getTextStyle(color: AppColors.primaryTextColor)),
-              onTap: () async {
-                Get.back();
-                final picked = await imagePicker.pickVideo(source: ImageSource.gallery);
-                if (picked != null) uploadReplacementFile(srId, predefinedFilePath: picked.path);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.close, color: AppColors.primaryTextColor),
-              title: Text('Cancel', style: getTextStyle(color: AppColors.primaryTextColor)),
-              onTap: () => Get.back(),
-            ),
-          ],
+      Material(
+        color: AppColors.backGroundColor,
+        child: SafeArea(
+          child: Wrap(
+            children: [
+              Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  leading: Icon(Icons.camera_alt, color: AppColors.primaryTextColor),
+                  title: Text('Take Photo', style: getTextStyle(color: AppColors.primaryTextColor)),
+                  onTap: () async {
+                    Get.back();
+                    final picked = await imagePicker.pickImage(source: ImageSource.camera);
+                    if (picked != null) uploadReplacementFile(srId, predefinedFilePath: picked.path);
+                  },
+                ),
+              ),
+              Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  leading: Icon(Icons.videocam, color: AppColors.primaryTextColor),
+                  title: Text('Record Video', style: getTextStyle(color: AppColors.primaryTextColor)),
+                  onTap: () async {
+                    Get.back();
+                    final picked = await imagePicker.pickVideo(source: ImageSource.camera);
+                    if (picked != null) uploadReplacementFile(srId, predefinedFilePath: picked.path);
+                  },
+                ),
+              ),
+              Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  leading: Icon(Icons.photo_library, color: AppColors.primaryTextColor),
+                  title: Text('Choose File', style: getTextStyle(color: AppColors.primaryTextColor)),
+                  onTap: () {
+                    Get.back();
+                    uploadReplacementFile(srId);
+                  },
+                ),
+              ),
+              Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  leading: Icon(Icons.photo, size: 20, color: AppColors.primaryTextColor),
+                  title: Text('Choose Photo', style: getTextStyle(color: AppColors.primaryTextColor)),
+                  onTap: () async {
+                    Get.back();
+                    final picked = await imagePicker.pickImage(source: ImageSource.gallery);
+                    if (picked != null) uploadReplacementFile(srId, predefinedFilePath: picked.path);
+                  },
+                ),
+              ),
+              Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  leading: Icon(Icons.videocam, color: AppColors.primaryTextColor),
+                  title: Text('Choose Video', style: getTextStyle(color: AppColors.primaryTextColor)),
+                  onTap: () async {
+                    Get.back();
+                    final picked = await imagePicker.pickVideo(source: ImageSource.gallery);
+                    if (picked != null) uploadReplacementFile(srId, predefinedFilePath: picked.path);
+                  },
+                ),
+              ),
+              Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  leading: Icon(Icons.close, color: AppColors.primaryTextColor),
+                  title: Text('Cancel', style: getTextStyle(color: AppColors.primaryTextColor)),
+                  onTap: () => Get.back(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       backgroundColor: AppColors.backGroundColor,

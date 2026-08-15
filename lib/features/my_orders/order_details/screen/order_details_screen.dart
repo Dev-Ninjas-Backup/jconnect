@@ -186,120 +186,141 @@ class OrderDetailsScreen extends StatelessWidget {
     // Show bottom sheet with selection options
     if (!context.mounted) return;
     Get.bottomSheet(
-      SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: Icon(
-                Icons.camera_alt,
-                color: AppColors.primaryTextColor,
+      Material(
+        color: AppColors.backGroundColor,
+        child: SafeArea(
+          child: Wrap(
+            children: [
+              Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  leading: Icon(
+                    Icons.camera_alt,
+                    color: AppColors.primaryTextColor,
+                  ),
+                  title: Text(
+                    'Take Photo',
+                    style: getTextStyle(color: AppColors.primaryTextColor),
+                  ),
+                  onTap: () async {
+                    Get.back();
+                    final XFile? xfile = await picker.pickImage(
+                      source: ImageSource.camera,
+                      imageQuality: 85,
+                    );
+                    if (xfile == null) return;
+                    await _showConfirm(File(xfile.path), xfile.name);
+                  },
+                ),
               ),
-              title: Text(
-                'Take Photo',
-                style: getTextStyle(color: AppColors.primaryTextColor),
+              Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  leading: Icon(Icons.videocam, color: AppColors.primaryTextColor),
+                  title: Text(
+                    'Record Video',
+                    style: getTextStyle(color: AppColors.primaryTextColor),
+                  ),
+                  onTap: () async {
+                    Get.back();
+                    final XFile? xfile = await picker.pickVideo(
+                      source: ImageSource.camera,
+                    );
+                    if (xfile == null) return;
+                    await _showConfirm(File(xfile.path), xfile.name);
+                  },
+                ),
               ),
-              onTap: () async {
-                Get.back();
-                final XFile? xfile = await picker.pickImage(
-                  source: ImageSource.camera,
-                  imageQuality: 85,
-                );
-                if (xfile == null) return;
-                await _showConfirm(File(xfile.path), xfile.name);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.videocam, color: AppColors.primaryTextColor),
-              title: Text(
-                'Record Video',
-                style: getTextStyle(color: AppColors.primaryTextColor),
+              Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  leading: Icon(
+                    Icons.photo_library,
+                    color: AppColors.primaryTextColor,
+                  ),
+                  title: Text(
+                    'Choose File',
+                    style: getTextStyle(color: AppColors.primaryTextColor),
+                  ),
+                  onTap: () async {
+                    Get.back();
+                    final result = await FilePicker.platform.pickFiles(
+                      type: FileType.custom,
+                      allowedExtensions: [
+                        'mp3',
+                        'mp4',
+                        'jpg',
+                        'jpeg',
+                        'png',
+                        'gif',
+                        'pdf',
+                        'mov',
+                        'avi',
+                        'flv',
+                        'wav',
+                        'aac',
+                      ],
+                    );
+                    if (result == null || result.files.single.path == null) return;
+                    final file = File(result.files.single.path!);
+                    await _showConfirm(file, result.files.single.name);
+                  },
+                ),
               ),
-              onTap: () async {
-                Get.back();
-                final XFile? xfile = await picker.pickVideo(
-                  source: ImageSource.camera,
-                );
-                if (xfile == null) return;
-                await _showConfirm(File(xfile.path), xfile.name);
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.photo_library,
-                color: AppColors.primaryTextColor,
+              Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  leading: Icon(
+                    Icons.photo,
+                    size: 20,
+                    color: AppColors.primaryTextColor,
+                  ),
+                  title: Text(
+                    'Choose Photo',
+                    style: getTextStyle(color: AppColors.primaryTextColor),
+                  ),
+                  onTap: () async {
+                    Get.back();
+                    final XFile? xfile = await picker.pickImage(
+                      source: ImageSource.gallery,
+                      imageQuality: 85,
+                    );
+                    if (xfile == null) return;
+                    await _showConfirm(File(xfile.path), xfile.name);
+                  },
+                ),
               ),
-              title: Text(
-                'Choose File',
-                style: getTextStyle(color: AppColors.primaryTextColor),
+              Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  leading: Icon(Icons.videocam, color: AppColors.primaryTextColor),
+                  title: Text(
+                    'Choose Video',
+                    style: getTextStyle(color: AppColors.primaryTextColor),
+                  ),
+                  onTap: () async {
+                    Get.back();
+                    final XFile? xfile = await picker.pickVideo(
+                      source: ImageSource.gallery,
+                    );
+                    if (xfile == null) return;
+                    await _showConfirm(File(xfile.path), xfile.name);
+                  },
+                ),
               ),
-              onTap: () async {
-                Get.back();
-                final result = await FilePicker.platform.pickFiles(
-                  type: FileType.custom,
-                  allowedExtensions: [
-                    'mp3',
-                    'mp4',
-                    'jpg',
-                    'jpeg',
-                    'png',
-                    'gif',
-                    'pdf',
-                    'mov',
-                    'avi',
-                    'flv',
-                    'wav',
-                    'aac',
-                  ],
-                );
-                if (result == null || result.files.single.path == null) return;
-                final file = File(result.files.single.path!);
-                await _showConfirm(file, result.files.single.name);
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.photo,
-                size: 20,
-                color: AppColors.primaryTextColor,
+              Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  leading: Icon(Icons.close, color: AppColors.primaryTextColor),
+                  title: Text(
+                    'Cancel',
+                    style: getTextStyle(color: AppColors.primaryTextColor),
+                  ),
+                  onTap: () => Get.back(),
+                ),
               ),
-              title: Text(
-                'Choose Photo',
-                style: getTextStyle(color: AppColors.primaryTextColor),
-              ),
-              onTap: () async {
-                Get.back();
-                final XFile? xfile = await picker.pickImage(
-                  source: ImageSource.gallery,
-                  imageQuality: 85,
-                );
-                if (xfile == null) return;
-                await _showConfirm(File(xfile.path), xfile.name);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.videocam, color: AppColors.primaryTextColor),
-              title: Text(
-                'Choose Video',
-                style: getTextStyle(color: AppColors.primaryTextColor),
-              ),
-              onTap: () async {
-                Get.back();
-                final XFile? xfile = await picker.pickVideo(
-                  source: ImageSource.gallery,
-                );
-                if (xfile == null) return;
-                await _showConfirm(File(xfile.path), xfile.name);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.close, color: AppColors.primaryTextColor),
-              title: Text(
-                'Cancel',
-                style: getTextStyle(color: AppColors.primaryTextColor),
-              ),
-              onTap: () => Get.back(),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       backgroundColor: AppColors.backGroundColor,

@@ -78,13 +78,15 @@ class FrequentlyAskedQuestionsScreen extends StatelessWidget {
   Widget _menuTile(String title) {
     return Padding(
       padding: EdgeInsets.all(6.0),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.secondaryTextColor),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: EdgeInsets.all(6),
-        child: ListTile(
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.secondaryTextColor),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: EdgeInsets.all(6),
+          child: ListTile(
           contentPadding: EdgeInsets.zero,
           title: Text(
             title,
@@ -150,6 +152,7 @@ class FrequentlyAskedQuestionsScreen extends StatelessWidget {
           },
         ),
       ),
+    ),
     );
   }
 
