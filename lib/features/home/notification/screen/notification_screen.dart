@@ -184,6 +184,8 @@ class NotificationScreen extends StatelessWidget {
                           const SizedBox(height: 6),
                           Text(
                             notification.message,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontSize: 14),
                           ),
                           const SizedBox(height: 8),
