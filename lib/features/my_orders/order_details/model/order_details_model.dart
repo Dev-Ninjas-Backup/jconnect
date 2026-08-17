@@ -21,6 +21,7 @@ class OrderDetailsModel {
   final String status;
   final String orderCreated;
   final String deliveryDate;
+  final String cancelledAt;
   final double servicePrice;
   final String platformRate;
   final double platformFee;
@@ -52,6 +53,7 @@ class OrderDetailsModel {
     required this.status,
     required this.orderCreated,
     required this.deliveryDate,
+    this.cancelledAt = '',
     required this.servicePrice,
     required this.platformRate,
     required this.platformFee,
@@ -84,6 +86,7 @@ class OrderDetailsModel {
     String? status,
     String? orderCreated,
     String? deliveryDate,
+    String? cancelledAt,
     double? servicePrice,
     String? platformRate,
     double? platformFee,
@@ -115,6 +118,7 @@ class OrderDetailsModel {
       status: status ?? this.status,
       orderCreated: orderCreated ?? this.orderCreated,
       deliveryDate: deliveryDate ?? this.deliveryDate,
+      cancelledAt: cancelledAt ?? this.cancelledAt,
       servicePrice: servicePrice ?? this.servicePrice,
       platformRate: platformRate ?? this.platformRate,
       platformFee: platformFee ?? this.platformFee,
@@ -237,6 +241,8 @@ class OrderDetailsModel {
       }
     }
 
+    final cancelledAt = pickString(['cancelledAt', 'cancelled_at'], '');
+
     final result = OrderDetailsModel(
       id: pickString(['id']),
       orderCode: pickString(['orderCode']),
@@ -256,6 +262,7 @@ class OrderDetailsModel {
       status: pickString(['status'], ''),
       orderCreated: pickString(['createdAt'], ''),
       deliveryDate: pickString(['deliveryDate'], ''),
+      cancelledAt: cancelledAt,
       servicePrice: servicePrice,
       platformRate: pickString(['platformFee_percents'], ''),
       platformFee: platformFee,

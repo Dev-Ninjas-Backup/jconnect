@@ -673,10 +673,28 @@ class OrderDetailsScreen extends StatelessWidget {
                             'Order Created',
                             _formatDate(order.orderCreated),
                           ),
-                          _buildDetailRow(
-                            'Delivery Date',
-                            _formatDate(order.deliveryDate),
-                          ),
+                          if (order.status.toUpperCase() == 'CANCELLED' ||
+                              order.cancelledAt.isNotEmpty)
+                            _buildDetailRow(
+                              'Cancelled Date',
+                              _formatDate(
+                                order.cancelledAt.isNotEmpty
+                                    ? order.cancelledAt
+                                    : order.orderCreated,
+                              ),
+                            )
+                          else if (order.status.toUpperCase() == 'RELEASED' ||
+                              order.status.toUpperCase() == 'COMPLETED' ||
+                              order.status.toUpperCase() == 'COMPLETE')
+                            _buildDetailRow(
+                              'Delivered Date',
+                              _formatDate(order.deliveryDate),
+                            )
+                          else
+                            _buildDetailRow(
+                              'Delivery Date',
+                              _formatDate(order.deliveryDate),
+                            ),
                           _buildDetailRow(
                             'Service Price',
                             '\$${(order.servicePrice / 100).toStringAsFixed(2)}',
@@ -1295,7 +1313,12 @@ class OrderDetailsScreen extends StatelessWidget {
   String _formatDate(String raw) {
     if (raw.isEmpty) return '-';
     try {
-      final dt = DateTime.parse(raw).toLocal();
+      DateTime dt;
+      if (RegExp(r'^\d+$').hasMatch(raw)) {
+        dt = DateTime.fromMillisecondsSinceEpoch(int.parse(raw)).toLocal();
+      } else {
+        dt = DateTime.parse(raw).toLocal();
+      }
       return DateFormat('MMM d, yyyy · h:mm a').format(dt);
     } catch (_) {
       return raw;
