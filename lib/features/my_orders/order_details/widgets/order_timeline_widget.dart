@@ -25,8 +25,14 @@ class OrderTimelineWidget extends StatelessWidget {
   });
 
   String _formatDateShort(String iso) {
+    if (iso.isEmpty) return '';
     try {
-      final dt = DateTime.parse(iso);
+      DateTime dt;
+      if (RegExp(r'^\d+$').hasMatch(iso)) {
+        dt = DateTime.fromMillisecondsSinceEpoch(int.parse(iso)).toLocal();
+      } else {
+        dt = DateTime.parse(iso).toLocal();
+      }
       const months = [
         'Jan',
         'Feb',
