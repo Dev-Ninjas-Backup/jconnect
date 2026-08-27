@@ -13,6 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:photo_view/photo_view.dart';
 import 'dart:io';
 import 'package:just_audio/just_audio.dart';
+import 'package:share_plus/share_plus.dart';
 
 class OrderTimelineWidget extends StatelessWidget {
   final List<OrderTimelineStep> timeline;
@@ -301,6 +302,49 @@ class OrderTimelineWidget extends StatelessWidget {
     } catch (e) {
       EasyLoading.showError('Error: $e');
     }
+  }
+
+  Future<void> _shareAttachment() async {
+    if (proofUrl.isEmpty) {
+      EasyLoading.showError('No attachment available');
+      return;
+    }
+
+    try {
+      await SharePlus.instance.share(
+        ShareParams(
+          text: proofUrl.last,
+          subject: 'Proof attachment',
+        ),
+      );
+    } catch (e) {
+      EasyLoading.showError('Error sharing: $e');
+    }
+  }
+
+  Widget _attachmentAction({
+    required IconData icon,
+    required Color color,
+    required String tooltip,
+    required VoidCallback onTap,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(4),
+        child: Container(
+          height: 32,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: color.withValues(alpha: 0.3)),
+          ),
+          child: Icon(icon, size: 16, color: color),
+        ),
+      ),
+    );
   }
 
   String _getFileExtension(String url) {
@@ -596,6 +640,12 @@ class OrderTimelineWidget extends StatelessWidget {
                                 Padding(
                                   padding: const EdgeInsets.only(top: 8),
                                   child: Container(
+
+
+
+                                    
+
+
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 10,
                                       vertical: 8,
@@ -633,90 +683,31 @@ class OrderTimelineWidget extends StatelessWidget {
                                         SizedBox(height: 8),
                                         Row(
                                           children: [
-                                            GestureDetector(
-                                              onTap: () =>
-                                                  _viewAttachment(context),
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 10,
-                                                  vertical: 4,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: AppColors.redColor
-                                                      .withValues(alpha: 0.15),
-                                                  borderRadius:
-                                                      BorderRadius.circular(4),
-                                                  border: Border.all(
-                                                    color: AppColors.redColor
-                                                        .withValues(
-                                                      alpha: 0.4,
-                                                    ),
-                                                  ),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Icon(
-                                                      Icons
-                                                          .visibility_outlined,
-                                                      size: 12,
-                                                      color: AppColors.redColor,
-                                                    ),
-                                                    SizedBox(width: 4),
-                                                    Text(
-                                                      'View',
-                                                      style: getTextStyle(
-                                                        color:
-                                                            AppColors.redColor,
-                                                        fontsize: 10,
-                                                        fontweight:
-                                                            FontWeight.w600,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
+                                            Expanded(
+                                              child: _attachmentAction(
+                                                icon: Icons.visibility_outlined,
+                                                color: AppColors.redColor,
+                                                tooltip: 'View attachment',
+                                                onTap: () =>
+                                                    _viewAttachment(context),
                                               ),
                                             ),
-                                            SizedBox(width: 8),
-                                            GestureDetector(
-                                              onTap: _downloadAttachment,
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 10,
-                                                  vertical: 4,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white10,
-                                                  borderRadius:
-                                                      BorderRadius.circular(4),
-                                                  border: Border.all(
-                                                    color: Colors.white24,
-                                                  ),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Icon(
-                                                      Icons.download_rounded,
-                                                      size: 12,
-                                                      color: Colors.white70,
-                                                    ),
-                                                    SizedBox(width: 4),
-                                                    Text(
-                                                      'Download',
-                                                      style: getTextStyle(
-                                                        color: Colors.white,
-                                                        fontsize: 10,
-                                                        fontweight:
-                                                            FontWeight.w600,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
+                                            SizedBox(width: 6),
+                                            Expanded(
+                                              child: _attachmentAction(
+                                                icon: Icons.download_rounded,
+                                                color: Colors.greenAccent,
+                                                tooltip: 'Download attachment',
+                                                onTap: _downloadAttachment,
+                                              ),
+                                            ),
+                                            SizedBox(width: 6),
+                                            Expanded(
+                                              child: _attachmentAction(
+                                                icon: Icons.share_outlined,
+                                                color: Colors.white70,
+                                                tooltip: 'Share attachment',
+                                                onTap: _shareAttachment,
                                               ),
                                             ),
                                           ],

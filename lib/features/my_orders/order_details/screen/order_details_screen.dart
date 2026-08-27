@@ -562,6 +562,22 @@ class OrderDetailsScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _shareFile(String fileUrl) async {
+    try {
+      await SharePlus.instance.share(
+        ShareParams(
+          text: fileUrl,
+          subject: 'Order attachment',
+        ),
+      );
+    } catch (e) {
+      EasyLoading.showError(
+        'Error sharing file: $e',
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
   Future<void> _cancelOrder({
     required BuildContext context,
     required OrderDetailsModel order,
@@ -853,43 +869,66 @@ class OrderDetailsScreen extends StatelessWidget {
                               ),
                               SizedBox(height: 8),
                               ...order.files.map((fileUrl) {
-                                final fileName = fileUrl.split('/').last;
+                                final fileName = fileUrl.split('/').last.split('?').first;
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 8.0),
-                                  child: InkWell(
-                                    onTap: () => _viewFile(context, fileUrl),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 10,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF1E1E1E),
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: Colors.white12),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.attach_file,
-                                            color: AppColors.redColor,
-                                            size: 20,
-                                          ),
-                                          SizedBox(width: 10),
-                                          Expanded(
-                                            child: Text(
-                                              fileName,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: getTextStyle(
-                                                color: AppColors.primaryTextColor,
-                                                fontsize: 13,
-                                              ),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF1E1E1E),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: Colors.white12),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.attach_file,
+                                          color: AppColors.redColor,
+                                          size: 20,
+                                        ),
+                                        SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            fileName,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: getTextStyle(
+                                              color: AppColors.primaryTextColor,
+                                              fontsize: 13,
                                             ),
                                           ),
-                                          //   Icon(Icons.open_in_new, color: AppColors.secondaryTextColor, size: 16),
-                                        ],
-                                      ),
+                                        ),
+                                        IconButton(
+                                          tooltip: 'View attachment',
+                                          onPressed: () => _viewFile(context, fileUrl),
+                                          icon: Icon(
+                                            Icons.visibility_outlined,
+                                            color: AppColors.secondaryTextColor,
+                                            size: 19,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          tooltip: 'Download attachment',
+                                          onPressed: () => _downloadFile(fileUrl),
+                                          icon: Icon(
+                                            Icons.download_outlined,
+                                            color: AppColors.secondaryTextColor,
+                                            size: 19,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          tooltip: 'Share attachment',
+                                          onPressed: () => _shareFile(fileUrl),
+                                          icon: Icon(
+                                            Icons.share_outlined,
+                                            color: AppColors.redColor,
+                                            size: 19,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 );
