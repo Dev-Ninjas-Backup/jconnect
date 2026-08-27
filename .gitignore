@@ -55,6 +55,7 @@ macos/Flutter/flutter_export_environment.sh
 # =========================
 
 .idea/
+.vscode/
 *.iml
 *.ipr
 *.iws
