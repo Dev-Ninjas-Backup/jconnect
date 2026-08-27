@@ -60,12 +60,6 @@
 @import just_audio;
 #endif
 
-#if __has_include(<path_provider_foundation/PathProviderPlugin.h>)
-#import <path_provider_foundation/PathProviderPlugin.h>
-#else
-@import path_provider_foundation;
-#endif
-
 #if __has_include(<permission_handler_apple/PermissionHandlerPlugin.h>)
 #import <permission_handler_apple/PermissionHandlerPlugin.h>
 #else
@@ -114,8 +108,8 @@
 @import url_launcher_ios;
 #endif
 
-#if __has_include(<video_player_avfoundation/FVPVideoPlayerPlugin.h>)
-#import <video_player_avfoundation/FVPVideoPlayerPlugin.h>
+#if __has_include(<video_player_avfoundation/VideoPlayerPlugin.h>)
+#import <video_player_avfoundation/VideoPlayerPlugin.h>
 #else
 @import video_player_avfoundation;
 #endif
@@ -132,7 +126,6 @@
   [FLTGoogleSignInPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTGoogleSignInPlugin"]];
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];
   [JustAudioPlugin registerWithRegistrar:[registry registrarForPlugin:@"JustAudioPlugin"]];
-  [PathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"PathProviderPlugin"]];
   [PermissionHandlerPlugin registerWithRegistrar:[registry registrarForPlugin:@"PermissionHandlerPlugin"]];
   [RecordIosPlugin registerWithRegistrar:[registry registrarForPlugin:@"RecordIosPlugin"]];
   [FPPSharePlusPlugin registerWithRegistrar:[registry registrarForPlugin:@"FPPSharePlusPlugin"]];
@@ -141,7 +134,7 @@
   [SqflitePlugin registerWithRegistrar:[registry registrarForPlugin:@"SqflitePlugin"]];
   [StripeIosPlugin registerWithRegistrar:[registry registrarForPlugin:@"StripeIosPlugin"]];
   [URLLauncherPlugin registerWithRegistrar:[registry registrarForPlugin:@"URLLauncherPlugin"]];
-  [FVPVideoPlayerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FVPVideoPlayerPlugin"]];
+  [VideoPlayerPlugin registerWithRegistrar:[registry registrarForPlugin:@"VideoPlayerPlugin"]];
 }
 
 @end

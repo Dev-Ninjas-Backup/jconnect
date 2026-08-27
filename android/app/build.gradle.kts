@@ -7,23 +7,20 @@ plugins {
 
 android {
     namespace = "com.jconnectApp"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-        isCoreLibraryDesugaringEnabled = true
-    }
+compileOptions {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    isCoreLibraryDesugaringEnabled = true
+}
 
-    kotlinOptions {
-        jvmTarget = "11"
-    }
 
     defaultConfig {
         applicationId = "com.jconnectApp"
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -45,6 +42,12 @@ android {
 
 flutter {
     source = "../.."
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
 }
 
 dependencies {
