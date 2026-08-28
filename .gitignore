@@ -55,7 +55,6 @@ macos/Flutter/flutter_export_environment.sh
 # =========================
 
 .idea/
-.vscode/
 *.iml
 *.ipr
 *.iws
@@ -89,3 +88,6 @@ lib/secrets/stripe_key.dart
 
 # Temporary scripts/files
 migrate_working_dir/.gitignore
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
