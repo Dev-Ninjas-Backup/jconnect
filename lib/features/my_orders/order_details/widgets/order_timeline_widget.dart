@@ -304,6 +304,87 @@ class OrderTimelineWidget extends StatelessWidget {
     }
   }
 
+
+
+  Future<void> downloadFile(String fileUrl) async {
+    try {
+      EasyLoading.show(
+        status: 'Downloading...',
+        maskType: EasyLoadingMaskType.black,
+      );
+
+      // Step 1: Download the file
+      final response = await http.get(Uri.parse(fileUrl));
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        EasyLoading.dismiss();
+        EasyLoading.showError(
+          'Download failed: ${response.statusCode}',
+          duration: const Duration(seconds: 2),
+        );
+        return;
+      }
+
+      // Step 2: Extract file name and type
+      final String fileName = fileUrl.split('/').last.split('?').first;
+
+      // Step 3: Save to temporary directory first
+      final tempDir = await getTemporaryDirectory();
+      final File tempFile = File('${tempDir.path}/$fileName');
+      await tempFile.writeAsBytes(response.bodyBytes);
+
+      EasyLoading.dismiss();
+
+      // Step 4: Show file info
+      final fileSizeInMB = (response.bodyBytes.length / (1024 * 1024)).toStringAsFixed(2);
+      debugPrint('✅ File downloaded successfully');
+      debugPrint('📁 File name: $fileName');
+      debugPrint('📊 File size: $fileSizeInMB MB');
+      debugPrint('📱 Temp path: ${tempFile.path}');
+
+      // Step 5: Show success message and open share sheet immediately
+      EasyLoading.showSuccess(
+        '📥 Tap to save to Files',
+        duration: const Duration(seconds: 2),
+      );
+
+      // Step 6: Open iOS Share Sheet to save to Files app
+      await Future.delayed(const Duration(milliseconds: 500));
+      _openShareSheet(tempFile, fileName);
+    } catch (e) {
+      EasyLoading.dismiss();
+      debugPrint('❌ Download error: $e');
+      EasyLoading.showError(
+        'Error downloading: $e',
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
+  Future<void> _openShareSheet(File file, String fileName) async {
+    try {
+      final result = await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          text: 'Downloaded file: $fileName',
+        ),
+      );
+
+      debugPrint('📤 Share sheet result: $result');
+    } catch (e) {
+      debugPrint('❌ Share sheet error: $e');
+      EasyLoading.showError(
+        'Error sharing: $e',
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
+
+
+
+
+
+
   Future<void> _shareAttachment() async {
     if (proofUrl.isEmpty) {
       EasyLoading.showError('No attachment available');
@@ -698,7 +779,8 @@ class OrderTimelineWidget extends StatelessWidget {
                                                 icon: Icons.download_rounded,
                                                 color: Colors.greenAccent,
                                                 tooltip: 'Download attachment',
-                                                onTap: _downloadAttachment,
+                                                onTap: () => downloadFile(proofUrl.last),
+                                                // _downloadAttachment,
                                               ),
                                             ),
                                             SizedBox(width: 6),
