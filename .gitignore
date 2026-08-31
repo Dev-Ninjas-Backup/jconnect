@@ -1,5 +1,7 @@
 # =========================
+
 # Flutter / Dart
+
 # =========================
 
 .dart_tool/
@@ -10,40 +12,53 @@
 .flutter-plugins-dependencies
 build/
 coverage/
+public/fonts/
 
 # Generated API documentation
+
 **/doc/api/
 
 # =========================
+
 # Android
+
 # =========================
 
 # Android Gradle cache
+
 android/.gradle/
 
 # Android local machine configuration
+
 android/local.properties
 
 # Android build artifacts
+
 /android/app/debug
 /android/app/profile
 /android/app/release
 
 # =========================
+
 # iOS
+
 # =========================
 
 # Flutter generated iOS files
+
 **/ios/Flutter/.last_build_id
 ios/Flutter/Generated.xcconfig
 ios/Flutter/flutter_export_environment.sh
 ios/Flutter/ephemeral/
 
 # Uncomment if you don't want to commit CocoaPods
+
 # ios/Pods/
 
 # =========================
+
 # macOS
+
 # =========================
 
 macos/Flutter/ephemeral/
@@ -51,17 +66,23 @@ macos/Flutter/flutter_export_environment.sh
 .DS_Store
 
 # =========================
+
 # IDE / Editor
+
 # =========================
 
 .idea/
+.vscode/
 *.iml
 *.ipr
 *.iws
 
 # VS Code
+
 # =========================
+
 # Miscellaneous
+
 # =========================
 
 *.class
@@ -74,20 +95,22 @@ macos/Flutter/flutter_export_environment.sh
 .atom/
 
 # =========================
+
 # Symbolication / Obfuscation
+
 # =========================
 
 app.*.symbols
 app.*.map.json
 
 # =========================
+
 # Secrets / Local Files
+
 # =========================
 
 lib/secrets/stripe_key.dart
 
 # Temporary scripts/files
+
 migrate_working_dir/.gitignore
-branch_structure.json
-temp_auto_push.bat
-temp_interactive_push.bat
