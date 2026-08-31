@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:jconnect/core/common/constants/iconpath.dart';
 import 'package:jconnect/core/utils/image_helper.dart';
 
 class ChatDetailsAppBar extends StatelessWidget {
@@ -28,7 +30,8 @@ class ChatDetailsAppBar extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: onBackPressed ?? () => Get.back(),
-              child: const Icon(Icons.arrow_back, color: Colors.white),
+              child: Image.asset(Iconpath.backIcon,height: 36.h,width: 36.w),
+           //   child: const Icon(Icons.arrow_back, color: Colors.white),
             ),
             const SizedBox(width: 10),
             CircleAvatar(

@@ -2,8 +2,11 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:jconnect/core/common/constants/iconpath.dart';
+import 'package:jconnect/core/common/widgets/custom_app_bar2.dart';
 import 'package:jconnect/core/common/widgets/custom_snackbar.dart';
 import 'package:jconnect/core/service/network_service/network_client.dart';
 import 'package:jconnect/features/home/artists_details_screen/controller/artists_details_controller.dart';
@@ -28,184 +31,187 @@ class NotificationScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text(
-          'Notifications',
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.black,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Get.back();
-          },
-        ),
-      ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return Center(
-            child: const CircularProgressIndicator(color: Colors.white),
-          );
-        }
-
-        if (controller.notifications.isEmpty) {
-          return const Center(
-            child: Text(
-              'No notifications',
-              style: TextStyle(color: Colors.white),
-            ),
-          );
-        }
-
-        return ListView.builder(
-          padding: const EdgeInsets.all(12),
-          itemCount: controller.notifications.length,
-          itemBuilder: (context, index) {
-            final AppNotification notification =
-                controller.notifications[index];
-
-            return GestureDetector(
-              onTap: () async {
-                final titleLower = notification.title.toLowerCase();
-                // ignore: unused_local_variable
-                final messageLower = notification.message.toLowerCase();
-                final typeLower = notification.type?.toLowerCase() ?? '';
-
-                if (titleLower.contains(' new review from')) {
-                  Get.toNamed(AppRoute.getReviewScreen());
-                } else if (titleLower.contains('decline') ||
-                    titleLower.contains('declined') ||
-                    titleLower.contains('inquiry') ||
-                    typeLower == 'inquiry' ||
-                    typeLower == 'inquiry.create' ||
-                    titleLower.contains('message') ||
-                    typeLower == 'message' ||
-                    typeLower == 'chat' ||
-                    titleLower.contains('promotion')) {
-                  _navigateToChat(notification);
-                } else if (notification.title.contains("Service")) {
-                  final artistId =
-                      notification.userId ?? notification.creatorId;
-
-                  if (artistId == null) {
-                    return;
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 12.h, bottom: 12.h),
+          child: Column(
+            children: [
+              CustomAppBar2(
+                title: 'Notifications',
+                leadingIconUrl: Iconpath.backIcon,
+                onLeadingTap: () {
+                  Get.back();
+                },
+              ),
+              SizedBox(height: 16.h),
+              Expanded(
+                child: Obx(() {
+                  if (controller.isLoading.value) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    );
                   }
 
-                  final artistsDetailsController = Get.put(
-                    ArtistsDetailsController(
-                      networkClient: NetworkClient(
-                        onUnAuthorize: () {
-                          if (kDebugMode) print("unauthorized");
-                        },
+                  if (controller.notifications.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No notifications',
+                        style: TextStyle(color: Colors.white),
                       ),
-                    ),
-                  );
+                    );
+                  }
 
-                  await artistsDetailsController.fetchArtistById(artistId);
-                  Get.toNamed(
-                    AppRoute.artistsDetailsPage,
-                    parameters: {'id': artistId},
-                  );
-                } else {
-                  final fcmController = Get.find<FcmNotificationController>();
-                  final Map<String, dynamic> data = Map<String, dynamic>.from(
-                    notification.meta ?? {},
-                  );
-                  data['type'] = notification.type;
-                  data['title'] = notification.title;
-                  data['message'] = notification.message;
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(12),
+                    itemCount: controller.notifications.length,
+                    itemBuilder: (context, index) {
+                      final AppNotification notification =
+                          controller.notifications[index];
 
-                  fcmController.routeFromNotificationData(
-                    data: data,
-                    title: notification.title,
-                    body: notification.message,
-                  );
-                }
-              },
+                      return GestureDetector(
+                        onTap: () async {
+                          final titleLower = notification.title.toLowerCase();
+                          final typeLower = notification.type?.toLowerCase() ?? '';
 
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(.05),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: Colors.blue.shade50,
-                      child: Icon(
-                        Icons.notifications,
-                        color: Colors.blue.shade700,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  notification.title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                  ),
+                          if (titleLower.contains(' new review from')) {
+                            Get.toNamed(AppRoute.getReviewScreen());
+                          } else if (titleLower.contains('decline') ||
+                              titleLower.contains('declined') ||
+                              titleLower.contains('inquiry') ||
+                              typeLower == 'inquiry' ||
+                              typeLower == 'inquiry.create' ||
+                              titleLower.contains('message') ||
+                              typeLower == 'message' ||
+                              typeLower == 'chat' ||
+                              titleLower.contains('promotion')) {
+                            _navigateToChat(notification);
+                          } else if (notification.title.contains("Service")) {
+                            final artistId =
+                                notification.userId ?? notification.creatorId;
+
+                            if (artistId == null) {
+                              return;
+                            }
+
+                            final artistsDetailsController = Get.put(
+                              ArtistsDetailsController(
+                                networkClient: NetworkClient(
+                                  onUnAuthorize: () {
+                                    if (kDebugMode) print("unauthorized");
+                                  },
                                 ),
                               ),
-                              notification.title == "New Inquiry Received"
-                                  ? GestureDetector(
-                                      onTap: () =>
-                                          _navigateToChat(notification),
-                                      child: Icon(
-                                        Icons.message,
-                                        color: Colors.greenAccent,
-                                        size: 24,
-                                      ),
-                                    )
-                                  : SizedBox.shrink(),
+                            );
+
+                            await artistsDetailsController.fetchArtistById(artistId);
+                            Get.toNamed(
+                              AppRoute.artistsDetailsPage,
+                              parameters: {'id': artistId},
+                            );
+                          } else {
+                            final fcmController = Get.find<FcmNotificationController>();
+                            final Map<String, dynamic> data = Map<String, dynamic>.from(
+                              notification.meta ?? {},
+                            );
+                            data['type'] = notification.type;
+                            data['title'] = notification.title;
+                            data['message'] = notification.message;
+
+                            fcmController.routeFromNotificationData(
+                              data: data,
+                              title: notification.title,
+                              body: notification.message,
+                            );
+                          }
+                        },
+
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
                             ],
                           ),
-                          const SizedBox(height: 6),
-                          Text(
-                            notification.message,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 14),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundColor: Colors.blue.shade50,
+                                child: Icon(
+                                  Icons.notifications,
+                                  color: Colors.blue.shade700,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            notification.title,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15,
+                                            ),
+                                          ),
+                                        ),
+                                        notification.title == "New Inquiry Received"
+                                            ? GestureDetector(
+                                                onTap: () =>
+                                                    _navigateToChat(notification),
+                                                child: const Icon(
+                                                  Icons.message,
+                                                  color: Colors.greenAccent,
+                                                  size: 24,
+                                                ),
+                                              )
+                                            : const SizedBox.shrink(),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      notification.message,
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      _formatDate(notification.createdAt),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            _formatDate(notification.createdAt),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                        ),
+                      );
+                    },
+                  );
+                }),
               ),
-            );
-          },
-        );
-      }),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
