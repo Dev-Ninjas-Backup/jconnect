@@ -270,6 +270,7 @@ class OrderTimelineWidget extends StatelessWidget {
     }
   }
 
+  // ignore: unused_element
   Future<void> _downloadAttachment() async {
     if (proofUrl.isEmpty) {
       EasyLoading.showError('No attachment available');
