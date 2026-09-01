@@ -286,6 +286,7 @@ class MyOrdersController extends GetxController {
         // Parse response to get message
         String responseMessage = 'Order status updated';
         String message = '';
+        String? backendStatus;
         
         try {
           final responseJson = jsonDecode(response.body);
@@ -294,6 +295,13 @@ class MyOrdersController extends GetxController {
             if (message.isNotEmpty) {
               responseMessage = message;
             }
+            if (responseJson['data'] is Map<String, dynamic>) {
+              backendStatus = responseJson['data']['status']?.toString();
+            } else if (responseJson['order'] is Map<String, dynamic>) {
+              backendStatus = responseJson['order']['status']?.toString();
+            } else if (responseJson['status'] is String) {
+              backendStatus = responseJson['status']?.toString();
+            }
           }
         } catch (_) {
           // If parsing fails, proceed with default behavior
@@ -301,17 +309,42 @@ class MyOrdersController extends GetxController {
 
         // Show the response message
         EasyLoading.showSuccess(responseMessage);
+
+        final isCancellationRequest = status == OrderStatus.CANCELLED &&
+            (message.toLowerCase().contains('request') ||
+             (backendStatus != null && backendStatus.toUpperCase() != 'CANCELLED'));
+
+        final isActuallyCancelled = status == OrderStatus.CANCELLED &&
+            !isCancellationRequest &&
+            (backendStatus == null || backendStatus.toUpperCase() == 'CANCELLED');
+
+        if (status == OrderStatus.CANCELLED) {
+          if (isActuallyCancelled) {
+            // Only update local status to CANCELLED when backend status is actually CANCELLED
+            _updateLocalOrderStatus(orderId, 'CANCELLED');
+          } else {
+            // Cancellation request sent: send cancellation message to seller
+            await _sendCancellationMessage(orderId, authHeader);
+          }
+        } else {
+          // For other statuses (e.g. IN_PROGRESS), update locally
+          _updateLocalOrderStatus(orderId, statusValue);
+        }
         
-        // Update locally and reload
-        _updateLocalOrderStatus(orderId, statusValue);
         await Future.delayed(const Duration(milliseconds: 500));
         await loadOrders();
         print('[ORDER STATUS] Updated successfully');
 
-        // Always send cancellation message when status is CANCELLED
-        if (status == OrderStatus.CANCELLED && message.contains('Cancellation request sent to seller successfully')) {
-          await _sendCancellationMessage(orderId, authHeader);
-        }
+        // Also refresh OrderDetailsController if active
+        try {
+          if (Get.isRegistered<OrderDetailsController>()) {
+            final odc = Get.find<OrderDetailsController>();
+            if (odc.order.value?.id == orderId) {
+              await odc.fetchOrderDetails(orderId);
+            }
+          }
+        } catch (_) {}
+
         return true;
       } else {
         EasyLoading.showError('Failed to update order');
@@ -337,32 +370,39 @@ class MyOrdersController extends GetxController {
         }
       }
 
-      if (targetOrder == null) {
-        print('[CANCEL MSG] Order not found in local list');
-        return;
-      }
-
-      // For a "Purchased" order the buyer is cancelling → recipient is seller
-      // For a "Received" order the seller is cancelling → recipient is buyer
-      final raw = targetOrder.raw;
       String recipientId = '';
-      if (targetOrder.type == 'Purchased') {
-        // Try top-level sellerId first, then nested seller.id
-        recipientId = (raw?['sellerId']
-            ?? raw?['seller']?['id']
-            ?? raw?['seller']?['_id']
-            ?? '').toString().trim();
-      } else {
-        // Try top-level buyerId first, then nested buyer.id
-        recipientId = (raw?['buyerId']
-            ?? raw?['buyer_id']
-            ?? raw?['buyer']?['id']
-            ?? raw?['buyer']?['_id']
-            ?? '').toString().trim();
+      String orderCode = '';
+      if (targetOrder != null) {
+        orderCode = targetOrder.orderCode;
+        final raw = targetOrder.raw;
+        if (targetOrder.type == 'Purchased') {
+          recipientId = (raw?['sellerId']
+              ?? raw?['seller']?['id']
+              ?? raw?['seller']?['_id']
+              ?? '').toString().trim();
+        } else {
+          recipientId = (raw?['buyerId']
+              ?? raw?['buyer_id']
+              ?? raw?['buyer']?['id']
+              ?? raw?['buyer']?['_id']
+              ?? '').toString().trim();
+        }
       }
 
-      print('[CANCEL MSG] type: ${targetOrder.type}, recipientId: "$recipientId"');
-      print('[CANCEL MSG] raw keys: ${raw?.keys.toList()}');
+      // Fallback: If recipientId is still empty, check OrderDetailsController
+      if (recipientId.isEmpty && Get.isRegistered<OrderDetailsController>()) {
+        final odc = Get.find<OrderDetailsController>();
+        if (odc.order.value != null && odc.order.value!.id == orderId) {
+          final o = odc.order.value!;
+          recipientId = o.sellerId.trim();
+          if (orderCode.isEmpty) {
+            orderCode = o.orderCode;
+          }
+        }
+      }
+
+      print('[CANCEL MSG] type: ${targetOrder?.type}, recipientId: "$recipientId"');
+      print('[CANCEL MSG] raw keys: ${targetOrder?.raw?.keys.toList()}');
 
       if (recipientId.isEmpty) {
         print('[CANCEL MSG] Could not determine recipient ID — aborting');
@@ -371,8 +411,8 @@ class MyOrdersController extends GetxController {
 
       final cancellationText =
           "Hope you're doing well. I would like to kindly cancel my order "
-          "(Order ID: ${targetOrder.orderCode}). "
-          "Please let me know if any further action is required from my side. "
+          "${orderCode.isNotEmpty ? '(Order ID: $orderCode) ' : ''}"
+          ". Please let me know if any further action is required from my side. "
           "Thank you for your understanding.";
 
       final response = await http.post(
