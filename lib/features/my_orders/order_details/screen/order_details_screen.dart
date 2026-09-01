@@ -591,12 +591,15 @@ class OrderDetailsScreen extends StatelessWidget {
     final prefs = Get.find<SharedPreferencesHelperController>();
     final loggedInUserId = await prefs.getUserId();
     final isBuyer = loggedInUserId != null && loggedInUserId == order.buyerId;
-    final isProofSubmitted = order.status.toUpperCase() == 'PROOF_SUBMITTED' ||
+    final isProofSubmittedOrRejected =
+        order.status.toUpperCase() == 'PROOF_SUBMITTED' ||
+        order.status.toUpperCase() == 'RESUBMIT' ||
+        order.isCancalProofSubmitted ||
         order.proofUrl.isNotEmpty;
 
-    if (isBuyer && isProofSubmitted) {
+    if (isBuyer && isProofSubmittedOrRejected) {
       EasyLoading.showError(
-        'You cannot cancel the order after proof has been submitted.',
+        'You cannot cancel the order once proof has been submitted.',
         duration: const Duration(seconds: 3),
       );
       return;
@@ -609,7 +612,7 @@ class OrderDetailsScreen extends StatelessWidget {
         status: OrderStatus.CANCELLED,
       );
       if (success) {
-        controller.applyStatusUpdate(order.id.toString(), 'CANCELLED');
+        await controller.fetchOrderDetails(order.id.toString());
       }
     } finally {
       EasyLoading.dismiss();
@@ -956,6 +959,7 @@ class OrderDetailsScreen extends StatelessWidget {
                     OrderTimelineWidget(
                       timeline: order.timeline,
                       proofUrl: order.proofUrl,
+                      status: order.status,
                     ),
                   ],
                 );
@@ -1081,7 +1085,7 @@ class OrderDetailsScreen extends StatelessWidget {
                         );
                       }
 
-                      // Buyer sees only Cancel
+                      // Buyer sees Cancel button
                       return CustomPrimaryButton(
                         buttonText: 'Cancel Order',
                         onTap: () => _cancelOrder(
@@ -1095,8 +1099,7 @@ class OrderDetailsScreen extends StatelessWidget {
                   );
                 }
 
-                // For PROOF_SUBMITTED: show Confirm Order and Reject Proof (for buyer) and Cancel
-                // For RESUBMIT status
+                // For RESUBMIT status (proof was rejected)
                 if (order.status == 'RESUBMIT' || (order.status == 'PROOF_SUBMITTED' && order.isCancalProofSubmitted)) {
                   return FutureBuilder<String?>(
                     future: (() {
@@ -1147,7 +1150,7 @@ class OrderDetailsScreen extends StatelessWidget {
                         );
                       }
 
-                      // Buyer view: waiting for seller to resubmit proof
+                      // Buyer view: waiting for seller to resubmit proof + Cancel button
                       return Column(
                         children: [
                           Container(
@@ -1186,7 +1189,7 @@ class OrderDetailsScreen extends StatelessWidget {
                   );
                 }
 
-                // For PROOF_SUBMITTED: show Confirm Order and Reject Proof (for buyer) and Cancel
+                // For PROOF_SUBMITTED: show Confirm Order, Reject Proof, and Cancel Order (for buyer)
                 if (order.status == 'PROOF_SUBMITTED') {
                   return FutureBuilder<String?>(
                     future: (() {
@@ -1205,7 +1208,7 @@ class OrderDetailsScreen extends StatelessWidget {
                           loggedInUserId != null &&
                           loggedInUserId == order.buyerId;
 
-                      // Buyer can confirm or reject order
+                      // Buyer can confirm, reject, or cancel order
                       if (isBuyer) {
                         return Column(
                           children: [
