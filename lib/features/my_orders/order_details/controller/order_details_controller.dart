@@ -123,6 +123,11 @@ class OrderDetailsController extends GetxController {
   List<OrderTimelineStep> _generateTimeline({
     required String status,
     String? createdAt,
+    String? inProgressAt,
+    String? proofSubmittedAt,
+    String? resubmitAt,
+    String? releasedAt,
+    String? cancelledAt,
     String? deliveryDate,
     String? updatedAt,
     bool isCancalProofSubmitted = false,
@@ -140,31 +145,42 @@ class OrderDetailsController extends GetxController {
       ),
       OrderTimelineStep(
         title: 'Waiting to be Reviewed',
-        dateTime: statusUpper != 'PENDING' ? updated : '',
-        isCompleted: statusUpper != 'PENDING',
+        dateTime: inProgressAt != null && inProgressAt.isNotEmpty
+            ? inProgressAt
+            : (statusUpper != 'PENDING' ? updated : ''),
+        isCompleted: statusUpper != 'PENDING' || (inProgressAt != null && inProgressAt.isNotEmpty),
       ),
       OrderTimelineStep(
         title: 'Waiting for proof',
-        dateTime: (statusUpper == 'PROOF_SUBMITTED' || isResubmit || statusUpper == 'RELEASED') ? updated : '',
-        isCompleted: statusUpper == 'PROOF_SUBMITTED' || statusUpper == 'RELEASED',
+        dateTime: proofSubmittedAt != null && proofSubmittedAt.isNotEmpty
+            ? proofSubmittedAt
+            : ((statusUpper == 'PROOF_SUBMITTED' || isResubmit || statusUpper == 'RELEASED') ? updated : ''),
+        isCompleted: statusUpper == 'PROOF_SUBMITTED' || statusUpper == 'RELEASED' || (proofSubmittedAt != null && proofSubmittedAt.isNotEmpty),
       ),
     ];
 
-    if (isResubmit) {
+    if (isResubmit || (resubmitAt != null && resubmitAt.isNotEmpty)) {
       steps.add(
         OrderTimelineStep(
           title: 'Proof Rejected - Resubmit Required',
-          dateTime: updated,
+          dateTime: resubmitAt != null && resubmitAt.isNotEmpty ? resubmitAt : updated,
           isCompleted: true,
           description: reason,
         ),
       );
     }
 
+    final isCancelled = statusUpper == 'CANCELLED';
+    final completedDate = isCancelled
+        ? (cancelledAt != null && cancelledAt.isNotEmpty ? cancelledAt : updated)
+        : (releasedAt != null && releasedAt.isNotEmpty
+            ? releasedAt
+            : (statusUpper == 'RELEASED' ? (deliveryDate ?? updated) : ''));
+
     steps.add(
       OrderTimelineStep(
-        title: statusUpper == 'CANCELLED' ? 'Order Cancelled' : 'Completed',
-        dateTime: statusUpper == 'RELEASED' ? (deliveryDate ?? updated) : (statusUpper == 'CANCELLED' ? updated : ''),
+        title: isCancelled ? 'Order Cancelled' : 'Completed',
+        dateTime: completedDate,
         isCompleted: statusUpper == 'RELEASED' || statusUpper == 'COMPLETE' || statusUpper == 'COMPLETED' || statusUpper == 'CANCELLED',
       ),
     );
@@ -386,11 +402,35 @@ class OrderDetailsController extends GetxController {
     if (current.id != orderId) return;
 
     final updatedTime = updatedAt ?? DateTime.now().toIso8601String();
-    final isResubmit = status.toUpperCase() == 'RESUBMIT' || current.isCancalProofSubmitted;
+    final statusUpper = status.toUpperCase();
+    final isResubmit = statusUpper == 'RESUBMIT' || current.isCancalProofSubmitted;
+
+    String inProgressAt = current.inProgressAt;
+    String proofSubmittedAt = current.proofSubmittedAt;
+    String resubmitAt = current.resubmitAt;
+    String releasedAt = current.releasedAt;
+    String cancelledAt = current.cancelledAt;
+
+    if (statusUpper == 'IN_PROGRESS' && inProgressAt.isEmpty) {
+      inProgressAt = updatedTime;
+    } else if (statusUpper == 'PROOF_SUBMITTED' && proofSubmittedAt.isEmpty) {
+      proofSubmittedAt = updatedTime;
+    } else if (statusUpper == 'RESUBMIT' && resubmitAt.isEmpty) {
+      resubmitAt = updatedTime;
+    } else if (statusUpper == 'RELEASED' && releasedAt.isEmpty) {
+      releasedAt = updatedTime;
+    } else if (statusUpper == 'CANCELLED' && cancelledAt.isEmpty) {
+      cancelledAt = updatedTime;
+    }
 
     final newTimeline = _generateTimeline(
       status: status,
       createdAt: current.orderCreated.isNotEmpty ? current.orderCreated : null,
+      inProgressAt: inProgressAt.isNotEmpty ? inProgressAt : null,
+      proofSubmittedAt: proofSubmittedAt.isNotEmpty ? proofSubmittedAt : null,
+      resubmitAt: resubmitAt.isNotEmpty ? resubmitAt : null,
+      releasedAt: releasedAt.isNotEmpty ? releasedAt : null,
+      cancelledAt: cancelledAt.isNotEmpty ? cancelledAt : null,
       deliveryDate: current.deliveryDate.isNotEmpty
           ? current.deliveryDate
           : null,
@@ -401,6 +441,11 @@ class OrderDetailsController extends GetxController {
 
     order.value = current.copyWith(
       status: status,
+      inProgressAt: inProgressAt,
+      proofSubmittedAt: proofSubmittedAt,
+      resubmitAt: resubmitAt,
+      releasedAt: releasedAt,
+      cancelledAt: cancelledAt,
       timeline: newTimeline,
       isCancalProofSubmitted: isResubmit,
     );

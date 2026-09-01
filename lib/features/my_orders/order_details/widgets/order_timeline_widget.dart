@@ -18,11 +18,13 @@ import 'package:share_plus/share_plus.dart';
 class OrderTimelineWidget extends StatelessWidget {
   final List<OrderTimelineStep> timeline;
   final List<String> proofUrl;
+  final String? status;
 
   const OrderTimelineWidget({
     super.key,
     required this.timeline,
     required this.proofUrl,
+    this.status,
   });
 
   String _formatDateShort(String iso) {
@@ -556,6 +558,12 @@ class OrderTimelineWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCancelled = status?.toUpperCase() == 'CANCELLED' ||
+        (status != null && status!.toUpperCase().contains('CANCEL')) ||
+        timeline.any((s) =>
+            s.title.toUpperCase() == 'ORDER CANCELLED' ||
+            (s.title.toLowerCase().contains('cancel') && s.isCompleted));
+
     return Container(
       padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -629,7 +637,8 @@ class OrderTimelineWidget extends StatelessWidget {
                                   fontweight: FontWeight.w500,
                                 ),
                               ),
-                              if (step.description != null &&
+                              if (!isCancelled &&
+                                  step.description != null &&
                                   step.description!.isNotEmpty)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 6),
@@ -710,7 +719,8 @@ class OrderTimelineWidget extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                              if (proofUrl.isNotEmpty &&
+                              if (!isCancelled &&
+                                  proofUrl.isNotEmpty &&
                                   (isWaitingForProof ||
                                       step.title
                                           .toLowerCase()
@@ -722,12 +732,6 @@ class OrderTimelineWidget extends StatelessWidget {
                                 Padding(
                                   padding: const EdgeInsets.only(top: 8),
                                   child: Container(
-
-
-
-                                    
-
-
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 10,
                                       vertical: 8,
