@@ -107,9 +107,11 @@ class OrderDetailsController extends GetxController {
           '✅ [ORDER DETAILS] Fetched from API successfully, ID: ${order.value?.id}',
         );
       } else {
-        EasyLoading.showError(
-          'Failed to load order details: ${response.statusCode}',
+        final errorMsg = _extractErrorMessage(
+          response.body,
+          fallback: 'Failed to load order details: ${response.statusCode}',
         );
+        EasyLoading.showError(errorMsg);
       }
     } catch (e) {
       print('❌ [FETCH ORDER DETAILS] Error: $e');
@@ -148,14 +150,23 @@ class OrderDetailsController extends GetxController {
         dateTime: inProgressAt != null && inProgressAt.isNotEmpty
             ? inProgressAt
             : (statusUpper != 'PENDING' ? updated : ''),
-        isCompleted: statusUpper != 'PENDING' || (inProgressAt != null && inProgressAt.isNotEmpty),
+        isCompleted:
+            statusUpper != 'PENDING' ||
+            (inProgressAt != null && inProgressAt.isNotEmpty),
       ),
       OrderTimelineStep(
         title: 'Waiting for proof',
         dateTime: proofSubmittedAt != null && proofSubmittedAt.isNotEmpty
             ? proofSubmittedAt
-            : ((statusUpper == 'PROOF_SUBMITTED' || isResubmit || statusUpper == 'RELEASED') ? updated : ''),
-        isCompleted: statusUpper == 'PROOF_SUBMITTED' || statusUpper == 'RELEASED' || (proofSubmittedAt != null && proofSubmittedAt.isNotEmpty),
+            : ((statusUpper == 'PROOF_SUBMITTED' ||
+                      isResubmit ||
+                      statusUpper == 'RELEASED')
+                  ? updated
+                  : ''),
+        isCompleted:
+            statusUpper == 'PROOF_SUBMITTED' ||
+            statusUpper == 'RELEASED' ||
+            (proofSubmittedAt != null && proofSubmittedAt.isNotEmpty),
       ),
     ];
 
@@ -163,7 +174,9 @@ class OrderDetailsController extends GetxController {
       steps.add(
         OrderTimelineStep(
           title: 'Proof Rejected - Resubmit Required',
-          dateTime: resubmitAt != null && resubmitAt.isNotEmpty ? resubmitAt : updated,
+          dateTime: resubmitAt != null && resubmitAt.isNotEmpty
+              ? resubmitAt
+              : updated,
           isCompleted: true,
           description: reason,
         ),
@@ -172,16 +185,22 @@ class OrderDetailsController extends GetxController {
 
     final isCancelled = statusUpper == 'CANCELLED';
     final completedDate = isCancelled
-        ? (cancelledAt != null && cancelledAt.isNotEmpty ? cancelledAt : updated)
+        ? (cancelledAt != null && cancelledAt.isNotEmpty
+              ? cancelledAt
+              : updated)
         : (releasedAt != null && releasedAt.isNotEmpty
-            ? releasedAt
-            : (statusUpper == 'RELEASED' ? (deliveryDate ?? updated) : ''));
+              ? releasedAt
+              : (statusUpper == 'RELEASED' ? (deliveryDate ?? updated) : ''));
 
     steps.add(
       OrderTimelineStep(
         title: isCancelled ? 'Order Cancelled' : 'Completed',
         dateTime: completedDate,
-        isCompleted: statusUpper == 'RELEASED' || statusUpper == 'COMPLETE' || statusUpper == 'COMPLETED' || statusUpper == 'CANCELLED',
+        isCompleted:
+            statusUpper == 'RELEASED' ||
+            statusUpper == 'COMPLETE' ||
+            statusUpper == 'COMPLETED' ||
+            statusUpper == 'CANCELLED',
       ),
     );
 
@@ -277,8 +296,10 @@ class OrderDetailsController extends GetxController {
 
         // Call cancel-proof API with isCancalProofSubmitted=false to ensure proof is marked as accepted
         try {
-          final cancelUrl =
-              Endpoint.cancelProof(current.id, isCancalProofSubmitted: false);
+          final cancelUrl = Endpoint.cancelProof(
+            current.id,
+            isCancalProofSubmitted: false,
+          );
           final cancelResp = await http.patch(
             Uri.parse(cancelUrl),
             headers: {'Authorization': authHeader, 'Accept': '*/*'},
@@ -332,7 +353,11 @@ class OrderDetailsController extends GetxController {
 
         return true;
       } else {
-        EasyLoading.showError('Failed: ${resp.statusCode}');
+        final errorMsg = _extractErrorMessage(
+          resp.body,
+          fallback: 'Failed: ${resp.statusCode}',
+        );
+        EasyLoading.showError(errorMsg);
         return false;
       }
     } catch (e) {
@@ -379,7 +404,11 @@ class OrderDetailsController extends GetxController {
         applyStatusUpdate(current.id, 'RELEASED', updatedAt: updatedAt);
         return true;
       } else {
-        EasyLoading.showError('Failed: ${resp.statusCode}');
+        final errorMsg = _extractErrorMessage(
+          resp.body,
+          fallback: 'Failed: ${resp.statusCode}',
+        );
+        EasyLoading.showError(errorMsg);
         return false;
       }
     } catch (e) {
@@ -403,7 +432,8 @@ class OrderDetailsController extends GetxController {
 
     final updatedTime = updatedAt ?? DateTime.now().toIso8601String();
     final statusUpper = status.toUpperCase();
-    final isResubmit = statusUpper == 'RESUBMIT' || current.isCancalProofSubmitted;
+    final isResubmit =
+        statusUpper == 'RESUBMIT' || current.isCancalProofSubmitted;
 
     String inProgressAt = current.inProgressAt;
     String proofSubmittedAt = current.proofSubmittedAt;
@@ -487,21 +517,30 @@ class OrderDetailsController extends GetxController {
 
           String? eventOrderId;
           if (data is Map) {
-            eventOrderId = data['id']?.toString() ??
+            eventOrderId =
+                data['id']?.toString() ??
                 data['orderId']?.toString() ??
-                (data['order'] is Map ? data['order']['id']?.toString() : null) ??
-                (data['order'] is Map ? data['order']['orderId']?.toString() : null);
+                (data['order'] is Map
+                    ? data['order']['id']?.toString()
+                    : null) ??
+                (data['order'] is Map
+                    ? data['order']['orderId']?.toString()
+                    : null);
           } else if (data is String) {
             eventOrderId = data;
           }
 
-          final isOrderLifecycleEvent = event.event.startsWith('order:') &&
+          final isOrderLifecycleEvent =
+              event.event.startsWith('order:') &&
               event.event != 'order:success' &&
               event.event != 'order:error';
 
           if (eventOrderId == orderId ||
-              (isOrderLifecycleEvent && (eventOrderId == null || eventOrderId.isEmpty))) {
-            print('🔄 Refreshing order details for $orderId due to socket event: ${event.event}');
+              (isOrderLifecycleEvent &&
+                  (eventOrderId == null || eventOrderId.isEmpty))) {
+            print(
+              '🔄 Refreshing order details for $orderId due to socket event: ${event.event}',
+            );
             fetchOrderDetails(orderId);
           }
         });
@@ -558,14 +597,10 @@ class OrderDetailsController extends GetxController {
         EasyLoading.showSuccess('Review posted successfully!');
         return true;
       } else {
-        // Parse error message from JSON response
-        String errorMsg = 'Failed to post review';
-        try {
-          final respJson = jsonDecode(resp.body);
-          errorMsg = respJson['message'] ?? errorMsg;
-        } catch (_) {
-          // If JSON parse fails, use generic message
-        }
+        final errorMsg = _extractErrorMessage(
+          resp.body,
+          fallback: 'Failed to post review',
+        );
         EasyLoading.showError(errorMsg);
         return false;
       }
@@ -618,13 +653,60 @@ class OrderDetailsController extends GetxController {
         );
         return true;
       } else {
-        EasyLoading.showError('Failed: ${resp.statusCode}');
+        final errorMsg = _extractErrorMessage(
+          resp.body,
+          fallback: 'Failed: ${resp.statusCode}',
+        );
+        EasyLoading.showError(errorMsg);
         return false;
       }
     } catch (e) {
       EasyLoading.showError('Rejection error: $e');
       return false;
     }
+  }
+
+  String _extractErrorMessage(
+    String body, {
+    String fallback = 'Something went wrong',
+  }) {
+    try {
+      final respJson = jsonDecode(body);
+      if (respJson is Map<String, dynamic>) {
+        if (respJson['message'] != null) {
+          if (respJson['message'] is List) {
+            final list = (respJson['message'] as List)
+                .map((e) => e.toString().trim())
+                .where((e) => e.isNotEmpty)
+                .toList();
+            if (list.isNotEmpty) return list.join(', ');
+          } else {
+            final msg = respJson['message'].toString().trim();
+            if (msg.isNotEmpty) return msg;
+          }
+        }
+        if (respJson['data'] is Map<String, dynamic>) {
+          final data = respJson['data'] as Map<String, dynamic>;
+          if (data['message'] != null) {
+            if (data['message'] is List) {
+              final list = (data['message'] as List)
+                  .map((e) => e.toString().trim())
+                  .where((e) => e.isNotEmpty)
+                  .toList();
+              if (list.isNotEmpty) return list.join(', ');
+            } else {
+              final msg = data['message'].toString().trim();
+              if (msg.isNotEmpty) return msg;
+            }
+          }
+        }
+        if (respJson['error'] != null) {
+          final err = respJson['error'].toString().trim();
+          if (err.isNotEmpty) return err;
+        }
+      }
+    } catch (_) {}
+    return fallback;
   }
 
   /// Fetch seller's profile (to obtain averageRating) by user id.
