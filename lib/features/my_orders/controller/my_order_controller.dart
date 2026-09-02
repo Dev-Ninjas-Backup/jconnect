@@ -17,7 +17,7 @@ class MyOrdersController extends GetxController {
   RxString selectedTab = 'All Orders'.obs;
   RxString selectedOrderType = 'All Orders'.obs;
   RxBool isLoading = false.obs;
-  
+
   Rx<OrderMainTab> selectedMainTab = OrderMainTab.serviceAndSocialPost.obs;
 
   @override
@@ -287,7 +287,7 @@ class MyOrdersController extends GetxController {
         String responseMessage = 'Order status updated';
         String message = '';
         String? backendStatus;
-        
+
         try {
           final responseJson = jsonDecode(response.body);
           if (responseJson is Map<String, dynamic>) {
@@ -310,13 +310,17 @@ class MyOrdersController extends GetxController {
         // Show the response message
         EasyLoading.showSuccess(responseMessage);
 
-        final isCancellationRequest = status == OrderStatus.CANCELLED &&
+        final isCancellationRequest =
+            status == OrderStatus.CANCELLED &&
             (message.toLowerCase().contains('request') ||
-             (backendStatus != null && backendStatus.toUpperCase() != 'CANCELLED'));
+                (backendStatus != null &&
+                    backendStatus.toUpperCase() != 'CANCELLED'));
 
-        final isActuallyCancelled = status == OrderStatus.CANCELLED &&
+        final isActuallyCancelled =
+            status == OrderStatus.CANCELLED &&
             !isCancellationRequest &&
-            (backendStatus == null || backendStatus.toUpperCase() == 'CANCELLED');
+            (backendStatus == null ||
+                backendStatus.toUpperCase() == 'CANCELLED');
 
         if (status == OrderStatus.CANCELLED) {
           if (isActuallyCancelled) {
@@ -330,7 +334,7 @@ class MyOrdersController extends GetxController {
           // For other statuses (e.g. IN_PROGRESS), update locally
           _updateLocalOrderStatus(orderId, statusValue);
         }
-        
+
         await Future.delayed(const Duration(milliseconds: 500));
         await loadOrders();
         print('[ORDER STATUS] Updated successfully');
@@ -347,7 +351,22 @@ class MyOrdersController extends GetxController {
 
         return true;
       } else {
-        EasyLoading.showError('Failed to update order');
+        String errorMsg = 'Failed to update order';
+        try {
+          final body = json.decode(response.body);
+          if (body is Map) {
+            if (body['message'] != null) {
+              if (body['message'] is List) {
+                errorMsg = (body['message'] as List).join(', ');
+              } else {
+                errorMsg = body['message'].toString();
+              }
+            } else if (body['data'] is Map && body['data']['message'] != null) {
+              errorMsg = body['data']['message'].toString();
+            }
+          }
+        } catch (_) {}
+        EasyLoading.showError(errorMsg);
         print('[ORDER STATUS] Failed: ${response.statusCode}');
         return false;
       }
@@ -359,7 +378,10 @@ class MyOrdersController extends GetxController {
   }
 
   /// Sends a polite cancellation message to the seller when a cancellation request is made.
-  Future<void> _sendCancellationMessage(String orderId, String authHeader) async {
+  Future<void> _sendCancellationMessage(
+    String orderId,
+    String authHeader,
+  ) async {
     try {
       // Find the order to get the seller's ID
       OrderModel? targetOrder;
@@ -376,16 +398,22 @@ class MyOrdersController extends GetxController {
         orderCode = targetOrder.orderCode;
         final raw = targetOrder.raw;
         if (targetOrder.type == 'Purchased') {
-          recipientId = (raw?['sellerId']
-              ?? raw?['seller']?['id']
-              ?? raw?['seller']?['_id']
-              ?? '').toString().trim();
+          recipientId =
+              (raw?['sellerId'] ??
+                      raw?['seller']?['id'] ??
+                      raw?['seller']?['_id'] ??
+                      '')
+                  .toString()
+                  .trim();
         } else {
-          recipientId = (raw?['buyerId']
-              ?? raw?['buyer_id']
-              ?? raw?['buyer']?['id']
-              ?? raw?['buyer']?['_id']
-              ?? '').toString().trim();
+          recipientId =
+              (raw?['buyerId'] ??
+                      raw?['buyer_id'] ??
+                      raw?['buyer']?['id'] ??
+                      raw?['buyer']?['_id'] ??
+                      '')
+                  .toString()
+                  .trim();
         }
       }
 
@@ -401,7 +429,9 @@ class MyOrdersController extends GetxController {
         }
       }
 
-      print('[CANCEL MSG] type: ${targetOrder?.type}, recipientId: "$recipientId"');
+      print(
+        '[CANCEL MSG] type: ${targetOrder?.type}, recipientId: "$recipientId"',
+      );
       print('[CANCEL MSG] raw keys: ${targetOrder?.raw?.keys.toList()}');
 
       if (recipientId.isEmpty) {
@@ -434,7 +464,8 @@ class MyOrdersController extends GetxController {
     }
   }
 
-  void _updateLocalOrderStatus(String orderId, String status) {    for (final list in [orders, paidOrders]) {
+  void _updateLocalOrderStatus(String orderId, String status) {
+    for (final list in [orders, paidOrders]) {
       final index = list.indexWhere((order) => order.orderId == orderId);
       if (index != -1) {
         // Update the raw json if available, otherwise update the status
@@ -461,4 +492,11 @@ class MyOrdersController extends GetxController {
 }
 
 // ignore: constant_identifier_names
-enum OrderStatus { CANCELLED, PENDING, IN_PROGRESS, PROOF_SUBMITTED, RESUBMIT, RELEASED }
+enum OrderStatus {
+  CANCELLED,
+  PENDING,
+  IN_PROGRESS,
+  PROOF_SUBMITTED,
+  RESUBMIT,
+  RELEASED,
+}
