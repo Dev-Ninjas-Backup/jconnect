@@ -37,6 +37,8 @@ class OrderDetailsModel {
   final String specialNotes;
   final String promotionDate;
   final List<String> files;
+  final bool isCancelRequested;
+  final String cancelRequestedAt;
 
   OrderDetailsModel({
     required this.id,
@@ -73,6 +75,8 @@ class OrderDetailsModel {
     this.specialNotes = '',
     this.promotionDate = '',
     this.files = const [],
+    this.isCancelRequested = false,
+    this.cancelRequestedAt = '',
   });
 
   OrderDetailsModel copyWith({
@@ -110,6 +114,8 @@ class OrderDetailsModel {
     String? specialNotes,
     String? promotionDate,
     List<String>? files,
+    bool? isCancelRequested,
+    String? cancelRequestedAt,
   }) {
     return OrderDetailsModel(
       id: id ?? this.id,
@@ -146,6 +152,8 @@ class OrderDetailsModel {
       specialNotes: specialNotes ?? this.specialNotes,
       promotionDate: promotionDate ?? this.promotionDate,
       files: files ?? this.files,
+      isCancelRequested: isCancelRequested ?? this.isCancelRequested,
+      cancelRequestedAt: cancelRequestedAt ?? this.cancelRequestedAt,
     );
   }
 
@@ -246,6 +254,15 @@ class OrderDetailsModel {
           json['isCancalProofSubmitted'] == 'true';
     }
 
+    bool isCancelRequested = false;
+    if (json['isCancelRequested'] != null) {
+      isCancelRequested =
+          json['isCancelRequested'] == true ||
+          json['isCancelRequested'] == 1 ||
+          json['isCancelRequested'] == '1' ||
+          json['isCancelRequested'] == 'true';
+    }
+
     List<String> filesList = [];
     if (json['files'] != null) {
       if (json['files'] is List) {
@@ -268,6 +285,7 @@ class OrderDetailsModel {
     final resubmitAt = pickString(['resubmitAt', 'resubmit_at'], '');
     final releasedAt = pickString(['releasedAt', 'released_at'], '');
     final cancelledAt = pickString(['cancelledAt', 'cancelled_at'], '');
+    final cancelRequestedAt = pickString(['cancelRequestedAt', 'cancel_requested_at'], '');
 
     final result = OrderDetailsModel(
       id: pickString(['id']),
@@ -303,6 +321,8 @@ class OrderDetailsModel {
       specialNotes: pickString(['specialNotes']),
       promotionDate: pickString(['promotionDate']),
       files: filesList,
+      isCancelRequested: isCancelRequested,
+      cancelRequestedAt: cancelRequestedAt,
       timeline: (() {
         final rawTimeline = json['timeline'] as List<dynamic>?;
         final statusStr = pickString(['status'], '').toUpperCase();
