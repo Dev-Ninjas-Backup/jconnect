@@ -1,5 +1,6 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, constant_identifier_names
 
+import 'dart:async';
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -7,6 +8,7 @@ import 'package:jconnect/core/endpoint.dart';
 import 'package:jconnect/core/service/local_service/shared_preferences_helper.dart';
 import 'package:jconnect/features/my_orders/model/order_model.dart';
 import 'package:jconnect/features/my_orders/order_details/controller/order_details_controller.dart';
+import 'package:jconnect/features/my_orders/order_socket/order_socket_service.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 enum OrderMainTab { serviceAndSocialPost, repostService }
@@ -19,11 +21,38 @@ class MyOrdersController extends GetxController {
   RxBool isLoading = false.obs;
 
   Rx<OrderMainTab> selectedMainTab = OrderMainTab.serviceAndSocialPost.obs;
+  StreamSubscription? _socketSubscription;
 
   @override
   void onInit() {
     super.onInit();
     loadOrders();
+    _initSocketListener();
+  }
+
+  void _initSocketListener() {
+    try {
+      _socketSubscription?.cancel();
+      _socketSubscription = OrderSocketService().eventStream.listen((event) {
+        final isOrderLifecycleEvent =
+            event.event.startsWith('order:') &&
+            event.event != 'order:success' &&
+            event.event != 'order:error';
+
+        if (isOrderLifecycleEvent) {
+          print('🔄 [MY ORDERS] Socket event received: ${event.event}. Reloading orders...');
+          loadOrders();
+        }
+      });
+    } catch (e) {
+      print('⚠️ [MY ORDERS] Failed to listen to OrderSocketService: $e');
+    }
+  }
+
+  @override
+  void onClose() {
+    _socketSubscription?.cancel();
+    super.onClose();
   }
 
   // Map tab label to API status
@@ -377,6 +406,80 @@ class MyOrdersController extends GetxController {
     }
   }
 
+  /// Seller declines cancellation request (PATCH /orders/:id/cancel-request/decline)
+  Future<bool> declineCancelRequest({required String orderId}) async {
+    try {
+      final prefsHelper = Get.find<SharedPreferencesHelperController>();
+      final token = await prefsHelper.getAccessToken();
+
+      if (token == null || token.isEmpty) {
+        EasyLoading.showError('No token available');
+        return false;
+      }
+
+      final authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+      final url = Endpoint.declineCancelRequest(orderId);
+
+      EasyLoading.show(status: 'Declining cancellation...');
+      final response = await http.patch(
+        Uri.parse(url),
+        headers: {
+          'Authorization': authHeader,
+          'Accept': '*/*',
+          'Content-Type': 'application/json',
+        },
+      );
+      EasyLoading.dismiss();
+
+      if (response.statusCode == 200) {
+        String msg =
+            'Cancellation request declined. The order remains in progress.';
+        try {
+          final body = jsonDecode(response.body);
+          if (body is Map && body['message'] != null) {
+            msg = body['message'].toString();
+          }
+        } catch (_) {}
+        EasyLoading.showSuccess(msg);
+
+        // Update local order list
+        for (final list in [orders, paidOrders]) {
+          final index = list.indexWhere((o) => o.orderId == orderId);
+          if (index != -1) {
+            list[index] = list[index].copyWith(
+              isCancelRequested: false,
+              cancelRequestedAt: '',
+            );
+          }
+        }
+
+        await loadOrders();
+
+        if (Get.isRegistered<OrderDetailsController>()) {
+          final odc = Get.find<OrderDetailsController>();
+          if (odc.order.value?.id == orderId) {
+            await odc.fetchOrderDetails(orderId);
+          }
+        }
+        return true;
+      } else {
+        String errorMsg = 'Failed to decline cancellation';
+        try {
+          final body = json.decode(response.body);
+          if (body is Map && body['message'] != null) {
+            errorMsg = body['message'].toString();
+          }
+        } catch (_) {}
+        EasyLoading.showError(errorMsg);
+        return false;
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
+      EasyLoading.showError('Error: $e');
+      return false;
+    }
+  }
+
   /// Sends a polite cancellation message to the seller when a cancellation request is made.
   Future<void> _sendCancellationMessage(
     String orderId,
@@ -491,7 +594,6 @@ class MyOrdersController extends GetxController {
   }
 }
 
-// ignore: constant_identifier_names
 enum OrderStatus {
   CANCELLED,
   PENDING,

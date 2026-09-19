@@ -29,6 +29,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:jconnect/core/utils/image_helper.dart';
 import 'package:jconnect/features/messages/chat_details/screen/chat_details_screen.dart';
 import 'package:jconnect/features/my_orders/order_details/model/order_details_model.dart';
+import 'package:jconnect/features/my_orders/order_details/widgets/order_escrow_deadline_banner.dart';
 
 class OrderDetailsScreen extends StatelessWidget {
   const OrderDetailsScreen({super.key});
@@ -216,7 +217,10 @@ class OrderDetailsScreen extends StatelessWidget {
               Material(
                 color: Colors.transparent,
                 child: ListTile(
-                  leading: Icon(Icons.videocam, color: AppColors.primaryTextColor),
+                  leading: Icon(
+                    Icons.videocam,
+                    color: AppColors.primaryTextColor,
+                  ),
                   title: Text(
                     'Record Video',
                     style: getTextStyle(color: AppColors.primaryTextColor),
@@ -261,7 +265,8 @@ class OrderDetailsScreen extends StatelessWidget {
                         'aac',
                       ],
                     );
-                    if (result == null || result.files.single.path == null) return;
+                    if (result == null || result.files.single.path == null)
+                      return;
                     final file = File(result.files.single.path!);
                     await _showConfirm(file, result.files.single.name);
                   },
@@ -293,7 +298,10 @@ class OrderDetailsScreen extends StatelessWidget {
               Material(
                 color: Colors.transparent,
                 child: ListTile(
-                  leading: Icon(Icons.videocam, color: AppColors.primaryTextColor),
+                  leading: Icon(
+                    Icons.videocam,
+                    color: AppColors.primaryTextColor,
+                  ),
                   title: Text(
                     'Choose Video',
                     style: getTextStyle(color: AppColors.primaryTextColor),
@@ -348,32 +356,34 @@ class OrderDetailsScreen extends StatelessWidget {
 
     if (isImage) {
       // Show image preview with PhotoView
-      Get.to(() => Scaffold(
+      Get.to(
+        () => Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
             backgroundColor: Colors.black,
-            appBar: AppBar(
-              backgroundColor: Colors.black,
-              iconTheme: const IconThemeData(color: Colors.white),
-              title: const Text(
-                'View Image',
-                style: TextStyle(color: Colors.white),
+            iconTheme: const IconThemeData(color: Colors.white),
+            title: const Text(
+              'View Image',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          body: PhotoView(
+            imageProvider: getSafeImageProvider(url),
+            backgroundDecoration: const BoxDecoration(color: Colors.black),
+            minScale: PhotoViewComputedScale.contained,
+            maxScale: PhotoViewComputedScale.covered * 3,
+            loadingBuilder: (_, __) => const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            ),
+            errorBuilder: (_, __, ___) => const Center(
+              child: Text(
+                'Failed to load image',
+                style: TextStyle(color: Colors.white70),
               ),
             ),
-            body: PhotoView(
-              imageProvider: getSafeImageProvider(url),
-              backgroundDecoration: const BoxDecoration(color: Colors.black),
-              minScale: PhotoViewComputedScale.contained,
-              maxScale: PhotoViewComputedScale.covered * 3,
-              loadingBuilder: (_, __) => const Center(
-                child: CircularProgressIndicator(color: Colors.white),
-              ),
-              errorBuilder: (_, __, ___) => const Center(
-                child: Text(
-                  'Failed to load image',
-                  style: TextStyle(color: Colors.white70),
-                ),
-              ),
-            ),
-          ));
+          ),
+        ),
+      );
     } else if (isVideo) {
       // Show video player
       Get.to(() => VideoViewerScreen(videoUrl: url));
@@ -389,10 +399,7 @@ class OrderDetailsScreen extends StatelessWidget {
         context: context,
         builder: (dialogContext) => AlertDialog(
           backgroundColor: Colors.grey[900],
-          title: const Text(
-            'Open File',
-            style: TextStyle(color: Colors.white),
-          ),
+          title: const Text('Open File', style: TextStyle(color: Colors.white)),
           content: Text(
             'File type ($ext) cannot be previewed. Download to view?',
             style: const TextStyle(color: Colors.white70),
@@ -430,10 +437,7 @@ class OrderDetailsScreen extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: Colors.grey[900],
-        title: const Text(
-          'PDF File',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('PDF File', style: TextStyle(color: Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -464,7 +468,10 @@ class OrderDetailsScreen extends StatelessWidget {
             onPressed: () async {
               Get.back();
               if (await canLaunchUrl(Uri.parse(url))) {
-                await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                await launchUrl(
+                  Uri.parse(url),
+                  mode: LaunchMode.externalApplication,
+                );
               } else {
                 _downloadFile(url);
               }
@@ -488,10 +495,6 @@ class OrderDetailsScreen extends StatelessWidget {
       ),
     );
   }
-
-
-
-  
 
   Future<void> _downloadFile(String fileUrl) async {
     try {
@@ -522,7 +525,8 @@ class OrderDetailsScreen extends StatelessWidget {
       EasyLoading.dismiss();
 
       // Step 4: Show file info
-      final fileSizeInMB = (response.bodyBytes.length / (1024 * 1024)).toStringAsFixed(2);
+      final fileSizeInMB = (response.bodyBytes.length / (1024 * 1024))
+          .toStringAsFixed(2);
       debugPrint('✅ File downloaded successfully');
       debugPrint('📁 File name: $fileName');
       debugPrint('📊 File size: $fileSizeInMB MB');
@@ -569,10 +573,7 @@ class OrderDetailsScreen extends StatelessWidget {
   Future<void> _shareFile(String fileUrl) async {
     try {
       await SharePlus.instance.share(
-        ShareParams(
-          text: fileUrl,
-          subject: 'Order attachment',
-        ),
+        ShareParams(text: fileUrl, subject: 'Order attachment'),
       );
     } catch (e) {
       EasyLoading.showError(
@@ -582,41 +583,755 @@ class OrderDetailsScreen extends StatelessWidget {
     }
   }
 
-  Future<void> _cancelOrder({
+  void _showDirectCancelDialog({
     required BuildContext context,
     required OrderDetailsModel order,
     required OrderDetailsController controller,
     required MyOrdersController orderController,
-  }) async {
-    final prefs = Get.find<SharedPreferencesHelperController>();
-    final loggedInUserId = await prefs.getUserId();
-    final isBuyer = loggedInUserId != null && loggedInUserId == order.buyerId;
-    final isProofSubmittedOrRejected =
-        order.status.toUpperCase() == 'PROOF_SUBMITTED' ||
-        order.status.toUpperCase() == 'RESUBMIT' ||
-        order.isCancalProofSubmitted ||
-        order.proofUrl.isNotEmpty;
+  }) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.backGroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: AppColors.secondaryTextColor.withValues(alpha: 0.3),
+          ),
+        ),
+        title: Text(
+          'Cancel Order',
+          style: getTextStyle(
+            color: AppColors.primaryTextColor,
+            fontweight: FontWeight.w600,
+            fontsize: 18,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to cancel this order?',
+          style: getTextStyle(
+            color: AppColors.secondaryTextColor,
+            fontsize: 14,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              'No, Keep Order',
+              style: getTextStyle(color: AppColors.secondaryTextColor),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Get.back();
+              EasyLoading.show(status: 'Cancelling...');
+              try {
+                final success = await orderController.updateOrderStatus(
+                  orderId: order.id.toString(),
+                  status: OrderStatus.CANCELLED,
+                );
+                if (success) {
+                  await controller.fetchOrderDetails(order.id.toString());
+                }
+              } finally {
+                EasyLoading.dismiss();
+              }
+            },
+            child: Text(
+              'Yes, Cancel',
+              style: getTextStyle(
+                color: AppColors.redColor,
+                fontweight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-    if (isBuyer && isProofSubmittedOrRejected) {
-      EasyLoading.showError(
-        'You cannot cancel the order once proof has been submitted.',
-        duration: const Duration(seconds: 3),
-      );
-      return;
-    }
+  void _showRequestCancellationDialog({
+    required BuildContext context,
+    required OrderDetailsModel order,
+    required OrderDetailsController controller,
+    required MyOrdersController orderController,
+  }) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.backGroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: AppColors.secondaryTextColor.withValues(alpha: 0.3),
+          ),
+        ),
+        title: Text(
+          'Request Cancellation',
+          style: getTextStyle(
+            color: AppColors.primaryTextColor,
+            fontweight: FontWeight.w600,
+            fontsize: 18,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Since this order is currently in progress, a cancellation request will be sent to the seller for approval.',
+              style: getTextStyle(
+                color: AppColors.secondaryTextColor,
+                fontsize: 13,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Once the seller accepts, the order will be cancelled and your payment will be refunded.',
+              style: getTextStyle(
+                color: AppColors.primaryTextColor.withValues(alpha: 0.8),
+                fontsize: 13,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              'Cancel',
+              style: getTextStyle(color: AppColors.secondaryTextColor),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Get.back();
+              await controller.requestCancellation(order.id);
+            },
+            child: Text(
+              'Send Request',
+              style: getTextStyle(
+                color: AppColors.redColor,
+                fontweight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-    EasyLoading.show(status: 'Cancelling...');
-    try {
-      final success = await orderController.updateOrderStatus(
-        orderId: order.id.toString(),
-        status: OrderStatus.CANCELLED,
-      );
-      if (success) {
-        await controller.fetchOrderDetails(order.id.toString());
-      }
-    } finally {
-      EasyLoading.dismiss();
-    }
+  void _showAcceptCancellationDialog({
+    required BuildContext context,
+    required OrderDetailsModel order,
+    required OrderDetailsController controller,
+    required MyOrdersController orderController,
+  }) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.backGroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: AppColors.secondaryTextColor.withValues(alpha: 0.3),
+          ),
+        ),
+        title: Text(
+          'Accept Cancellation',
+          style: getTextStyle(
+            color: AppColors.primaryTextColor,
+            fontweight: FontWeight.w600,
+            fontsize: 18,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to accept this cancellation request? The order will be cancelled and payment refunded to the buyer.',
+          style: getTextStyle(
+            color: AppColors.secondaryTextColor,
+            fontsize: 14,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              'Back',
+              style: getTextStyle(color: AppColors.secondaryTextColor),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Get.back();
+              await controller.acceptCancellation(order.id);
+            },
+            child: Text(
+              'Accept & Cancel',
+              style: getTextStyle(
+                color: AppColors.redColor,
+                fontweight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeclineCancellationDialog({
+    required BuildContext context,
+    required OrderDetailsModel order,
+    required OrderDetailsController controller,
+    required MyOrdersController orderController,
+  }) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.backGroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: AppColors.secondaryTextColor.withValues(alpha: 0.3),
+          ),
+        ),
+        title: Text(
+          'Decline Cancellation',
+          style: getTextStyle(
+            color: AppColors.primaryTextColor,
+            fontweight: FontWeight.w600,
+            fontsize: 18,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to decline this cancellation request? The order will remain in progress and you can continue fulfilling it.',
+          style: getTextStyle(
+            color: AppColors.secondaryTextColor,
+            fontsize: 14,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              'Back',
+              style: getTextStyle(color: AppColors.secondaryTextColor),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Get.back();
+              await controller.declineCancellation(order.id);
+            },
+            child: Text(
+              'Decline Request',
+              style: getTextStyle(
+                color: AppColors.primaryTextColor,
+                fontweight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showReportIssueDialog({
+    required BuildContext context,
+    required OrderDetailsModel order,
+    required OrderDetailsController controller,
+  }) {
+    final TextEditingController descController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final Rxn<File> selectedFile = Rxn<File>();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (bottomSheetContext) => Container(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: MediaQuery.of(bottomSheetContext).viewInsets.bottom + 24,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.backGroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          border: Border.all(
+            color: AppColors.secondaryTextColor.withValues(alpha: 0.3),
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.flag_outlined,
+                        color: Color(0xFFF59E0B),
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Report an Issue',
+                            style: getTextStyle(
+                              color: AppColors.primaryTextColor,
+                              fontweight: FontWeight.w600,
+                              fontsize: 17,
+                            ),
+                          ),
+                          Text(
+                            'Order: ${order.orderCode}',
+                            style: getTextStyle(
+                              color: AppColors.secondaryTextColor,
+                              fontsize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(bottomSheetContext),
+                      icon: const Icon(
+                        Icons.close,
+                        color: Colors.white54,
+                        size: 20,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Explain what went wrong:',
+                  style: getTextStyle(
+                    color: AppColors.secondaryTextColor,
+                    fontsize: 13,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: descController,
+                  maxLines: 4,
+                  style: getTextStyle(
+                    color: AppColors.primaryTextColor,
+                    fontsize: 14,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Describe the problem in detail...',
+                    hintStyle: getTextStyle(
+                      color: AppColors.secondaryTextColor.withValues(
+                        alpha: 0.6,
+                      ),
+                      fontsize: 13,
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFF1E1E1E),
+                    contentPadding: const EdgeInsets.all(12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: AppColors.secondaryTextColor.withValues(
+                          alpha: 0.3,
+                        ),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: AppColors.secondaryTextColor.withValues(
+                          alpha: 0.3,
+                        ),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Color(0xFFF59E0B)),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please describe the issue';
+                    }
+                    if (value.trim().length < 10) {
+                      return 'Please provide more details (at least 10 characters)';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Attach Evidence / Proof (Optional):',
+                  style: getTextStyle(
+                    color: AppColors.secondaryTextColor,
+                    fontsize: 13,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Obx(() {
+                  final file = selectedFile.value;
+                  if (file != null) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E1E1E),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.white24),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.image,
+                            color: Color(0xFFF59E0B),
+                            size: 20,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              file.path.split('/').last,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: getTextStyle(
+                                color: AppColors.primaryTextColor,
+                                fontsize: 12,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.close,
+                              color: Colors.white54,
+                              size: 18,
+                            ),
+                            onPressed: () => selectedFile.value = null,
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  return GestureDetector(
+                    onTap: () async {
+                      final picker = ImagePicker();
+                      final picked = await picker.pickImage(
+                        source: ImageSource.gallery,
+                      );
+                      if (picked != null) {
+                        selectedFile.value = File(picked.path);
+                      }
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E1E1E),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppColors.secondaryTextColor.withValues(
+                            alpha: 0.3,
+                          ),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          const Icon(
+                            Icons.cloud_upload_outlined,
+                            size: 28,
+                            color: Colors.white54,
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Tap to upload screenshot or photo proof',
+                            style: getTextStyle(
+                              color: AppColors.secondaryTextColor,
+                              fontsize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: CustomPrimaryButton(
+                    buttonText: 'Submit Dispute',
+                    gradientColor: const [
+                      Color.fromARGB(255, 120, 60, 0),
+                      Color.fromARGB(255, 217, 119, 6),
+                      Color.fromARGB(255, 120, 60, 0),
+                    ],
+                    onTap: () async {
+                      if (formKey.currentState!.validate()) {
+                        final desc = descController.text.trim();
+                        final file = selectedFile.value;
+                        Navigator.pop(bottomSheetContext);
+                        await controller.reportAnIssue(
+                          orderId: order.id,
+                          description: desc,
+                          proofFile: file,
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSecondaryButton({
+    required String text,
+    required VoidCallback onTap,
+    Color? borderColor,
+    Color? textColor,
+    IconData? icon,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1E1E),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color:
+              borderColor ??
+              AppColors.secondaryTextColor.withValues(alpha: 0.4),
+          width: 1,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 16),
+            alignment: Alignment.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[
+                  Icon(
+                    icon,
+                    size: 16,
+                    color: textColor ?? AppColors.primaryTextColor,
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Flexible(
+                  child: Text(
+                    text,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: getTextStyle(
+                      color: textColor ?? AppColors.primaryTextColor,
+                      fontsize: 14,
+                      fontweight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDisputeLockedBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A1C08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFFF59E0B).withValues(alpha: 0.5),
+          width: 1.2,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF59E0B).withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.shield_outlined,
+                  color: Color(0xFFF59E0B),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Under Review by DaConnect',
+                  style: getTextStyle(
+                    color: const Color(0xFFF59E0B),
+                    fontweight: FontWeight.bold,
+                    fontsize: 15,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'A dispute has been submitted for this order. Proof uploads, fund releases, and cancellations are temporarily locked while DaConnect reviews the case.',
+            style: getTextStyle(
+              color: AppColors.primaryTextColor.withValues(alpha: 0.9),
+              fontsize: 13,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBuyerCancelRequestedBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: const Color(0xFF3B82F6).withValues(alpha: 0.4),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: const Color(0xFF3B82F6).withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.hourglass_top_rounded,
+              color: Color(0xFF60A5FA),
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Cancellation Requested',
+                  style: getTextStyle(
+                    color: const Color(0xFF93C5FD),
+                    fontweight: FontWeight.w600,
+                    fontsize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Waiting for the creator to accept or decline your cancellation request.',
+                  style: getTextStyle(
+                    color: AppColors.secondaryTextColor,
+                    fontsize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSellerCancelRequestedBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2C1616),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.redColor.withValues(alpha: 0.5)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColors.redColor.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.warning_amber_rounded,
+              color: AppColors.redColor,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Cancellation Request Received',
+                  style: getTextStyle(
+                    color: AppColors.redColor,
+                    fontweight: FontWeight.w600,
+                    fontsize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'The buyer has requested to cancel this order. Please accept to refund the buyer, or decline to continue fulfilling.',
+                  style: getTextStyle(
+                    color: AppColors.primaryTextColor.withValues(alpha: 0.9),
+                    fontsize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -627,8 +1342,8 @@ class OrderDetailsScreen extends StatelessWidget {
       Get.delete<OrderDetailsController>(force: true);
     }
     final controller = Get.put(OrderDetailsController());
-    final orderController = Get.isRegistered<MyOrdersController>() 
-        ? Get.find<MyOrdersController>() 
+    final orderController = Get.isRegistered<MyOrdersController>()
+        ? Get.find<MyOrdersController>()
         : Get.put(MyOrdersController());
 
     return Scaffold(
@@ -671,7 +1386,33 @@ class OrderDetailsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ReviewerDetails(order: order),
-                    SizedBox(height: 24),
+                    SizedBox(height: 16),
+                    FutureBuilder<String?>(
+                      future: (() {
+                        try {
+                          return Get.find<SharedPreferencesHelperController>()
+                              .getUserId();
+                        } catch (_) {
+                          return Get.put(
+                            SharedPreferencesHelperController(),
+                          ).getUserId();
+                        }
+                      })(),
+                      builder: (context, snapshot) {
+                        final loggedInUserId = snapshot.data;
+                        final isBuyer =
+                            loggedInUserId != null &&
+                            loggedInUserId == order.buyerId;
+                        return OrderEscrowDeadlineBanner(
+                          order: order,
+                          isBuyer: isBuyer,
+                          hasOpenDispute: controller.hasOpenDispute.value,
+                          onExpired: () =>
+                              controller.handleDeadlineExpired(order.id),
+                        );
+                      },
+                    ),
+                    SizedBox(height: 8),
 
                     Text(
                       'Order Details',
@@ -708,10 +1449,11 @@ class OrderDetailsScreen extends StatelessWidget {
                             )
                           else if (order.status.toUpperCase() == 'RELEASED' ||
                               order.status.toUpperCase() == 'COMPLETED' ||
-                              order.status.toUpperCase() == 'COMPLETE')
+                              order.status.toUpperCase() == 'COMPLETE' ||
+                              order.status.toUpperCase() == 'PROOF_SUBMITTED')
                             _buildDetailRow(
                               'Delivered Date',
-                              _formatDate(order.deliveryDate),
+                              _formatDate(_resolveDeliveredDate(order)),
                             )
                           else
                             _buildDetailRow(
@@ -800,7 +1542,9 @@ class OrderDetailsScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: AppColors.backGroundColor,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.secondaryTextColor),
+                          border: Border.all(
+                            color: AppColors.secondaryTextColor,
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -876,7 +1620,11 @@ class OrderDetailsScreen extends StatelessWidget {
                               ),
                               SizedBox(height: 8),
                               ...order.files.map((fileUrl) {
-                                final fileName = fileUrl.split('/').last.split('?').first;
+                                final fileName = fileUrl
+                                    .split('/')
+                                    .last
+                                    .split('?')
+                                    .first;
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 8.0),
                                   child: Container(
@@ -910,7 +1658,8 @@ class OrderDetailsScreen extends StatelessWidget {
                                         ),
                                         IconButton(
                                           tooltip: 'View attachment',
-                                          onPressed: () => _viewFile(context, fileUrl),
+                                          onPressed: () =>
+                                              _viewFile(context, fileUrl),
                                           icon: Icon(
                                             Icons.visibility_outlined,
                                             color: AppColors.secondaryTextColor,
@@ -919,7 +1668,8 @@ class OrderDetailsScreen extends StatelessWidget {
                                         ),
                                         IconButton(
                                           tooltip: 'Download attachment',
-                                          onPressed: () => _downloadFile(fileUrl),
+                                          onPressed: () =>
+                                              _downloadFile(fileUrl),
                                           icon: Icon(
                                             Icons.download_outlined,
                                             color: AppColors.secondaryTextColor,
@@ -969,335 +1719,36 @@ class OrderDetailsScreen extends StatelessWidget {
                 final order = controller.order.value;
                 if (order == null) return const SizedBox.shrink();
 
-                // If order is PENDING we may show both Receive and Cancel buttons
-                if (order.status == 'PENDING') {
-                  return FutureBuilder<String?>(
-                    future: (() {
-                      try {
-                        return Get.find<SharedPreferencesHelperController>()
-                            .getUserId();
-                      } catch (_) {
-                        // Ensure the SharedPreferences controller exists
-                        return Get.put(
-                          SharedPreferencesHelperController(),
-                        ).getUserId();
-                      }
-                    })(),
-                    builder: (context, snapshot) {
-                      final loggedInUserId = snapshot.data;
-                      final isBuyer =
-                          loggedInUserId != null &&
-                          loggedInUserId == order.buyerId;
+                final statusUpper = order.status.toUpperCase().trim();
+                final hasOpenDispute = controller.hasOpenDispute.value;
+                final isCancelRequested = order.isCancelRequested;
 
-                      final showReceive = !isBuyer;
+                return FutureBuilder<String?>(
+                  future: (() {
+                    try {
+                      return Get.find<SharedPreferencesHelperController>()
+                          .getUserId();
+                    } catch (_) {
+                      return Get.put(
+                        SharedPreferencesHelperController(),
+                      ).getUserId();
+                    }
+                  })(),
+                  builder: (context, snapshot) {
+                    final loggedInUserId = snapshot.data;
+                    final isBuyer =
+                        loggedInUserId != null &&
+                        loggedInUserId == order.buyerId;
 
-                      if (showReceive) {
-                        // Show both Receive and Cancel side-by-side
-                        return Row(
-                          children: [
-                            Expanded(
-                              child: CustomPrimaryButton(
-                                buttonText: 'Receive Order',
-                                onTap: () async {
-                                  await orderController.updateOrderStatus(
-                                    orderId: order.id.toString(),
-                                    status: OrderStatus.IN_PROGRESS,
-                                  );
-                                },
-                              ),
-                            ),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: CustomPrimaryButton(
-                                buttonText: 'Cancel Order',
-                                onTap: () => _cancelOrder(
-                                  context: context,
-                                  order: order,
-                                  controller: controller,
-                                  orderController: orderController,
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }
+                    // 1. TERMINAL STATE: CANCELLED (no actions)
+                    if (statusUpper == 'CANCELLED') {
+                      return const SizedBox.shrink();
+                    }
 
-                      // If buyer, only show Cancel button (they requested cancel kept)
-                      return CustomPrimaryButton(
-                        buttonText: 'Cancel Order',
-                        onTap: () => _cancelOrder(
-                          context: context,
-                          order: order,
-                          controller: controller,
-                          orderController: orderController,
-                        ),
-                      );
-                    },
-                  );
-                }
-
-                // For IN_PROGRESS: show Upload Proof (for seller) and Cancel
-                if (order.status == 'IN_PROGRESS') {
-                  return FutureBuilder<String?>(
-                    future: (() {
-                      try {
-                        return Get.find<SharedPreferencesHelperController>()
-                            .getUserId();
-                      } catch (_) {
-                        return Get.put(
-                          SharedPreferencesHelperController(),
-                        ).getUserId();
-                      }
-                    })(),
-                    builder: (context, snapshot) {
-                      final loggedInUserId = snapshot.data;
-                      final isBuyer =
-                          loggedInUserId != null &&
-                          loggedInUserId == order.buyerId;
-
-                      // Seller (not buyer) can upload proof
-                      if (!isBuyer) {
-                        return Row(
-                          children: [
-                            Expanded(
-                              child: CustomPrimaryButton(
-                                buttonText: 'Upload Proof',
-                                onTap: () => _pickAndConfirmProofUpload(
-                                  context,
-                                  controller,
-                                  orderController,
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: CustomPrimaryButton(
-                                buttonText: 'Cancel Order',
-                                onTap: () => _cancelOrder(
-                                  context: context,
-                                  order: order,
-                                  controller: controller,
-                                  orderController: orderController,
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }
-
-                      // Buyer sees Cancel button
-                      return CustomPrimaryButton(
-                        buttonText: 'Cancel Order',
-                        onTap: () => _cancelOrder(
-                          context: context,
-                          order: order,
-                          controller: controller,
-                          orderController: orderController,
-                        ),
-                      );
-                    },
-                  );
-                }
-
-                // For RESUBMIT status (proof was rejected)
-                if (order.status == 'RESUBMIT' || (order.status == 'PROOF_SUBMITTED' && order.isCancalProofSubmitted)) {
-                  return FutureBuilder<String?>(
-                    future: (() {
-                      try {
-                        return Get.find<SharedPreferencesHelperController>()
-                            .getUserId();
-                      } catch (_) {
-                        return Get.put(
-                          SharedPreferencesHelperController(),
-                        ).getUserId();
-                      }
-                    })(),
-                    builder: (context, snapshot) {
-                      final loggedInUserId = snapshot.data;
-                      final isBuyer =
-                          loggedInUserId != null &&
-                          loggedInUserId == order.buyerId;
-
-                      // Seller view: can re-submit proof
-                      if (!isBuyer) {
-                        return Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: CustomPrimaryButton(
-                                    buttonText: 'Re-submit Proof',
-                                    onTap: () => _pickAndConfirmProofUpload(
-                                      context,
-                                      controller,
-                                      orderController,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 12),
-                            CustomPrimaryButton(
-                              buttonText: 'Cancel Order',
-                              onTap: () => _cancelOrder(
-                                context: context,
-                                order: order,
-                                controller: controller,
-                                orderController: orderController,
-                              ),
-                            ),
-                          ],
-                        );
-                      }
-
-                      // Buyer view: waiting for seller to resubmit proof + Cancel button
-                      return Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: AppColors.redColor.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: AppColors.redColor.withValues(alpha: 0.3),
-                              ),
-                            ),
-                            child: Text(
-                              'Proof Rejected. Waiting for seller to re-submit proof.',
-                              textAlign: TextAlign.center,
-                              style: getTextStyle(
-                                color: AppColors.primaryTextColor,
-                                fontsize: 13,
-                                fontweight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 12),
-                          CustomPrimaryButton(
-                            buttonText: 'Cancel Order',
-                            onTap: () => _cancelOrder(
-                              context: context,
-                              order: order,
-                              controller: controller,
-                              orderController: orderController,
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                }
-
-                // For PROOF_SUBMITTED: show Confirm Order, Reject Proof, and Cancel Order (for buyer)
-                if (order.status == 'PROOF_SUBMITTED') {
-                  return FutureBuilder<String?>(
-                    future: (() {
-                      try {
-                        return Get.find<SharedPreferencesHelperController>()
-                            .getUserId();
-                      } catch (_) {
-                        return Get.put(
-                          SharedPreferencesHelperController(),
-                        ).getUserId();
-                      }
-                    })(),
-                    builder: (context, snapshot) {
-                      final loggedInUserId = snapshot.data;
-                      final isBuyer =
-                          loggedInUserId != null &&
-                          loggedInUserId == order.buyerId;
-
-                      // Buyer can confirm, reject, or cancel order
-                      if (isBuyer) {
-                        return Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: CustomPrimaryButton(
-                                    buttonText: 'Confirm Order',
-                                    onTap: () async {
-                                      final success = await controller
-                                          .confirmOrder();
-                                      if (success) {
-                                        EasyLoading.showSuccess(
-                                          'Order confirmed & payment released',
-                                        );
-                                        // Refresh orders list in My Orders screen
-                                        try {
-                                          await orderController.loadOrders();
-                                        } catch (_) {}
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: CustomPrimaryButton(
-                                    buttonText: 'Reject Proof',
-                                    onTap: () => _showRejectProofDialog(
-                                      context: context,
-                                      controller: controller,
-                                      orderController: orderController,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 12),
-                            CustomPrimaryButton(
-                              buttonText: 'Cancel Order',
-                              onTap: () => _cancelOrder(
-                                context: context,
-                                order: order,
-                                controller: controller,
-                                orderController: orderController,
-                              ),
-                            ),
-                          ],
-                        );
-                      }
-
-                      // Seller sees Cancel button when proof is pending review
-                      return CustomPrimaryButton(
-                        buttonText: 'Cancel Order',
-                        onTap: () => _cancelOrder(
-                          context: context,
-                          order: order,
-                          controller: controller,
-                          orderController: orderController,
-                        ),
-                      );
-                    },
-                  );
-                }
-
-                // For RELEASED status: no buttons for anyone
-                if (order.status == 'RELEASED') {
-                  return FutureBuilder<String?>(
-                    future: (() {
-                      try {
-                        final prefs =
-                            Get.find<SharedPreferencesHelperController>();
-                        return prefs.getUserId();
-                      } catch (_) {
-                        return Get.put(
-                          SharedPreferencesHelperController(),
-                        ).getUserId();
-                      }
-                    })(),
-                    builder: (context, snapshot) {
-                      final loggedInUserId = snapshot.data;
-                      final isBuyer =
-                          loggedInUserId != null &&
-                          loggedInUserId == order.buyerId;
-
-                      // Buyer can post a review
+                    // 2. TERMINAL STATE: RELEASED / COMPLETED
+                    if (statusUpper == 'RELEASED' ||
+                        statusUpper == 'COMPLETE' ||
+                        statusUpper == 'COMPLETED') {
                       if (isBuyer) {
                         return CustomPrimaryButton(
                           buttonText: 'Post Review',
@@ -1315,7 +1766,6 @@ class OrderDetailsScreen extends StatelessWidget {
                                       title: 'Success',
                                       message: 'Review posted successfully!',
                                     );
-                                    // Refresh orders list in My Orders screen
                                     try {
                                       await orderController.loadOrders();
                                     } catch (_) {}
@@ -1326,27 +1776,424 @@ class OrderDetailsScreen extends StatelessWidget {
                           },
                         );
                       }
-
-                      // Seller sees nothing on RELEASED
                       return const SizedBox.shrink();
-                    },
-                  );
-                }
+                    }
 
-                // For other non-PENDING statuses show the Cancel button as before
-                // Do not show cancel button if the order is already CANCELLED
-                if (order.status.toUpperCase() == 'CANCELLED') {
-                  return const SizedBox.shrink();
-                }
+                    // 3. DISPUTE UNDER REVIEW (LOCKED STATE FOR BOTH PARTIES)
+                    if (hasOpenDispute) {
+                      return _buildDisputeLockedBanner();
+                    }
 
-                return CustomPrimaryButton(
-                  buttonText: 'Cancel Order',
-                  onTap: () => _cancelOrder(
-                    context: context,
-                    order: order,
-                    controller: controller,
-                    orderController: orderController,
-                  ),
+                    // 4. PENDING STATUS (PRE-ACCEPTANCE)
+                    if (statusUpper == 'PENDING') {
+                      if (!isBuyer) {
+                        // Seller: Receive Order & Direct Cancel
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: CustomPrimaryButton(
+                                buttonText: 'Receive Order',
+                                onTap: () async {
+                                  await orderController.updateOrderStatus(
+                                    orderId: order.id.toString(),
+                                    status: OrderStatus.IN_PROGRESS,
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildSecondaryButton(
+                                text: 'Cancel Order',
+                                textColor: AppColors.redColor,
+                                borderColor: AppColors.redColor.withValues(
+                                  alpha: 0.4,
+                                ),
+                                onTap: () => _showDirectCancelDialog(
+                                  context: context,
+                                  order: order,
+                                  controller: controller,
+                                  orderController: orderController,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        // Buyer: Direct Cancel
+                        return CustomPrimaryButton(
+                          buttonText: 'Cancel Order',
+                          onTap: () => _showDirectCancelDialog(
+                            context: context,
+                            order: order,
+                            controller: controller,
+                            orderController: orderController,
+                          ),
+                        );
+                      }
+                    }
+
+                    // 5. IN_PROGRESS / PROOF_SUBMITTED / RESUBMIT
+                    // CASE A: isCancelRequested == true
+                    if (isCancelRequested) {
+                      if (isBuyer) {
+                        // Buyer: Waiting Banner + Report an Issue button
+                        return Column(
+                          children: [
+                            _buildBuyerCancelRequestedBanner(),
+                            const SizedBox(height: 14),
+                            _buildSecondaryButton(
+                              text: 'Report an Issue',
+                              icon: Icons.flag_outlined,
+                              textColor: const Color(0xFFF59E0B),
+                              borderColor: const Color(
+                                0xFFF59E0B,
+                              ).withValues(alpha: 0.4),
+                              onTap: () => _showReportIssueDialog(
+                                context: context,
+                                order: order,
+                                controller: controller,
+                              ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        // Seller: Notice + Accept Cancellation + Decline Cancellation
+                        return Column(
+                          children: [
+                            _buildSellerCancelRequestedBanner(),
+                            const SizedBox(height: 14),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: CustomPrimaryButton(
+                                    buttonText: 'Accept Cancellation',
+                                    fontSize: 14,
+                                    gradientColor: const [
+                                      Color.fromARGB(255, 96, 0, 15),
+                                      Color.fromARGB(255, 187, 2, 36),
+                                      Color.fromARGB(255, 96, 0, 15),
+                                    ],
+                                    onTap: () => _showAcceptCancellationDialog(
+                                      context: context,
+                                      order: order,
+                                      controller: controller,
+                                      orderController: orderController,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _buildSecondaryButton(
+                                    text: 'Decline',
+                                    textColor: AppColors.primaryTextColor,
+                                    onTap: () => _showDeclineCancellationDialog(
+                                      context: context,
+                                      order: order,
+                                      controller: controller,
+                                      orderController: orderController,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      }
+                    }
+
+                    // CASE B: isCancelRequested == false
+                    if (isBuyer) {
+                      // Buyer options based on status
+                      if (statusUpper == 'PROOF_SUBMITTED' &&
+                          !order.isCancalProofSubmitted) {
+                        return Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: CustomPrimaryButton(
+                                    buttonText: 'Confirm Order',
+                                    onTap: () async {
+                                      final success = await controller
+                                          .confirmOrder();
+                                      if (success) {
+                                        EasyLoading.showSuccess(
+                                          'Order confirmed & payment released',
+                                        );
+                                        try {
+                                          await orderController.loadOrders();
+                                        } catch (_) {}
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildSecondaryButton(
+                                    text: 'Reject Proof',
+                                    textColor: AppColors.redColor,
+                                    borderColor: AppColors.redColor.withValues(
+                                      alpha: 0.4,
+                                    ),
+                                    onTap: () => _showRejectProofDialog(
+                                      context: context,
+                                      controller: controller,
+                                      orderController: orderController,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildSecondaryButton(
+                                    text: 'Request Cancellation',
+                                    textColor: AppColors.secondaryTextColor,
+                                    onTap: () => _showRequestCancellationDialog(
+                                      context: context,
+                                      order: order,
+                                      controller: controller,
+                                      orderController: orderController,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _buildSecondaryButton(
+                                    text: 'Report an Issue',
+                                    icon: Icons.flag_outlined,
+                                    textColor: const Color(0xFFF59E0B),
+                                    borderColor: const Color(
+                                      0xFFF59E0B,
+                                    ).withValues(alpha: 0.4),
+                                    onTap: () => _showReportIssueDialog(
+                                      context: context,
+                                      order: order,
+                                      controller: controller,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      }
+
+                      if (statusUpper == 'RESUBMIT' ||
+                          (statusUpper == 'PROOF_SUBMITTED' &&
+                              order.isCancalProofSubmitted)) {
+                        return Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: AppColors.redColor.withValues(
+                                  alpha: 0.1,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: AppColors.redColor.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                'Proof Rejected. Waiting for seller to re-submit proof.',
+                                textAlign: TextAlign.center,
+                                style: getTextStyle(
+                                  color: AppColors.primaryTextColor,
+                                  fontsize: 13,
+                                  fontweight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildSecondaryButton(
+                                    text: 'Request Cancellation',
+                                    textColor: AppColors.secondaryTextColor,
+                                    onTap: () => _showRequestCancellationDialog(
+                                      context: context,
+                                      order: order,
+                                      controller: controller,
+                                      orderController: orderController,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _buildSecondaryButton(
+                                    text: 'Report an Issue',
+                                    icon: Icons.flag_outlined,
+                                    textColor: const Color(0xFFF59E0B),
+                                    borderColor: const Color(
+                                      0xFFF59E0B,
+                                    ).withValues(alpha: 0.4),
+                                    onTap: () => _showReportIssueDialog(
+                                      context: context,
+                                      order: order,
+                                      controller: controller,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      }
+
+                      // IN_PROGRESS: Buyer sees Request Cancellation and Report an Issue
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: _buildSecondaryButton(
+                              text: 'Request Cancellation',
+                              textColor: AppColors.secondaryTextColor,
+                              onTap: () => _showRequestCancellationDialog(
+                                context: context,
+                                order: order,
+                                controller: controller,
+                                orderController: orderController,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildSecondaryButton(
+                              text: 'Report an Issue',
+                              icon: Icons.flag_outlined,
+                              textColor: const Color(0xFFF59E0B),
+                              borderColor: const Color(
+                                0xFFF59E0B,
+                              ).withValues(alpha: 0.4),
+                              onTap: () => _showReportIssueDialog(
+                                context: context,
+                                order: order,
+                                controller: controller,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    } else {
+                      // Seller options based on status
+                      if (statusUpper == 'RESUBMIT' ||
+                          (statusUpper == 'PROOF_SUBMITTED' &&
+                              order.isCancalProofSubmitted)) {
+                        return Column(
+                          children: [
+                            CustomPrimaryButton(
+                              buttonText: 'Re-submit Proof',
+                              onTap: () => _pickAndConfirmProofUpload(
+                                context,
+                                controller,
+                                orderController,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            _buildSecondaryButton(
+                              text: 'Cancel Order',
+                              textColor: AppColors.redColor,
+                              borderColor: AppColors.redColor.withValues(
+                                alpha: 0.4,
+                              ),
+                              onTap: () => _showDirectCancelDialog(
+                                context: context,
+                                order: order,
+                                controller: controller,
+                                orderController: orderController,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      if (statusUpper == 'PROOF_SUBMITTED') {
+                        return Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1E293B),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: const Color(
+                                    0xFF3B82F6,
+                                  ).withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: Text(
+                                'Proof submitted. Waiting for buyer review.',
+                                textAlign: TextAlign.center,
+                                style: getTextStyle(
+                                  color: AppColors.primaryTextColor,
+                                  fontsize: 13,
+                                  fontweight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            _buildSecondaryButton(
+                              text: 'Cancel Order',
+                              textColor: AppColors.redColor,
+                              borderColor: AppColors.redColor.withValues(
+                                alpha: 0.4,
+                              ),
+                              onTap: () => _showDirectCancelDialog(
+                                context: context,
+                                order: order,
+                                controller: controller,
+                                orderController: orderController,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      // IN_PROGRESS: Seller sees Upload Proof & Cancel Order
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: CustomPrimaryButton(
+                              buttonText: 'Upload Proof',
+                              onTap: () => _pickAndConfirmProofUpload(
+                                context,
+                                controller,
+                                orderController,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildSecondaryButton(
+                              text: 'Cancel Order',
+                              textColor: AppColors.redColor,
+                              borderColor: AppColors.redColor.withValues(
+                                alpha: 0.4,
+                              ),
+                              onTap: () => _showDirectCancelDialog(
+                                context: context,
+                                order: order,
+                                controller: controller,
+                                orderController: orderController,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                  },
                 );
               }),
             ],
@@ -1356,14 +2203,53 @@ class OrderDetailsScreen extends StatelessWidget {
     );
   }
 
+  String _resolveDeliveredDate(OrderDetailsModel order) {
+    if (order.releasedAt.isNotEmpty) return order.releasedAt;
+    if (order.proofSubmittedAt.isNotEmpty) return order.proofSubmittedAt;
+    if (order.deliveryDate.isNotEmpty) return order.deliveryDate;
+    for (final step in order.timeline.reversed) {
+      if (step.isCompleted && step.dateTime.isNotEmpty) {
+        return step.dateTime;
+      }
+    }
+    return order.orderCreated;
+  }
+
   String _formatDate(String raw) {
-    if (raw.isEmpty) return '-';
+    if (raw.trim().isEmpty || raw.trim() == '-') return '-';
     try {
+      final trimmed = raw.trim();
       DateTime dt;
-      if (RegExp(r'^\d+$').hasMatch(raw)) {
-        dt = DateTime.fromMillisecondsSinceEpoch(int.parse(raw)).toLocal();
+      if (RegExp(r'^\d+$').hasMatch(trimmed)) {
+        int ts = int.parse(trimmed);
+        if (trimmed.length <= 10) {
+          ts *= 1000;
+        }
+        dt = DateTime.fromMillisecondsSinceEpoch(ts).toLocal();
       } else {
-        dt = DateTime.parse(raw).toLocal();
+        DateTime? parsed = DateTime.tryParse(trimmed);
+        if (parsed == null) {
+          for (final fmt in [
+            'MM/dd/yyyy',
+            'dd/MM/yyyy',
+            'yyyy-MM-dd',
+            'dd MMM yyyy',
+            'd MMM yyyy',
+            'MMM d, yyyy',
+            'MMMM d, yyyy',
+            'd MMMM yyyy',
+          ]) {
+            try {
+              parsed = DateFormat(fmt).parse(trimmed);
+              break;
+            } catch (_) {}
+          }
+        }
+        if (parsed != null) {
+          dt = parsed.toLocal();
+        } else {
+          return raw;
+        }
       }
       return DateFormat('MMM d, yyyy · h:mm a').format(dt);
     } catch (_) {
@@ -1384,11 +2270,15 @@ class OrderDetailsScreen extends StatelessWidget {
               fontsize: 13,
             ),
           ),
-          Text(
-            value,
-            style: getTextStyle(
-              color: AppColors.primaryTextColor,
-              fontweight: isBold ? FontWeight.w600 : FontWeight.w400,
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: getTextStyle(
+                color: AppColors.primaryTextColor,
+                fontsize: 13,
+                fontweight: isBold ? FontWeight.w600 : FontWeight.w400,
+              ),
             ),
           ),
         ],

@@ -13,12 +13,16 @@ import 'package:jconnect/features/my_orders/order_details/model/order_details_mo
 import 'package:jconnect/features/my_orders/model/order_model.dart';
 import 'package:jconnect/features/my_orders/order_details/model/order_timeline_step.dart';
 import 'package:jconnect/features/my_orders/order_socket/order_socket_service.dart';
+import 'package:jconnect/features/user_profile/help_and_support/disputes/model/dispute_model.dart';
+import 'package:jconnect/features/my_orders/controller/my_order_controller.dart';
 
 class OrderDetailsController extends GetxController {
   final order = Rxn<OrderDetailsModel>();
   // seller average rating loaded from user endpoint
   final sellerAverage = Rxn<double>();
   final isLoading = false.obs;
+  final hasOpenDispute = false.obs;
+  final openDispute = Rxn<DisputeModel>();
   String? _loadedOrderId;
   StreamSubscription? _socketSubscription;
 
@@ -106,6 +110,8 @@ class OrderDetailsController extends GetxController {
         print(
           '✅ [ORDER DETAILS] Fetched from API successfully, ID: ${order.value?.id}',
         );
+        // Check if there is an active dispute for this order
+        await checkDisputeStatus(orderId, authHeader: authHeader);
       } else {
         final errorMsg = _extractErrorMessage(
           response.body,
@@ -118,6 +124,55 @@ class OrderDetailsController extends GetxController {
       EasyLoading.showError('Error loading order details: $e');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  /// Query GET /disputes/my to check whether there is an open (UNDER_REVIEW) dispute for this order.
+  Future<void> checkDisputeStatus(String orderId, {String? authHeader}) async {
+    try {
+      String? header = authHeader;
+      if (header == null) {
+        final prefs = Get.find<SharedPreferencesHelperController>();
+        final token = await prefs.getAccessToken();
+        if (token == null || token.isEmpty) return;
+        header = token.startsWith('Bearer ') ? token : 'Bearer $token';
+      }
+
+      final response = await http.get(
+        Uri.parse(Endpoint.dispute),
+        headers: {'Authorization': header, 'accept': '*/*'},
+      );
+
+      if (response.statusCode == 200) {
+        final dynamic data = jsonDecode(response.body);
+        if (data is List) {
+          final active = data.firstWhereOrNull((e) {
+            if (e is! Map) return false;
+            final dOrderId =
+                (e['orderId'] ??
+                        e['order']?['id'] ??
+                        e['order']?['orderId'] ??
+                        '')
+                    .toString();
+            final status = (e['status'] ?? '').toString().toUpperCase();
+            return dOrderId == orderId && status == 'UNDER_REVIEW';
+          });
+
+          if (active != null) {
+            hasOpenDispute.value = true;
+            try {
+              openDispute.value = DisputeModel.fromJson(
+                Map<String, dynamic>.from(active),
+              );
+            } catch (_) {}
+            return;
+          }
+        }
+      }
+      hasOpenDispute.value = false;
+      openDispute.value = null;
+    } catch (e) {
+      print('⚠️ Error checking dispute status: $e');
     }
   }
 
@@ -357,6 +412,11 @@ class OrderDetailsController extends GetxController {
           resp.body,
           fallback: 'Failed: ${resp.statusCode}',
         );
+        if (errorMsg.toLowerCase().contains('dispute') ||
+            errorMsg.toLowerCase().contains('locked') ||
+            errorMsg.toLowerCase().contains('under review')) {
+          hasOpenDispute.value = true;
+        }
         EasyLoading.showError(errorMsg);
         return false;
       }
@@ -408,12 +468,300 @@ class OrderDetailsController extends GetxController {
           resp.body,
           fallback: 'Failed: ${resp.statusCode}',
         );
+        if (errorMsg.toLowerCase().contains('dispute') ||
+            errorMsg.toLowerCase().contains('locked') ||
+            errorMsg.toLowerCase().contains('under review')) {
+          hasOpenDispute.value = true;
+        }
         EasyLoading.showError(errorMsg);
         return false;
       }
     } catch (e) {
       EasyLoading.showError('Confirmation error: $e');
       return false;
+    }
+  }
+
+  /// Buyer requests cancellation (PATCH /orders/:id/status?status=CANCELLED).
+  /// Only valid while order is IN_PROGRESS, PROOF_SUBMITTED, or RESUBMIT.
+  Future<bool> requestCancellation(String orderId) async {
+    try {
+      final prefs = Get.find<SharedPreferencesHelperController>();
+      final token = await prefs.getAccessToken();
+      if (token == null || token.isEmpty) {
+        EasyLoading.showError('No auth token available');
+        return false;
+      }
+      final authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+      final url = '${Endpoint.updateOrderStatus(orderId)}?status=CANCELLED';
+
+      EasyLoading.show(status: 'Sending cancellation request...');
+      final response = await http.patch(
+        Uri.parse(url),
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/json',
+        },
+      );
+      EasyLoading.dismiss();
+
+      print('🔥 [REQUEST CANCELLATION] Status: ${response.statusCode}');
+      print('🔥 [REQUEST CANCELLATION] Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        String message = 'Cancellation request sent to seller successfully';
+        try {
+          final body = jsonDecode(response.body);
+          if (body is Map && body['message'] != null) {
+            message = body['message'].toString();
+          }
+        } catch (_) {}
+
+        EasyLoading.showSuccess(message);
+
+        // Update local state: isCancelRequested = true
+        final current = order.value;
+        if (current != null && current.id == orderId) {
+          order.value = current.copyWith(
+            isCancelRequested: true,
+            cancelRequestedAt: DateTime.now().toIso8601String(),
+          );
+        }
+
+        // Send courtesy message to seller in chat
+        _sendCancellationChatMessage(orderId, authHeader);
+
+        // Refresh details & orders list
+        await fetchOrderDetails(orderId);
+        try {
+          if (Get.isRegistered<MyOrdersController>()) {
+            Get.find<MyOrdersController>().loadOrders();
+          }
+        } catch (_) {}
+
+        return true;
+      } else {
+        final errorMsg = _extractErrorMessage(
+          response.body,
+          fallback: 'Failed to request cancellation',
+        );
+        EasyLoading.showError(errorMsg);
+        return false;
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
+      EasyLoading.showError('Error: $e');
+      return false;
+    }
+  }
+
+  /// Seller accepts cancellation request (PATCH /orders/:id/status?status=CANCELLED).
+  Future<bool> acceptCancellation(String orderId) async {
+    try {
+      final prefs = Get.find<SharedPreferencesHelperController>();
+      final token = await prefs.getAccessToken();
+      if (token == null || token.isEmpty) {
+        EasyLoading.showError('No auth token available');
+        return false;
+      }
+      final authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+      final url = '${Endpoint.updateOrderStatus(orderId)}?status=CANCELLED';
+
+      EasyLoading.show(status: 'Accepting cancellation...');
+      final response = await http.patch(
+        Uri.parse(url),
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/json',
+        },
+      );
+      EasyLoading.dismiss();
+
+      print('🔥 [ACCEPT CANCELLATION] Status: ${response.statusCode}');
+      print('🔥 [ACCEPT CANCELLATION] Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        EasyLoading.showSuccess('Cancellation accepted. Order cancelled.');
+        applyStatusUpdate(orderId, 'CANCELLED');
+        await fetchOrderDetails(orderId);
+        try {
+          if (Get.isRegistered<MyOrdersController>()) {
+            Get.find<MyOrdersController>().loadOrders();
+          }
+        } catch (_) {}
+        return true;
+      } else {
+        final errorMsg = _extractErrorMessage(
+          response.body,
+          fallback: 'Failed to accept cancellation',
+        );
+        EasyLoading.showError(errorMsg);
+        return false;
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
+      EasyLoading.showError('Error: $e');
+      return false;
+    }
+  }
+
+  /// Seller declines cancellation request (PATCH /orders/:id/cancel-request/decline).
+  Future<bool> declineCancellation(String orderId) async {
+    try {
+      final prefs = Get.find<SharedPreferencesHelperController>();
+      final token = await prefs.getAccessToken();
+      if (token == null || token.isEmpty) {
+        EasyLoading.showError('No auth token available');
+        return false;
+      }
+      final authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+      final url = Endpoint.declineCancelRequest(orderId);
+
+      EasyLoading.show(status: 'Declining cancellation...');
+      final response = await http.patch(
+        Uri.parse(url),
+        headers: {
+          'Authorization': authHeader,
+          'Accept': '*/*',
+          'Content-Type': 'application/json',
+        },
+      );
+      EasyLoading.dismiss();
+
+      print('🔥 [DECLINE CANCELLATION] Status: ${response.statusCode}');
+      print('🔥 [DECLINE CANCELLATION] Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        String msg =
+            'Cancellation request declined. The order remains in progress.';
+        try {
+          final body = jsonDecode(response.body);
+          if (body is Map && body['message'] != null) {
+            msg = body['message'].toString();
+          }
+        } catch (_) {}
+        EasyLoading.showSuccess(msg);
+
+        final current = order.value;
+        if (current != null && current.id == orderId) {
+          order.value = current.copyWith(
+            isCancelRequested: false,
+            cancelRequestedAt: '',
+          );
+        }
+
+        await fetchOrderDetails(orderId);
+        try {
+          if (Get.isRegistered<MyOrdersController>()) {
+            Get.find<MyOrdersController>().loadOrders();
+          }
+        } catch (_) {}
+        return true;
+      } else {
+        final errorMsg = _extractErrorMessage(
+          response.body,
+          fallback: 'Failed to decline cancellation',
+        );
+        EasyLoading.showError(errorMsg);
+        return false;
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
+      EasyLoading.showError('Error: $e');
+      return false;
+    }
+  }
+
+  /// Report an Issue / Raise a Dispute (POST /disputes).
+  Future<bool> reportAnIssue({
+    required String orderId,
+    required String description,
+    File? proofFile,
+  }) async {
+    try {
+      final prefs = Get.find<SharedPreferencesHelperController>();
+      final token = await prefs.getAccessToken();
+      if (token == null || token.isEmpty) {
+        EasyLoading.showError('Authentication required');
+        return false;
+      }
+      final authHeader = token.startsWith('Bearer ') ? token : 'Bearer $token';
+
+      EasyLoading.show(status: 'Submitting dispute report...');
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse(Endpoint.raiseDispute),
+      );
+      request.headers['Authorization'] = authHeader;
+      request.fields['orderId'] = orderId;
+      request.fields['description'] = description;
+
+      if (proofFile != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath('files', proofFile.path),
+        );
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      EasyLoading.dismiss();
+
+      print('🔥 [REPORT AN ISSUE] Status: ${response.statusCode}');
+      print('🔥 [REPORT AN ISSUE] Body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        EasyLoading.showSuccess(
+          'Issue reported to DaConnect. Order is now under review.',
+        );
+        hasOpenDispute.value = true;
+        await checkDisputeStatus(orderId, authHeader: authHeader);
+        await fetchOrderDetails(orderId);
+        return true;
+      } else {
+        final errorMsg = _extractErrorMessage(
+          response.body,
+          fallback: 'Failed to report issue',
+        );
+        EasyLoading.showError(errorMsg);
+        return false;
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
+      EasyLoading.showError('Error submitting dispute: $e');
+      return false;
+    }
+  }
+
+  /// Sends a courteous cancellation message in chat to seller.
+  Future<void> _sendCancellationChatMessage(
+    String orderId,
+    String authHeader,
+  ) async {
+    try {
+      final current = order.value;
+      if (current == null) return;
+      final recipientId = current.sellerId.trim();
+      if (recipientId.isEmpty) return;
+
+      final cancellationText =
+          "Hope you're doing well. I would like to kindly cancel my order "
+          "${current.orderCode.isNotEmpty ? '(Order ID: ${current.orderCode}) ' : ''}"
+          ". Please let me know if any further action is required from my side. "
+          "Thank you for your understanding.";
+
+      await http.post(
+        Uri.parse('${Endpoint.sendMessage}/$recipientId'),
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'recipientId': recipientId,
+          'content': cancellationText,
+        }),
+      );
+    } catch (e) {
+      print('[CANCEL CHAT MSG] Error: $e');
     }
   }
 
@@ -469,6 +817,16 @@ class OrderDetailsController extends GetxController {
       reason: reason,
     );
 
+    // Clear deadlines when leaving PENDING or PROOF_SUBMITTED
+    String? newAcceptDeadline = current.acceptDeadline;
+    String? newProofDeadline = current.proofReviewDeadline;
+    if (statusUpper != 'PENDING') {
+      newAcceptDeadline = null;
+    }
+    if (statusUpper != 'PROOF_SUBMITTED') {
+      newProofDeadline = null;
+    }
+
     order.value = current.copyWith(
       status: status,
       inProgressAt: inProgressAt,
@@ -478,11 +836,66 @@ class OrderDetailsController extends GetxController {
       cancelledAt: cancelledAt,
       timeline: newTimeline,
       isCancalProofSubmitted: isResubmit,
+      acceptDeadline: newAcceptDeadline,
+      proofReviewDeadline: newProofDeadline,
     );
+  }
+
+  Timer? _expiryCheckTimer;
+  int _expiryRetryCount = 0;
+
+  /// Handle client deadline countdown expiration.
+  /// Refetches order and sets up brief polling retries because the server cron runs once a minute.
+  void handleDeadlineExpired(String orderId) {
+    print(
+      '⏱️ [ORDER DEADLINE EXPIRED] Deadline hit zero for $orderId. Triggering refresh...',
+    );
+    _expiryCheckTimer?.cancel();
+    _expiryRetryCount = 0;
+
+    // Immediate refresh
+    fetchOrderDetails(orderId);
+
+    // Schedule retries at 15s intervals up to 5 times (75s total) to catch the 60s cron cycle
+    _expiryCheckTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
+      _expiryRetryCount++;
+      final current = order.value;
+      if (current == null || current.id != orderId) {
+        timer.cancel();
+        return;
+      }
+
+      final s = current.status.toUpperCase().trim();
+      final isStillPending = s == 'PENDING' && current.acceptDeadline != null;
+      final isStillProofSubmitted =
+          s == 'PROOF_SUBMITTED' && current.proofReviewDeadline != null;
+
+      if (!isStillPending && !isStillProofSubmitted) {
+        print(
+          '✅ [ORDER DEADLINE EXPIRED] Order state transitioned to $s. Stopping poll.',
+        );
+        timer.cancel();
+        return;
+      }
+
+      if (_expiryRetryCount >= 5) {
+        print(
+          '⏱️ [ORDER DEADLINE EXPIRED] Max retry count reached. Stopping poll.',
+        );
+        timer.cancel();
+        return;
+      }
+
+      print(
+        '🔄 [ORDER DEADLINE EXPIRED] Retry $_expiryRetryCount/5 checking server for $orderId...',
+      );
+      fetchOrderDetails(orderId);
+    });
   }
 
   @override
   void onClose() {
+    _expiryCheckTimer?.cancel();
     _socketSubscription?.cancel();
     if (_loadedOrderId != null) {
       try {

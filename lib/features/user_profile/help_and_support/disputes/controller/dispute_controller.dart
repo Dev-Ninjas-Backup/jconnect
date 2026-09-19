@@ -101,13 +101,18 @@ class DisputeController extends GetxController {
       if (response.statusCode == 200 || response.statusCode == 201) {
         // Update local disputes list
         final order = orders.firstWhere((o) => o['id'] == orderId);
+        final String sellerUsername =
+            order['seller']?['username'] ??
+            order['seller']?['user_name'] ??
+            order['seller']?['full_name'] ??
+            'Unknown';
         disputes.insert(
           0,
           DisputeModel(
-            userName: order['seller']?['full_name'] ?? 'Unknown',
+            userName: sellerUsername,
             dealTitle: order['service']?['serviceName'] ?? 'Unknown',
             description: description,
-            date: 'Today',
+            date: DateTime.now().toIso8601String(),
             amount: (order['amount'] ?? 0).toDouble(),
             status: 'UNDER_REVIEW',
           ),

@@ -39,6 +39,9 @@ class OrderDetailsModel {
   final List<String> files;
   final bool isCancelRequested;
   final String cancelRequestedAt;
+  final String? acceptDeadline;
+  final String? proofReviewDeadline;
+  final String? action;
 
   OrderDetailsModel({
     required this.id,
@@ -77,6 +80,9 @@ class OrderDetailsModel {
     this.files = const [],
     this.isCancelRequested = false,
     this.cancelRequestedAt = '',
+    this.acceptDeadline,
+    this.proofReviewDeadline,
+    this.action,
   });
 
   OrderDetailsModel copyWith({
@@ -116,6 +122,9 @@ class OrderDetailsModel {
     List<String>? files,
     bool? isCancelRequested,
     String? cancelRequestedAt,
+    String? acceptDeadline,
+    String? proofReviewDeadline,
+    String? action,
   }) {
     return OrderDetailsModel(
       id: id ?? this.id,
@@ -147,14 +156,56 @@ class OrderDetailsModel {
       buyerId: buyerId ?? this.buyerId,
       timeline: timeline ?? this.timeline,
       proofUrl: proofUrl ?? this.proofUrl,
-      isCancalProofSubmitted: isCancalProofSubmitted ?? this.isCancalProofSubmitted,
-      captionOrInstructions: captionOrInstructions ?? this.captionOrInstructions,
+      isCancalProofSubmitted:
+          isCancalProofSubmitted ?? this.isCancalProofSubmitted,
+      captionOrInstructions:
+          captionOrInstructions ?? this.captionOrInstructions,
       specialNotes: specialNotes ?? this.specialNotes,
       promotionDate: promotionDate ?? this.promotionDate,
       files: files ?? this.files,
       isCancelRequested: isCancelRequested ?? this.isCancelRequested,
       cancelRequestedAt: cancelRequestedAt ?? this.cancelRequestedAt,
+      acceptDeadline: acceptDeadline ?? this.acceptDeadline,
+      proofReviewDeadline: proofReviewDeadline ?? this.proofReviewDeadline,
+      action: action ?? this.action,
     );
+  }
+
+  DateTime? get acceptDeadlineDateTime {
+    if (acceptDeadline == null || acceptDeadline!.isEmpty) return null;
+    return DateTime.tryParse(acceptDeadline!)?.toLocal();
+  }
+
+  DateTime? get proofReviewDeadlineDateTime {
+    if (proofReviewDeadline == null || proofReviewDeadline!.isEmpty)
+      return null;
+    return DateTime.tryParse(proofReviewDeadline!)?.toLocal();
+  }
+
+  Duration? get acceptTimeRemaining {
+    final dt = acceptDeadlineDateTime;
+    if (dt == null) return null;
+    return dt.difference(DateTime.now());
+  }
+
+  Duration? get proofReviewTimeRemaining {
+    final dt = proofReviewDeadlineDateTime;
+    if (dt == null) return null;
+    return dt.difference(DateTime.now());
+  }
+
+  bool get isAcceptDeadlineActive {
+    final s = status.toUpperCase().trim();
+    return s == 'PENDING' &&
+        acceptDeadline != null &&
+        acceptDeadline!.isNotEmpty;
+  }
+
+  bool get isProofReviewDeadlineActive {
+    final s = status.toUpperCase().trim();
+    return s == 'PROOF_SUBMITTED' &&
+        proofReviewDeadline != null &&
+        proofReviewDeadline!.isNotEmpty;
   }
 
   factory OrderDetailsModel.fromJson(Map<String, dynamic> json) {
@@ -266,9 +317,7 @@ class OrderDetailsModel {
     List<String> filesList = [];
     if (json['files'] != null) {
       if (json['files'] is List) {
-        filesList = (json['files'] as List)
-            .map((e) => e.toString())
-            .toList();
+        filesList = (json['files'] as List).map((e) => e.toString()).toList();
       } else if (json['files'] is String) {
         filesList = [json['files'].toString()];
       }
@@ -281,11 +330,31 @@ class OrderDetailsModel {
       'order_created',
     ], '');
     final inProgressAt = pickString(['inProgressAt', 'in_progress_at'], '');
-    final proofSubmittedAt = pickString(['proofSubmittedAt', 'proof_submitted_at'], '');
+    final proofSubmittedAt = pickString([
+      'proofSubmittedAt',
+      'proof_submitted_at',
+    ], '');
     final resubmitAt = pickString(['resubmitAt', 'resubmit_at'], '');
-    final releasedAt = pickString(['releasedAt', 'released_at'], '');
+    final releasedAt = pickString([
+      'releasedAt',
+      'released_at',
+      'completedAt',
+      'completed_at',
+    ], '');
     final cancelledAt = pickString(['cancelledAt', 'cancelled_at'], '');
-    final cancelRequestedAt = pickString(['cancelRequestedAt', 'cancel_requested_at'], '');
+    final cancelRequestedAt = pickString([
+      'cancelRequestedAt',
+      'cancel_requested_at',
+    ], '');
+    final acceptDeadline = pickString([
+      'acceptDeadline',
+      'accept_deadline',
+    ], '');
+    final proofReviewDeadline = pickString([
+      'proofReviewDeadline',
+      'proof_review_deadline',
+    ], '');
+    final actionStr = pickString(['action'], '');
 
     final result = OrderDetailsModel(
       id: pickString(['id']),
@@ -309,7 +378,14 @@ class OrderDetailsModel {
       proofSubmittedAt: proofSubmittedAt,
       resubmitAt: resubmitAt,
       releasedAt: releasedAt,
-      deliveryDate: pickString(['deliveryDate'], ''),
+      deliveryDate: pickString([
+        'deliveryDate',
+        'delivery_date',
+        'deliveredAt',
+        'delivered_at',
+        'deliveredDate',
+        'delivered_date',
+      ], ''),
       cancelledAt: cancelledAt,
       servicePrice: servicePrice,
       platformRate: pickString(['platformFee_percents'], ''),
@@ -323,16 +399,27 @@ class OrderDetailsModel {
       files: filesList,
       isCancelRequested: isCancelRequested,
       cancelRequestedAt: cancelRequestedAt,
+      acceptDeadline: acceptDeadline.isNotEmpty ? acceptDeadline : null,
+      proofReviewDeadline: proofReviewDeadline.isNotEmpty
+          ? proofReviewDeadline
+          : null,
+      action: actionStr.isNotEmpty ? actionStr : null,
       timeline: (() {
         final rawTimeline = json['timeline'] as List<dynamic>?;
         final statusStr = pickString(['status'], '').toUpperCase();
 
         if (rawTimeline != null && rawTimeline.isNotEmpty) {
           final parsed = rawTimeline
-              .map((item) => OrderTimelineStep.fromJson(item as Map<String, dynamic>))
+              .map(
+                (item) =>
+                    OrderTimelineStep.fromJson(item as Map<String, dynamic>),
+              )
               .toList();
 
-          final isCompletedAll = statusStr == 'RELEASED' || statusStr == 'COMPLETE' || statusStr == 'COMPLETED';
+          final isCompletedAll =
+              statusStr == 'RELEASED' ||
+              statusStr == 'COMPLETE' ||
+              statusStr == 'COMPLETED';
 
           return List.generate(parsed.length, (i) {
             final step = parsed[i];
@@ -361,7 +448,8 @@ class OrderDetailsModel {
           'description',
         ], '');
 
-        final isResubmitState = statusStr == 'RESUBMIT' || isCancalProofSubmitted;
+        final isResubmitState =
+            statusStr == 'RESUBMIT' || isCancalProofSubmitted;
 
         final List<OrderTimelineStep> stepsList = [];
 
@@ -377,7 +465,9 @@ class OrderDetailsModel {
         // 2. In Progress / Reviewed step (IN_PROGRESS -> inProgressAt)
         final inProgressDate = inProgressAt.isNotEmpty
             ? inProgressAt
-            : (statusStr != 'PENDING' ? (updated.isNotEmpty ? updated : created) : '');
+            : (statusStr != 'PENDING'
+                  ? (updated.isNotEmpty ? updated : created)
+                  : '');
         stepsList.add(
           OrderTimelineStep(
             title: 'Waiting to be Reviewed',
@@ -389,14 +479,19 @@ class OrderDetailsModel {
         // 3. Proof Submitted step (PROOF_SUBMITTED -> proofSubmittedAt)
         final proofDate = proofSubmittedAt.isNotEmpty
             ? proofSubmittedAt
-            : ((statusStr == 'PROOF_SUBMITTED' || isResubmitState || statusStr == 'RELEASED')
-                ? updated
-                : '');
+            : ((statusStr == 'PROOF_SUBMITTED' ||
+                      isResubmitState ||
+                      statusStr == 'RELEASED')
+                  ? updated
+                  : '');
         stepsList.add(
           OrderTimelineStep(
             title: 'Waiting for proof',
             dateTime: proofDate,
-            isCompleted: statusStr == 'PROOF_SUBMITTED' || statusStr == 'RELEASED' || proofSubmittedAt.isNotEmpty,
+            isCompleted:
+                statusStr == 'PROOF_SUBMITTED' ||
+                statusStr == 'RELEASED' ||
+                proofSubmittedAt.isNotEmpty,
           ),
         );
 
@@ -415,18 +510,39 @@ class OrderDetailsModel {
 
         // 5. Completed / Cancelled step (RELEASED -> releasedAt, CANCELLED -> cancelledAt)
         final isCancelled = statusStr == 'CANCELLED';
-        final isReleased = statusStr == 'RELEASED' || statusStr == 'COMPLETE' || statusStr == 'COMPLETED';
+        final isReleased =
+            statusStr == 'RELEASED' ||
+            statusStr == 'COMPLETE' ||
+            statusStr == 'COMPLETED';
         final completedDate = isCancelled
             ? (cancelledAt.isNotEmpty ? cancelledAt : updated)
             : (releasedAt.isNotEmpty
-                ? releasedAt
-                : (isReleased ? (updated.isNotEmpty ? updated : delivery) : ''));
+                  ? releasedAt
+                  : (isReleased
+                        ? (updated.isNotEmpty ? updated : delivery)
+                        : ''));
+
+        String terminalTitle;
+        if (isCancelled) {
+          terminalTitle = actionStr == 'AUTO_CANCEL_UNACCEPTED'
+              ? 'Auto-cancelled (Acceptance Expired)'
+              : 'Order Cancelled';
+        } else if (isReleased) {
+          terminalTitle = actionStr == 'AUTO_RELEASE'
+              ? 'Completed (Auto-released)'
+              : 'Completed';
+        } else {
+          terminalTitle = 'Completed';
+        }
 
         stepsList.add(
           OrderTimelineStep(
-            title: isCancelled ? 'Order Cancelled' : 'Completed',
+            title: terminalTitle,
             dateTime: completedDate,
-            isCompleted: isReleased || isCancelled || (isCancelled ? cancelledAt.isNotEmpty : releasedAt.isNotEmpty),
+            isCompleted:
+                isReleased ||
+                isCancelled ||
+                (isCancelled ? cancelledAt.isNotEmpty : releasedAt.isNotEmpty),
           ),
         );
 
