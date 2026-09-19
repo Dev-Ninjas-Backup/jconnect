@@ -3,6 +3,12 @@ allprojects {
         google()
         mavenCentral()
     }
+    // Stripe's push-provisioning module (NFC card provisioning) requires a special
+    // Google agreement and its dependency 'play-services-tapandpay' is not available
+    // in any public Maven repository. Exclude it to allow the build to succeed.
+    configurations.configureEach {
+        exclude(group = "com.stripe", module = "stripe-android-issuing-push-provisioning")
+    }
 }
 
 val newBuildDir: Directory =

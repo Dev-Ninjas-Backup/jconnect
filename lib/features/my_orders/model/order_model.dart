@@ -15,6 +15,12 @@ class OrderModel {
   final String sellerImageUrl;
   final String createdAt;
   final String updatedAt;
+  final bool isCancelRequested;
+  final String cancelRequestedAt;
+
+  final String? acceptDeadline;
+  final String? proofReviewDeadline;
+  final String? action;
 
   OrderModel({
     required this.title,
@@ -32,10 +38,28 @@ class OrderModel {
     this.sellerImageUrl = '',
     this.createdAt = '',
     this.updatedAt = '',
+    this.isCancelRequested = false,
+    this.cancelRequestedAt = '',
+    this.acceptDeadline,
+    this.proofReviewDeadline,
+    this.action,
     this.raw,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
+    final bool isCancelReq = json['isCancelRequested'] == true ||
+        json['isCancelRequested'] == 1 ||
+        json['isCancelRequested'] == '1' ||
+        json['isCancelRequested'] == 'true';
+    final String cancelReqAt =
+        (json['cancelRequestedAt'] ?? json['cancel_requested_at'] ?? '')
+            .toString();
+    final String? acceptDl = json['acceptDeadline']?.toString() ??
+        json['accept_deadline']?.toString();
+    final String? proofDl = json['proofReviewDeadline']?.toString() ??
+        json['proof_review_deadline']?.toString();
+    final String? actionStr = json['action']?.toString();
+
     return OrderModel(
       title: json['service']?['serviceName'] ?? '',
       platform: json['service']?['serviceType'] ?? '',
@@ -53,10 +77,28 @@ class OrderModel {
       sellerImageUrl: json['buyer']?['profilePhoto'] ?? json['buyer']?['imageUrl'] ?? '',
       createdAt: json['createdAt'] ?? '',
       updatedAt: json['updatedAt'] ?? json['createdAt'] ?? '',
+      isCancelRequested: isCancelReq,
+      cancelRequestedAt: cancelReqAt,
+      acceptDeadline: acceptDl,
+      proofReviewDeadline: proofDl,
+      action: actionStr,
     );
   }
 
   factory OrderModel.fromPaidOrderJson(Map<String, dynamic> json) {
+    final bool isCancelReq = json['isCancelRequested'] == true ||
+        json['isCancelRequested'] == 1 ||
+        json['isCancelRequested'] == '1' ||
+        json['isCancelRequested'] == 'true';
+    final String cancelReqAt =
+        (json['cancelRequestedAt'] ?? json['cancel_requested_at'] ?? '')
+            .toString();
+    final String? acceptDl = json['acceptDeadline']?.toString() ??
+        json['accept_deadline']?.toString();
+    final String? proofDl = json['proofReviewDeadline']?.toString() ??
+        json['proof_review_deadline']?.toString();
+    final String? actionStr = json['action']?.toString();
+
     return OrderModel(
       title: json['service']?['serviceName'] ?? '',
       platform: json['service']?['serviceType'] ?? '',
@@ -76,6 +118,11 @@ class OrderModel {
       sellerImageUrl: json['seller']?['profilePhoto'] ?? json['seller']?['imageUrl'] ?? '',
       createdAt: json['createdAt'] ?? '',
       updatedAt: json['updatedAt'] ?? json['createdAt'] ?? '',
+      isCancelRequested: isCancelReq,
+      cancelRequestedAt: cancelReqAt,
+      acceptDeadline: acceptDl,
+      proofReviewDeadline: proofDl,
+      action: actionStr,
     );
   }
 
@@ -97,6 +144,11 @@ class OrderModel {
     String? sellerImageUrl,
     String? createdAt,
     String? updatedAt,
+    bool? isCancelRequested,
+    String? cancelRequestedAt,
+    String? acceptDeadline,
+    String? proofReviewDeadline,
+    String? action,
   }) {
     return OrderModel(
       title: title ?? this.title,
@@ -115,7 +167,44 @@ class OrderModel {
       sellerImageUrl: sellerImageUrl ?? this.sellerImageUrl,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      isCancelRequested: isCancelRequested ?? this.isCancelRequested,
+      cancelRequestedAt: cancelRequestedAt ?? this.cancelRequestedAt,
+      acceptDeadline: acceptDeadline ?? this.acceptDeadline,
+      proofReviewDeadline: proofReviewDeadline ?? this.proofReviewDeadline,
+      action: action ?? this.action,
     );
+  }
+
+  DateTime? get acceptDeadlineDateTime {
+    if (acceptDeadline == null || acceptDeadline!.isEmpty) return null;
+    return DateTime.tryParse(acceptDeadline!)?.toLocal();
+  }
+
+  DateTime? get proofReviewDeadlineDateTime {
+    if (proofReviewDeadline == null || proofReviewDeadline!.isEmpty) return null;
+    return DateTime.tryParse(proofReviewDeadline!)?.toLocal();
+  }
+
+  Duration? get acceptTimeRemaining {
+    final dt = acceptDeadlineDateTime;
+    if (dt == null) return null;
+    return dt.difference(DateTime.now());
+  }
+
+  Duration? get proofReviewTimeRemaining {
+    final dt = proofReviewDeadlineDateTime;
+    if (dt == null) return null;
+    return dt.difference(DateTime.now());
+  }
+
+  bool get isAcceptDeadlineActive {
+    final s = status.toUpperCase().trim();
+    return s == 'PENDING' && acceptDeadline != null && acceptDeadline!.isNotEmpty;
+  }
+
+  bool get isProofReviewDeadlineActive {
+    final s = status.toUpperCase().trim();
+    return s == 'PROOF_SUBMITTED' && proofReviewDeadline != null && proofReviewDeadline!.isNotEmpty;
   }
 
   /// Returns a suitable status message based on status and order type
@@ -123,13 +212,40 @@ class OrderModel {
     final s = status.toUpperCase().trim();
     final isReceived = type == 'Received';
 
+    if (isCancelRequested && !s.contains('CANCEL') && !s.contains('COMPLET') && !s.contains('RELEASE')) {
+      return isReceived
+          ? 'Cancellation requested by buyer'
+          : 'Cancellation requested — waiting for creator';
+    }
+
     if (s.contains('CANCEL') || s.contains('REJECT')) {
+      if (action == 'AUTO_CANCEL_UNACCEPTED') {
+        return isReceived
+            ? 'Order expired (acceptance window missed)'
+            : 'Order cancelled — refund issued';
+      }
       return 'Order cancelled';
     } else if (s.contains('COMPLET') || s.contains('RELEASE')) {
+      if (action == 'AUTO_RELEASE') {
+        return isReceived
+            ? 'Order auto-released & funds transferred'
+            : 'Order completed (auto-released)';
+      }
       return isReceived
           ? 'Order completed & funds released'
           : 'Order completed';
     } else if (s.contains('PROOF') || s.contains('SUBMIT')) {
+      if (isProofReviewDeadlineActive && !isCancelRequested) {
+        final rem = proofReviewTimeRemaining;
+        if (rem != null && !rem.isNegative) {
+          final h = rem.inHours;
+          final m = rem.inMinutes % 60;
+          final timeStr = '${h}h ${m}m';
+          return isReceived
+              ? 'Proof submitted — auto-releases in $timeStr'
+              : 'Review proof within $timeStr or auto-releases';
+        }
+      }
       return isReceived
           ? 'Proof submitted, awaiting review'
           : 'Proof submitted, review required';
@@ -138,6 +254,17 @@ class OrderModel {
           ? 'Order in progress'
           : 'Creator is working on order';
     } else if (s.contains('PENDING') || s.contains('PAYMENT')) {
+      if (isAcceptDeadlineActive) {
+        final rem = acceptTimeRemaining;
+        if (rem != null && !rem.isNegative) {
+          final h = rem.inHours;
+          final m = rem.inMinutes % 60;
+          final timeStr = '${h}h ${m}m';
+          return isReceived
+              ? 'Action required — accept within $timeStr'
+              : 'Waiting for creator to accept — expires in $timeStr';
+        }
+      }
       return isReceived
           ? 'Order received, action required'
           : 'Order placed, payment processed';

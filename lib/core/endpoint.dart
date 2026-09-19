@@ -69,6 +69,8 @@ class Endpoint {
       "$baseUrl/aws-file-upload-additional-all/upload-image-single";
   static String cancelProof(String id, {bool isCancalProofSubmitted = true}) =>
       "$baseUrl/orders/$id/cancel-proof?isCancalProofSubmitted=$isCancalProofSubmitted";
+  static String declineCancelRequest(String id) =>
+      "$baseUrl/orders/$id/cancel-request/decline";
   static String orderDetails(String id) => "$baseUrl/orders/$id";
   // static String uploadServiceRequestFiles(String id) =>
   //     "$baseUrl/service-requests/$id/uploaded-files";

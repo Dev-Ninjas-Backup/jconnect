@@ -43,7 +43,9 @@ class OrderSocketService {
     final rawToken = token.startsWith('Bearer ') ? token.substring(7) : token;
     final formattedToken = 'Bearer $rawToken';
 
-    debugPrint('🔄 Connecting to Order socket namespace: ${Endpoint.orderSocketIO}');
+    debugPrint(
+      '🔄 Connecting to Order socket namespace: ${Endpoint.orderSocketIO}',
+    );
     debugPrint('🔑 Auth Token: $formattedToken');
 
     socket = IO.io(
@@ -71,7 +73,9 @@ class OrderSocketService {
 
     socket!.onConnectError((err) {
       debugPrint('⚠️ Order socket connect error: $err');
-      _eventController.add(OrderSocketEvent('order:error', {'message': err.toString()}));
+      _eventController.add(
+        OrderSocketEvent('order:error', {'message': err.toString()}),
+      );
     });
 
     // Server -> Client events
@@ -110,9 +114,18 @@ class OrderSocketService {
       _eventController.add(OrderSocketEvent('order:cancelled', data));
     });
 
+    socket!.on('order:cancel_request_declined', (data) {
+      debugPrint('📩 Order cancel request declined: $data');
+      _eventController.add(
+        OrderSocketEvent('order:cancel_request_declined', data),
+      );
+    });
+
     socket!.on('order:delivery_date_updated', (data) {
       debugPrint('📩 Order delivery date updated: $data');
-      _eventController.add(OrderSocketEvent('order:delivery_date_updated', data));
+      _eventController.add(
+        OrderSocketEvent('order:delivery_date_updated', data),
+      );
     });
 
     socket!.on('order:proof_cancelled', (data) {
@@ -144,11 +157,15 @@ class OrderSocketService {
       socket!.emit('order:join_order', orderId);
       debugPrint('📤 Emitted joinOrder room for orderId: $orderId');
     } else {
-      debugPrint('⏳ Socket not connected yet. Queueing joinOrder room for orderId: $orderId on next connect.');
+      debugPrint(
+        '⏳ Socket not connected yet. Queueing joinOrder room for orderId: $orderId on next connect.',
+      );
       socket!.once('connect', (_) {
         if (socket?.connected == true) {
           socket!.emit('order:join_order', orderId);
-          debugPrint('📤 Emitted joinOrder room for orderId: $orderId (on connect callback)');
+          debugPrint(
+            '📤 Emitted joinOrder room for orderId: $orderId (on connect callback)',
+          );
         }
       });
     }

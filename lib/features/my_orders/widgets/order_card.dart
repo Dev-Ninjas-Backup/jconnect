@@ -100,6 +100,31 @@ class OrderCard extends StatelessWidget {
     final formattedDateTime = _formatDateTime(dateToUse);
     final formattedAgo = _formatDate(dateToUse);
 
+    String? deadlineBadgeText;
+    Color? deadlineBadgeColor;
+    if (order.isAcceptDeadlineActive) {
+      final rem = order.acceptTimeRemaining;
+      if (rem != null && !rem.isNegative) {
+        final h = rem.inHours;
+        final m = rem.inMinutes % 60;
+        deadlineBadgeText = 'Expires in ${h}h ${m}m';
+        deadlineBadgeColor = const Color(0xFFF59E0B);
+      }
+    } else if (order.isProofReviewDeadlineActive) {
+      if (order.isCancelRequested) {
+        deadlineBadgeText = 'Release paused';
+        deadlineBadgeColor = const Color(0xFFF59E0B);
+      } else {
+        final rem = order.proofReviewTimeRemaining;
+        if (rem != null && !rem.isNegative) {
+          final h = rem.inHours;
+          final m = rem.inMinutes % 60;
+          deadlineBadgeText = 'Auto-release in ${h}h ${m}m';
+          deadlineBadgeColor = const Color(0xFF3B82F6);
+        }
+      }
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -186,6 +211,33 @@ class OrderCard extends StatelessWidget {
                                     ),
                                   ),
                                 ),
+                                if (deadlineBadgeText != null) ...[
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 1.5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: (deadlineBadgeColor ?? statusColor)
+                                          .withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(
+                                        color: (deadlineBadgeColor ?? statusColor)
+                                            .withValues(alpha: 0.3),
+                                        width: 0.8,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      deadlineBadgeText,
+                                      style: getTextStyle(
+                                        color: deadlineBadgeColor ?? statusColor,
+                                        fontweight: FontWeight.w600,
+                                        fontsize: 9.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                             if (formattedDateTime.isNotEmpty) ...[

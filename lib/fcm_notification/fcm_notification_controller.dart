@@ -506,7 +506,7 @@ class FcmNotificationController extends GetxController {
         _log('   isServiceRequestMessage=$isServiceRequestMessage');
 
         if (isServiceRequestMessage) {
-           // Except if it is a decline notification, but we handled 'decline' above.
+          // Except if it is a decline notification, but we handled 'decline' above.
           _log('➡️ Routing to notification screen (Service Request Message)');
           Get.offAllNamed(AppRoute.navBarScreen);
 
@@ -753,13 +753,18 @@ class FcmNotificationController extends GetxController {
       return 'repost';
     }
 
-    // ✅ Match order, payment, and proof notifications
+    // ✅ Match order, payment, auto-expiry, and proof notifications
+    final rtUpper = rawType?.toUpperCase().trim() ?? '';
     if (descriptor.contains('order') ||
         descriptor.contains('payment') ||
         descriptor.contains('proof') ||
-        rawType?.toLowerCase() == 'order' ||
-        rawType?.toLowerCase() == 'payment') {
-      _log('   ✅ Matched: order (payment/proof)');
+        rtUpper == 'ORDER' ||
+        rtUpper == 'PAYMENT' ||
+        rtUpper == 'UPLOAD_PROOF' ||
+        rtUpper == 'ORDER_AUTO_CANCELLED' ||
+        rtUpper == 'ORDER_UPDATE' ||
+        rtUpper == 'PAYMENT_RECEIVED') {
+      _log('   ✅ Matched: order ($rawType / payment / proof / auto-expiry)');
       return 'order';
     }
 
@@ -824,7 +829,7 @@ class FcmNotificationController extends GetxController {
           _log('   Found existing chat! Using participant info from there');
           resolvedChatItem = existingChat;
           chatId ??= existingChat.chatId;
-          
+
           final existingParticipant = existingChat.participant;
           if (existingParticipant != null) {
             username ??=
@@ -907,6 +912,19 @@ class FcmNotificationController extends GetxController {
         final text = value.toString().trim();
         if (text.isNotEmpty && text.toLowerCase() != 'null') {
           _log('      Found in meta, key "$key": $text');
+          return text;
+        }
+      }
+    }
+
+    final nestedData = data['data'];
+    if (nestedData is Map<String, dynamic>) {
+      for (final key in keys) {
+        final value = nestedData[key];
+        if (value == null) continue;
+        final text = value.toString().trim();
+        if (text.isNotEmpty && text.toLowerCase() != 'null') {
+          _log('      Found in nested data, key "$key": $text');
           return text;
         }
       }

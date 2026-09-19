@@ -14,12 +14,10 @@ class StripeKey {
     try {
       final response = await http.get(
         Uri.parse('${Endpoint.baseUrl}/payments/stripe-public-key'),
-        headers: {
-          'accept': '*/*',
-        },
+        headers: {'accept': '*/*'},
       );
 
-      if (response.statusCode == 200|| response.statusCode==201) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final data = json.decode(response.body);
         _stripeKey = data['stripePublicKey'];
         return _stripeKey!;

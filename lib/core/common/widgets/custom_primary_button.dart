@@ -41,13 +41,14 @@ class CustomPrimaryButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
+          alignment: Alignment.center,
           minimumSize: Size(buttonWidth ?? double.infinity, buttonHeight ?? 48),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         onPressed: onTap,
         child: Text(
           buttonText,
-
+          textAlign: TextAlign.center,
           style: getTextStyle(
             color: AppColors.primaryTextColor,
             fontsize: fontSize ?? 16,
