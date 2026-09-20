@@ -33,6 +33,7 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
+
 void configEasyLoading() {
   EasyLoading.instance
     ..loadingStyle = EasyLoadingStyle.custom
