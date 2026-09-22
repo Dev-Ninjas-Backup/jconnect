@@ -17,32 +17,26 @@ class OnboardingScreen extends StatelessWidget {
     final pages = [
       OnboardingMainWidget(
         image: Imagepath.onboarding1,
-        // title: 'Connect. Collaborate. Create.',
-        // subtitle: 'Join a global network of DJs, artists, and influencers.',
-        title: "IF NOBODY SEES IT, NOTINGS MATTERS",
-        subtitle: "Greate work can't create opportunity until it's seen.",
+        title: "GET SEEN.",
+        highlightText: "SEEN.",
+        subtitle:
+            "The right people create opportunity.\nDa Connect helps you get in front of them.",
         buttonText: 'Next',
         onPressed: controller.nextPage,
       ),
       OnboardingMainWidget(
         image: Imagepath.onboarding2,
-        // title: 'Turn your talent into real deals.',
-        // subtitle:
-        //     'Post your services, get discovered, and collaborate securely.',
-        title: "CREATE OPPORTUNITY",
-
-        subtitle: "Opportunity isn't found. It's create.",
+        title: "BUY IT. SELL IT.\nCONNECT.",
+        highlightText: "CONNECT.",
+        subtitle: "Find what you need. Offer what you have.",
         buttonText: 'Next',
         onPressed: controller.nextPage,
       ),
       OnboardingMainWidget(
         image: Imagepath.onboarding3,
-       // title: 'Let the Collabs Begin.',
-
-        // subtitle:
-        //     'Connect, share vibes, and grow your sound — all in one place.',
-               title: "CREATE WITH CONFIDENCE",
-               subtitle: "Every order is protected form payment to proof",
+        title: "EVERYBODY IS A CONNECT.",
+        highlightText: "CONNECT.",
+        subtitle: "Build your profile, showcase your work, and connect with real opportunities.",
         buttonText: 'Get Started',
         onPressed: () {
           Get.toNamed(AppRoute.loginScreen);
