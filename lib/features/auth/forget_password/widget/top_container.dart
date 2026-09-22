@@ -4,10 +4,7 @@ import 'package:jconnect/core/common/constants/imagepath.dart';
 import 'package:jconnect/core/common/style/global_text_style.dart';
 
 class TopContainer extends StatelessWidget {
-  const TopContainer({
-    super.key,
-    required this.size,
-  });
+  const TopContainer({super.key, required this.size});
 
   final double size;
 
@@ -32,7 +29,7 @@ class TopContainer extends StatelessWidget {
               style: getTextStyle(
                 fontsize: 15,
                 fontweight: FontWeight.w500,
-                color: AppColors.secondaryTextColor,
+                color: AppColors.backGroundColor,
               ),
               textAlign: TextAlign.center,
             ),
