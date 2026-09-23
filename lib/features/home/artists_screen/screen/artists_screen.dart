@@ -19,6 +19,7 @@ class ArtistsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.backGroundColor,
       body: SingleChildScrollView(
+        controller: controller.scrollController,
         child: Padding(
           padding: EdgeInsets.only(
             left: 7.w,
@@ -57,16 +58,15 @@ class ArtistsScreen extends StatelessWidget {
                               color: AppColors.secondaryTextColor,
                             ),
                             onPressed: () {
-                              controller.searchTextController.clear();
-                              controller.searchArtistItems.clear();
+                              controller.clearSearch();
                             },
                           )
                         : null,
                     onChanged: (val) {
                       if (val.trim().isEmpty) {
-                        controller.searchArtistItems.clear();
+                        controller.clearSearch();
                       } else {
-                        controller.searchArtistByName(val);
+                        controller.searchArtistByName(val, isLoadMore: false);
                       }
                     },
                   );

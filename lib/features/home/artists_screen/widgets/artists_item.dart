@@ -45,7 +45,7 @@ class ArtistsItem extends StatelessWidget {
 
       final isSearchActive = controller.searchTextController.text.trim().isNotEmpty;
 
-      //  Search first
+      // Search first
       if (isSearchActive && controller.searchArtistItems.isNotEmpty) {
         currentList = controller.searchArtistItems;
 
@@ -69,7 +69,7 @@ class ArtistsItem extends StatelessWidget {
         // Search screen — always show all artists, no tab/category filter
         currentList = controller.artistsItems;
       }
-      //  Tab index selection (ArtistsScreen only)
+      // Tab index selection (ArtistsScreen only)
       else if (controller.selectArtistsItemIndex.value == 0) {
         currentList = controller.artistsItems;
       } else if (controller.selectArtistsItemIndex.value == 1) {
@@ -82,11 +82,7 @@ class ArtistsItem extends StatelessWidget {
 
       // Category filter — applies to ArtistsScreen always (search or not), skipped for SearchScreen
       if (!disableFilter) {
-        final categoryType = controller.selectedCategoryIndex.value == 0
-            ? "SOCIAL_POST"
-            : controller.selectedCategoryIndex.value == 1
-                ? "REPOST"
-                : "SERVICE";
+        final categoryType = controller.currentCategoryString;
 
         currentList = currentList.where((artist) {
           if (categoryType == "REPOST" && artist.repostPrice > 0) {
@@ -95,7 +91,6 @@ class ArtistsItem extends StatelessWidget {
           return artist.services.any((s) => s.serviceType == categoryType);
         }).toList();
       }
-
 
       bool isTabLoading = false;
       if (controller.selectArtistsItemIndex.value == 0) {
@@ -174,8 +169,7 @@ class ArtistsItem extends StatelessWidget {
                   SizedBox(height: 20.h),
                   GestureDetector(
                     onTap: () {
-                      controller.searchTextController.clear();
-                      controller.searchArtistItems.clear();
+                      controller.clearSearch();
                     },
                     child: Container(
                       padding: EdgeInsets.symmetric(
@@ -219,44 +213,64 @@ class ArtistsItem extends StatelessWidget {
 
       final rowCount = (currentList.length + 1) ~/ 2;
 
-      return ListView.builder(
-        padding: EdgeInsets.zero,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: rowCount,
-        itemBuilder: (context, rowIndex) {
-          final leftIndex = rowIndex * 2;
-          final rightIndex = leftIndex + 1;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListView.builder(
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: rowCount,
+            itemBuilder: (context, rowIndex) {
+              final leftIndex = rowIndex * 2;
+              final rightIndex = leftIndex + 1;
 
-          return Padding(
-            padding: EdgeInsets.only(bottom: 15),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: ArtistCard(
-                    artist: currentList[leftIndex],
-                    onInquiryTap: () async {
-                      await controller.sendInquiry(userID: currentList[leftIndex].id);
-                    },
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 15),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: ArtistCard(
+                        artist: currentList[leftIndex],
+                        onInquiryTap: () async {
+                          await controller.sendInquiry(userID: currentList[leftIndex].id);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    if (rightIndex < currentList.length)
+                      Expanded(
+                        child: ArtistCard(
+                          artist: currentList[rightIndex],
+                          onInquiryTap: () async {
+                            await controller.sendInquiry(userID: currentList[rightIndex].id);
+                          },
+                        ),
+                      )
+                    else
+                      const Expanded(child: SizedBox()),
+                  ],
+                ),
+              );
+            },
+          ),
+          if (controller.isLoadingMore.value)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 20.h),
+              child: Center(
+                child: SizedBox(
+                  height: 26.h,
+                  width: 26.h,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: AppColors.redColor,
                   ),
                 ),
-                const SizedBox(width: 8),
-                if (rightIndex < currentList.length)
-                  Expanded(
-                    child: ArtistCard(
-                      artist: currentList[rightIndex],
-                      onInquiryTap: () async {
-                        await controller.sendInquiry(userID: currentList[rightIndex].id);
-                      },
-                    ),
-                  )
-                else
-                  const Expanded(child: SizedBox()),
-              ],
+              ),
             ),
-          );
-        },
+        ],
       );
     });
   }
