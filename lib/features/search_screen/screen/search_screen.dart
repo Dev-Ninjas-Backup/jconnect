@@ -30,6 +30,7 @@ class SearchScreen extends StatelessWidget {
             return Padding(
               padding: EdgeInsets.only(left: 7.w, right: 7.w, top: 74.h),
               child: SingleChildScrollView(
+                controller: controller.scrollController,
                 physics: const ScrollPhysics(),
                 child: Column(
                   children: [
@@ -52,16 +53,15 @@ class SearchScreen extends StatelessWidget {
                                     color: AppColors.secondaryTextColor,
                                   ),
                                   onPressed: () {
-                                    controller.searchTextController.clear();
-                                    controller.searchArtistItems.clear();
+                                    controller.clearSearch();
                                   },
                                 )
                               : null,
                           onChanged: (val) {
                             if (val.trim().isEmpty) {
-                              controller.searchArtistItems.clear();
+                              controller.clearSearch();
                             } else {
-                              controller.searchArtistByName(val);
+                              controller.searchArtistByName(val, isLoadMore: false);
                             }
                           },
                         );

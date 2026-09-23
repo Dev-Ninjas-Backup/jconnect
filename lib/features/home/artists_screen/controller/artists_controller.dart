@@ -12,15 +12,19 @@ import 'package:jconnect/features/home/home_screen/model/artists_model.dart';
 import 'package:jconnect/features/home/home_screen/services/home_service.dart';
 
 class ArtistsController extends GetxController {
-  final HomeService service = HomeService(
-    client: NetworkClient(
-      onUnAuthorize: () {
-        if (kDebugMode) {
-          print("unauthorized");
-        }
-      },
-    ),
-  );
+  HomeService service;
+
+  ArtistsController({HomeService? service})
+      : service = service ??
+            HomeService(
+              client: NetworkClient(
+                onUnAuthorize: () {
+                  if (kDebugMode) {
+                    print("unauthorized");
+                  }
+                },
+              ),
+            );
 
   SharedPreferencesHelperController sharedPreferencesHelperController =
       Get.find<SharedPreferencesHelperController>();
@@ -50,41 +54,139 @@ class ArtistsController extends GetxController {
   final topRatedArtistsList = <ArtistsModel>[].obs;
   final suggestedForYouList = <ArtistsModel>[].obs;
 
+  static const int pageLimit = 10;
+
+  int allArtistsPage = 1;
+  final RxBool hasMoreAll = true.obs;
+
+  int recentArtistsPage = 1;
+  final RxBool hasMoreRecent = true.obs;
+
+  int topRatedArtistsPage = 1;
+  final RxBool hasMoreTopRated = true.obs;
+
+  int suggestedArtistsPage = 1;
+  final RxBool hasMoreSuggested = true.obs;
+
+  int searchArtistsPage = 1;
+  final RxBool hasMoreSearch = true.obs;
+
+  final RxBool isLoadingMore = false.obs;
+  final ScrollController scrollController = ScrollController();
+
+  String get currentCategoryString {
+    if (selectedCategoryIndex.value == 0) return "SOCIAL_POST";
+    if (selectedCategoryIndex.value == 1) return "REPOST";
+    return "SERVICE";
+  }
+
   @override
   void onInit() {
-    fetchAllArtistsMethod();
-    fetchRecentArtists(category: "SOCIAL_POST");
-    fetchTopRatedArtistsMethod();
-    fetchSuggestedArtistsMethod();
+    scrollController.addListener(_scrollListener);
+
+    fetchAllArtistsMethod(isLoadMore: false);
+    fetchRecentArtists(category: "SOCIAL_POST", isLoadMore: false);
+    fetchTopRatedArtistsMethod(isLoadMore: false);
+    fetchSuggestedArtistsMethod(isLoadMore: false);
     super.onInit();
+  }
+
+  void _scrollListener() {
+    if (scrollController.hasClients) {
+      final maxScroll = scrollController.position.maxScrollExtent;
+      final currentScroll = scrollController.position.pixels;
+      if (maxScroll > 0 && currentScroll >= maxScroll - 250) {
+        loadMore();
+      }
+    }
+  }
+
+  void loadMore() {
+    if (isLoadingMore.value || isLoading.value) return;
+
+    final isSearchActive = searchTextController.text.trim().isNotEmpty;
+    if (isSearchActive) {
+      if (hasMoreSearch.value) {
+        searchArtistByName(searchTextController.text.trim(), isLoadMore: true);
+      }
+      return;
+    }
+
+    if (selectArtistsItemIndex.value == 0) {
+      if (hasMoreAll.value) {
+        fetchAllArtistsMethod(isLoadMore: true);
+      }
+    } else if (selectArtistsItemIndex.value == 1) {
+      if (hasMoreRecent.value) {
+        fetchRecentArtists(category: currentCategoryString, isLoadMore: true);
+      }
+    } else if (selectArtistsItemIndex.value == 2) {
+      if (hasMoreTopRated.value) {
+        fetchTopRatedArtistsMethod(isLoadMore: true);
+      }
+    } else if (selectArtistsItemIndex.value == 3) {
+      if (hasMoreSuggested.value) {
+        fetchSuggestedArtistsMethod(isLoadMore: true);
+      }
+    }
+  }
+
+  bool _determineHasMore(List<ArtistsModel> artists) {
+    if (artists is PaginatedList<ArtistsModel> && artists.hasMore != null) {
+      return artists.hasMore!;
+    }
+    return artists.length >= pageLimit;
   }
 
   void selectCategory(int index) {
     selectedCategoryIndex.value = index;
-    String category = "";
-    if (index == 0) category = "SOCIAL_POST";
-    if (index == 1) category = "REPOST";
-    if (index == 2) category = "SERVICE";
-    fetchRecentArtists(category: category);
+    fetchRecentArtists(category: currentCategoryString, isLoadMore: false);
   }
 
-  Future<void> fetchRecentArtists({String? category}) async {
+  Future<void> fetchRecentArtists({String? category, bool isLoadMore = false}) async {
+    if (isLoadMore) {
+      if (isLoadingMore.value || !hasMoreRecent.value) return;
+      isLoadingMore(true);
+      final nextPage = recentArtistsPage + 1;
+      try {
+        final artists = await service.fetchRecentArtist(
+          category: category ?? currentCategoryString,
+          page: nextPage,
+          limit: pageLimit,
+        );
+        recentArtistsPage = nextPage;
+        recentArtistsList.addAll(artists);
+        hasMoreRecent.value = _determineHasMore(artists);
+        debugPrint("Recent artists page $nextPage loaded: ${artists.length}");
+      } catch (e) {
+        debugPrint("Error loading more recent artists: $e");
+      } finally {
+        isLoadingMore(false);
+      }
+      return;
+    }
+
     isRecentLoading(true);
     isLoading(true);
     isError(false);
     errorMessage('');
+    recentArtistsPage = 1;
+    hasMoreRecent.value = true;
 
     try {
-      final artists = await service.fetchRecentArtist(category: category);
+      final artists = await service.fetchRecentArtist(
+        category: category ?? currentCategoryString,
+        page: 1,
+        limit: pageLimit,
+      );
 
       recentArtistsList.assignAll(artists);
-      debugPrint("Recent artists loaded: ${artists.length} for category: $category");
+      hasMoreRecent.value = _determineHasMore(artists);
+      debugPrint("Recent artists initial loaded: ${artists.length} for category: $category");
     } catch (e) {
       isError(true);
       errorMessage(e.toString());
-
       debugPrint("Error in ArtistsController: $e");
-
       EasyLoading.showError(
         "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
       );
@@ -94,23 +196,48 @@ class ArtistsController extends GetxController {
     }
   }
 
-  Future<void> fetchTopRatedArtistsMethod() async {
+  Future<void> fetchTopRatedArtistsMethod({bool isLoadMore = false}) async {
+    if (isLoadMore) {
+      if (isLoadingMore.value || !hasMoreTopRated.value) return;
+      isLoadingMore(true);
+      final nextPage = topRatedArtistsPage + 1;
+      try {
+        final artists = await service.fetchTopRatedArtist(
+          page: nextPage,
+          limit: pageLimit,
+        );
+        topRatedArtistsPage = nextPage;
+        topRatedArtistsList.addAll(artists);
+        hasMoreTopRated.value = _determineHasMore(artists);
+        debugPrint("TopRated artists page $nextPage loaded: ${artists.length}");
+      } catch (e) {
+        debugPrint("Error loading more top rated artists: $e");
+      } finally {
+        isLoadingMore(false);
+      }
+      return;
+    }
+
     isTopRatedLoading(true);
     isLoading(true);
     isError(false);
     errorMessage('');
+    topRatedArtistsPage = 1;
+    hasMoreTopRated.value = true;
 
     try {
-      final artists = await service.fetchTopRatedArtist();
+      final artists = await service.fetchTopRatedArtist(
+        page: 1,
+        limit: pageLimit,
+      );
 
       topRatedArtistsList.assignAll(artists);
+      hasMoreTopRated.value = _determineHasMore(artists);
       debugPrint("Toprated artists loaded: ${artists.length}");
     } catch (e) {
       isError(true);
       errorMessage(e.toString());
-
       debugPrint("Error in ArtistsController: $e");
-
       EasyLoading.showError(
         "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
       );
@@ -120,23 +247,48 @@ class ArtistsController extends GetxController {
     }
   }
 
-  Future<void> fetchSuggestedArtistsMethod() async {
+  Future<void> fetchSuggestedArtistsMethod({bool isLoadMore = false}) async {
+    if (isLoadMore) {
+      if (isLoadingMore.value || !hasMoreSuggested.value) return;
+      isLoadingMore(true);
+      final nextPage = suggestedArtistsPage + 1;
+      try {
+        final artists = await service.fetchSuggestedArtist(
+          page: nextPage,
+          limit: pageLimit,
+        );
+        suggestedArtistsPage = nextPage;
+        suggestedForYouList.addAll(artists);
+        hasMoreSuggested.value = _determineHasMore(artists);
+        debugPrint("Suggested artists page $nextPage loaded: ${artists.length}");
+      } catch (e) {
+        debugPrint("Error loading more suggested artists: $e");
+      } finally {
+        isLoadingMore(false);
+      }
+      return;
+    }
+
     isSuggestedLoading(true);
     isLoading(true);
     isError(false);
     errorMessage('');
+    suggestedArtistsPage = 1;
+    hasMoreSuggested.value = true;
 
     try {
-      final artists = await service.fetchSuggestedArtist();
+      final artists = await service.fetchSuggestedArtist(
+        page: 1,
+        limit: pageLimit,
+      );
 
       suggestedForYouList.assignAll(artists);
+      hasMoreSuggested.value = _determineHasMore(artists);
       debugPrint("Suggested artists loaded: ${artists.length}");
     } catch (e) {
       isError(true);
       errorMessage(e.toString());
-
       debugPrint("Error in ArtistsController: $e");
-
       EasyLoading.showError(
         "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
       );
@@ -146,23 +298,48 @@ class ArtistsController extends GetxController {
     }
   }
 
-  Future<void> fetchAllArtistsMethod() async {
+  Future<void> fetchAllArtistsMethod({bool isLoadMore = false}) async {
+    if (isLoadMore) {
+      if (isLoadingMore.value || !hasMoreAll.value) return;
+      isLoadingMore(true);
+      final nextPage = allArtistsPage + 1;
+      try {
+        final artists = await service.fetchAllArtist(
+          page: nextPage,
+          limit: pageLimit,
+        );
+        allArtistsPage = nextPage;
+        artistsItems.addAll(artists);
+        hasMoreAll.value = _determineHasMore(artists);
+        debugPrint("All artists page $nextPage loaded: ${artists.length}");
+      } catch (e) {
+        debugPrint("Error loading more all artists: $e");
+      } finally {
+        isLoadingMore(false);
+      }
+      return;
+    }
+
     isAllLoading(true);
     isLoading(true);
     isError(false);
     errorMessage('');
+    allArtistsPage = 1;
+    hasMoreAll.value = true;
 
     try {
-      final artists = await service.fetchAllArtist();
+      final artists = await service.fetchAllArtist(
+        page: 1,
+        limit: pageLimit,
+      );
 
       artistsItems.assignAll(artists);
-      debugPrint("All artists loaded: ${artists.length}");
+      hasMoreAll.value = _determineHasMore(artists);
+      debugPrint("All artists initial loaded: ${artists.length}");
     } catch (e) {
       isError(true);
       errorMessage(e.toString());
-
       debugPrint("Error in HomeController: $e");
-
       EasyLoading.showError(
         "Oops! ${e.toString().replaceFirst('Exception: ', '')}",
       );
@@ -172,28 +349,51 @@ class ArtistsController extends GetxController {
     }
   }
 
-  // Future<void> searchArtistByName(String name) async {
-  //   isLoading(true);
-  //   try {
-  //     final result = await service.searchArtist(name);
-  //     searchArtistItems.assignAll(result);
-  //   } catch (e) {
-  //     EasyLoading.showError("Search error: $e");
-  //   } finally {
-  //     isLoading(false);
-  //   }
-  // }
+  void clearSearch() {
+    searchTextController.clear();
+    searchArtistItems.clear();
+    searchArtistsPage = 1;
+    hasMoreSearch.value = true;
+  }
 
-  Future<void> searchArtistByName(String name) async {
+  Future<void> searchArtistByName(String name, {bool isLoadMore = false}) async {
     if (name.trim().isEmpty) {
-      searchArtistItems.clear();
+      clearSearch();
+      return;
+    }
+
+    if (isLoadMore) {
+      if (isLoadingMore.value || !hasMoreSearch.value) return;
+      isLoadingMore(true);
+      final nextPage = searchArtistsPage + 1;
+      try {
+        final result = await service.searchArtist(
+          name.trim(),
+          page: nextPage,
+          limit: pageLimit,
+        );
+        searchArtistsPage = nextPage;
+        searchArtistItems.addAll(result);
+        hasMoreSearch.value = _determineHasMore(result);
+      } catch (e) {
+        debugPrint("Error loading more search artists: $e");
+      } finally {
+        isLoadingMore(false);
+      }
       return;
     }
 
     isLoading(true);
+    searchArtistsPage = 1;
+    hasMoreSearch.value = true;
     try {
-      final result = await service.searchArtist(name);
+      final result = await service.searchArtist(
+        name.trim(),
+        page: 1,
+        limit: pageLimit,
+      );
       searchArtistItems.assignAll(result);
+      hasMoreSearch.value = _determineHasMore(result);
     } catch (e) {
       EasyLoading.showError("Search error: $e");
     } finally {
@@ -237,6 +437,8 @@ class ArtistsController extends GetxController {
   @override
   void onClose() {
     debugPrint("ArtistsController disposed");
+    scrollController.removeListener(_scrollListener);
+    scrollController.dispose();
     searchArtistItems.clear();
     super.onClose();
   }
